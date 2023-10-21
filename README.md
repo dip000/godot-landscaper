@@ -73,7 +73,21 @@ _Effect of density property showcase:_ <br />
 * This version does not support Compatibility renderer because of the use of shader instance variables (to increase performance)
 * Coloring the grass is optimized by using vertex colors. This means that the shader is only coloring as less as 4 vertex per instance (The vertices of a square)
 * You can actually set how many vertex to use per grass in the grass mesh resource. Of course, fewer subdivisions, worse color quality, and worse sway animation quality
-* You don't have to use the terrain shader in runtime. Just copy the baked images and use them in your own materials
+* You don't have to use the terrain shader in runtime. Just copy the baked images and use them in your own materials (this will be implemented in a button later in development)
+
+# Roadmap to Beta and Assets Library
+1. [ ] Asset Library friendly
+   - [ ] Icon size and format
+   - [ ] Update .gitignore for asset screenshots
+   - [ ] Copy the license inside the plugin folder
+   - [ ] Suppress print() calls
+   - [ ] In-code Documentation following [style guides](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html#doc-gdscript-styleguide)
+
+ 2. [ ] Save and bake textures, shaders, and materials in user folder
+    - [ ] Keep TerraBrush open for modifications
+    - [ ] Clear all plugin dependencies and close. Like in [this repository for shader showcases](https://github.com/dip000/my-godotshaders/tree/main/StylizedCartoonGrass)
+
+  3. [ ] Add support for cross-billboarding grass like in Minecraft
 
 # Author notes
 Hi, thanks for passing by!<br />
