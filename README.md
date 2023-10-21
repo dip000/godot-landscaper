@@ -1,5 +1,4 @@
 # TerraBrush [Godot 4 Plugin] [Alpha]
-**NOT ACTUALLY BEEN TESTED. WAIT A FEW DAYS. SORRY!**
 Texture-based multimesh scatterer and texturer using brushes.
 
 How To:
@@ -77,6 +76,6 @@ _Effect of density property showcase:_ <br />
 * You don't have to use the terrain shader in runtime. Just copy the baked images and use them in your own materials
 
 # Author notes
-Hi, thanks for passing by!
-I'm not quite sure if I missed any important detail that completely breaks this whole plugin so I'd be glad to hear what you have to say!
-See ya!
+Hi, thanks for passing by!<br />
+I'm not quite sure if I missed any important detail that completely breaks this whole plugin so I'd be glad to hear what you have to say!<br />
+See ya!<br />
