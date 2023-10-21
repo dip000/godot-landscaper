@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="32"
+   viewBox="0 0 32 32"
+   width="32"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:export-filename="C:\Users\ab-cb\Documents\GitHub\my-godotshaders\GrassPainter\addons\terra_grass\icon.png"
+   inkscape:export-xdpi="126"
+   inkscape:export-ydpi="126"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     showgrid="false"
+     inkscape:snap-global="false"
+     inkscape:zoom="16"
+     inkscape:cx="19.09375"
+     inkscape:cy="20.15625"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6"
+     inkscape:snap-bbox="false"
+     inkscape:snap-page="false" />
+  <path
+     style="fill:#fc7f7f;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 6.51719,28.177669 c 3.886728,2.596825 21.023744,2.55295 21.5625,-0.5 C 32.520781,19.7364 30.258955,7.277056 20.26719,18.629256 20.560472,3.3971301 11.892744,-9.6900359 12.122583,18.853368 4.330148,-12.657557 -0.841852,23.757143 6.51719,28.177669 Z"
+     id="path867"
+     sodipodi:nodetypes="ccccc" />
+  <g
+     id="g6935"
+     transform="matrix(-0.53055974,0.00573241,-0.00573241,-0.53055974,11.768548,32.962809)"
+     style="stroke-width:1.88469" />
+</svg>

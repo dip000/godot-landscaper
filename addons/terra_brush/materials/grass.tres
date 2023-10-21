@@ -1,0 +1,34 @@
+[gd_resource type="ShaderMaterial" load_steps=9 format=3 uid="uid://bpya5hrmik52v"]
+
+[ext_resource type="Shader" path="res://addons/terra_brush/shaders/grass.gdshader" id="1_gso41"]
+[ext_resource type="Texture2D" uid="uid://bjw8kja6m16cf" path="res://addons/terra_brush/textures/grass_color.tres" id="3_2ru7k"]
+[ext_resource type="Texture2D" uid="uid://bvid0x0pyktow" path="res://addons/terra_brush/textures/grass_small_texture.png" id="4_4osto"]
+[ext_resource type="Texture2D" uid="uid://bc03njqi82w58" path="res://addons/terra_brush/textures/default_brush.tres" id="4_5fapk"]
+[ext_resource type="Texture2D" uid="uid://bs4ojwqd1sslv" path="res://addons/terra_brush/textures/grass_texture.png" id="5_jnrjp"]
+[ext_resource type="Texture2D" uid="uid://syrkqf8qqt58" path="res://addons/terra_brush/textures/terrain_color.tres" id="6_ctr3f"]
+
+[sub_resource type="Gradient" id="Gradient_vhnkb"]
+offsets = PackedFloat32Array(0, 0.198276, 0.373134)
+colors = PackedColorArray(0, 0, 0, 1, 0.534361, 0.534361, 0.534361, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_0gkox"]
+gradient = SubResource("Gradient_vhnkb")
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0, 0)
+
+[resource]
+resource_name = "grass"
+render_priority = 0
+shader = ExtResource("1_gso41")
+shader_parameter/brush_position = Vector2(2, 2)
+shader_parameter/brush_scale = 0.0
+shader_parameter/brush_color = Color(1, 1, 1, 1)
+shader_parameter/brush_texture = ExtResource("4_5fapk")
+shader_parameter/bilboard_y = true
+shader_parameter/enable_margin = true
+shader_parameter/color_margin = Color(0.678431, 0.545098, 0.45098, 1)
+shader_parameter/terrain_size = null
+shader_parameter/grass_color = ExtResource("3_2ru7k")
+shader_parameter/terrain_color = ExtResource("6_ctr3f")
+shader_parameter/mask_front = SubResource("GradientTexture2D_0gkox")
+shader_parameter/grass_variants = Array[Texture2D]([ExtResource("4_4osto"), ExtResource("5_jnrjp")])

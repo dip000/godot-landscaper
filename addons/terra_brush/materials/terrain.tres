@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://ctxvmnujhpeb2"]
+
+[ext_resource type="Shader" path="res://addons/terra_brush/shaders/terrain.gdshader" id="1_qx305"]
+[ext_resource type="Texture2D" uid="uid://bc03njqi82w58" path="res://addons/terra_brush/textures/default_brush.tres" id="2_7ua5g"]
+[ext_resource type="Texture2D" uid="uid://syrkqf8qqt58" path="res://addons/terra_brush/textures/terrain_color.tres" id="3_hiu6c"]
+[ext_resource type="Texture2D" uid="uid://du3xixmby3lr" path="res://addons/terra_brush/textures/terrain_height.tres" id="4_o4bx0"]
+
+[resource]
+resource_name = "terrain"
+render_priority = 0
+shader = ExtResource("1_qx305")
+shader_parameter/brush_position = Vector2(2, 2)
+shader_parameter/brush_scale = 0.2
+shader_parameter/brush_color = Color(1, 1, 1, 1)
+shader_parameter/brush_texture = ExtResource("2_7ua5g")
+shader_parameter/terrain_color = ExtResource("3_hiu6c")
+shader_parameter/terrain_height = ExtResource("4_o4bx0")
