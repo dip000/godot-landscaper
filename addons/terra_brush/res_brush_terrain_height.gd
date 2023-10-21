@@ -19,7 +19,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 			surface_texture = TEXTURE
 		
 		# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
-		t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.005)
+		t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
 		TerraBrush.TERRAIN.set_shader_parameter("terrain_height", surface_texture)
 		
 		# The three horsemen of lag apocalypse

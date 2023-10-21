@@ -12,11 +12,18 @@ config_version=5
 
 config/name="GrassPainter"
 config/tags=PackedStringArray("godotshaders.com")
+run/main_scene="res://node_3d.tscn"
 config/features=PackedStringArray("4.1", "GL Compatibility")
 boot_splash/bg_color=Color(0.807843, 0.670588, 0.576471, 1)
 boot_splash/show_image=false
 boot_splash/image="res://addons/terra_brush/icon.svg"
 boot_splash/use_filter=false
+
+[display]
+
+window/size/viewport_width=881
+window/size/viewport_height=435
+window/size/always_on_top.editor=true
 
 [editor_plugins]
 

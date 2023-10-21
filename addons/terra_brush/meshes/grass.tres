@@ -5,5 +5,6 @@
 [resource]
 material = ExtResource("1_sdplc")
 size = Vector2(0.3, 0.3)
-subdivide_depth = 5
+subdivide_width = 10
+subdivide_depth = 10
 center_offset = Vector3(0, 0.15, 0)

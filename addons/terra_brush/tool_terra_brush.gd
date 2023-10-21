@@ -30,6 +30,10 @@ var rng_state:int
 
 
 func _ready():
+	GRASS.set_shader_parameter("terrain_size", map_size) #idk why this keeps reseting..
+	if not Engine.is_editor_hint():
+		return
+	
 	rng.set_seed( hash("TerraBrush <3") )
 	rng_state = rng.get_state()
 	grass_spawn.variants = [
@@ -75,6 +79,9 @@ func _setup():
 	
 func _set_map_size(size:Vector2i):
 	map_size = size
+	if not Engine.is_editor_hint():
+		return
+	
 	if size.x <= 0 or size.y <= 0:
 		return
 	
