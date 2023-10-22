@@ -1,6 +1,5 @@
 shader_type spatial;
 render_mode unshaded, shadows_disabled;
-#include "res://addons/terra_brush/shaders/brush_overlay.gdshaderinc"
 
 const int TOTAL_GRASS_VARIANTS = 4;
 
@@ -37,9 +36,6 @@ void vertex(){
 	vec3 recolor_top = texture(grass_color, world_position).rgb;
 	vec3 recolor_root = texture(terrain_color, world_position).rgb;
 	float gradient_mask = texture(mask_front, UV).r;
-	
-	// Brush overlay from TerraBrush script
-	recolor_root = draw_brush(world_position, recolor_root);
 	
 	// Mask the top of the grass with one color, mask the root with another, and add them
 	COLOR.rgb = recolor_top * gradient_mask;

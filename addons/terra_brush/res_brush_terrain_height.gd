@@ -20,7 +20,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		
 		# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
 		t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
-		TerraBrush.TERRAIN.set_shader_parameter("terrain_height", surface_texture)
+		TerraBrush.TERRAIN_MAT.set_shader_parameter("terrain_height", surface_texture)
 		
 		# The three horsemen of lag apocalypse
 		_bake_brush_into_surface(scale, pos)
@@ -29,7 +29,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 
 
 func update_terrain_collider():
-	if not surface_texture:
+	if not surface_texture or not terrain:
 		return
 	
 	# Caches
@@ -51,6 +51,9 @@ func update_terrain_collider():
 			height_shape.map_data[i] = y_m
 		
 func _update_grass_height():
+	if not surface_texture or not terrain:
+		return
+	
 	# Caches
 	var space := terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()

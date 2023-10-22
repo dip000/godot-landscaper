@@ -20,7 +20,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		
 		# Paint alpha with secondary to smooth the texture
 		t_color = color if primary_action else Color(color, 0.1)
-		TerraBrush.GRASS.set_shader_parameter("grass_color", surface_texture)
+		TerraBrush.GRASS_MAT.set_shader_parameter("grass_color", surface_texture)
 		_bake_brush_into_surface(scale, pos)
 	
 
