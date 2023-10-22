@@ -1,0 +1,92 @@
+[gd_scene load_steps=22 format=3 uid="uid://uysi26btubar"]
+
+[ext_resource type="PlaneMesh" uid="uid://qh3f3cmqqywb" path="res://addons/terra_brush/meshes/terrain_mesh.tres" id="1_6amps"]
+[ext_resource type="Script" path="res://addons/terra_brush/tool_terra_brush.gd" id="2_c1ti8"]
+[ext_resource type="Script" path="res://addons/terra_brush/res_brush_terrain_color.gd" id="3_lqh01"]
+[ext_resource type="Texture2D" uid="uid://syrkqf8qqt58" path="res://addons/terra_brush/textures/terrain_color.tres" id="4_vu57s"]
+[ext_resource type="Script" path="res://addons/terra_brush/res_brush_terrain_height.gd" id="5_eawos"]
+[ext_resource type="Texture2D" uid="uid://du3xixmby3lr" path="res://addons/terra_brush/textures/terrain_height.tres" id="6_xgc4w"]
+[ext_resource type="Script" path="res://addons/terra_brush/res_brush_grass_color.gd" id="7_sapyk"]
+[ext_resource type="Texture2D" uid="uid://bjw8kja6m16cf" path="res://addons/terra_brush/textures/grass_color.tres" id="8_smyvc"]
+[ext_resource type="Script" path="res://addons/terra_brush/res_brush_grass_spawn.gd" id="9_u67ys"]
+[ext_resource type="Texture2D" uid="uid://dnicjwrqd2l38" path="res://addons/terra_brush/textures/grass_spawn.tres" id="10_f5hwg"]
+[ext_resource type="Texture2D" uid="uid://bvid0x0pyktow" path="res://addons/terra_brush/textures/grass_small_texture.png" id="11_j2ypd"]
+[ext_resource type="Texture2D" uid="uid://bs4ojwqd1sslv" path="res://addons/terra_brush/textures/grass_texture.png" id="12_8devq"]
+[ext_resource type="QuadMesh" uid="uid://bn5ftyb51awph" path="res://addons/terra_brush/meshes/grass_mesh.tres" id="13_bunf3"]
+
+[sub_resource type="Resource" id="Resource_ckkhw"]
+script = ExtResource("3_lqh01")
+color = Color(1, 1, 1, 1)
+active = false
+surface_texture = ExtResource("4_vu57s")
+
+[sub_resource type="Resource" id="Resource_00j55"]
+script = ExtResource("5_eawos")
+strength = 20.0
+active = false
+surface_texture = ExtResource("6_xgc4w")
+
+[sub_resource type="Resource" id="Resource_pufvc"]
+script = ExtResource("7_sapyk")
+color = Color(1, 1, 1, 1)
+active = false
+surface_texture = ExtResource("8_smyvc")
+
+[sub_resource type="Resource" id="Resource_yqjei"]
+script = ExtResource("9_u67ys")
+spawn_type = 1
+variant = 0
+density = 512
+variants = Array[Texture2D]([ExtResource("11_j2ypd"), ExtResource("12_8devq")])
+billboard_y = true
+margin_enable = true
+margin_color = Color(1, 1, 1, 1)
+active = true
+surface_texture = ExtResource("10_f5hwg")
+
+[sub_resource type="HeightMapShape3D" id="HeightMapShape3D_2yvff"]
+map_width = 11
+map_depth = 11
+map_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iisww"]
+size = Vector3(10.5, 0.05, 10.5)
+
+[sub_resource type="MultiMesh" id="MultiMesh_4hgdv"]
+transform_format = 1
+instance_count = 5
+mesh = ExtResource("13_bunf3")
+buffer = PackedFloat32Array(1, 0, 0, -2.018, 0, 1, 0, 0.0249996, 0, 0, 1, 0.835581, 1, 0, 0, -2.91413, 0, 1, 0, 0.0249996, 0, 0, 1, 1.939, 1, 0, 0, -2.07623, 0, 1, 0, 0.0249996, 0, 0, 1, 1.00001, 1, 0, 0, -2.85604, 0, 1, 0, 0.0249996, 0, 0, 1, 1.51484, 1, 0, 0, -2.59336, 0, 1, 0, 0.0249996, 0, 0, 1, 0.43929)
+
+[sub_resource type="MultiMesh" id="MultiMesh_os15d"]
+transform_format = 1
+instance_count = 4
+mesh = ExtResource("13_bunf3")
+buffer = PackedFloat32Array(1, 0, 0, -3.03561, 0, 1, 0, 0.0249996, 0, 0, 1, 1.95069, 1, 0, 0, -2.82864, 0, 1, 0, 0.0249996, 0, 0, 1, 0.845373, 1, 0, 0, -2.57331, 0, 1, 0, 0.0249996, 0, 0, 1, 0.750632, 1, 0, 0, -2.47429, 0, 1, 0, 0.0249996, 0, 0, 1, 1.55353)
+
+[node name="ExampleScene" type="Node3D"]
+
+[node name="TerraBrush" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_6amps")
+script = ExtResource("2_c1ti8")
+map_size = Vector2i(10, 10)
+terrain_color = SubResource("Resource_ckkhw")
+terrain_height = SubResource("Resource_00j55")
+grass_color = SubResource("Resource_pufvc")
+grass_spawn = SubResource("Resource_yqjei")
+
+[node name="Body" type="StaticBody3D" parent="TerraBrush"]
+
+[node name="Height" type="CollisionShape3D" parent="TerraBrush/Body"]
+shape = SubResource("HeightMapShape3D_2yvff")
+
+[node name="Base" type="CollisionShape3D" parent="TerraBrush/Body"]
+shape = SubResource("BoxShape3D_iisww")
+
+[node name="Grass" type="MultiMeshInstance3D" parent="TerraBrush"]
+instance_shader_parameters/variant_index = 0
+multimesh = SubResource("MultiMesh_4hgdv")
+
+[node name="Grass2" type="MultiMeshInstance3D" parent="TerraBrush"]
+instance_shader_parameters/variant_index = 1
+multimesh = SubResource("MultiMesh_os15d")

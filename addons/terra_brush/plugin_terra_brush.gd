@@ -2,13 +2,18 @@
 extends EditorPlugin
 
 var instanced_tool:TerraBrush
+var inspector_plugin:EditorInspectorPlugin
 
 
 func _enter_tree():
 	add_custom_type("TerraBrush", "MeshInstance3D", preload("tool_terra_brush.gd"), preload("icon.svg"))
-
+	
+	inspector_plugin = load("res://addons/terra_brush/plugin_inspector.gd").new( get_tree() )
+	add_inspector_plugin( inspector_plugin )
+	
 func _exit_tree():
 	remove_custom_type("TerraBrush")
+	remove_inspector_plugin(inspector_plugin)
 
 
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
@@ -33,7 +38,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 			instanced_tool.paint(result.position, true)
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 			instanced_tool.paint(result.position, false)
-			
+		
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_WHEEL_UP):
 			instanced_tool.scale(-5)
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_WHEEL_DOWN):
@@ -44,9 +49,6 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
-func _apply_changes():
-	if instanced_tool and is_instance_valid(instanced_tool):
-		instanced_tool.save()
 
 func _handles(object):
 	if object is TerraBrush:

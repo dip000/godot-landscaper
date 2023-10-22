@@ -1,3 +1,9 @@
+shader_type spatial;
+render_mode unshaded,shadows_disabled,ambient_light_disabled;
+
+uniform sampler2D terrain_color:source_color, repeat_disable;
+uniform sampler2D terrain_height:repeat_disable, hint_default_black;
+
 group_uniforms BrushOverlay;
 uniform sampler2D brush_texture:repeat_disable;
 uniform vec2 brush_position;
@@ -22,4 +28,13 @@ vec3 draw_brush(vec2 uv, vec3 surface){
 	
 	// Alpha blend
 	return mix(surface, brush, brush_pixel_outer_line.a);
+}
+
+void fragment(){
+	vec3 base = texture(terrain_color, UV).rgb;
+	ALBEDO = draw_brush(UV, base);
+}
+
+void vertex(){
+	VERTEX.y = texture(terrain_height, UV).r;
 }

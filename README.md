@@ -84,8 +84,8 @@ _Effect of density property showcase:_ <br />
    - [ ] In-code Documentation following [style guides](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html#doc-gdscript-styleguide)
 
  2. [ ] Save and bake textures, shaders, and materials in user folder
-    - [ ] Keep TerraBrush open for modifications
-    - [ ] Clear all plugin dependencies and close. Like in [this repository for shader showcases](https://github.com/dip000/my-godotshaders/tree/main/StylizedCartoonGrass)
+	- [ ] Keep TerraBrush open for modifications
+	- [ ] Clear all plugin dependencies and close. Like in [this repository for shader showcases](https://github.com/dip000/my-godotshaders/tree/main/StylizedCartoonGrass)
 
   3. [ ] Add support for cross-billboarding grass like in Minecraft
 
