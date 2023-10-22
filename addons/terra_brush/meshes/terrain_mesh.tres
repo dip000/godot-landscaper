@@ -1,9 +1,0 @@
-[gd_resource type="PlaneMesh" load_steps=2 format=3 uid="uid://qh3f3cmqqywb"]
-
-[ext_resource type="Material" uid="uid://ctxvmnujhpeb2" path="res://addons/terra_brush/materials/terrain_mat.tres" id="1_s6fj1"]
-
-[resource]
-material = ExtResource("1_s6fj1")
-size = Vector2(5, 5)
-subdivide_width = 4
-subdivide_depth = 4

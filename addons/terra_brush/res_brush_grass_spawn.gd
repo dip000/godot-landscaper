@@ -3,6 +3,7 @@ extends TBrush
 class_name TBrushGrassSpawn
 
 const BATCH_PROCESS_FRAMES:int = 50 # Set higher if you have a better computer :D
+const GRASS_MESH:Mesh = preload("res://addons/terra_brush/meshes/grass.tres")
 const TEXTURE:Texture2D = preload("res://addons/terra_brush/textures/grass_spawn.tres")
 
 enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
@@ -72,7 +73,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		else:
 			t_color = Color.BLACK
 		
-		TerraBrush.GRASS_MAT.set_shader_parameter("grass_spawn", surface_texture)
+		TerraBrush.GRASS.set_shader_parameter("grass_spawn", surface_texture)
 		_bake_brush_into_surface(scale, pos)
 		populate_grass()
 
@@ -109,7 +110,7 @@ func populate_grass():
 			var new_instance := MultiMeshInstance3D.new()
 			new_instance.multimesh = MultiMesh.new()
 			new_instance.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-			new_instance.multimesh.mesh = TerraBrush.GRASS_MESH
+			new_instance.multimesh.mesh = GRASS_MESH
 			multimesh_instances.append(new_instance)
 			
 			terrain.add_child(new_instance)
@@ -122,10 +123,10 @@ func populate_grass():
 			multimesh_instances.pop_back().queue_free()
 	
 	# Setup shader
-	TerraBrush.GRASS_MAT.set_shader_parameter("bilboard_y", billboard_y)
-	TerraBrush.GRASS_MAT.set_shader_parameter("enable_margin", margin_enable)
-	TerraBrush.GRASS_MAT.set_shader_parameter("color_margin", margin_color)
-	TerraBrush.GRASS_MAT.set_shader_parameter("grass_variants", variants)
+	TerraBrush.GRASS.set_shader_parameter("bilboard_y", billboard_y)
+	TerraBrush.GRASS.set_shader_parameter("enable_margin", margin_enable)
+	TerraBrush.GRASS.set_shader_parameter("color_margin", margin_color)
+	TerraBrush.GRASS.set_shader_parameter("grass_variants", variants)
 	
 	rng.set_state(terrain.rng_state)
 	

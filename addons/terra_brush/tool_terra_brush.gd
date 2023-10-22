@@ -16,10 +16,9 @@ class_name TerraBrush
 @export var grass_color := TBrushGrassColor.new()
 @export var grass_spawn := TBrushGrassSpawn.new()
 
-const GRASS_MAT:ShaderMaterial = preload("res://addons/terra_brush/materials/grass_mat.tres")
-const GRASS_MESH:PlaneMesh = preload("res://addons/terra_brush/meshes/grass_mesh.tres")
-const TERRAIN_MAT:ShaderMaterial = preload("res://addons/terra_brush/materials/terrain_mat.tres")
-const TERRAIN_MESH:PlaneMesh = preload("res://addons/terra_brush/meshes/terrain_mesh.tres")
+const GRASS:ShaderMaterial = preload("res://addons/terra_brush/materials/grass.tres")
+const TERRAIN:ShaderMaterial = preload("res://addons/terra_brush/materials/terrain.tres")
+const TERRAIN_MESH:PlaneMesh = preload("res://addons/terra_brush/meshes/terrain.tres")
 const BRUSH_MASK:Texture2D = preload("res://addons/terra_brush/textures/default_brush.tres")
 const HEIGHT_COLLIDER_NAME := "Height"
 const BASE_COLLIDER_NAME := "Base"
@@ -31,31 +30,30 @@ var rng_state:int
 
 
 func _ready():
-	GRASS_MAT.set_shader_parameter("terrain_size", map_size) #idk why this keeps reseting..
+	GRASS.set_shader_parameter("terrain_size", map_size) #idk why this keeps reseting..
 	if not Engine.is_editor_hint():
 		return
 	
 	rng.set_seed( hash("TerraBrush <3") )
 	rng_state = rng.get_state()
-	
 	grass_spawn.variants = [
 		preload("res://addons/terra_brush/textures/grass_small_texture.png"),
 		preload("res://addons/terra_brush/textures/grass_texture.png")
 	]
 	
-	# Always keep only one brush active at a time
+	# Always keep only one brush active at a time. Starts with "terrain_color"
+	_active_brush = terrain_color
+	terrain_color.active = true
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
 		brush.on_active.connect(_deactivate_brushes.bind(brush))
 		brush.terrain = self
-		brush.active = false
-		if not brush.surface_texture:
-			brush.surface_texture = brush.TEXTURE
+		brush.surface_texture = brush.TEXTURE
 	
 	_setup()
 
 func _setup():
 	mesh = TERRAIN_MESH
-	GRASS_MAT.set_shader_parameter("terrain_size", map_size)
+	GRASS.set_shader_parameter("terrain_size", map_size)
 	
 	if has_node(BODY_NAME):
 		return
@@ -81,9 +79,7 @@ func _setup():
 	
 func _set_map_size(size:Vector2i):
 	map_size = size
-	
-	# ignore when setter is being called in gameplay-time or export-time
-	if not Engine.is_editor_hint() or not is_node_ready():
+	if not Engine.is_editor_hint():
 		return
 	
 	if size.x <= 0 or size.y <= 0:
@@ -100,7 +96,7 @@ func _set_map_size(size:Vector2i):
 	var base_shape:BoxShape3D = get_node( BODY_NAME.path_join(BASE_COLLIDER_NAME) ).shape
 	base_shape.size = Vector3(size.x+0.5, 0.05, size.y+0.5) # Extra margin for responsivenes
 	
-	GRASS_MAT.set_shader_parameter("terrain_size", size)
+	GRASS.set_shader_parameter("terrain_size", size)
 	terrain_height.update_terrain_collider()
 	grass_spawn.populate_grass()
 
@@ -113,21 +109,31 @@ func over_terrain(pos:Vector3):
 	# The shader draws a circle over mouse pointer to show where and what size are you hovering
 	if _active_brush:
 		var pos_rel:Vector2 = Vector2(pos.x, pos.z)/mesh.size
-		TERRAIN_MAT.set_shader_parameter("brush_position", pos_rel)
-		TERRAIN_MAT.set_shader_parameter("brush_scale", brush_scale/100.0)
+		TERRAIN.set_shader_parameter("brush_position", pos_rel)
+		TERRAIN.set_shader_parameter("brush_scale", brush_scale/100.0)
 		if _active_brush == grass_color or _active_brush == terrain_color:
-			TERRAIN_MAT.set_shader_parameter("brush_color", _active_brush.color)
+			TERRAIN.set_shader_parameter("brush_color", _active_brush.color)
 		else:
-			TERRAIN_MAT.set_shader_parameter("brush_color", _active_brush.t_color)
+			TERRAIN.set_shader_parameter("brush_color", _active_brush.t_color)
 		return
 
 func exit_terrain():
-	TERRAIN_MAT.set_shader_parameter("brush_position", Vector2(2,2)) #move brush outside viewing scope
+	TERRAIN.set_shader_parameter("brush_position", Vector2(2,2)) #move brush outside viewing scope
 
 func scale(value:float):
 	if _active_brush:
+		var terrain_material:ShaderMaterial = mesh.surface_get_material(0)
 		brush_scale = clampf(brush_scale+value, 1, 150)
-		TERRAIN_MAT.set_shader_parameter("brush_scale", brush_scale/100.0)
+		terrain_material.set_shader_parameter("brush_scale", brush_scale/100.0)
+
+func save():
+	# Might take a bit to save
+	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
+		if brush and brush.surface_texture and brush.texture_updated:
+			ResourceSaver.save(brush.surface_texture)
+			print("Saved texture: ", brush.surface_texture.resource_name)
+			brush.texture_updated = false
+			await get_tree().process_frame
 
 func paint(pos:Vector3, primary_action:bool):
 	if _active_brush:

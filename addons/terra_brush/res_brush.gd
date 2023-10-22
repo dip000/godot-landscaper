@@ -17,16 +17,8 @@ const SURFACE_FULL_RECT:Rect2i = Rect2i(Vector2i.ZERO, SURFACE_SIZE)
 		active = v
 
 @export_group("Advanced")
-## The texture you'll be drawing with this brush. A new texture will be provided if it is not set
-@export var surface_texture:Texture2D:
-	set(v):
-		surface_texture = v
-		on_active.emit()
-		texture_updated = true
-		active = true
-		paint(0.01, Vector3.ONE*2, true)
-
-#@export var brush_texture:Texture2D ## Leave empty to use a simple round texture. Or use a grass texture for "grass_color" brush for example
+@export var surface_texture:Texture2D ## The texture you'll be drawing with this brush. A new texture will be provided if you dont set your own
+@export var brush_texture:Texture2D ## Leave empty to use a simple round texture. Or use a grass texture for "grass_color" brush for example
 
 var t_color:Color
 var texture_updated:bool
@@ -51,8 +43,8 @@ func _bake_brush_into_surface(scale:float, pos:Vector3):
 	brush_img.fill( t_color )
 	
 	# Recolor brush texture if it was provided
-#	if brush_texture:
-#		brush_img.blend_rect(brush_texture.get_image(), BRUSH_FULL_RECT, Vector2i.ZERO)
+	if brush_texture:
+		brush_img.blend_rect(brush_texture.get_image(), BRUSH_FULL_RECT, Vector2i.ZERO)
 	
 	# Blend brush over surface
 	var surface:Image = surface_texture.get_image()
