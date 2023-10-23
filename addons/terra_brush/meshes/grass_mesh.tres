@@ -3,6 +3,7 @@
 [ext_resource type="Material" uid="uid://bpya5hrmik52v" path="res://addons/terra_brush/materials/grass_mat.tres" id="1_sdplc"]
 
 [resource]
+resource_name = "grass_mesh"
 material = ExtResource("1_sdplc")
 size = Vector2(0.3, 0.3)
 subdivide_width = 10

@@ -7,6 +7,7 @@ offsets = PackedFloat32Array(0, 0.664179)
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
 
 [resource]
+resource_name = "default_brush"
 gradient = SubResource("Gradient_j3j8p")
 width = 512
 height = 512

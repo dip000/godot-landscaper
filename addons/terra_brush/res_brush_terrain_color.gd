@@ -2,9 +2,6 @@
 extends TBrush
 class_name TBrushTerrainColor
 
-const TEXTURE:Texture2D = preload("res://addons/terra_brush/textures/terrain_color.tres")
-
-
 ## Modulates the brush texture. Use alpha to set the stroke strenght
 ## Modifying this will set it as the active brush
 @export var color:Color = Color.WHITE:
@@ -14,15 +11,22 @@ const TEXTURE:Texture2D = preload("res://addons/terra_brush/textures/terrain_col
 		active = true
 
 
-func paint(scale:float, pos:Vector3, primary_action:bool):
-	if active:
-		if not surface_texture:
-			print("New texture")
-			surface_texture = load("res://addons/terra_brush/textures/terrain_color.tres")
-		
-		# The grass roots need to be colored as well so it is also sent to grass shader
-		t_color = color if primary_action else Color(color, 0.1)
-		TerraBrush.GRASS_MAT.set_shader_parameter("terrain_color", surface_texture)
-		TerraBrush.TERRAIN_MAT.set_shader_parameter("terrain_color", surface_texture)
-		_bake_brush_into_surface(scale, pos)
+func setup(terrain:TerraBrush):
+	super(terrain)
+	resource_name = "terrain_color"
+	color = Color.SEA_GREEN
+	var tex := ImageTexture.create_from_image( _create_empty_img(Color.WHITE) )
+	surface_texture = tex
 
+func paint(scale:float, pos:Vector3, primary_action:bool):
+	if not active:
+		return
+	
+	# The grass roots need to be colored as well so it is also sent to grass shader
+	t_color = color if primary_action else Color(color, 0.1)
+	update()
+	_bake_brush_into_surface(scale, pos)
+
+func update():
+	_terrain.grass_mesh.material.set_shader_parameter("terrain_color", surface_texture)
+	_terrain.mesh.material.set_shader_parameter("terrain_color", surface_texture)

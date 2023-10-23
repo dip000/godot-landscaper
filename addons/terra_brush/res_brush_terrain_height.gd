@@ -2,9 +2,7 @@
 extends TBrush
 class_name TBrushTerrainHeight
 
-const TEXTURE:Texture2D = preload("res://addons/terra_brush/textures/terrain_height.tres")
 const HEIGHT_STRENGTH:float = 0.95 # Grass in slopes might look like they're floating at full strenght
-
 
 @export_range(8.0, 100.0, 1.0, "suffix:%") var strength:float = 20:
 	set(v):
@@ -13,32 +11,39 @@ const HEIGHT_STRENGTH:float = 0.95 # Grass in slopes might look like they're flo
 		active = true
 
 
+func setup(terrain:TerraBrush):
+	super(terrain)
+	resource_name = "terrain_height"
+	var tex := ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+	surface_texture = tex
+
+
 func paint(scale:float, pos:Vector3, primary_action:bool):
-	if active:
-		if not surface_texture:
-			surface_texture = TEXTURE
-		
-		# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
-		t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
-		TerraBrush.TERRAIN_MAT.set_shader_parameter("terrain_height", surface_texture)
-		
-		# The three horsemen of lag apocalypse
-		_bake_brush_into_surface(scale, pos)
-		update_terrain_collider()
-		_update_grass_height()
+	if not active:
+		return
+	
+	# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
+	t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
+	_bake_brush_into_surface(scale, pos)
+	update()
 
-
+func update():
+	#[WARNING] Always update colliders first since grass placement is based of them
+	_terrain.mesh.material.set_shader_parameter("terrain_height", surface_texture)
+	update_terrain_collider()
+	_update_grass_height()
+	
 func update_terrain_collider():
-	if not surface_texture or not terrain:
+	if not _terrain or not surface_texture:
 		return
 	
 	# Caches
 	var height_image:Image = surface_texture.get_image()
-	var terrain_size_m:Vector2 = terrain.mesh.size
+	var terrain_size_m:Vector2 = _terrain.mesh.size
 	var terrain_size_px:Vector2i = height_image.get_size() - Vector2i.ONE
-	var height_shape:HeightMapShape3D = terrain.get_node( TerraBrush.BODY_NAME.path_join(TerraBrush.HEIGHT_COLLIDER_NAME) ).shape
+	var height_shape:HeightMapShape3D = _terrain.get_node( TerraBrush.BODY_NAME.path_join(TerraBrush.HEIGHT_COLLIDER_NAME) ).shape
 	
-	# Update terrain collider
+	# Update _terrain collider
 	for w in height_shape.map_width:
 		for d in height_shape.map_depth:
 			# Convert to range [0,1] then to pixel size
@@ -51,15 +56,15 @@ func update_terrain_collider():
 			height_shape.map_data[i] = y_m
 		
 func _update_grass_height():
-	if not surface_texture or not terrain:
+	if not surface_texture or not _terrain:
 		return
 	
 	# Caches
-	var space := terrain.get_world_3d().direct_space_state
+	var space := _terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
 	
 	# Now that we have the collider aligned, raycast each grass for the exact ground position (as opposed by relaying on the heightmap)
-	for child in terrain.get_children():
+	for child in _terrain.get_children():
 		if not child is MultiMeshInstance3D:
 			continue
 		

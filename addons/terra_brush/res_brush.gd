@@ -10,10 +10,14 @@ const SURFACE_SIZE:Vector2i = Vector2(1024, 1024)
 const SURFACE_HALF_SIZE:Vector2i = SURFACE_SIZE/2
 const SURFACE_FULL_RECT:Rect2i = Rect2i(Vector2i.ZERO, SURFACE_SIZE)
 
+const BRUSH_MASK:Texture2D = preload("res://addons/terra_brush/textures/default_brush.tres")
+
+
 ## Check to draw with this brush. Note that this will unckeck every other brush so only one can be active at a time
 @export var active:bool=false:
 	set(v):
-		if v: on_active.emit() #ok i admit this is a hack. But sould work as long as no one calls active=true from outside
+		#[WARNING] Do not call active=true from outside!
+		if v: on_active.emit()
 		active = v
 
 @export_group("Advanced")
@@ -23,24 +27,37 @@ const SURFACE_FULL_RECT:Rect2i = Rect2i(Vector2i.ZERO, SURFACE_SIZE)
 		surface_texture = v
 		on_active.emit()
 		active = true
-		paint(0.01, Vector3.ONE*2, true)
+		update()
 
-#@export var brush_texture:Texture2D ## Leave empty to use a simple round texture. Or use a grass texture for "grass_color" brush for example
+## Leave empty to use a simple round texture. Or use a grass texture for "grass_color" brush for example
+#@export var brush_texture:Texture2D
 
 var t_color:Color
-var terrain:MeshInstance3D
+var _terrain:TerraBrush
 
+
+func setup(terrain:TerraBrush):
+	_terrain = terrain
+	active = false
 
 func paint(_scale:float, _pos:Vector3, _primary_action:bool):
 	pass
+	
+func update():
+	pass
+
+func _create_empty_img(color:Color) -> Image:
+	var img := Image.create(1024, 1024, false, Image.FORMAT_RGBA8)
+	img.fill(color)
+	return img
 
 func _bake_brush_into_surface(scale:float, pos:Vector3):
-	if not terrain:
+	if not _terrain:
 		return
 	
 	# Transforms
 	var size:Vector2i = SURFACE_SIZE * scale #size in pixels
-	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/terrain.mesh.size #in [0,1] range
+	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/_terrain.mesh.size #in [0,1] range
 	pos_absolute *= Vector2(SURFACE_SIZE) #move in pixel size
 	pos_absolute += SURFACE_HALF_SIZE * (1.0-scale) #move from center
 	
@@ -54,7 +71,7 @@ func _bake_brush_into_surface(scale:float, pos:Vector3):
 	
 	# Blend brush over surface
 	var surface:Image = surface_texture.get_image()
-	var brush_mask:Image = TerraBrush.BRUSH_MASK.get_image().duplicate()
+	var brush_mask:Image = BRUSH_MASK.get_image().duplicate()
 	brush_mask.resize(size.x, size.y)
 	surface.blend_rect_mask( brush_img, brush_mask, SURFACE_FULL_RECT, pos_absolute)
 	surface_texture.update(surface)
