@@ -116,7 +116,7 @@ func populate_grass():
 	
 	# Caches
 	var terrain_image:Image = surface_texture.get_image()
-	var terrain_size_m:Vector2 = terrain.mesh.size
+	var terrain_size_m:Vector2 = terrain.terrain_mesh.size
 	var terrain_size_px:Vector2 = terrain_image.get_size()
 	var total_variants:int = variants.size()
 	var max_index:int = total_variants - 1
@@ -125,10 +125,9 @@ func populate_grass():
 	
 	# Reset previous instances
 	var multimesh_instances:Array[MultiMeshInstance3D]
-	for child in terrain.get_children():
-		if child is MultiMeshInstance3D:
-			multimesh_instances.append(child)
-			child.multimesh.instance_count = 0
+	for multimesh_inst in terrain.grass_holder.get_children():
+		multimesh_instances.append( multimesh_inst )
+		multimesh_inst.multimesh.instance_count = 0
 	
 	# Add instances if more variants were added
 	if multimesh_instances.size() < total_variants:

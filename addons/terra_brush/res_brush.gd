@@ -52,7 +52,7 @@ func _bake_brush_into_surface(scale:float, pos:Vector3):
 	var surface_size:Vector2i = surface_texture.get_size()
 	var surface_full_rect := Rect2i(Vector2i.ZERO, surface_size)
 	var size:Vector2i = surface_size * scale #size in pixels
-	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/terrain.mesh.size #in [0,1] range
+	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/terrain.terrain_mesh.size #in [0,1] range
 	pos_absolute *= Vector2(surface_size) #move in pixel size
 	pos_absolute += (surface_size/2.0) * (1.0-scale) #move from center
 	

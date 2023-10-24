@@ -1,17 +1,10 @@
 @tool
-extends MeshInstance3D
+extends Node3D
 class_name TerraBrush
 # Tool for terraforming and coloring
 # 1. Instantiate a TerraBrush node in scene tree and select it
 # 2. Activate the brush you want from the inspector
 # 3. Hover over your terrain and left-click-and-drag to start terra-brushing!
-
-
-const DEFAULT_TERRAIN_MESH_PATH := "res://addons/terra_brush/meshes/terrain_mesh.tres"
-const DEFAULT_GRASS_MESH_PATH := "res://addons/terra_brush/meshes/grass_mesh.tres"
-const HEIGHT_COLLIDER_NAME := "Height"
-const BASE_COLLIDER_NAME := "Base"
-const BODY_NAME := "Body"
 
 ## Folder to save or load assets. 
 @export_dir() var assets_folder:String = "res://generated_terrain/"
@@ -24,33 +17,46 @@ const BODY_NAME := "Body"
 @export var grass_color := TBrushGrassColor.new()
 @export var grass_spawn := TBrushGrassSpawn.new()
 
+#[TEST] Get rid of exports on release
+@export var grass_holder:Node3D
+@export var terrain:MeshInstance3D
+@export var height_shape:HeightMapShape3D
+@export var base_shape:BoxShape3D
+
+
 # Keeps track of which brush is currently active
 var _active_brush:TBrush
 
 # Set mesh to every used multimesh (grass)
-# Changes once you set a folder to save them. See inspector plugin
-var grass_mesh:QuadMesh = load(DEFAULT_GRASS_MESH_PATH):
+@export var grass_mesh:QuadMesh:
 	set(v):
 		grass_mesh = v
-		for child in get_children():
-			if child is MultiMeshInstance3D:
-				child.multimesh.mesh = v
+		for child in grass_holder.get_children():
+			child.multimesh.mesh = v
+
+# Just for consistency with "grass_mesh"
+@export var terrain_mesh:PlaneMesh:
+	set(v):
+		terrain_mesh = v
+		terrain.mesh = v
 
 
 func _ready():
-	# Why does this keep reseting??
-	grass_mesh.material.set_shader_parameter("terrain_size", map_size)
-	
 	# There's no point in running during gameplay
 	if not Engine.is_editor_hint():
 		return
 	
 	# Initialize these only if this is the first time this object has been instantiated
-	# Wait a process_frame or won't be able to instantiate children while this script is in ready() cycle finishes
-	if not has_node(BODY_NAME):
-		await get_tree().process_frame
-		mesh = load(DEFAULT_TERRAIN_MESH_PATH)
-		_create_children()
+	if not get_child(0):
+		await  get_tree().process_frame
+		terrain = load("res://addons/terra_brush/Scenes/terrain_template.tscn").instantiate()
+		add_child(terrain)
+		terrain.owner = owner
+		grass_holder = terrain.get_node("Grass")
+		height_shape = terrain.get_node("Body/Height").shape
+		base_shape = terrain.get_node("Body/Base").shape
+		grass_mesh = grass_holder.get_child(0).multimesh.mesh
+		terrain_mesh = terrain.mesh
 		_set_map_size( Vector2i(10, 10) )
 	
 	# Setup brushes. Keeps only one brush active at a time
@@ -58,44 +64,25 @@ func _ready():
 		brush.on_active.connect( _deactivate_brushes.bind(brush) )
 		brush.terrain = self
 		brush.setup()
-
-func _create_children():
-	var static_body := StaticBody3D.new()
-	add_child(static_body)
-	static_body.owner = self
-	static_body.name = BODY_NAME
-	
-	var height_collider := CollisionShape3D.new()
-	static_body.add_child(height_collider)
-	height_collider.owner = self
-	height_collider.name = HEIGHT_COLLIDER_NAME
-	height_collider.shape = HeightMapShape3D.new()
-	
-	var base_collider := CollisionShape3D.new()
-	static_body.add_child(base_collider)
-	base_collider.owner = self
-	base_collider.name = BASE_COLLIDER_NAME
-	base_collider.shape = BoxShape3D.new()
 	
 
 func _set_map_size(size:Vector2i):
 	map_size = size
 	
 	# ignore when setter is being called in gameplay-time or export-time or when size is zero
-	if not Engine.is_editor_hint() or not is_node_ready() or size.x <= 0 or size.y <= 0:
+	if not terrain or not Engine.is_editor_hint() or not is_node_ready() or size.x <= 0 or size.y <= 0:
 		return
 	
+	print(terrain_mesh, size)
 	# Subdivissions are one less than meters, while vertices are one more. Heh..
-	mesh.size = size
-	mesh.subdivide_width = size.x - 1
-	mesh.subdivide_depth = size.y - 1
+	terrain_mesh.size = size
+	terrain_mesh.subdivide_width = size.x - 1
+	terrain_mesh.subdivide_depth = size.y - 1
 	
-	var body_shape:HeightMapShape3D = get_node( BODY_NAME.path_join(HEIGHT_COLLIDER_NAME) ).shape
-	body_shape.map_width = size.x + 1
-	body_shape.map_depth = size.y + 1
+	height_shape.map_width = size.x + 1
+	height_shape.map_depth = size.y + 1
 	
 	# Base from where to draw in case you're outside heightmap mesh. Add extra margin for responsivenes
-	var base_shape:BoxShape3D = get_node( BODY_NAME.path_join(BASE_COLLIDER_NAME) ).shape
 	base_shape.size = Vector3(size.x+1, 0.05, size.y+1)
 	
 	# Update colliders first, then place grass according to the colliders
@@ -113,23 +100,23 @@ func _deactivate_brushes(caller_brush:TBrush):
 func over_terrain(pos:Vector3):
 	# The shader draws a circle over mouse pointer to show where and what size are you hovering
 	if _active_brush:
-		var pos_rel:Vector2 = Vector2(pos.x, pos.z)/mesh.size
-		mesh.material.set_shader_parameter("brush_position", pos_rel)
-		mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
+		var pos_rel:Vector2 = Vector2(pos.x, pos.z)/terrain_mesh.size
+		terrain_mesh.material.set_shader_parameter("brush_position", pos_rel)
+		terrain_mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
 		if _active_brush == grass_color or _active_brush == terrain_color:
-			mesh.material.set_shader_parameter("brush_color", _active_brush.color)
+			terrain_mesh.material.set_shader_parameter("brush_color", _active_brush.color)
 		else:
-			mesh.material.set_shader_parameter("brush_color", _active_brush.t_color)
+			terrain_mesh.material.set_shader_parameter("brush_color", _active_brush.t_color)
 		return
 
 
 func exit_terrain():
-	mesh.material.set_shader_parameter("brush_position", Vector2(2,2)) #move brush outside viewing scope
+	terrain_mesh.material.set_shader_parameter("brush_position", Vector2(2,2)) #move brush outside viewing scope
 
 func scale(value:float):
 	if _active_brush:
 		brush_scale = clampf(brush_scale+value, 1, 150)
-		mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
+		terrain_mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
 
 func paint(pos:Vector3, primary_action:bool):
 	if _active_brush:

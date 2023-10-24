@@ -1,8 +1,9 @@
 extends EditorInspectorPlugin
 
 var _terrain:TerraBrush
-var _notif_label:Label
+var _notif_label:Label #[DEPRECATED]
 var _tree:SceneTree
+const _INSPECTOR_MENU:PackedScene = preload("res://addons/terra_brush/Scenes/inspector_menu.tscn")
 
 # Start with a SceneTree reference from "plugin_terra_brush.gd" for notifications and delays
 func _init(scene_tree:SceneTree):
@@ -14,35 +15,7 @@ func _parse_category(object, category):
 	if category != "tool_terra_brush.gd":
 		return
 	
-	_notif_label = Label.new()
-	_notif_label.add_theme_color_override("font_color", Color(0.996, 0.863, 0.396))
-	_notif_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_notif_label.hide()
-	
-	var btn_load := Button.new()
-	btn_load.text = "Load Assets From Folder"
-	btn_load.tooltip_text = "Sets all selected folder resources for use in this TerraBrush terrain"
-	btn_load.pressed.connect(_load_assets)
-	
-	var btn_save := Button.new()
-	btn_save.text = "Save Assets To Folder"
-	btn_save.tooltip_text = "It will save all used resources in 'res://terra_brush/'"
-	btn_save.pressed.connect(_save)
-	
-	var btn_quit := Button.new()
-	btn_quit.text = "Generate Terrain"
-	btn_quit.tooltip_text = "Creates a new _terrain cutting all plugin tools and dependencies. Ready for gameplay!"
-	btn_quit.pressed.connect(_generate_terrain)
-	
-	var sep := HSeparator.new()
-	var cont := VBoxContainer.new()
-	cont.add_child(btn_load)
-	cont.add_child(btn_save)
-	cont.add_child(btn_quit)
-	cont.add_child(_notif_label)
-	cont.add_child(sep)
-	
-	add_custom_control(cont)
+	add_custom_control( _INSPECTOR_MENU.instantiate() )
 
 
 # Hides all irrelevant inspector properties. Specialy beacuse transforms aren't supported right now
@@ -112,9 +85,9 @@ func _load_assets():
 			_terrain.grass_mesh = res
 		
 		# Use another material
-		_terrain.mesh.material = load("res://addons/terra_brush/materials/terrain_mat.tres").duplicate()
-		_terrain.mesh.material.set_shader_parameter("terrain_color", _terrain.terrain_color.surface_texture)
-		_terrain.mesh.material.set_shader_parameter("terrain_height", _terrain.terrain_height.surface_texture)
+		_terrain.terrain_mesh.material = load("res://addons/terra_brush/materials/terrain_mat.tres").duplicate()
+		_terrain.terrain_mesh.material.set_shader_parameter("terrain_color", _terrain.terrain_color.surface_texture)
+		_terrain.terrain_mesh.material.set_shader_parameter("terrain_height", _terrain.terrain_height.surface_texture)
 		
 		file_name = dir.get_next()
 	await _notif_end()
@@ -142,17 +115,17 @@ func _save(show_end_notif:bool = true):
 	# Setup a new Terrain Mesh, Material, and Shader
 	# Use the _terrain shader that doesn't have the brush overlay
 	await _notif("Saving Terrain Mesh..")
-	var terrain_mesh:PlaneMesh = _terrain.mesh.duplicate()
+	var terrain_mesh:PlaneMesh = _terrain.terrain_mesh.duplicate()
 	var terrain_mat := ShaderMaterial.new()
 	terrain_mat.shader = load("res://addons/terra_brush/shaders/terrain_shader.gdshader").duplicate()
 	terrain_mat.set_shader_parameter("terrain_color", _terrain.terrain_color.surface_texture)
 	terrain_mat.set_shader_parameter("terrain_height", _terrain.terrain_height.surface_texture)
 	terrain_mesh.material = terrain_mat
-	var destination_path:String = _get_destination_from_res_path(_terrain.mesh)
+	var destination_path:String = _get_destination_from_res_path(_terrain.terrain_mesh)
 	ResourceSaver.save(terrain_mesh, destination_path)
 	
 	# Change current terrain mesh from now on
-	_terrain.mesh = load(destination_path)
+	_terrain.terrain_mesh = load(destination_path)
 	
 	
 	# Setup a new Grass Mesh, Material, and Shader
@@ -184,25 +157,10 @@ func _generate_terrain():
 	await _notif("Generating References..")
 	
 	# Create a new _terrain node beside the TherraBrush node
-	var generated_terrain := MeshInstance3D.new()
-	generated_terrain.mesh =  load( _get_destination_from_res_path(_terrain.mesh) )
+	var generated_terrain:MeshInstance3D = load("res://addons/terra_brush/Scenes/terrain_template.tscn").instantiate()
 	_terrain.add_sibling(generated_terrain)
 	generated_terrain.owner = _terrain.owner
 	generated_terrain.name = "Generated Terrain"
-	
-	await _notif("Generating Nodes..")
-	
-	# Copy all MultimeshInstance3D (grass)
-	# But only copy the heigh collider, the base collider was just for responsive brushing
-	for child in _terrain.get_children():
-		var child_dup := child.duplicate()
-		generated_terrain.add_child( child_dup )
-		child_dup.owner = _terrain.owner
-		if child_dup.name == TerraBrush.BODY_NAME:
-			var grandchild := child_dup.get_node(TerraBrush.HEIGHT_COLLIDER_NAME).duplicate()
-			child_dup.add_child( grandchild )
-			grandchild.name = TerraBrush.HEIGHT_COLLIDER_NAME
-			grandchild.owner = _terrain.owner
 	
 	await _notif_end()
 

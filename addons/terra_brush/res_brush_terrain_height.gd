@@ -36,7 +36,7 @@ func update():
 		return
 	
 	#[WARNING] Always update colliders first since grass placement is based of them
-	terrain.mesh.material.set_shader_parameter("terrain_height", surface_texture)
+	terrain.terrain_mesh.material.set_shader_parameter("terrain_height", surface_texture)
 	update_terrain_collider()
 	_update_grass_height()
 	
@@ -47,9 +47,9 @@ func update_terrain_collider():
 	
 	# Caches
 	var height_image:Image = surface_texture.get_image()
-	var terrain_size_m:Vector2 = terrain.mesh.size
+	var terrain_size_m:Vector2 = terrain.terrain_mesh.size
 	var terrain_size_px:Vector2i = height_image.get_size() - Vector2i.ONE
-	var height_shape:HeightMapShape3D = terrain.get_node( TerraBrush.BODY_NAME.path_join(TerraBrush.HEIGHT_COLLIDER_NAME) ).shape
+	var height_shape:HeightMapShape3D = terrain.height_shape
 	
 	# Update _terrain collider
 	for w in height_shape.map_width:

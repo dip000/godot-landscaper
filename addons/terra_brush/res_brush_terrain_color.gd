@@ -33,4 +33,4 @@ func update():
 		return
 	
 	terrain.grass_mesh.material.set_shader_parameter("terrain_color", surface_texture)
-	terrain.mesh.material.set_shader_parameter("terrain_color", surface_texture)
+	terrain.terrain_mesh.material.set_shader_parameter("terrain_color", surface_texture)

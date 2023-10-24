@@ -6,7 +6,7 @@ var inspector_plugin:EditorInspectorPlugin
 
 
 func _enter_tree():
-	add_custom_type("TerraBrush", "MeshInstance3D", preload("tool_terra_brush.gd"), preload("icon.svg"))
+	add_custom_type("TerraBrush", "Node3D", preload("tool_terra_brush.gd"), preload("icon.svg"))
 	
 	inspector_plugin = load("res://addons/terra_brush/plugin_inspector.gd").new( get_tree() )
 	add_inspector_plugin( inspector_plugin )
