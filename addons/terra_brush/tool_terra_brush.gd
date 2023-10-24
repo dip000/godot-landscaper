@@ -1,13 +1,20 @@
-## TERRA BRUSH: Tool for terraforming and coloring grass
-# 1. Instantiate a TerraBrush node in scene tree and select it
-# 3. Activate the brush you want from the inspector
-# 4. Hover over your terrain and left-click-and-drag to start terra-brushing!
-
 @tool
 extends MeshInstance3D
 class_name TerraBrush
+# Tool for terraforming and coloring
+# 1. Instantiate a TerraBrush node in scene tree and select it
+# 2. Activate the brush you want from the inspector
+# 3. Hover over your terrain and left-click-and-drag to start terra-brushing!
 
-# Global properties
+
+const DEFAULT_TERRAIN_MESH_PATH := "res://addons/terra_brush/meshes/terrain_mesh.tres"
+const DEFAULT_GRASS_MESH_PATH := "res://addons/terra_brush/meshes/grass_mesh.tres"
+const HEIGHT_COLLIDER_NAME := "Height"
+const BASE_COLLIDER_NAME := "Base"
+const BODY_NAME := "Body"
+
+## Folder to save or load assets. 
+@export_dir() var assets_folder:String = "res://generated_terrain/"
 @export_range(1, 150, 1, "suffix:%") var brush_scale:float = 20
 @export var map_size:Vector2i: set=_set_map_size
 
@@ -17,17 +24,17 @@ class_name TerraBrush
 @export var grass_color := TBrushGrassColor.new()
 @export var grass_spawn := TBrushGrassSpawn.new()
 
-# Names. Use like "get_node(BODY_NAME.join_path(HEIGHT_COLLIDER_NAME))"
-const HEIGHT_COLLIDER_NAME := "Height"
-const BASE_COLLIDER_NAME := "Base"
-const BODY_NAME := "Body"
-
-# Current meshes (this and "mesh" property from inheritance). They will change once you set a folder to save them
-var grass_mesh:QuadMesh = load("res://addons/terra_brush/meshes/grass_mesh.tres")
-const TERRAIN_MESH_PATH := "res://addons/terra_brush/meshes/terrain_mesh.tres"
-
-# Keeps track of which brush is currently active so it can call "_active_brush.paint()"
+# Keeps track of which brush is currently active
 var _active_brush:TBrush
+
+# Set mesh to every used multimesh (grass)
+# Changes once you set a folder to save them. See inspector plugin
+var grass_mesh:QuadMesh = load(DEFAULT_GRASS_MESH_PATH):
+	set(v):
+		grass_mesh = v
+		for child in get_children():
+			if child is MultiMeshInstance3D:
+				child.multimesh.mesh = v
 
 
 func _ready():
@@ -39,19 +46,18 @@ func _ready():
 		return
 	
 	# Initialize these only if this is the first time this object has been instantiated
-	# Can't instantiate children while this script is still in ready() cycle
+	# Wait a process_frame or won't be able to instantiate children while this script is in ready() cycle finishes
 	if not has_node(BODY_NAME):
 		await get_tree().process_frame
-		mesh = load(TERRAIN_MESH_PATH)
+		mesh = load(DEFAULT_TERRAIN_MESH_PATH)
 		_create_children()
 		_set_map_size( Vector2i(10, 10) )
 	
-	# Setup brushes. 
-	# "_deactivate_brushes()" Will keep only one brush active at a time
+	# Setup brushes. Keeps only one brush active at a time
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
 		brush.on_active.connect( _deactivate_brushes.bind(brush) )
-		brush.setup( self )
-
+		brush.terrain = self
+		brush.setup()
 
 func _create_children():
 	var static_body := StaticBody3D.new()

@@ -1,15 +1,15 @@
 @tool
 extends Resource
 class_name TBrush
+# Base class for all brushes like "TBrushGrassColor"
+# Needs to be hosted and setted up from a TerraBrush node instance
+# Every export property needs to call "update()" to apply any change in the terrain
 
 signal on_active()
 
+const SURFACE_SIZE_DEFAULT:Vector2i = Vector2(1024, 1024)
 const BRUSH_SIZE:Vector2i = Vector2(512, 512)
-const BRUSH_FULL_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
-const SURFACE_SIZE:Vector2i = Vector2(1024, 1024)
-const SURFACE_HALF_SIZE:Vector2i = SURFACE_SIZE/2
-const SURFACE_FULL_RECT:Rect2i = Rect2i(Vector2i.ZERO, SURFACE_SIZE)
-
+const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 const BRUSH_MASK:Texture2D = preload("res://addons/terra_brush/textures/default_brush.tres")
 
 
@@ -25,55 +25,50 @@ const BRUSH_MASK:Texture2D = preload("res://addons/terra_brush/textures/default_
 @export var surface_texture:Texture2D:
 	set(v):
 		surface_texture = v
-		on_active.emit()
-		active = true
 		update()
 
-## Leave empty to use a simple round texture. Or use a grass texture for "grass_color" brush for example
-#@export var brush_texture:Texture2D
-
 var t_color:Color
-var _terrain:TerraBrush
+var terrain:TerraBrush
 
 
-func setup(terrain:TerraBrush):
-	_terrain = terrain
-	active = false
+# Called from "TerraBrush._ready()"
+func setup():
+	pass
 
+# Called from "TerraBrush.paint()"
 func paint(_scale:float, _pos:Vector3, _primary_action:bool):
 	pass
-	
+
+# Called after modifying something that needs to apply changes like setting a new "surface_texture"
 func update():
 	pass
 
-func _create_empty_img(color:Color) -> Image:
-	var img := Image.create(1024, 1024, false, Image.FORMAT_RGBA8)
-	img.fill(color)
-	return img
-
+# Paints "TBrush.surface_texture" with BRUSH_MASK, previously colored with "TBrush.t_color"
 func _bake_brush_into_surface(scale:float, pos:Vector3):
-	if not _terrain:
+	if not terrain:
 		return
 	
 	# Transforms
-	var size:Vector2i = SURFACE_SIZE * scale #size in pixels
-	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/_terrain.mesh.size #in [0,1] range
-	pos_absolute *= Vector2(SURFACE_SIZE) #move in pixel size
-	pos_absolute += SURFACE_HALF_SIZE * (1.0-scale) #move from center
+	var surface_size:Vector2i = surface_texture.get_size()
+	var surface_full_rect := Rect2i(Vector2i.ZERO, surface_size)
+	var size:Vector2i = surface_size * scale #size in pixels
+	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/terrain.mesh.size #in [0,1] range
+	pos_absolute *= Vector2(surface_size) #move in pixel size
+	pos_absolute += (surface_size/2.0) * (1.0-scale) #move from center
 	
-	# Create color
-	var brush_img:Image = Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
-	brush_img.fill( t_color )
-	
-	# Recolor brush texture if it was provided
-#	if brush_texture:
-#		brush_img.blend_rect(brush_texture.get_image(), BRUSH_FULL_RECT, Vector2i.ZERO)
+	# Get images to process
+	var brush_mask:Image = BRUSH_MASK.get_image().duplicate()
+	var surface:Image = surface_texture.get_image()
+	var brush_img:Image = _create_empty_img(t_color, size.x, size.y)
 	
 	# Blend brush over surface
-	var surface:Image = surface_texture.get_image()
-	var brush_mask:Image = BRUSH_MASK.get_image().duplicate()
 	brush_mask.resize(size.x, size.y)
-	surface.blend_rect_mask( brush_img, brush_mask, SURFACE_FULL_RECT, pos_absolute)
+	surface.blend_rect_mask( brush_img, brush_mask, surface_full_rect, pos_absolute)
 	surface_texture.update(surface)
 
+
+func _create_empty_img(color:Color, size_x:int=SURFACE_SIZE_DEFAULT.x, size_y:int=SURFACE_SIZE_DEFAULT.y) -> Image:
+	var img := Image.create(size_x, size_y, false, Image.FORMAT_RGBA8)
+	img.fill(color)
+	return img
 

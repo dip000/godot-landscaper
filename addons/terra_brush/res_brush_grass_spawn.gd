@@ -1,6 +1,9 @@
 @tool
 extends TBrush
 class_name TBrushGrassSpawn
+# Brush that spawns grass when you paint over the terrain
+# Paints different shades of gray over the "surface_texture" depending on the grass variant
+
 
 enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 
@@ -10,6 +13,7 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		spawn_type = v
 		on_active.emit()
 		active = true
+		update()
 
 ## Grass variant from "variants" property (below "Shader Properties"). Only if you selected mode SPAWN_ONE_VARIANT
 @export var variant:int = 0:
@@ -17,6 +21,7 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		variant = clampi(v, 0, variants.size()-1)
 		on_active.emit()
 		active = true
+		update()
 
 ## Amount of grass proportional to the whole surface
 @export var density:int = 1024:
@@ -24,54 +29,53 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		density = v
 		on_active.emit()
 		active = true
-		populate_grass()
+		update()
 
 @export_group("Shader Properties")
 ## Adding or deleting a new variant might remap your current variant placements
 @export var variants:Array[Texture2D]:
 	set(v):
 		variants = v
-		populate_grass()
+		update()
 
 ## Grass always looks at the camera in y-axis
 @export var billboard_y:bool = true:
 	set(v):
 		billboard_y = v
-		populate_grass()
+		update()
 
 ## If it should recolor the details you may have used in your variant texture.
 ## Remember that variant textures must be white and their details black
 @export var margin_enable:bool = true:
 	set(v):
 		margin_enable = v
-		populate_grass()
+		update()
 
 ## Detail recolor. See margin_enable
 @export var margin_color:Color = Color(0.3, 0.3, 0.3):
 	set(v):
 		margin_color = v
-		populate_grass()
+		update()
 
-
+# To re-create the same series of spawn positions
 var _rng := RandomNumberGenerator.new()
 var _rng_state:int
 
 
-func setup(terrain:TerraBrush):
-	super(terrain)
+func setup():
 	resource_name = "grass_spawn"
-	var tex := ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
-	surface_texture = tex
+	surface_texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+	
+	# Set default variants. Can be changed at any moment
 	variants = [
 		preload("res://addons/terra_brush/textures/grass_small_texture.png"),
 		preload("res://addons/terra_brush/textures/grass_texture.png"),
 	]
+	
+	# Setup RNG as documentation suggests
 	_rng.set_seed( hash("TerraBrush") )
 	_rng_state = _rng.get_state()
 
-func update():
-	_terrain.grass_mesh.material.set_shader_parameter("grass_spawn", surface_texture)
-	populate_grass()
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active or not surface_texture:
@@ -94,8 +98,16 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 	update()
 
 
+func update():
+	if not terrain or not surface_texture:
+		return
+	
+	terrain.grass_mesh.material.set_shader_parameter("grass_spawn", surface_texture)
+	populate_grass()
+
+
 func populate_grass():
-	if not _terrain or not surface_texture:
+	if not terrain or not surface_texture:
 		return
 	
 	if variants.is_empty():
@@ -104,32 +116,31 @@ func populate_grass():
 	
 	# Caches
 	var terrain_image:Image = surface_texture.get_image()
-	var terrain_size_m:Vector2 = _terrain.mesh.size
-	var terrain_size_px:Vector2i = terrain_image.get_size()
+	var terrain_size_m:Vector2 = terrain.mesh.size
+	var terrain_size_px:Vector2 = terrain_image.get_size()
 	var total_variants:int = variants.size()
 	var max_index:int = total_variants - 1
-	var space := _terrain.get_world_3d().direct_space_state
+	var space := terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
 	
 	# Reset previous instances
 	var multimesh_instances:Array[MultiMeshInstance3D]
-	for child in _terrain.get_children():
+	for child in terrain.get_children():
 		if child is MultiMeshInstance3D:
 			multimesh_instances.append(child)
 			child.multimesh.instance_count = 0
-			child.position = Vector3.ZERO # fix their position just in case
 	
 	# Add instances if more variants were added
 	if multimesh_instances.size() < total_variants:
-		for _variant_index in total_variants - multimesh_instances.size():
+		for variant_index in total_variants - multimesh_instances.size():
 			var new_instance := MultiMeshInstance3D.new()
 			new_instance.multimesh = MultiMesh.new()
 			new_instance.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-			new_instance.multimesh.mesh = _terrain.grass_mesh
+			new_instance.multimesh.mesh = terrain.grass_mesh
 			multimesh_instances.append(new_instance)
 			
-			_terrain.add_child(new_instance)
-			new_instance.owner = _terrain
+			terrain.add_child(new_instance)
+			new_instance.owner = terrain.owner
 			new_instance.name = "Grass"
 	
 	# Delete instances if variants were reduced
@@ -138,7 +149,7 @@ func populate_grass():
 			multimesh_instances.pop_back().queue_free()
 	
 	# Setup shader
-	var mat:ShaderMaterial = _terrain.grass_mesh.material
+	var mat:ShaderMaterial = terrain.grass_mesh.material
 	mat.set_shader_parameter("bilboard_y", billboard_y)
 	mat.set_shader_parameter("enable_margin", margin_enable)
 	mat.set_shader_parameter("color_margin", margin_color)
@@ -151,13 +162,10 @@ func populate_grass():
 	var transforms_variants:Array[Array]
 	transforms_variants.resize(total_variants)
 	
-	for current_instance in density:
+	for _i in density:
 		# Get pixel value in random position
-		var x:float = _rng.randf()
-		var z:float = _rng.randf()
-		var x_px:int = floori(x*terrain_size_px.x)
-		var z_px:int = floori(z*terrain_size_px.y)
-		var terrain_value:float = terrain_image.get_pixel(x_px, z_px).r
+		var rand := Vector2(_rng.randf(), _rng.randf())
+		var terrain_value:float = terrain_image.get_pixelv( rand*terrain_size_px ).r
 		
 		# WHITE = SPAWN_RANDOM_VARIANTS (always calculate to ensure full state restoration from RandomNumberGenerator)
 		var variant_index:int = _rng.randi_range(0, max_index)
@@ -170,20 +178,16 @@ func populate_grass():
 		if terrain_value < 1.0:
 			variant_index = roundi( terrain_value*max_index )
 		
-		# From the center of the texture
-		var x_m:float = (x - 0.5)*terrain_size_m.x
-		var z_m:float = (z - 0.5)*terrain_size_m.y
+		# Meters from the center of the texture
+		var x_m:float = (rand.x - 0.5) * terrain_size_m.x
+		var z_m:float = (rand.y - 0.5) * terrain_size_m.y
 		
 		# Raycast to the HeightMapShape3D to find the actual ground level (shape should've been updated in TBrushTerrainHeight)
 		ray.from = Vector3(x_m, 10.0, z_m)
 		ray.to = Vector3(x_m, -10.0, z_m)
-		var result := space.intersect_ray(ray)
-		if not result: continue
-		var y_m:float = result.position.y
+		var y_m:float = space.intersect_ray(ray).position.y
 		
-		# Using "height_image" as height reference will spawn floating grass. The vertices wouldn't alignt perfectly with the image
-#		var y_m:float = height_image.get_pixel(x_px, z_px).r * TBrushTerrainHeight.HEIGHT_STRENGTH
-		
+		# Finally, we have the correct position to spawn
 		var pos := Vector3(x_m, y_m, z_m)
 		var transf := Transform3D(Basis(), Vector3()).translated( pos )
 		transforms_variants[variant_index].append( transf )
@@ -196,7 +200,6 @@ func populate_grass():
 		multimesh_inst.multimesh.instance_count = transforms.size()
 		multimesh_inst.set_instance_shader_parameter("variant_index", variant_index)
 		
-		var transforms_size:int = transforms.size()
-		for transform_index in transforms_size:
+		for transform_index in transforms.size():
 			multimesh_inst.multimesh.set_instance_transform( transform_index, transforms[transform_index] )
 
