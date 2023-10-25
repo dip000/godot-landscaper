@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-var instanced_tool:TerraBrush
+var _terra_brush:TerraBrush
 var inspector_plugin:EditorInspectorPlugin
 
 
@@ -17,7 +17,7 @@ func _exit_tree():
 
 
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
-	if instanced_tool and is_instance_valid(instanced_tool) and event is InputEventMouse:
+	if _terra_brush and is_instance_valid(_terra_brush) and event is InputEventMouse:
 		var root = get_tree().get_edited_scene_root()
 		var space = root.get_world_3d().direct_space_state
 		var mouse = event.get_position() #mouse position from viewport might not work properly. Use event's mouse position instead
@@ -27,22 +27,22 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		var result = space.intersect_ray(ray)
 		
 		if not result:
-			instanced_tool.exit_terrain()
+			_terra_brush.exit_terrain()
 			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 				return EditorPlugin.AFTER_GUI_INPUT_STOP
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 		
-		instanced_tool.over_terrain( result.position )
+		_terra_brush.over_terrain( result.position )
 		
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-			instanced_tool.paint(result.position, true)
+			_terra_brush.paint(result.position, true)
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-			instanced_tool.paint(result.position, false)
+			_terra_brush.paint(result.position, false)
 		
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_WHEEL_UP):
-			instanced_tool.scale(-5)
+			_terra_brush.scale(-2)
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_WHEEL_DOWN):
-			instanced_tool.scale(5)
+			_terra_brush.scale(2)
 		
 		if event is InputEventMouseButton:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
@@ -52,8 +52,8 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 func _handles(object):
 	if object is TerraBrush:
-		instanced_tool = object
-		instanced_tool.scene_active()
+		_terra_brush = object
+		_terra_brush.scene_active()
 		return true
 	else:
 		return false

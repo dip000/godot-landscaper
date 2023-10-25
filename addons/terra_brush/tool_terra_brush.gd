@@ -6,9 +6,9 @@ class_name TerraBrush
 # 2. Activate the brush you want from the inspector
 # 3. Hover over your terrain and left-click-and-drag to start terra-brushing!
 
+
 ## Folder to save or load assets. 
 @export_dir() var assets_folder:String = "res://generated_terrain/"
-@export_range(1, 150, 1, "suffix:%") var brush_scale:float = 20
 @export var map_size:Vector2i: set=_set_map_size
 
 # Brushes
@@ -17,28 +17,29 @@ class_name TerraBrush
 @export var grass_color := TBrushGrassColor.new()
 @export var grass_spawn := TBrushGrassSpawn.new()
 
-#[TEST] Get rid of exports on release
-@export var grass_holder:Node3D
-@export var terrain:MeshInstance3D
-@export var height_shape:HeightMapShape3D
-@export var base_shape:BoxShape3D
-
+var brush_scale:float = 20
+var grass_holder:Node3D
+var terrain:MeshInstance3D
+var height_shape:HeightMapShape3D
+var base_shape:BoxShape3D
 
 # Keeps track of which brush is currently active
 var _active_brush:TBrush
 
 # Set mesh to every used multimesh (grass)
-@export var grass_mesh:QuadMesh:
+var grass_mesh:QuadMesh:
 	set(v):
 		grass_mesh = v
-		for child in grass_holder.get_children():
-			child.multimesh.mesh = v
+		if grass_holder:
+			for child in grass_holder.get_children():
+				child.multimesh.mesh = v
 
 # Just for consistency with "grass_mesh"
-@export var terrain_mesh:PlaneMesh:
+var terrain_mesh:PlaneMesh:
 	set(v):
 		terrain_mesh = v
-		terrain.mesh = v
+		if terrain:
+			terrain.mesh = v
 
 
 func _ready():
@@ -47,17 +48,13 @@ func _ready():
 		return
 	
 	# Initialize these only if this is the first time this object has been instantiated
+	# Needs to wait a frame to let this node finish updating first
 	if not get_child(0):
 		await  get_tree().process_frame
-		terrain = load("res://addons/terra_brush/Scenes/terrain_template.tscn").instantiate()
-		add_child(terrain)
-		terrain.owner = owner
-		grass_holder = terrain.get_node("Grass")
-		height_shape = terrain.get_node("Body/Height").shape
-		base_shape = terrain.get_node("Body/Base").shape
-		grass_mesh = grass_holder.get_child(0).multimesh.mesh
-		terrain_mesh = terrain.mesh
-		_set_map_size( Vector2i(10, 10) )
+		terrain = AssetsManager.generate_terrain_nodes(self)
+		terrain_mesh = AssetsManager.generate_terrain_mesh(self, true)
+		grass_mesh = AssetsManager.generate_grass_mesh(self)
+		_set_map_size( Vector2i(5, 5) ) #[TEST] set to (10,10)
 	
 	# Setup brushes. Keeps only one brush active at a time
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
@@ -73,7 +70,6 @@ func _set_map_size(size:Vector2i):
 	if not terrain or not Engine.is_editor_hint() or not is_node_ready() or size.x <= 0 or size.y <= 0:
 		return
 	
-	print(terrain_mesh, size)
 	# Subdivissions are one less than meters, while vertices are one more. Heh..
 	terrain_mesh.size = size
 	terrain_mesh.subdivide_width = size.x - 1
@@ -85,8 +81,9 @@ func _set_map_size(size:Vector2i):
 	# Base from where to draw in case you're outside heightmap mesh. Add extra margin for responsivenes
 	base_shape.size = Vector3(size.x+1, 0.05, size.y+1)
 	
-	# Update colliders first, then place grass according to the colliders
 	grass_mesh.material.set_shader_parameter("terrain_size", size)
+	
+	# Update terrain collider first, then place grass according to the colliders
 	terrain_height.update_terrain_collider()
 	grass_spawn.populate_grass()
 

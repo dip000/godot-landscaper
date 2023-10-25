@@ -1,182 +1,185 @@
 extends EditorInspectorPlugin
+class_name AssetsManager
+# SAVER AND LOADER OF TERRA-BRUSH ASSETS
+# Creates buttons in the inspector to process the assets needed like Meshes, materials, etc..
+#
+# NOTES:
+#  * Creating a 'floating resource' (withouth a resource_path) will not work from @exports
 
-var _terrain:TerraBrush
-var _notif_label:Label #[DEPRECATED]
-var _tree:SceneTree
+
+const DEFAULT_GRASS_GRADIENT:GradientTexture2D = preload("res://addons/terra_brush/textures/default_grass_gradient.tres")
+const DEFAULT_BRUSH:Texture2D = preload("res://addons/terra_brush/textures/default_brush.tres")
+const DEFAULT_GRASS_VARIANT1:Texture2D = preload("res://addons/terra_brush/textures/default_grass_v1.png")
+const DEFAULT_GRASS_VARIANT2:Texture2D = preload("res://addons/terra_brush/textures/default_grass_v2.png")
+
+const _TERRAIN_TEMPLATE:PackedScene = preload("res://addons/terra_brush/Scenes/terrain_template.tscn")
 const _INSPECTOR_MENU:PackedScene = preload("res://addons/terra_brush/Scenes/inspector_menu.tscn")
+
+const _TERRAIN_SHADER:Shader = preload("res://addons/terra_brush/shaders/terrain_shader.gdshader")
+const _TERRAIN_SHADER_OVERLAY:Shader = preload("res://addons/terra_brush/shaders/terrain_overlay_shader.gdshader")
+const _GRASS_SHADER:Shader = preload("res://addons/terra_brush/shaders/grass_shader.gdshader")
+
+var _terra_brush:TerraBrush
+var _tree:SceneTree
+
 
 # Start with a SceneTree reference from "plugin_terra_brush.gd" for notifications and delays
 func _init(scene_tree:SceneTree):
 	_tree = scene_tree
-
 
 # Creates "Load", "Save" and "Generate" buttons in inspector
 func _parse_category(object, category):
 	if category != "tool_terra_brush.gd":
 		return
 	
-	add_custom_control( _INSPECTOR_MENU.instantiate() )
-
-
-# Hides all irrelevant inspector properties. Specialy beacuse transforms aren't supported right now
-#func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wide):
-#	return not [
-#		"brush_scale",
-#		"map_size",
-#		"terrain_color",
-#		"terrain_height",
-#		"grass_color",
-#		"grass_spawn",
-#	].any(func(n): return n == name)
-
+	var inspector_menu:Control = _INSPECTOR_MENU.instantiate()
+	inspector_menu.get_node("Load").pressed.connect( _load_assets )
+	inspector_menu.get_node("Save").pressed.connect( _save_assets )
+	add_custom_control( inspector_menu )
 
 # Update TerraBrush tool from scene node
 func _can_handle(object):
 	if object is TerraBrush:
-		_terrain = object
+		_terra_brush = object
 		return true
-	else:
-		return false
+	return false
 
 
 func _load_assets():
-	# Igore if already loading
-	if _notif_label.is_visible():
-		return
-	
-	# Safety checks
-	var folder:String = _terrain.assets_folder
-	if not DirAccess.dir_exists_absolute(folder):
-		await _notif_end("Folder Not Found :c")
-		return
-	
-	_terrain.assets_folder = folder
+	# Safety check
+	var folder:String = _terra_brush.assets_folder
 	var dir := DirAccess.open(folder)
-	
 	if not dir:
-		await _notif_end("Error: %s" %DirAccess.get_open_error())
 		return
 	
-	# Find resources through the folder
-	dir.list_dir_begin()
-	var texture_names:Array[String] = ["grass_color", "grass_spawn", "terrain_color", "terrain_height"]
-	var file_name:String = dir.get_next()
+	# Save textures. This might take some time
+	var brushes:Array[TBrush] = [_terra_brush.grass_spawn, _terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]
+	for brush in brushes:
+		print("Loading: ", brush.resource_name)
+		await _tree.process_frame
+		var path:String = folder.path_join(brush.resource_name + ".tres")
+		brush.texture = load( path )
+		
+	var path:String
 	
-	while not file_name.is_empty():
-		if dir.current_is_dir():
-			file_name = dir.get_next()
-			continue
-		
-		var res:Resource = load( folder.path_join(file_name) )
-		var name:String = file_name.get_basename()
-		await _notif("Loading '%s'" %name)
-		
-		# Set texture's brush. If user changed its file name, try with resource_name
-		if name in texture_names or res.resource_name in texture_names:
-			_terrain[name].surface_texture = res
-		
-		# Update size from the loaded mesh
-		elif name == "terrain_mesh":
-			_terrain.mesh = res
-			_terrain.map_size = res.size
-		
-		# Update from loaded gras mesh
-		elif name == "grass_mesh":
-			_terrain.grass_mesh = res
-		
-		# Use another material
-		_terrain.terrain_mesh.material = load("res://addons/terra_brush/materials/terrain_mat.tres").duplicate()
-		_terrain.terrain_mesh.material.set_shader_parameter("terrain_color", _terrain.terrain_color.surface_texture)
-		_terrain.terrain_mesh.material.set_shader_parameter("terrain_height", _terrain.terrain_height.surface_texture)
-		
-		file_name = dir.get_next()
-	await _notif_end()
-
+	print("Loading terrain_mesh")
+	await _tree.process_frame
+	path = folder.path_join("terrain_mesh.tres")
+	_terra_brush.terrain_mesh = load( path )
+	
+	print("Loading terrain_material")
+	await _tree.process_frame
+	path = folder.path_join("terrain_material.tres")
+	_terra_brush.terrain_mesh.material = load( path )
+	
+	print("Loading terrain_shader")
+	await _tree.process_frame
+	path = folder.path_join("terrain_shader.gdshader")
+	_terra_brush.terrain_mesh.material.shader = load( path )
+	
+	print("Loading grass_mesh")
+	await _tree.process_frame
+	path = folder.path_join("grass_mesh.tres")
+	_terra_brush.grass_mesh = load( path )
+	
+	print("Loading grass_material")
+	await _tree.process_frame
+	path = folder.path_join("grass_material.tres")
+	_terra_brush.grass_mesh.material = load( path )
+	
+	print("Loading grass_shader")
+	await _tree.process_frame
+	path = folder.path_join("grass_shader.gdshader")
+	_terra_brush.grass_mesh.material.shader = load( path )
+	
 
 # Saves all relevant resources into a external folder so you can safetly exit or make different versions
-func _save(show_end_notif:bool = true):
-	# Igore if already saving
-	if _notif_label.is_visible():
-		return
-	
-	var folder:String = _terrain.assets_folder
-	if not DirAccess.dir_exists_absolute(folder):
+func _save_assets():
+	var folder:String = _terra_brush.assets_folder
+	if DirAccess.dir_exists_absolute(folder):
+		print("[TODO] Implement a 'Replace assets' popup")
+	else:
 		DirAccess.make_dir_absolute(folder)
 	
-	# Copy textures. This might take some time
-	# Needs to load them again so we have a reference to the new updated file in FileSystem
-	var brushes:Array[TBrush] = [_terrain.grass_spawn, _terrain.grass_color, _terrain.terrain_color, _terrain.terrain_height]
+	# Save textures. This might take some time
+	var brushes:Array[TBrush] = [_terra_brush.grass_spawn, _terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]
 	for brush in brushes:
-		await _notif('Saving "%s"..'%brush.resource_name)
-		var destination_path:String = folder.path_join(brush.resource_name + ".tres")
-		ResourceSaver.save(brush.surface_texture, destination_path)
-		brush.surface_texture = load(destination_path)
-	
-	# Setup a new Terrain Mesh, Material, and Shader
-	# Use the _terrain shader that doesn't have the brush overlay
-	await _notif("Saving Terrain Mesh..")
-	var terrain_mesh:PlaneMesh = _terrain.terrain_mesh.duplicate()
-	var terrain_mat := ShaderMaterial.new()
-	terrain_mat.shader = load("res://addons/terra_brush/shaders/terrain_shader.gdshader").duplicate()
-	terrain_mat.set_shader_parameter("terrain_color", _terrain.terrain_color.surface_texture)
-	terrain_mat.set_shader_parameter("terrain_height", _terrain.terrain_height.surface_texture)
-	terrain_mesh.material = terrain_mat
-	var destination_path:String = _get_destination_from_res_path(_terrain.terrain_mesh)
-	ResourceSaver.save(terrain_mesh, destination_path)
-	
-	# Change current terrain mesh from now on
-	_terrain.terrain_mesh = load(destination_path)
+		print("Saving: ", brush.resource_name)
+		await _tree.process_frame
+		var path:String = folder.path_join(brush.resource_name + ".tres")
+		brush.texture.take_over_path( path )
+		ResourceSaver.save(brush.texture, path)
 	
 	
-	# Setup a new Grass Mesh, Material, and Shader
-	# Here we can duplicate everything. But not deep-duplicate so the textures doesn't get pulled again
-	await _notif("Saving Grass Mesh..")
-	var grass_mesh:QuadMesh = _terrain.grass_mesh.duplicate()
-	grass_mesh.material = _terrain.grass_mesh.material.duplicate()
-	grass_mesh.material.shader = _terrain.grass_mesh.material.shader.duplicate()
-	grass_mesh.material.set_shader_parameter("grass_color", _terrain.grass_color.surface_texture)
-	grass_mesh.material.set_shader_parameter("terrain_color", _terrain.terrain_color.surface_texture)
-	grass_mesh.material.set_shader_parameter("terrain_size", Vector2(_terrain.map_size))
-	destination_path = _get_destination_from_res_path(_terrain.grass_mesh)
-	ResourceSaver.save(grass_mesh, destination_path)
-	var saved_mesh:QuadMesh = load(destination_path)
-	
-	# Change current grass mesh from now on
-	_terrain.grass_mesh = saved_mesh
-	
-	if show_end_notif:
-		await _notif_end()
-
-
-func _generate_terrain():
-	# Igore if already generating
-	if _notif_label.is_visible():
-		return
-	
-	await _save(false)
-	await _notif("Generating References..")
-	
-	# Create a new _terrain node beside the TherraBrush node
-	var generated_terrain:MeshInstance3D = load("res://addons/terra_brush/Scenes/terrain_template.tscn").instantiate()
-	_terrain.add_sibling(generated_terrain)
-	generated_terrain.owner = _terrain.owner
-	generated_terrain.name = "Generated Terrain"
-	
-	await _notif_end()
-
-
-# Uses the resource_name from the original resource to build a new destination path
-func _get_destination_from_res_path(res:Resource) -> String:
-	return _terrain.assets_folder.path_join(res.resource_path.get_file())
-
-
-# Prints a notification in inspector. Needs to be awaited so the editor doesn't get stuck and crash for long processes
-func _notif(msg:String):
-	_notif_label.show()
-	_notif_label.text = msg
+	print("Saving terrain_shader")
 	await _tree.process_frame
-func _notif_end(msg:String="Done!"):
-	_notif_label.show()
-	_notif_label.text = msg
-	await _tree.create_timer(2.0).timeout
-	_notif_label.hide()
+	var path := folder.path_join("terrain_shader.gdshader")
+	_terra_brush.terrain_mesh.material.shader.take_over_path( path )
+	ResourceSaver.save( _terra_brush.terrain_mesh.material.shader, path )
+	
+	print("Saving terrain_material")
+	await _tree.process_frame
+	path = folder.path_join("terrain_material.tres")
+	_terra_brush.terrain_mesh.material.take_over_path( path )
+	ResourceSaver.save( _terra_brush.terrain_mesh.material, path )
+	
+	print("Saving terrain_mesh")
+	await _tree.process_frame
+	path = folder.path_join("terrain_mesh.tres")
+	_terra_brush.terrain_mesh.take_over_path( path )
+	ResourceSaver.save( _terra_brush.terrain_mesh, path )
+	
+	print("Saving grass_shader")
+	await _tree.process_frame
+	path = folder.path_join("grass_shader.gdshader")
+	_terra_brush.grass_mesh.material.shader.take_over_path( path )
+	ResourceSaver.save( _terra_brush.grass_mesh.material.shader, path )
+	
+	print("Saving grass_material")
+	await _tree.process_frame
+	path = folder.path_join("grass_material.tres")
+	_terra_brush.grass_mesh.material.take_over_path( path )
+	ResourceSaver.save( _terra_brush.grass_mesh.material, path )
+	
+	print("Saving grass_mesh")
+	await _tree.process_frame
+	path = folder.path_join("grass_mesh.tres")
+	_terra_brush.grass_mesh.take_over_path( path )
+	ResourceSaver.save( _terra_brush.grass_mesh, path )
+
+
+static func generate_grass_mesh(terra_brush:TerraBrush) -> QuadMesh:
+	var grass_mesh := QuadMesh.new()
+	grass_mesh.material = ShaderMaterial.new()
+	grass_mesh.material.shader = _GRASS_SHADER.duplicate()
+	
+	grass_mesh.material.set_shader_parameter("grass_color", terra_brush.grass_color.texture)
+	grass_mesh.material.set_shader_parameter("terrain_color", terra_brush.terrain_color.texture)
+	grass_mesh.material.set_shader_parameter("terrain_size", terra_brush.map_size)
+	return grass_mesh
+
+
+static func generate_terrain_mesh(terra_brush:TerraBrush, overlay:bool) -> PlaneMesh:
+	var terrain_mesh = PlaneMesh.new()
+	terrain_mesh.material = ShaderMaterial.new()
+	
+	if overlay:
+		terrain_mesh.material.shader = _TERRAIN_SHADER_OVERLAY.duplicate()
+		terrain_mesh.material.set_shader_parameter("brush_texture", DEFAULT_BRUSH)
+	else:
+		terrain_mesh.material.shader = _TERRAIN_SHADER.duplicate()
+	
+	terrain_mesh.material.set_shader_parameter("terrain_color", terra_brush.terrain_color.texture)
+	terrain_mesh.material.set_shader_parameter("terrain_height", terra_brush.terrain_height.texture)
+	return terrain_mesh
+
+
+static func generate_terrain_nodes(terra_brush:TerraBrush) -> MeshInstance3D:
+	var terrain:MeshInstance3D = _TERRAIN_TEMPLATE.instantiate()
+	terra_brush.add_child(terrain)
+	terrain.owner = terra_brush.owner
+	
+	terra_brush.grass_holder = terrain.get_node("Grass")
+	terra_brush.height_shape = terrain.get_node("Body/Height").shape
+	terra_brush.base_shape = terrain.get_node("Body/Base").shape
+	return terrain

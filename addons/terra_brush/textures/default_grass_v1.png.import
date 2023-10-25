@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvid0x0pyktow"
-path.s3tc="res://.godot/imported/grass_small_texture.png-cf6b08baff690a515eae423cd812b487.s3tc.ctex"
+path.s3tc="res://.godot/imported/default_grass_v1.png-37ff8560f4318d907fc2369c96153e97.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/terra_brush/textures/grass_small_texture.png"
-dest_files=["res://.godot/imported/grass_small_texture.png-cf6b08baff690a515eae423cd812b487.s3tc.ctex"]
+source_file="res://addons/terra_brush/textures/default_grass_v1.png"
+dest_files=["res://.godot/imported/default_grass_v1.png-37ff8560f4318d907fc2369c96153e97.s3tc.ctex"]
 
 [params]
 

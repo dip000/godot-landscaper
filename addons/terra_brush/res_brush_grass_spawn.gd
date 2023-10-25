@@ -2,7 +2,7 @@
 extends TBrush
 class_name TBrushGrassSpawn
 # Brush that spawns grass when you paint over the terrain
-# Paints different shades of gray over the "surface_texture" depending on the grass variant
+# Paints different shades of gray over the "texture" depending on the grass variant
 
 
 enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
@@ -13,7 +13,6 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		spawn_type = v
 		on_active.emit()
 		active = true
-		update()
 
 ## Grass variant from "variants" property (below "Shader Properties"). Only if you selected mode SPAWN_ONE_VARIANT
 @export var variant:int = 0:
@@ -21,7 +20,6 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		variant = clampi(v, 0, variants.size()-1)
 		on_active.emit()
 		active = true
-		update()
 
 ## Amount of grass proportional to the whole surface
 @export var density:int = 1024:
@@ -29,33 +27,58 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		density = v
 		on_active.emit()
 		active = true
-		update()
+		populate_grass()
 
-@export_group("Shader Properties")
+@export_group("Grass Settings")
+
+## Grass always looks at the camera in y-axis
+@export var billboard_y := true:
+	set(v):
+		billboard_y = v
+		update_grass_shader("billboard_y", billboard_y)
+
+##[NOT IMPLEMENTED]
+@export var cross_billboard := false:
+	set(v):
+		cross_billboard = v
+
+## If it should recolor the details you may have used in your variant texture.
+## Remember that variant textures must be white and their details black
+@export var enable_margin := true:
+	set(v):
+		enable_margin = v
+		update_grass_shader("enable_margin", enable_margin)
+
+## Detail recolor. See margin_enable
+@export var margin_color := Color(0.3, 0.3, 0.3):
+	set(v):
+		margin_color = v
+		update_grass_shader("margin_color", margin_color)
+
+## Subdivisions for each blade of grass. This affects its sway animation and gradient color smoothess (because is vertex colored)
+@export var quality:int = 3:
+	set(v):
+		quality = v
+		terrain.grass_mesh.subdivide_depth = quality
+
+## Size of the average blade of grass in meters
+@export var size := Vector2(0.3, 0.3):
+	set(v):
+		size = v
+		terrain.grass_mesh.size = size
+		terrain.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
+
+## The color mix from the grass roots to the top as seen from the front. BLACK=terrain_color and WHITE=grass_color
+@export var gradient_mask:GradientTexture2D:
+	set(v):
+		gradient_mask = v
+		update_grass_shader("gradient_mask", gradient_mask)
+
 ## Adding or deleting a new variant might remap your current variant placements
 @export var variants:Array[Texture2D]:
 	set(v):
 		variants = v
-		update()
-
-## Grass always looks at the camera in y-axis
-@export var billboard_y:bool = true:
-	set(v):
-		billboard_y = v
-		update()
-
-## If it should recolor the details you may have used in your variant texture.
-## Remember that variant textures must be white and their details black
-@export var margin_enable:bool = true:
-	set(v):
-		margin_enable = v
-		update()
-
-## Detail recolor. See margin_enable
-@export var margin_color:Color = Color(0.3, 0.3, 0.3):
-	set(v):
-		margin_color = v
-		update()
+		update_grass_shader("variants", variants)
 
 # To re-create the same series of spawn positions
 var _rng := RandomNumberGenerator.new()
@@ -64,13 +87,13 @@ var _rng_state:int
 
 func setup():
 	resource_name = "grass_spawn"
-	surface_texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
 	
-	# Set default variants. Can be changed at any moment
 	variants = [
-		preload("res://addons/terra_brush/textures/grass_small_texture.png"),
-		preload("res://addons/terra_brush/textures/grass_texture.png"),
+		AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
+		AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
 	]
+	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
 	
 	# Setup RNG as documentation suggests
 	_rng.set_seed( hash("TerraBrush") )
@@ -78,7 +101,7 @@ func setup():
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
-	if not active or not surface_texture:
+	if not active or not texture:
 		return
 	
 	# Spawn with primary key, erase with secondary
@@ -95,19 +118,14 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 	
 	# Update textures and grass positions
 	_bake_brush_into_surface(scale, pos)
-	update()
-
-
-func update():
-	if not terrain or not surface_texture:
-		return
-	
-	terrain.grass_mesh.material.set_shader_parameter("grass_spawn", surface_texture)
 	populate_grass()
 
 
+func on_texture_update():
+	populate_grass()
+
 func populate_grass():
-	if not terrain or not surface_texture:
+	if not terrain or not texture:
 		return
 	
 	if variants.is_empty():
@@ -115,7 +133,7 @@ func populate_grass():
 		return
 	
 	# Caches
-	var terrain_image:Image = surface_texture.get_image()
+	var terrain_image:Image = texture.get_image()
 	var terrain_size_m:Vector2 = terrain.terrain_mesh.size
 	var terrain_size_px:Vector2 = terrain_image.get_size()
 	var total_variants:int = variants.size()
@@ -138,7 +156,7 @@ func populate_grass():
 			new_instance.multimesh.mesh = terrain.grass_mesh
 			multimesh_instances.append(new_instance)
 			
-			terrain.add_child(new_instance)
+			terrain.grass_holder.add_child(new_instance)
 			new_instance.owner = terrain.owner
 			new_instance.name = "Grass"
 	
@@ -146,13 +164,6 @@ func populate_grass():
 	else:
 		for _variant_index in multimesh_instances.size() - total_variants:
 			multimesh_instances.pop_back().queue_free()
-	
-	# Setup shader
-	var mat:ShaderMaterial = terrain.grass_mesh.material
-	mat.set_shader_parameter("bilboard_y", billboard_y)
-	mat.set_shader_parameter("enable_margin", margin_enable)
-	mat.set_shader_parameter("color_margin", margin_color)
-	mat.set_shader_parameter("grass_variants", variants)
 	
 	# Reset random generator so it can spawn exactly where it previously did
 	_rng.set_state(_rng_state)

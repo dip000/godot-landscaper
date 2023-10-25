@@ -1,20 +1,21 @@
 shader_type spatial;
 render_mode unshaded, shadows_disabled;
 
+// Internally capped at 16
 const int TOTAL_GRASS_VARIANTS = 4;
 
 uniform bool bilboard_y = true;
 uniform bool enable_margin = true;
-uniform vec3 color_margin:source_color = vec3(0.3);
-uniform vec2 terrain_size;
+uniform vec3 margin_color:source_color = vec3(0.3);
+uniform vec2 terrain_size = vec2(10.0);
 
 // Colors of all of the grass instanced from a MultiMesh as seen from the top
 uniform sampler2D grass_color:source_color,filter_linear_mipmap,repeat_disable;
 uniform sampler2D terrain_color:source_color,filter_linear_mipmap,repeat_disable;
 
 // This must be in gray scale. Usually a GradientTexture2D but can be anything you want, even empty for plain color
-uniform sampler2D mask_front:source_color,filter_linear_mipmap,repeat_disable,hint_default_black;
-uniform sampler2D grass_variants[TOTAL_GRASS_VARIANTS];
+uniform sampler2D gradient_mask:source_color,filter_linear_mipmap,repeat_disable,hint_default_black;
+uniform sampler2D variants[TOTAL_GRASS_VARIANTS];
 
 // Only supported for Mobile and Forward+ renderers
 instance uniform int variant_index;
@@ -35,11 +36,11 @@ void vertex(){
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
 	vec3 recolor_top = texture(grass_color, world_position).rgb;
 	vec3 recolor_root = texture(terrain_color, world_position).rgb;
-	float gradient_mask = texture(mask_front, UV).r;
+	float mask = texture(gradient_mask, UV).r;
 	
 	// Mask the top of the grass with one color, mask the root with another, and add them
-	COLOR.rgb = recolor_top * gradient_mask;
-	COLOR.rgb += recolor_root * (1.0-gradient_mask);
+	COLOR.rgb = recolor_top * mask;
+	COLOR.rgb += recolor_root * (1.0-mask);
 }
 
 void fragment() {
@@ -47,9 +48,9 @@ void fragment() {
 	ALBEDO = COLOR.rgb;
 	
 	// The margin will look awfull if you try to vertex-color it, so is better to process it here
-	vec4 margin_mask = texture(grass_variants[variant_index], UV);
+	vec4 margin_mask = texture(variants[variant_index], UV);
 	if(enable_margin){
-		ALBEDO = mix(color_margin, ALBEDO, margin_mask.r);
+		ALBEDO = mix(margin_color, ALBEDO, margin_mask.r);
 	}
 	
 	// TBH, i don't know why alpha must be multiplied or why it needs the threshold without glitching

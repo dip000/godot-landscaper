@@ -2,7 +2,7 @@
 extends TBrush
 class_name TBrushTerrainHeight
 # Brush that creates mountains or valleys when you paint over the terrain
-# Paints shades of gray colors over the "surface_texture" depending on the height
+# Paints shades of gray colors over the "texture" depending on the height
 
 
 # Grass in slopes might look like they're floating at full strenght
@@ -18,7 +18,7 @@ const HEIGHT_STRENGTH:float = 0.95
 
 func setup():
 	resource_name = "terrain_height"
-	surface_texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
@@ -28,25 +28,25 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 	# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
 	t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
 	_bake_brush_into_surface(scale, pos)
-	update()
-
-
-func update():
-	if not terrain or not surface_texture:
-		return
 	
-	#[WARNING] Always update colliders first since grass placement is based of them
-	terrain.terrain_mesh.material.set_shader_parameter("terrain_height", surface_texture)
+	if terrain and texture:
+		#[WARNING] Always update colliders first since grass placement is based of them
+		update_terrain_shader("terrain_height", texture)
+		update_terrain_collider()
+		_update_grass_height()
+
+
+func on_texture_update():
+	update_terrain_shader("terrain_height", texture)
 	update_terrain_collider()
 	_update_grass_height()
-	
-	
+
 func update_terrain_collider():
-	if not terrain or not surface_texture:
+	if not terrain or not texture:
 		return
 	
 	# Caches
-	var height_image:Image = surface_texture.get_image()
+	var height_image:Image = texture.get_image()
 	var terrain_size_m:Vector2 = terrain.terrain_mesh.size
 	var terrain_size_px:Vector2i = height_image.get_size() - Vector2i.ONE
 	var height_shape:HeightMapShape3D = terrain.height_shape
@@ -65,9 +65,6 @@ func update_terrain_collider():
 
 
 func _update_grass_height():
-	if not surface_texture or not terrain:
-		return
-	
 	# Caches
 	var space := terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
