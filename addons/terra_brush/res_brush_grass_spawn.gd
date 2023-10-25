@@ -59,14 +59,16 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 @export var quality:int = 3:
 	set(v):
 		quality = v
-		terrain.grass_mesh.subdivide_depth = quality
+		if terrain:
+			terrain.grass_mesh.subdivide_depth = quality
 
 ## Size of the average blade of grass in meters
-@export var size := Vector2(0.3, 0.3):
+@export var size:Vector2:
 	set(v):
 		size = v
-		terrain.grass_mesh.size = size
-		terrain.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
+		if terrain:
+			terrain.grass_mesh.size = size
+			terrain.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
 
 ## The color mix from the grass roots to the top as seen from the front. BLACK=terrain_color and WHITE=grass_color
 @export var gradient_mask:GradientTexture2D:
@@ -79,6 +81,7 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 	set(v):
 		variants = v
 		update_grass_shader("variants", variants)
+		populate_grass()
 
 # To re-create the same series of spawn positions
 var _rng := RandomNumberGenerator.new()
@@ -94,6 +97,7 @@ func setup():
 	]
 	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
 	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+	size = Vector2(0.3, 0.3)
 	
 	# Setup RNG as documentation suggests
 	_rng.set_seed( hash("TerraBrush") )
@@ -125,11 +129,10 @@ func on_texture_update():
 	populate_grass()
 
 func populate_grass():
-	if not terrain or not texture:
+	if not terrain or not terrain.terrain_mesh or not texture:
 		return
 	
 	if variants.is_empty():
-		push_warning("Please add a grass variant under 'Shader Properties'")
 		return
 	
 	# Caches

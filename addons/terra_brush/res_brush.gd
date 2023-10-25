@@ -43,10 +43,12 @@ func on_texture_update():
 
 # Handy wrappers
 func update_grass_shader(property:String, value:Variant):
-	terrain.grass_mesh.material.set_shader_parameter(property, value)
+	if terrain and terrain.grass_mesh:
+		terrain.grass_mesh.material.set_shader_parameter(property, value)
 
 func update_terrain_shader(property:String, value:Variant):
-	terrain.terrain_mesh.material.set_shader_parameter(property, value)
+	if terrain and terrain.grass_mesh:
+		terrain.terrain_mesh.material.set_shader_parameter(property, value)
 
 
 # Paints "TBrush.texture" with BRUSH_MASK, previously colored with "TBrush.t_color"

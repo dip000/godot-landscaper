@@ -42,7 +42,7 @@ func on_texture_update():
 	_update_grass_height()
 
 func update_terrain_collider():
-	if not terrain or not texture:
+	if not terrain or not terrain.terrain_mesh or not texture:
 		return
 	
 	# Caches
@@ -65,6 +65,9 @@ func update_terrain_collider():
 
 
 func _update_grass_height():
+	if not terrain or not terrain.terrain_mesh or not texture:
+		return
+	
 	# Caches
 	var space := terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()

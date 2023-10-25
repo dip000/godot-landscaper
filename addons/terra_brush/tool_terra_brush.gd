@@ -49,7 +49,7 @@ func _ready():
 	
 	# Initialize these only if this is the first time this object has been instantiated
 	# Needs to wait a frame to let this node finish updating first
-	if not get_child(0):
+	if not has_node("Terrain"):
 		await  get_tree().process_frame
 		terrain = AssetsManager.generate_terrain_nodes(self)
 		terrain_mesh = AssetsManager.generate_terrain_mesh(self, true)
@@ -93,13 +93,17 @@ func _deactivate_brushes(caller_brush:TBrush):
 		brush.active = false
 	_active_brush = caller_brush
 
+func set_enable_updates(value:bool):
+	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
+		brush.enable_updates = value
 
 func over_terrain(pos:Vector3):
 	# The shader draws a circle over mouse pointer to show where and what size are you hovering
-	if _active_brush:
+	if _active_brush and terrain_mesh:
 		var pos_rel:Vector2 = Vector2(pos.x, pos.z)/terrain_mesh.size
 		terrain_mesh.material.set_shader_parameter("brush_position", pos_rel)
 		terrain_mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
+		
 		if _active_brush == grass_color or _active_brush == terrain_color:
 			terrain_mesh.material.set_shader_parameter("brush_color", _active_brush.color)
 		else:
@@ -108,7 +112,8 @@ func over_terrain(pos:Vector3):
 
 
 func exit_terrain():
-	terrain_mesh.material.set_shader_parameter("brush_position", Vector2(2,2)) #move brush outside viewing scope
+	if terrain_mesh:
+		terrain_mesh.material.set_shader_parameter("brush_position", Vector2(2,2)) #move brush outside viewing scope
 
 func scale(value:float):
 	if _active_brush:
