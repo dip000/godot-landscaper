@@ -17,7 +17,7 @@ func setup():
 	color = Color.SEA_GREEN
 	resource_name = "terrain_color"
 	texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE) )
-	active = false
+	active = true
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active:

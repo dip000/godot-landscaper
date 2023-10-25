@@ -29,7 +29,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 	t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
 	_bake_brush_into_surface(scale, pos)
 	
-	if terrain and texture:
+	if tb and texture:
 		#[WARNING] Always update colliders first since grass placement is based of them
 		update_terrain_shader("terrain_height", texture)
 		update_terrain_collider()
@@ -42,14 +42,14 @@ func on_texture_update():
 	_update_grass_height()
 
 func update_terrain_collider():
-	if not terrain or not terrain.terrain_mesh or not texture:
+	if not tb or not tb.terrain_mesh or not texture:
 		return
 	
 	# Caches
 	var height_image:Image = texture.get_image()
-	var terrain_size_m:Vector2 = terrain.terrain_mesh.size
+	var terrain_size_m:Vector2 = tb.terrain_mesh.size
 	var terrain_size_px:Vector2i = height_image.get_size() - Vector2i.ONE
-	var height_shape:HeightMapShape3D = terrain.height_shape
+	var height_shape:HeightMapShape3D = tb.height_shape
 	
 	# Update _terrain collider
 	for w in height_shape.map_width:
@@ -65,15 +65,15 @@ func update_terrain_collider():
 
 
 func _update_grass_height():
-	if not terrain or not terrain.terrain_mesh or not texture:
+	if not tb or not tb.terrain_mesh or not texture:
 		return
 	
 	# Caches
-	var space := terrain.get_world_3d().direct_space_state
+	var space := tb.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
 	
 	# Now that we have the collider aligned, raycast each grass for the exact ground position (as opposed by relaying on the heightmap)
-	for child in terrain.get_children():
+	for child in tb.get_children():
 		if not child is MultiMeshInstance3D:
 			continue
 		

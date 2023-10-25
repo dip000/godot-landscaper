@@ -57,19 +57,26 @@ func _load_assets():
 	if _progress.value != 0:
 		return
 	
-	# Safety check
+	# Safety checks
 	var folder:String = _terra_brush.assets_folder
 	var dir := DirAccess.open(folder)
 	if not dir:
+		_popup_accept.dialog_text = "Selected folder does not exist"
+		_popup_accept.popup_centered()
+		return
+	
+	var meta_path:String = folder.path_join("metadata.tres")
+	if not FileAccess.file_exists( meta_path ):
+		_popup_accept.dialog_text = "Folder doesn't have the metadata file"
 		_popup_accept.popup_centered()
 		return
 	
 	# Save textures. This might take some time
-	var brushes:Array[TBrush] = [_terra_brush.grass_spawn, _terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]
-	for i in brushes.size():
+	var texture_brushes:Array[TBrush] = [_terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]
+	for i in texture_brushes.size():
 		await _set_progress( i*15 )
-		var path:String = folder.path_join(brushes[i].resource_name + ".tres")
-		brushes[i].texture = load( path )
+		var path:String = folder.path_join(texture_brushes[i].resource_name + ".tres")
+		texture_brushes[i].texture = load( path )
 	
 	await _set_progress(65)
 	var path:String = folder.path_join("terrain_mesh.tres")
@@ -97,20 +104,21 @@ func _load_assets():
 	
 	# Setting any property from "grass_spawn" will update anything needed to the terrain
 	var grass_spawn:TBrushGrassSpawn = _terra_brush.grass_spawn
-	var grass_mat:ShaderMaterial = _terra_brush.grass_mesh.material
-	_terra_brush.map_size = grass_mat.get_meta("terrain_size")
-	grass_spawn.density = grass_mat.get_meta("density")
-	grass_spawn.billboard_y = grass_mat.get_meta("billboard_y")
-	grass_spawn.cross_billboard = grass_mat.get_meta("cross_billboard", )
-	grass_spawn.enable_margin = grass_mat.get_meta("enable_margin")
-	grass_spawn.margin_color = grass_mat.get_meta("margin_color")
-	grass_spawn.quality = grass_mat.get_meta("quality")
-	grass_spawn.size = grass_mat.get_meta("size")
-	grass_spawn.variants = grass_mat.get_shader_parameter("variants")
+	var meta_res:Resource = load( meta_path )
+	_terra_brush.map_size = meta_res.get_meta("terrain_size")
+	grass_spawn.density = meta_res.get_meta("density")
+	grass_spawn.billboard_y = meta_res.get_meta("billboard_y")
+	grass_spawn.cross_billboard = meta_res.get_meta("cross_billboard", )
+	grass_spawn.enable_margin = meta_res.get_meta("enable_margin")
+	grass_spawn.margin_color = meta_res.get_meta("margin_color")
+	grass_spawn.quality = meta_res.get_meta("quality")
+	grass_spawn.size = meta_res.get_meta("size")
+	grass_spawn.variants = _terra_brush.grass_mesh.material.get_shader_parameter("variants")
+	grass_spawn.texture = meta_res.get_meta("grass_spawn")
 	
 	# Textures were updated at the begining but we need to update them again after all of the now changes
 	await _set_progress(95)
-	for brush in brushes:
+	for brush in [_terra_brush.grass_spawn, _terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]:
 		brush.on_texture_update()
 	
 	await _end_progress()
@@ -134,7 +142,7 @@ func _save_assets():
 func _save_confirmed():
 	# Save textures. This might take some time
 	var folder:String = _terra_brush.assets_folder
-	var brushes:Array[TBrush] = [_terra_brush.grass_spawn, _terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]
+	var brushes:Array[TBrush] = [_terra_brush.grass_color, _terra_brush.terrain_color, _terra_brush.terrain_height]
 	
 	for i in brushes.size():
 		await _set_progress( i*15 )
@@ -175,15 +183,20 @@ func _save_confirmed():
 	ResourceSaver.save( _terra_brush.grass_mesh.material.shader, path )
 	
 	var grass_spawn:TBrushGrassSpawn = _terra_brush.grass_spawn
-	var grass_mat:ShaderMaterial = _terra_brush.grass_mesh.material
-	grass_mat.set_meta("terrain_size", _terra_brush.map_size)
-	grass_mat.set_meta("density", grass_spawn.density)
-	grass_mat.set_meta("billboard_y", grass_spawn.billboard_y)
-	grass_mat.set_meta("cross_billboard", grass_spawn.cross_billboard)
-	grass_mat.set_meta("enable_margin", grass_spawn.enable_margin)
-	grass_mat.set_meta("margin_color", grass_spawn.margin_color)
-	grass_mat.set_meta("quality", grass_spawn.quality)
-	grass_mat.set_meta("size", grass_spawn.size)
+	var meta_res := Resource.new()
+	path = folder.path_join("metadata.tres")
+	meta_res.set_meta("what_is_this", "You need this file to load and continue editing this terrain using TerraBrush Addon")
+	meta_res.set_meta("terrain_size", _terra_brush.map_size)
+	meta_res.set_meta("density", grass_spawn.density)
+	meta_res.set_meta("billboard_y", grass_spawn.billboard_y)
+	meta_res.set_meta("cross_billboard", grass_spawn.cross_billboard)
+	meta_res.set_meta("enable_margin", grass_spawn.enable_margin)
+	meta_res.set_meta("margin_color", grass_spawn.margin_color)
+	meta_res.set_meta("quality", grass_spawn.quality)
+	meta_res.set_meta("size", grass_spawn.size)
+	meta_res.set_meta("grass_spawn", grass_spawn.texture)
+	meta_res.take_over_path( path )
+	ResourceSaver.save( meta_res, path )
 	
 	await _end_progress()
 

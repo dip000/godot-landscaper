@@ -20,13 +20,13 @@ const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 		active = v
 
 ## The texture you'll be drawing with this brush
-@export var texture:Texture2D:
+var texture:Texture2D:
 	set(v):
 		texture = v
 		on_texture_update()
 
 var t_color:Color
-var terrain:TerraBrush
+var tb:TerraBrush
 
 
 # Called from "TerraBrush._ready()"
@@ -43,24 +43,24 @@ func on_texture_update():
 
 # Handy wrappers
 func update_grass_shader(property:String, value:Variant):
-	if terrain and terrain.grass_mesh:
-		terrain.grass_mesh.material.set_shader_parameter(property, value)
+	if tb and tb.grass_mesh:
+		tb.grass_mesh.material.set_shader_parameter(property, value)
 
 func update_terrain_shader(property:String, value:Variant):
-	if terrain and terrain.grass_mesh:
-		terrain.terrain_mesh.material.set_shader_parameter(property, value)
+	if tb and tb.grass_mesh:
+		tb.terrain_mesh.material.set_shader_parameter(property, value)
 
 
 # Paints "TBrush.texture" with BRUSH_MASK, previously colored with "TBrush.t_color"
 func _bake_brush_into_surface(scale:float, pos:Vector3):
-	if not terrain:
+	if not tb:
 		return
 	
 	# Transforms
 	var surface_size:Vector2i = texture.get_size()
 	var surface_full_rect := Rect2i(Vector2i.ZERO, surface_size)
 	var size:Vector2i = surface_size * scale #size in pixels
-	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/terrain.terrain_mesh.size #in [0,1] range
+	var pos_absolute:Vector2 = Vector2(pos.x, pos.z)/tb.terrain_mesh.size #in [0,1] range
 	pos_absolute *= Vector2(surface_size) #move in pixel size
 	pos_absolute += (surface_size/2.0) * (1.0-scale) #move from center
 	

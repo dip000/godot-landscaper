@@ -7,7 +7,7 @@ class_name TBrushGrassSpawn
 
 enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 
-## Action to perform while left-clicking over the _terrain. Right click will clear grass
+## Action to perform while left-clicking over the terrain. Right click will clear grass
 @export var spawn_type:SpawnType = SpawnType.SPAWN_RANDOM_VARIANTS:
 	set(v):
 		spawn_type = v
@@ -59,16 +59,16 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 @export var quality:int = 3:
 	set(v):
 		quality = v
-		if terrain:
-			terrain.grass_mesh.subdivide_depth = quality
+		if tb:
+			tb.grass_mesh.subdivide_depth = quality
 
 ## Size of the average blade of grass in meters
 @export var size:Vector2:
 	set(v):
 		size = v
-		if terrain:
-			terrain.grass_mesh.size = size
-			terrain.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
+		if tb:
+			tb.grass_mesh.size = size
+			tb.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
 
 ## The color mix from the grass roots to the top as seen from the front. BLACK=terrain_color and WHITE=grass_color
 @export var gradient_mask:GradientTexture2D:
@@ -129,7 +129,7 @@ func on_texture_update():
 	populate_grass()
 
 func populate_grass():
-	if not terrain or not terrain.terrain_mesh or not texture:
+	if not tb or not tb.terrain_mesh or not texture:
 		return
 	
 	if variants.is_empty():
@@ -137,16 +137,16 @@ func populate_grass():
 	
 	# Caches
 	var terrain_image:Image = texture.get_image()
-	var terrain_size_m:Vector2 = terrain.terrain_mesh.size
+	var terrain_size_m:Vector2 = tb.terrain_mesh.size
 	var terrain_size_px:Vector2 = terrain_image.get_size()
 	var total_variants:int = variants.size()
 	var max_index:int = total_variants - 1
-	var space := terrain.get_world_3d().direct_space_state
+	var space := tb.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
 	
 	# Reset previous instances
 	var multimesh_instances:Array[MultiMeshInstance3D]
-	for multimesh_inst in terrain.grass_holder.get_children():
+	for multimesh_inst in tb.grass_holder.get_children():
 		multimesh_instances.append( multimesh_inst )
 		multimesh_inst.multimesh.instance_count = 0
 	
@@ -156,11 +156,11 @@ func populate_grass():
 			var new_instance := MultiMeshInstance3D.new()
 			new_instance.multimesh = MultiMesh.new()
 			new_instance.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-			new_instance.multimesh.mesh = terrain.grass_mesh
+			new_instance.multimesh.mesh = tb.grass_mesh
 			multimesh_instances.append(new_instance)
 			
-			terrain.grass_holder.add_child(new_instance)
-			new_instance.owner = terrain.owner
+			tb.grass_holder.add_child(new_instance)
+			new_instance.owner = tb.owner
 			new_instance.name = "Grass"
 	
 	# Delete instances if variants were reduced

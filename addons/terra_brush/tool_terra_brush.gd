@@ -1,5 +1,5 @@
 @tool
-extends Node3D
+extends Node
 class_name TerraBrush
 # Tool for terraforming and coloring
 # 1. Instantiate a TerraBrush node in scene tree and select it
@@ -54,12 +54,12 @@ func _ready():
 		terrain = AssetsManager.generate_terrain_nodes(self)
 		terrain_mesh = AssetsManager.generate_terrain_mesh(self, true)
 		grass_mesh = AssetsManager.generate_grass_mesh(self)
-		_set_map_size( Vector2i(5, 5) ) #[TEST] set to (10,10)
+		_set_map_size( Vector2i(10, 10) )
 	
 	# Setup brushes. Keeps only one brush active at a time
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
 		brush.on_active.connect( _deactivate_brushes.bind(brush) )
-		brush.terrain = self
+		brush.tb = self
 		brush.setup()
 	
 

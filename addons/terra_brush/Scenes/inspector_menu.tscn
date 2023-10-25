@@ -43,5 +43,3 @@ initial_position = 1
 size = Vector2i(244, 83)
 unresizable = true
 popup_window = true
-ok_button_text = "Yes"
-dialog_text = "Selected folder does not exist"
