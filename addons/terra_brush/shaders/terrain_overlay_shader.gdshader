@@ -1,7 +1,6 @@
 shader_type spatial;
 render_mode unshaded,shadows_disabled,ambient_light_disabled;
 
-uniform sampler2D terrain_color:source_color, repeat_disable;
 uniform sampler2D terrain_height:repeat_disable, hint_default_black;
 
 group_uniforms BrushOverlay;
@@ -16,23 +15,19 @@ vec2 scale_from_center(vec2 uv, float s){
 	return ((uv - 0.5)/s) + 0.5;
 }
 
-vec3 draw_brush(vec2 uv, vec3 surface){
-	vec2 uv_transformed_outer_line = scale_from_center( uv - brush_position, brush_scale+0.02 );
+void fragment(){
+	vec2 uv_transformed_outer_line = scale_from_center( UV - brush_position, brush_scale+0.02 );
 	vec4 brush_pixel_outer_line = texture( brush_texture, uv_transformed_outer_line );
 	
-	vec2 uv_transformed = scale_from_center( uv - brush_position, brush_scale );
+	vec2 uv_transformed = scale_from_center( UV - brush_position, brush_scale );
 	vec4 brush_pixel = texture( brush_texture, uv_transformed );
 	
 	// Brush with black ring
 	vec3 brush = brush_color.rgb*brush_pixel.rgb*0.8 + 0.05*sin(TIME*4.0) + 0.15;
 	
 	// Alpha blend
-	return mix(surface, brush, brush_pixel_outer_line.a);
-}
-
-void fragment(){
-	vec3 base = texture(terrain_color, UV).rgb;
-	ALBEDO = draw_brush(UV, base);
+	ALPHA = brush_pixel_outer_line.r * 0.8;
+	ALBEDO = brush;
 }
 
 void vertex(){

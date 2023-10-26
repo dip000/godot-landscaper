@@ -19,12 +19,8 @@ const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 		if v: on_active.emit()
 		active = v
 
-## The texture you'll be drawing with this brush
-var texture:Texture2D:
-	set(v):
-		texture = v
-		on_texture_update()
-
+# The texture you'll be drawing with this brush
+var texture:Texture2D
 var t_color:Color
 var tb:TerraBrush
 
@@ -49,6 +45,7 @@ func update_grass_shader(property:String, value:Variant):
 func update_terrain_shader(property:String, value:Variant):
 	if tb and tb.grass_mesh:
 		tb.terrain_mesh.material.set_shader_parameter(property, value)
+		tb.overlay_mesh.material.set_shader_parameter(property, value)
 
 
 # Paints "TBrush.texture" with BRUSH_MASK, previously colored with "TBrush.t_color"

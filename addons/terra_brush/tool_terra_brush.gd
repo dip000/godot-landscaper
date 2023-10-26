@@ -23,6 +23,8 @@ var terrain:MeshInstance3D
 var height_shape:HeightMapShape3D
 var base_shape:BoxShape3D
 
+var overlay_mesh:PlaneMesh
+
 # Keeps track of which brush is currently active
 var _active_brush:TBrush
 
@@ -51,9 +53,9 @@ func _ready():
 	# Needs to wait a frame to let this node finish updating first
 	if not has_node("Terrain"):
 		await  get_tree().process_frame
-		terrain = AssetsManager.generate_terrain_nodes(self)
-		terrain_mesh = AssetsManager.generate_terrain_mesh(self, true)
-		grass_mesh = AssetsManager.generate_grass_mesh(self)
+		_create_children()
+		terrain_mesh = AssetsManager.generate_terrain_mesh( self, false )
+		grass_mesh = AssetsManager.generate_grass_mesh( self )
 		_set_map_size( Vector2i(10, 10) )
 	
 	# Setup brushes. Keeps only one brush active at a time
@@ -75,6 +77,10 @@ func _set_map_size(size:Vector2i):
 	terrain_mesh.subdivide_width = size.x - 1
 	terrain_mesh.subdivide_depth = size.y - 1
 	
+	overlay_mesh.size = size
+	overlay_mesh.subdivide_width = size.x - 1
+	overlay_mesh.subdivide_depth = size.x - 1
+	
 	height_shape.map_width = size.x + 1
 	height_shape.map_depth = size.y + 1
 	
@@ -87,6 +93,31 @@ func _set_map_size(size:Vector2i):
 	terrain_height.update_terrain_collider()
 	grass_spawn.populate_grass()
 
+
+func _create_children():
+	terrain = create_node( MeshInstance3D.new(), self, "Terrain" )
+	grass_holder = create_node( Node3D.new(), terrain, "Grass" )
+	
+	var static_body:StaticBody3D = create_node( StaticBody3D.new(), terrain, "Body" )
+	var height_collider:CollisionShape3D = create_node( CollisionShape3D.new(), static_body, "Height" )
+	var base_collider:CollisionShape3D = create_node( CollisionShape3D.new(), static_body, "Base" )
+	
+	height_collider.shape = HeightMapShape3D.new()
+	height_shape = height_collider.shape
+	base_collider.shape = BoxShape3D.new()
+	base_shape = base_collider.shape
+	
+	var overlay_mesh_inst:MeshInstance3D = create_node( MeshInstance3D.new(), self, "Overlay" )
+	overlay_mesh_inst.mesh = AssetsManager.generate_terrain_mesh( self, true )
+	overlay_mesh = overlay_mesh_inst.mesh
+	overlay_mesh_inst.position.y += 0.18;
+	overlay_mesh_inst.owner = self
+
+func create_node(node:Node, parent:Node, node_name:String) -> Node:
+	parent.add_child( node )
+	node.owner = parent.owner
+	node.name = node_name
+	return node
 
 func _deactivate_brushes(caller_brush:TBrush):
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
@@ -101,13 +132,13 @@ func over_terrain(pos:Vector3):
 	# The shader draws a circle over mouse pointer to show where and what size are you hovering
 	if _active_brush and terrain_mesh:
 		var pos_rel:Vector2 = Vector2(pos.x, pos.z)/terrain_mesh.size
-		terrain_mesh.material.set_shader_parameter("brush_position", pos_rel)
-		terrain_mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
+		overlay_mesh.material.set_shader_parameter("brush_position", pos_rel)
+		overlay_mesh.material.set_shader_parameter("brush_scale", brush_scale/100.0)
 		
 		if _active_brush == grass_color or _active_brush == terrain_color:
-			terrain_mesh.material.set_shader_parameter("brush_color", _active_brush.color)
+			overlay_mesh.material.set_shader_parameter("brush_color", _active_brush.color)
 		else:
-			terrain_mesh.material.set_shader_parameter("brush_color", _active_brush.t_color)
+			overlay_mesh.material.set_shader_parameter("brush_color", _active_brush.t_color)
 		return
 
 

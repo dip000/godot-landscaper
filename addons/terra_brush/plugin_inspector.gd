@@ -12,7 +12,6 @@ const DEFAULT_BRUSH:Texture2D = preload("res://addons/terra_brush/textures/defau
 const DEFAULT_GRASS_VARIANT1:Texture2D = preload("res://addons/terra_brush/textures/default_grass_v1.png")
 const DEFAULT_GRASS_VARIANT2:Texture2D = preload("res://addons/terra_brush/textures/default_grass_v2.png")
 
-const _TERRAIN_TEMPLATE:PackedScene = preload("res://addons/terra_brush/Scenes/terrain_template.tscn")
 const _INSPECTOR_MENU:PackedScene = preload("res://addons/terra_brush/Scenes/inspector_menu.tscn")
 
 const _TERRAIN_SHADER:Shader = preload("res://addons/terra_brush/shaders/terrain_shader.gdshader")
@@ -238,13 +237,3 @@ static func generate_terrain_mesh(terra_brush:TerraBrush, overlay:bool) -> Plane
 	terrain_mesh.material.set_shader_parameter("terrain_height", terra_brush.terrain_height.texture)
 	return terrain_mesh
 
-
-static func generate_terrain_nodes(terra_brush:TerraBrush) -> MeshInstance3D:
-	var terrain:MeshInstance3D = _TERRAIN_TEMPLATE.instantiate()
-	terra_brush.add_child(terrain)
-	terrain.owner = terra_brush.owner
-	
-	terra_brush.grass_holder = terrain.get_node("Grass")
-	terra_brush.height_shape = terrain.get_node("Body/Height").shape
-	terra_brush.base_shape = terrain.get_node("Body/Base").shape
-	return terrain
