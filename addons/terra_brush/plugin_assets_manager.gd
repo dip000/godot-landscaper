@@ -45,7 +45,7 @@ func _parse_category(object, category):
 	_popup_accept = inspector_menu.get_node("PopupAccept")
 	_save_btn = inspector_menu.get_node("Save")
 	_load_btn = inspector_menu.get_node("Load")
-	update_saved_state( _terra_brush )  
+	update_saved_state( _terra_brush )
 	
 	_load_btn.pressed.connect( load_assets.bind(_terra_brush) )
 	_save_btn.pressed.connect( save_assets.bind(_terra_brush) )
@@ -92,7 +92,7 @@ static func _load_confirmed(terra_brush:TerraBrush):
 	
 	for i in texture_brushes.size():
 		await _set_progress( i*15 )
-		var path:String = folder.path_join(texture_brushes[i].resource_name + ".tres")
+		var path:String = folder.path_join(texture_brushes[i].resource_name + ".png")
 		texture_brushes[i].texture = load( path )
 	
 	await _set_progress(65)
@@ -172,7 +172,7 @@ static func _save_confirmed( terra_brush:TerraBrush ):
 	
 	for i in brushes.size():
 		await _set_progress( i*15 )
-		var path:String = folder.path_join(brushes[i].resource_name + ".tres")
+		var path:String = folder.path_join(brushes[i].resource_name + ".png")
 		brushes[i].texture.take_over_path( path )
 		ResourceSaver.save( brushes[i].texture, path )
 	

@@ -97,7 +97,7 @@ func setup(template:bool):
 			AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
 		]
 		gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
-		texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+		texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, 128, 128) )
 		size = Vector2(0.3, 0.3)
 		quality = 3
 		

@@ -9,7 +9,6 @@ class_name TBrush
 # Notifies its TerraBrush host node that this brush is active and all other brushes must be closed
 signal on_active()
 
-const SURFACE_SIZE_DEFAULT:Vector2i = Vector2(1024, 1024)
 const BRUSH_SIZE:Vector2i = Vector2(512, 512)
 const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 
@@ -22,7 +21,21 @@ const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 		active = v
 
 @export_group("Advanced")
-@export var texture:Texture2D #The texture you'll be drawing with this brush
+## The texture you'll be drawing with this brush. Set your own texture!
+@export var texture:Texture2D:
+	set(v):
+		if v:
+			# Format for internal use:
+			#  Cannot process compressed or mipmapped images and we need alpha for smooth brushing
+			var img:Image = v.get_image()
+			if img.has_mipmaps():
+				img.clear_mipmaps()
+			if img.is_compressed():
+				img.decompress()
+			if img.get_format() != Image.FORMAT_RGBA8:
+				img.convert( Image.FORMAT_RGBA8 )
+			texture = ImageTexture.create_from_image( img )
+			on_texture_update()
 
 var tb:TerraBrush # Host node in scene
 
@@ -79,7 +92,7 @@ func update_terrain_shader(property:String, value:Variant):
 		tb.overlay_mesh.material.set_shader_parameter(property, value)
 
 
-func _create_empty_img(color:Color, size_x:int=SURFACE_SIZE_DEFAULT.x, size_y:int=SURFACE_SIZE_DEFAULT.y) -> Image:
+func _create_empty_img(color:Color, size_x:int, size_y:int) -> Image:
 	var img := Image.create(size_x, size_y, false, Image.FORMAT_RGBA8)
 	img.fill(color)
 	return img

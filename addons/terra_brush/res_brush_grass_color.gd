@@ -17,11 +17,11 @@ class_name TBrushGrassColor
 func setup(template:bool):
 	resource_name = "grass_color"
 	if template:
-		color = Color.FOREST_GREEN
-		texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE) )
+		color = Color.SPRING_GREEN
+		texture = ImageTexture.create_from_image( _create_empty_img(Color.PALE_GREEN, 128, 128) )
 
 
-func over_terrain(scale:float, pos:Vector3, primary_action:bool):
+func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active:
 		return
 	

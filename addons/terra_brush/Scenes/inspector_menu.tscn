@@ -15,12 +15,12 @@ grow_horizontal = 2
 
 [node name="Load" type="Button" parent="."]
 layout_mode = 2
-tooltip_text = "Sets all selected folder resources for use in this TerraBrush terrain"
+tooltip_text = "Load all folder resources for use in this TerraBrush instance (folder must contain the metadata file)"
 text = "Load Assets From Folder"
 
 [node name="Save" type="Button" parent="."]
 layout_mode = 2
-tooltip_text = "Sets all selected folder resources for use in this TerraBrush terrain"
+tooltip_text = "Stores in a given folder all images, materials, shaders, etc.."
 text = "Save Assets To  Folder"
 
 [node name="Progress" type="ProgressBar" parent="."]

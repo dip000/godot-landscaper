@@ -19,7 +19,7 @@ const HEIGHT_STRENGTH:float = 0.95
 func setup(template:bool):
 	resource_name = "terrain_height"
 	if template:
-		texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+		texture = ImageTexture.create_from_image( _create_empty_img(Color(0.25,0.25,0.25), 64, 64) )
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
