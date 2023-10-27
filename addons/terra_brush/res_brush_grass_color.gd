@@ -14,22 +14,25 @@ class_name TBrushGrassColor
 		active = true
 
 
-func setup():
+func setup(template:bool):
 	resource_name = "grass_color"
-	color = Color.FOREST_GREEN
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE) )
+	if template:
+		color = Color.FOREST_GREEN
+		texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE) )
 
 
-func paint(scale:float, pos:Vector3, primary_action:bool):
+func over_terrain(scale:float, pos:Vector3, primary_action:bool):
 	if not active:
 		return
 	
 	# Paint alpha with secondary to smooth the texture
-	t_color = color if primary_action else Color(color, 0.1)
+	var t_color := color if primary_action else Color(color, 0.1)
 	update_grass_shader("grass_color", texture)
-	_bake_brush_into_surface(scale, pos)
-
+	_bake_brush_into_surface(t_color, scale, pos)
+	
 
 func on_texture_update():
 	update_grass_shader("grass_color", texture)
 
+func get_textured_color(primary_action:bool) -> Color:
+	return color if primary_action else color.lightened(0.3)

@@ -1,10 +1,12 @@
 @tool
 extends Resource
 class_name TBrush
-# Base class for all brushes like "TBrushGrassColor"
-# Needs to be hosted and setted up from a TerraBrush node instance
-# Every export property needs to call "update()" to apply any change in the terrain
+# BASE CLASS FOR ALL BRUSHES
+# Needs to be hosted and setted up from a TerraBrush node instance.
+# Every export property should apply any change that it has done onto shaders, colliders, etc..
 
+
+# Notifies its TerraBrush host node that this brush is active and all other brushes must be closed
 signal on_active()
 
 const SURFACE_SIZE_DEFAULT:Vector2i = Vector2(1024, 1024)
@@ -19,14 +21,14 @@ const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 		if v: on_active.emit()
 		active = v
 
-# The texture you'll be drawing with this brush
-var texture:Texture2D
-var t_color:Color
-var tb:TerraBrush
+@export_group("Advanced")
+@export var texture:Texture2D #The texture you'll be drawing with this brush
+
+var tb:TerraBrush # Host node in scene
 
 
 # Called from "TerraBrush._ready()"
-func setup():
+func setup(template:bool):
 	pass
 
 # Called from "TerraBrush.paint()"
@@ -37,19 +39,12 @@ func paint(_scale:float, _pos:Vector3, _primary_action:bool):
 func on_texture_update():
 	pass
 
-# Handy wrappers
-func update_grass_shader(property:String, value:Variant):
-	if tb and tb.grass_mesh:
-		tb.grass_mesh.material.set_shader_parameter(property, value)
-
-func update_terrain_shader(property:String, value:Variant):
-	if tb and tb.grass_mesh:
-		tb.terrain_mesh.material.set_shader_parameter(property, value)
-		tb.overlay_mesh.material.set_shader_parameter(property, value)
+func get_textured_color(primary_action:bool) -> Color:
+	return Color.WHITE
 
 
 # Paints "TBrush.texture" with BRUSH_MASK, previously colored with "TBrush.t_color"
-func _bake_brush_into_surface(scale:float, pos:Vector3):
+func _bake_brush_into_surface(t_color:Color, scale:float, pos:Vector3):
 	if not tb:
 		return
 	
@@ -70,6 +65,18 @@ func _bake_brush_into_surface(scale:float, pos:Vector3):
 	brush_mask.resize(size.x, size.y)
 	surface.blend_rect_mask( brush_img, brush_mask, surface_full_rect, pos_absolute)
 	texture.update(surface)
+
+
+# Handy wrappers
+func update_grass_shader(property:String, value:Variant):
+	if tb and tb.grass_mesh:
+		tb.grass_mesh.material.set_shader_parameter(property, value)
+
+# Both terrain shaders are almost the same
+func update_terrain_shader(property:String, value:Variant):
+	if tb and tb.grass_mesh:
+		tb.terrain_mesh.material.set_shader_parameter(property, value)
+		tb.overlay_mesh.material.set_shader_parameter(property, value)
 
 
 func _create_empty_img(color:Color, size_x:int=SURFACE_SIZE_DEFAULT.x, size_y:int=SURFACE_SIZE_DEFAULT.y) -> Image:

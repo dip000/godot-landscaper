@@ -56,17 +56,17 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		update_grass_shader("margin_color", margin_color)
 
 ## Subdivisions for each blade of grass. This affects its sway animation and gradient color smoothess (because is vertex colored)
-@export var quality:int = 3:
+@export var quality:int:
 	set(v):
 		quality = v
-		if tb:
+		if tb and tb.grass_mesh:
 			tb.grass_mesh.subdivide_depth = quality
 
 ## Size of the average blade of grass in meters
 @export var size:Vector2:
 	set(v):
 		size = v
-		if tb:
+		if tb and tb.grass_mesh:
 			tb.grass_mesh.size = size
 			tb.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
 
@@ -88,17 +88,19 @@ var _rng := RandomNumberGenerator.new()
 var _rng_state:int
 
 
-func setup():
+func setup(template:bool):
 	resource_name = "grass_spawn"
 	
-	variants = [
-		AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
-		AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
-	]
-	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
-	size = Vector2(0.3, 0.3)
-	
+	if template:
+		variants = [
+			AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
+			AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
+		]
+		gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
+		texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+		size = Vector2(0.3, 0.3)
+		quality = 3
+		
 	# Setup RNG as documentation suggests
 	_rng.set_seed( hash("TerraBrush") )
 	_rng_state = _rng.get_state()
@@ -109,6 +111,7 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		return
 	
 	# Spawn with primary key, erase with secondary
+	var t_color:Color
 	if primary_action:
 		match spawn_type:
 			SpawnType.SPAWN_ONE_VARIANT:
@@ -121,12 +124,15 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		t_color = Color.BLACK
 	
 	# Update textures and grass positions
-	_bake_brush_into_surface(scale, pos)
+	_bake_brush_into_surface(t_color, scale, pos)
 	populate_grass()
 
 
 func on_texture_update():
 	populate_grass()
+
+func get_textured_color(primary_action:bool) -> Color:
+	return Color.WHITE if primary_action else Color.BLACK
 
 func populate_grass():
 	if not tb or not tb.terrain_mesh or not texture:

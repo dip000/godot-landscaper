@@ -16,9 +16,10 @@ const HEIGHT_STRENGTH:float = 0.95
 		active = true
 
 
-func setup():
+func setup(template:bool):
 	resource_name = "terrain_height"
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
+	if template:
+		texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK) )
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
@@ -26,8 +27,8 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		return
 	
 	# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
-	t_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
-	_bake_brush_into_surface(scale, pos)
+	var t_color := Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
+	_bake_brush_into_surface(t_color, scale, pos)
 	
 	if tb and texture:
 		#[WARNING] Always update colliders first since grass placement is based of them
@@ -40,6 +41,10 @@ func on_texture_update():
 	update_terrain_shader("terrain_height", texture)
 	update_terrain_collider()
 	_update_grass_height()
+
+func get_textured_color(primary_action:bool) -> Color:
+	return Color.WHITE if primary_action else Color.BLACK
+
 
 func update_terrain_collider():
 	if not tb or not tb.terrain_mesh or not texture:
@@ -73,11 +78,8 @@ func _update_grass_height():
 	var ray := PhysicsRayQueryParameters3D.new()
 	
 	# Now that we have the collider aligned, raycast each grass for the exact ground position (as opposed by relaying on the heightmap)
-	for child in tb.get_children():
-		if not child is MultiMeshInstance3D:
-			continue
-		
-		var multimesh:MultiMesh = child.multimesh
+	for multimesh_inst in tb.grass_holder.get_children():
+		var multimesh:MultiMesh = multimesh_inst.multimesh
 		for instance_index in multimesh.instance_count:
 			var transform:Transform3D = multimesh.get_instance_transform(instance_index)
 			
