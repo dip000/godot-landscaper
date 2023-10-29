@@ -85,15 +85,20 @@ static func load_assets( terra_brush:TerraBrush ):
 
 
 static func _load_confirmed(terra_brush:TerraBrush):
-	# Save textures. This might take some time
 	var folder:String = terra_brush.assets_folder
 	var meta_path:String = folder.path_join("metadata.tres")
+	var meta_res:Resource = load( meta_path )
 	var texture_brushes:Array[TBrush] = [terra_brush.grass_color, terra_brush.terrain_color, terra_brush.terrain_height]
 	
+	# Load map size first so it doesn't crop or expand the following textures
+	terra_brush.map_size = meta_res.get_meta("terrain_size")
+	
+	# Save textures. See the setter of "TBrush.texture"
 	for i in texture_brushes.size():
 		await _set_progress( i*15 )
 		var path:String = folder.path_join(texture_brushes[i].resource_name + ".png")
-		texture_brushes[i].texture = load( path )
+		var brush:TBrush = texture_brushes[i]
+		brush.texture = load( path )
 	
 	await _set_progress(65)
 	var path:String = folder.path_join("terrain_mesh.tres")
@@ -121,8 +126,6 @@ static func _load_confirmed(terra_brush:TerraBrush):
 	
 	# Setting any property from "grass_spawn" will update anything needed to the terrain
 	var grass_spawn:TBrushGrassSpawn = terra_brush.grass_spawn
-	var meta_res:Resource = load( meta_path )
-	terra_brush.map_size = meta_res.get_meta("terrain_size")
 	grass_spawn.density = meta_res.get_meta("density")
 	grass_spawn.billboard_y = meta_res.get_meta("billboard_y")
 	grass_spawn.cross_billboard = meta_res.get_meta("cross_billboard", )

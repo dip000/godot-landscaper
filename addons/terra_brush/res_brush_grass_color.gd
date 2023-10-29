@@ -18,8 +18,9 @@ func setup():
 	resource_name = "grass_color"
 
 func template(size:Vector2i):
-	color = Color.GREEN_YELLOW
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.PALE_GREEN, 128, 128) )
+	color = Color.LIGHT_YELLOW
+	texture_resolution = 10
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.PALE_GREEN, size*texture_resolution) )
 	
 
 func paint(scale:float, pos:Vector3, primary_action:bool):

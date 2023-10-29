@@ -35,7 +35,21 @@ const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 			if img.get_format() != Image.FORMAT_RGBA8:
 				img.convert( Image.FORMAT_RGBA8 )
 			texture = ImageTexture.create_from_image( img )
+			
+			# Update resolution to keep the original image, the user can set it back at their own risk
+			texture_resolution = img.get_width() / tb.map_size.x
 			on_texture_update()
+
+## How many pixel a square meter has. The more the heavier to process
+## Some brushes don't need great resolution. Like terrain_height, 2 px/m is enough
+@export_range(2, 100, 0.01, "or_greater", "suffix:px/m") var texture_resolution:float:
+	set(v):
+		texture_resolution = v
+		if tb and texture:
+			var img:Image = texture.get_image()
+			img.resize( tb.map_size.x*v, tb.map_size.y*v )
+			texture.set_image( img )
+		
 
 var tb:TerraBrush # Host node in scene
 
@@ -76,12 +90,27 @@ func _bake_brush_into_surface(t_color:Color, scale:float, pos:Vector3):
 	# Get images to process
 	var brush_mask:Image = AssetsManager.DEFAULT_BRUSH.get_image().duplicate()
 	var surface:Image = texture.get_image()
-	var brush_img:Image = _create_empty_img(t_color, size.x, size.y)
+	var brush_img:Image = _create_empty_img(t_color, size)
 	
 	# Blend brush over surface
 	brush_mask.resize(size.x, size.y)
 	surface.blend_rect_mask( brush_img, brush_mask, surface_full_rect, pos_absolute)
 	texture.update(surface)
+
+# Crops the texture on smaller sizes, expands on bigger ones. But always keeps it where it was
+func resize_texture(size:Vector2i):
+	if not texture:
+		return
+	
+	var new_size:Vector2 = size * texture_resolution
+	var prev_size:Vector2 = texture.get_size()
+	var new_img:Image = _create_empty_img( Color.BLACK, new_size )
+	var prev_img:Image = texture.get_image()
+	var prev_img_full_rect := Rect2i( Vector2i.ZERO, prev_size )
+	var center_px:Vector2 = (new_size - prev_size) / 2.0
+	
+	new_img.blit_rect( prev_img, prev_img_full_rect, center_px )
+	texture.set_image( new_img )
 
 
 # Handy wrappers
@@ -96,8 +125,8 @@ func update_terrain_shader(property:String, value:Variant):
 		tb.overlay_mesh.material.set_shader_parameter(property, value)
 
 
-func _create_empty_img(color:Color, size_x:int, size_y:int) -> Image:
-	var img := Image.create(size_x, size_y, false, Image.FORMAT_RGBA8)
+func _create_empty_img(color:Color, img_size:Vector2i) -> Image:
+	var img := Image.create(img_size.x, img_size.y, false, Image.FORMAT_RGBA8)
 	img.fill(color)
 	return img
 

@@ -94,7 +94,7 @@ func setup():
 	_rng.set_seed( hash("TerraBrush") )
 	_rng_state = _rng.get_state()
 
-func template(size:Vector2i):
+func template(map_size:Vector2i):
 	variants = [
 		AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
 		AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
@@ -102,7 +102,8 @@ func template(size:Vector2i):
 	size = Vector2(0.3, 0.3)
 	quality = 3
 	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, 128, 128) )
+	texture_resolution = 10
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, map_size*texture_resolution) )
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active or not texture:

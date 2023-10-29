@@ -4,7 +4,7 @@ render_mode unshaded, shadows_disabled;
 // Internally capped at 16
 const int TOTAL_GRASS_VARIANTS = 4;
 
-uniform bool bilboard_y = true;
+uniform bool billboard_y = true;
 uniform bool enable_margin = true;
 uniform vec3 margin_color:source_color = vec3(0.3);
 uniform vec2 terrain_size = vec2(10.0);
@@ -27,7 +27,7 @@ void vertex(){
 	VERTEX.x += sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * ( 1.0 - UV.y) * 0.08;
 	
 	// This is what setting "billboard_y" does in a standar material, don't ask me..
-	if(bilboard_y){
+	if(billboard_y){
 		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz)), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(normalize(cross(INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0), MODEL_MATRIX[3]);
 	}
 	

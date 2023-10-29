@@ -18,8 +18,9 @@ func setup():
 	active = true
 
 func template(size:Vector2i):
-		color = Color.SEA_GREEN
-		texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE, 1024, 1024) )
+	texture_resolution = 20
+	color = Color.SEA_GREEN
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE, size*texture_resolution) )
 	
 
 func paint(scale:float, pos:Vector3, primary_action:bool):

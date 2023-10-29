@@ -5,9 +5,6 @@ class_name TBrushTerrainHeight
 # Paints shades of gray colors over the "texture" depending on the height
 
 
-# Grass in slopes might look like they're floating at full strenght
-const HEIGHT_STRENGTH:float = 0.95
-
 ## How quickly you want the terrain to create mountains ot valleys when you paint over the terrain
 @export_range(8.0, 100.0, 1.0, "suffix:%") var strength:float = 20:
 	set(v):
@@ -30,7 +27,8 @@ func setup():
 	resource_name = "terrain_height"
 
 func template(size:Vector2i):
-	texture = ImageTexture.create_from_image( _create_empty_img(Color(0.25,0.25,0.25), 64, 64) )
+	texture_resolution = 6
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, size*texture_resolution) )
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
@@ -75,7 +73,7 @@ func update_terrain_collider():
 			var z_px:int = (d / terrain_size_m.y) * terrain_size_px.y
 			
 			# Update the new height with that texture pixel
-			var y_m:float = height_image.get_pixel(x_px, z_px).r * TBrushTerrainHeight.HEIGHT_STRENGTH * max_height
+			var y_m:float = height_image.get_pixel(x_px, z_px).r * max_height
 			var i:int = d*(terrain_size_m.x+1) + w
 			height_shape.map_data[i] = y_m
 

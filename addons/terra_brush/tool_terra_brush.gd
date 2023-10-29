@@ -9,8 +9,6 @@ class_name TerraBrush
 #  Ths manager instance will paint, heighten, scatter, etc.. one child terrain and it must be
 #  completely add-on independent, so the TERRAIN CAN BE SEPPARATED AND USED AS PRODUCTION-READY AT ANY MOMENT.
 #  It manages to do that by creating its own resources and a hidden mesh for the terrain brush overlay.
-#
-#  Like this, the user can create any TerraBrush instances and landscape many terrains at the same time!
 
 
 const BRUSH_HEIGHT_ON_IDLE:float = 0.02
@@ -168,6 +166,9 @@ func _set_map_size(size:Vector2i):
 	# Needs the terrain size to accurately paint the grass
 	grass_mesh.material.set_shader_parameter( "terrain_size", size )
 	
+	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
+		brush.resize_texture( size )
+	
 	# Update terrain collider first, then place grass according to the colliders
 	terrain_height.update_terrain_collider()
 	grass_spawn.populate_grass()
@@ -183,7 +184,6 @@ func paint(pos:Vector3, primary_action:bool):
 		AssetsManager.update_saved_state( self )
 
 func paint_end():
-#	_painting_with_primary = true
 	overlay.position.y = BRUSH_HEIGHT_ON_ACTION
 
 func over_terrain(pos:Vector3):
