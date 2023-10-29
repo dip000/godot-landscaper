@@ -5,4 +5,4 @@
 [resource]
 gradient = SubResource("Gradient_86gnx")
 fill_from = Vector2(0, 1)
-fill_to = Vector2(0, 0.635328)
+fill_to = Vector2(0, 0.344729)

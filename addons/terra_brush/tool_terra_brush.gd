@@ -14,7 +14,7 @@ class_name TerraBrush
 
 
 const BRUSH_HEIGHT_ON_IDLE:float = 0.02
-const BRUSH_HEIGHT_ON_ACTION:float = 0.15
+const BRUSH_HEIGHT_ON_ACTION:float = 0.13
 
 
 ## Folder to save or load assets. 
@@ -80,9 +80,15 @@ func _ready():
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
 		brush.on_active.connect( _deactivate_brushes.bind(brush) )
 		brush.tb = self
-		brush.setup( not_initialized )
-		brush.on_texture_update()
-	
+		brush.setup()
+		if not_initialized:
+			brush.template( map_size )
+
+
+func _process(delta):
+	terrain.global_position = Vector3.ZERO
+	terrain.global_rotation = Vector3.ZERO
+
 
 func _deactivate_brushes(caller_brush:TBrush):
 	for brush in [grass_color, terrain_color, terrain_height, grass_spawn]:
@@ -100,6 +106,7 @@ func _fix_terrain():
 	if not height_collider.shape:
 		height_collider.shape= HeightMapShape3D.new()
 	height_shape = height_collider.shape
+	static_body.set_collision_layer_value( MainPlugin.COLLISION_LAYER, true )
 	
 	if not terrain_mesh:
 		terrain_mesh = _create_mesh( PlaneMesh.new(), AssetsManager.TERRAIN_SHADER.duplicate() )
@@ -111,14 +118,16 @@ func _fix_terrain():
 	# Create the hidden terrain for the brush overlay.
 	# Should not be under the actual terrain so the user don't carry it away
 	overlay = _create_or_find_node( MeshInstance3D.new(), self, "Overlay" )
-	if not overlay.mesh:
-		overlay.mesh = _create_mesh( PlaneMesh.new(), AssetsManager.TERRAIN_SHADER_OVERLAY )
-		overlay.mesh.material.set_shader_parameter( "brush_texture", AssetsManager.DEFAULT_BRUSH )
-		overlay.position.y += BRUSH_HEIGHT_ON_ACTION
-		overlay.owner = owner
-		terrain.set_display_folded( true )
+	overlay.mesh = _create_mesh( PlaneMesh.new(), AssetsManager.TERRAIN_SHADER_OVERLAY )
+	overlay.mesh.material.set_shader_parameter( "brush_texture", AssetsManager.DEFAULT_BRUSH )
+	overlay.position.y += BRUSH_HEIGHT_ON_ACTION
+	overlay.owner = self
+	terrain.set_display_folded( true )
+	
 	overlay_mesh = overlay.mesh
-
+	overlay_mesh.size = map_size
+	overlay_mesh.subdivide_width = map_size.x - 1
+	overlay_mesh.subdivide_depth = map_size.x - 1
 
 func _create_or_find_node(new_node:Node, parent:Node, node_name:String) -> Node:
 	var found_node := parent.get_node_or_null(node_name)
@@ -134,6 +143,7 @@ func _create_mesh(mesh:PrimitiveMesh, shader:Shader) -> PrimitiveMesh:
 	mesh.material = ShaderMaterial.new()
 	mesh.material.shader = shader
 	return mesh
+
 
 func _set_map_size(size:Vector2i):
 	map_size = size
@@ -173,21 +183,21 @@ func paint(pos:Vector3, primary_action:bool):
 		AssetsManager.update_saved_state( self )
 
 func paint_end():
-	_painting_with_primary = false
+#	_painting_with_primary = true
 	overlay.position.y = BRUSH_HEIGHT_ON_ACTION
 
 func over_terrain(pos:Vector3):
 	# The shader draws a circle over mouse pointer to show where and what size are you hovering
 	if _active_brush and terrain_mesh:
 		var pos_rel:Vector2 = Vector2(pos.x, pos.z) / terrain_mesh.size
-		var bush_color:Color = _active_brush.get_textured_color( _painting_with_primary )
+		var brush_color:Color = _active_brush.get_textured_color( _painting_with_primary )
+		overlay_mesh.material.set_shader_parameter( "brush_color", brush_color )
 		overlay_mesh.material.set_shader_parameter( "brush_position", pos_rel )
 		overlay_mesh.material.set_shader_parameter( "brush_scale", brush_scale/100.0 )
-		overlay_mesh.material.set_shader_parameter( "brush_color", bush_color )
 		
+# Move brush outside viewing scope
 func exit_terrain():
-	if terrain_mesh:
-		terrain_mesh.material.set_shader_parameter( "brush_position", Vector2(2,2)) #move brush outside viewing scope
+	overlay_mesh.material.set_shader_parameter( "brush_position", Vector2(2, 2) )
 
 func scale(value:float):
 	if _active_brush:
