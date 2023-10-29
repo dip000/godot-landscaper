@@ -40,11 +40,15 @@ const BRUSH_RECT:Rect2i = Rect2i(Vector2i.ZERO, BRUSH_SIZE)
 var tb:TerraBrush # Host node in scene
 
 
-# Called from "TerraBrush._ready()"
-func setup(template:bool):
+# Used to initialize internal logic on every load
+func setup():
 	pass
 
-# Called from "TerraBrush.paint()"
+# Used to initialize a template for the first time
+func template(size:Vector2i):
+	pass
+
+# Implements the paint action lile heightmapping or coloring
 func paint(_scale:float, _pos:Vector3, _primary_action:bool):
 	pass
 

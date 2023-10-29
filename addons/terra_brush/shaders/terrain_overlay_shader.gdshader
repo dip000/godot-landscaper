@@ -2,11 +2,12 @@ shader_type spatial;
 render_mode unshaded,shadows_disabled,ambient_light_disabled;
 
 uniform sampler2D terrain_height:repeat_disable, hint_default_black;
+uniform float max_height = 2.0;
 
 group_uniforms BrushOverlay;
 uniform sampler2D brush_texture:repeat_disable;
 uniform vec2 brush_position;
-uniform float brush_scale:hint_range(0.0, 1.0);
+uniform float brush_scale;
 uniform vec4 brush_color:source_color;
 group_uniforms;
 
@@ -31,5 +32,5 @@ void fragment(){
 }
 
 void vertex(){
-	VERTEX.y = texture(terrain_height, UV).r;
+	VERTEX.y = texture(terrain_height, UV).r * max_height;
 }

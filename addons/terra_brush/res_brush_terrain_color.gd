@@ -13,12 +13,14 @@ class_name TBrushTerrainColor
 		active = true
 
 
-func setup(template:bool):
+func setup():
 	resource_name = "terrain_color"
 	active = true
-	if template:
+
+func template(size:Vector2i):
 		color = Color.SEA_GREEN
 		texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE, 1024, 1024) )
+	
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active:

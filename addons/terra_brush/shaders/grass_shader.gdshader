@@ -26,11 +26,12 @@ void vertex(){
 	// I totally stole this line
 	VERTEX.x += sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * ( 1.0 - UV.y) * 0.08;
 	
+	// This is what setting "billboard_y" does in a standar material, don't ask me..
 	if(bilboard_y){
 		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz)), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(normalize(cross(INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0), MODEL_MATRIX[3]);
 	}
 	
-	// Vertex to world space (from center of texture)
+	// Vertex to world space (from center of texture). See note [1]
 	vec2 world_position = 0.5 + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / terrain_size;
 	
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
@@ -53,7 +54,7 @@ void fragment() {
 		ALBEDO = mix(margin_color, ALBEDO, margin_mask.r);
 	}
 	
-	// TBH, i don't know why alpha must be multiplied or why it needs the threshold without glitching
-	ALPHA *= margin_mask.a;
+	// Enables alpha scissor
+	ALPHA = margin_mask.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.8;
 }

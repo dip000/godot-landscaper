@@ -5,7 +5,7 @@ class_name TBrushGrassColor
 # Paints different colors over the "texture" depending on "color"
 
 
-## Modulates the brush texture. Use alpha to set the stroke strenght
+## Use alpha to set the stroke strenght.
 ## Modifying this will set it as the active brush
 @export var color:Color = Color.WHITE:
 	set(v):
@@ -14,12 +14,13 @@ class_name TBrushGrassColor
 		active = true
 
 
-func setup(template:bool):
+func setup():
 	resource_name = "grass_color"
-	if template:
-		color = Color.SPRING_GREEN
-		texture = ImageTexture.create_from_image( _create_empty_img(Color.PALE_GREEN, 128, 128) )
 
+func template(size:Vector2i):
+	color = Color.GREEN_YELLOW
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.PALE_GREEN, 128, 128) )
+	
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active:

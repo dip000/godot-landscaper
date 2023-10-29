@@ -15,11 +15,22 @@ const HEIGHT_STRENGTH:float = 0.95
 		on_active.emit()
 		active = true
 
+## Current terrain height will be recalculated accodringly
+@export var max_height:float = 2:
+	set(v):
+		max_height = v
+		on_active.emit()
+		active = true
+		update_terrain_collider()
+		_update_grass_height()
+		update_terrain_shader("max_height", max_height)
 
-func setup(template:bool):
+
+func setup():
 	resource_name = "terrain_height"
-	if template:
-		texture = ImageTexture.create_from_image( _create_empty_img(Color(0.25,0.25,0.25), 64, 64) )
+
+func template(size:Vector2i):
+	texture = ImageTexture.create_from_image( _create_empty_img(Color(0.25,0.25,0.25), 64, 64) )
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
@@ -64,7 +75,7 @@ func update_terrain_collider():
 			var z_px:int = (d / terrain_size_m.y) * terrain_size_px.y
 			
 			# Update the new height with that texture pixel
-			var y_m:float = height_image.get_pixel(x_px, z_px).r * TBrushTerrainHeight.HEIGHT_STRENGTH
+			var y_m:float = height_image.get_pixel(x_px, z_px).r * TBrushTerrainHeight.HEIGHT_STRENGTH * max_height
 			var i:int = d*(terrain_size_m.x+1) + w
 			height_shape.map_data[i] = y_m
 
@@ -76,6 +87,7 @@ func _update_grass_height():
 	# Caches
 	var space := tb.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
+	ray.collision_mask = 1<<(MainPlugin.COLLISION_LAYER-1)
 	
 	# Now that we have the collider aligned, raycast each grass for the exact ground position (as opposed by relaying on the heightmap)
 	for multimesh_inst in tb.grass_holder.get_children():
@@ -83,8 +95,8 @@ func _update_grass_height():
 		for instance_index in multimesh.instance_count:
 			var transform:Transform3D = multimesh.get_instance_transform(instance_index)
 			
-			ray.from = transform.origin + Vector3.UP
-			ray.to = transform.origin + Vector3.DOWN
+			ray.from = transform.origin + Vector3.UP * max_height
+			ray.to = transform.origin + Vector3.DOWN * max_height
 			var result = space.intersect_ray(ray)
 			
 			# Update the new height with that collision point

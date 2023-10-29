@@ -88,23 +88,21 @@ var _rng := RandomNumberGenerator.new()
 var _rng_state:int
 
 
-func setup(template:bool):
+func setup():
 	resource_name = "grass_spawn"
-	
-	if template:
-		variants = [
-			AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
-			AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
-		]
-		gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
-		texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, 128, 128) )
-		size = Vector2(0.3, 0.3)
-		quality = 3
-		
 	# Setup RNG as documentation suggests
 	_rng.set_seed( hash("TerraBrush") )
 	_rng_state = _rng.get_state()
 
+func template(size:Vector2i):
+	variants = [
+		AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
+		AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
+	]
+	size = Vector2(0.3, 0.3)
+	quality = 3
+	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
+	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, 128, 128) )
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active or not texture:
@@ -145,10 +143,12 @@ func populate_grass():
 	var terrain_image:Image = texture.get_image()
 	var terrain_size_m:Vector2 = tb.terrain_mesh.size
 	var terrain_size_px:Vector2 = terrain_image.get_size()
+	var max_height:float = tb.terrain_height.max_height
 	var total_variants:int = variants.size()
 	var max_index:int = total_variants - 1
 	var space := tb.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
+	ray.collision_mask = 1<<(MainPlugin.COLLISION_LAYER-1)
 	
 	# Reset previous instances
 	var multimesh_instances:Array[MultiMeshInstance3D]
@@ -202,8 +202,8 @@ func populate_grass():
 		var z_m:float = (rand.y - 0.5) * terrain_size_m.y
 		
 		# Raycast to the HeightMapShape3D to find the actual ground level (shape should've been updated in TBrushTerrainHeight)
-		ray.from = Vector3(x_m, 10.0, z_m)
-		ray.to = Vector3(x_m, -10.0, z_m)
+		ray.from = Vector3(x_m, max_height+1, z_m)
+		ray.to = Vector3(x_m, -max_height-1, z_m)
 		var y_m:float = space.intersect_ray(ray).position.y
 		
 		# Finally, we have the correct position to spawn

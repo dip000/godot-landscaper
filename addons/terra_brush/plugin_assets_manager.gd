@@ -132,6 +132,7 @@ static func _load_confirmed(terra_brush:TerraBrush):
 	grass_spawn.size = meta_res.get_meta("size")
 	grass_spawn.variants = terra_brush.grass_mesh.material.get_shader_parameter("variants")
 	grass_spawn.texture = meta_res.get_meta("grass_spawn")
+	terra_brush.terrain_height.max_height = meta_res.get_meta("max_height")
 	
 	# Textures were updated at the begining but we need to update them again after all of the now changes
 	await _set_progress(95)
@@ -224,6 +225,7 @@ static func _save_confirmed( terra_brush:TerraBrush ):
 	meta_res.set_meta("size", grass_spawn.size)
 	meta_res.set_meta("grass_spawn", grass_spawn.texture)
 	meta_res.take_over_path( path )
+	meta_res.set_meta("max_height", terra_brush.terrain_height.max_height)
 	ResourceSaver.save( meta_res, path )
 	
 	await _end_progress()

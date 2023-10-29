@@ -1,6 +1,7 @@
 @tool
 extends EditorPlugin
-# MAIN PLUGIN CONTROLLER:
+class_name MainPlugin
+# MAIN PLUGIN:
 #  Controls any selected TerraBrush node instance from the scene and sends the user inputs to paint, scale, etc..
 #
 # GLOBAL SCEHME:
@@ -10,6 +11,8 @@ extends EditorPlugin
 #  4. TBrush then sends that information to the shaders to visualize it
 #  5. Finally, user will press the "Save Assets To Folder" and AssetsManager will save the progress in given folder
 
+
+const COLLISION_LAYER:int = 32
 
 var _terra_brush:TerraBrush
 var _inspector_plugin:AssetsManager
@@ -33,19 +36,27 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		var space:PhysicsDirectSpaceState3D = get_tree().get_edited_scene_root().get_world_3d().direct_space_state
 		var from:Vector3 = cam.project_ray_origin( mouse )
 		var to:Vector3 =  from + (cam.project_ray_normal( mouse ) * cam.far)
-		var ray: = PhysicsRayQueryParameters3D.create(from, to)
+		var ray: = PhysicsRayQueryParameters3D.create(from, to, 1<<(COLLISION_LAYER-1)) #layer to value
 		var result = space.intersect_ray( ray )
+		
+		var lbm:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT )
 		
 		# Left clicking by default is box select and it's very anoying while drawing
 		if not result:
 			_terra_brush.exit_terrain()
-			if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
+			if lbm:
+				return EditorPlugin.AFTER_GUI_INPUT_STOP
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		
+		# Ignore colliders that aren't from the current _terra_brush instance
+		if result.collider != _terra_brush.terrain.get_node("Body"):
+			if lbm:
 				return EditorPlugin.AFTER_GUI_INPUT_STOP
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 		
 		_terra_brush.over_terrain( result.position )
 		
-		if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
+		if lbm:
 			_terra_brush.paint( result.position, true )
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 			_terra_brush.paint( result.position, false )

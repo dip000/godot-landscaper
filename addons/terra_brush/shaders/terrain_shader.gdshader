@@ -3,6 +3,7 @@ render_mode unshaded,shadows_disabled,ambient_light_disabled;
 
 uniform sampler2D terrain_color:source_color, repeat_disable;
 uniform sampler2D terrain_height:repeat_disable, hint_default_black;
+uniform float max_height = 2.0;
 
 
 void fragment(){
@@ -10,5 +11,5 @@ void fragment(){
 }
 
 void vertex(){
-	VERTEX.y = texture(terrain_height, UV).r;
+	VERTEX.y = texture(terrain_height, UV).r * max_height;
 }
