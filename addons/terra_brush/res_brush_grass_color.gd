@@ -1,31 +1,36 @@
 @tool
 extends TBrush
 class_name TBrushGrassColor
+# Brush that paints the top of the grass when you paint over the terrain
+# Paints different colors over the "texture" depending on "color"
 
 
-## Modulates the brush texture. Use alpha to set the stroke strenght
-## Modifying this will set it as the active brush
+## Use alpha to set the stroke strenght
 @export var color:Color = Color.WHITE:
 	set(v):
 		color = v
-		on_active.emit()
-		active = true
+		out_color = v
+		set_active( true )
 
-func setup(terrain:TerraBrush):
-	super(terrain)
+
+func setup():
 	resource_name = "grass_color"
-	color = Color.FOREST_GREEN
-	surface_texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE) )
+
+func template(size:Vector2i):
+	set_texture_resolution( 10 )
+	color = Color.LIGHT_YELLOW
+	set_texture( _create_texture(Color.PALE_GREEN, size*texture_resolution) )
+	
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
 	if not active:
 		return
 	
 	# Paint alpha with secondary to smooth the texture
-	t_color = color if primary_action else Color(color, 0.1)
-	update()
+	out_color = color if primary_action else Color(color, 0.1)
+	on_texture_update()
 	_bake_brush_into_surface(scale, pos)
+	
 
-func update():
-	_terrain.grass_mesh.material.set_shader_parameter("grass_color", surface_texture)
-
+func on_texture_update():
+	_update_grass_shader("grass_color", texture)
