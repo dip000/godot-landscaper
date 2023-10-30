@@ -88,8 +88,8 @@ _Spawning grass:_ <br />
 # Performance concerns
 * This version does not support GL Compatibility rendering driver. That's because the shader instance variables can render many variants with the same material
 * Coloring the grass is optimized by using vertex colors. This means that the shader is only coloring as less as 4 vertex per instance (The vertices of a square)
-* You can actually set how many vertex to use per grass in the grass mesh resource. Of course, fewer subdivisions, worse color quality, and worse sway animation quality
-* You don't have to use the terrain shader in runtime. Just copy the baked images and use them in your own materials (this will be implemented in a button later in development)
+* You can actually set how many vertex to use per grass in: Grass Spawn Brush > Quality
+* You don't have to use the terrain shader in runtime. Just copy the baked images and use them in your own materials (this option will be default later in development)
 
 # Roadmap to Beta and Asset Library
 1. [ ] Asset Library friendly
