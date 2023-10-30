@@ -5,22 +5,23 @@ class_name TBrushTerrainColor
 # Paints different colors over the "texture" depending on "color"
 
 
-## Use alpha to set the stroke strenght. Paint with right-click to smooth selected color
+## Use alpha to set the stroke strenght.
+## Paint with right-click to smooth selected color
 @export var color:Color = Color.WHITE:
 	set(v):
 		color = v
-		on_active.emit()
-		active = true
+		out_color = v
+		set_active( true )
 
 
 func setup():
 	resource_name = "terrain_color"
-	active = true
+	set_active( true )
 
 func template(size:Vector2i):
-	texture_resolution = 20
+	set_texture_resolution( 20 )
 	color = Color.SEA_GREEN
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.WHITE, size*texture_resolution) )
+	texture = set_texture( _create_texture(Color.WHITE, size*texture_resolution) )
 	
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
@@ -28,14 +29,10 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		return
 	
 	# The grass roots need to be colored as well so it is also sent to grass shader
-	var t_color := color if primary_action else Color(color, 0.1)
-	update_grass_shader("terrain_color", texture)
-	update_terrain_shader("terrain_color", texture)
-	_bake_brush_into_surface(t_color, scale, pos)
+	out_color = color if primary_action else Color(color, 0.1)
+	_bake_brush_into_surface(scale, pos)
+	on_texture_update()
 
 func on_texture_update():
-	update_grass_shader("terrain_color", texture)
-	update_terrain_shader("terrain_color", texture)
-
-func get_textured_color(primary_action:bool) -> Color:
-	return color if primary_action else color.lightened(0.3)
+	_update_grass_shader("terrain_color", texture)
+	_update_terrain_shader("terrain_color", texture)

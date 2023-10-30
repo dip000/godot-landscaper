@@ -11,22 +11,19 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 @export var spawn_type:SpawnType = SpawnType.SPAWN_RANDOM_VARIANTS:
 	set(v):
 		spawn_type = v
-		on_active.emit()
-		active = true
+		set_active( true )
 
-## Grass variant from "variants" property (below "Shader Properties"). Only if you selected mode SPAWN_ONE_VARIANT
+## Grass variant from "variants" property (below "Grass Settings"). Only if you selected mode SPAWN_ONE_VARIANT
 @export var variant:int = 0:
 	set(v):
-		variant = clampi(v, 0, variants.size()-1)
-		on_active.emit()
-		active = true
+		variant = clampi(v, 0, max(0, variants.size()-1))
+		set_active( true )
 
 ## Amount of grass proportional to the whole surface
 @export var density:int = 1024:
 	set(v):
 		density = v
-		on_active.emit()
-		active = true
+		set_active( true )
 		populate_grass()
 
 @export_group("Grass Settings")
@@ -35,38 +32,44 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 @export var billboard_y := true:
 	set(v):
 		billboard_y = v
-		update_grass_shader("billboard_y", billboard_y)
+		_update_grass_shader("billboard_y", billboard_y)
+		set_active( true )
 
 ##[NOT IMPLEMENTED]
 @export var cross_billboard := false:
 	set(v):
 		cross_billboard = v
+		set_active( true )
 
 ## If it should recolor the details you may have used in your variant texture.
 ## Remember that variant textures must be white and their details black
-@export var enable_margin := true:
+@export var enable_details := true:
 	set(v):
-		enable_margin = v
-		update_grass_shader("enable_margin", enable_margin)
+		enable_details = v
+		_update_grass_shader("enable_details", enable_details)
+		set_active( true )
 
 ## Detail recolor. See margin_enable
-@export var margin_color := Color(0.3, 0.3, 0.3):
+@export var detail_color := Color(0.2, 0.2, 0.2):
 	set(v):
-		margin_color = v
-		update_grass_shader("margin_color", margin_color)
+		detail_color = v
+		_update_grass_shader("detail_color", detail_color)
+		set_active( true )
 
 ## Subdivisions for each blade of grass. This affects its sway animation and gradient color smoothess (because is vertex colored)
 @export var quality:int:
 	set(v):
-		quality = v
-		if tb and tb.grass_mesh:
+		quality = max(0, v)
+		set_active( true )
+		if tb:
 			tb.grass_mesh.subdivide_depth = quality
 
 ## Size of the average blade of grass in meters
 @export var size:Vector2:
 	set(v):
 		size = v
-		if tb and tb.grass_mesh:
+		set_active( true )
+		if tb:
 			tb.grass_mesh.size = size
 			tb.grass_mesh.center_offset.y = size.y/2 #origin rooted to the ground
 
@@ -74,14 +77,17 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 @export var gradient_mask:GradientTexture2D:
 	set(v):
 		gradient_mask = v
-		update_grass_shader("gradient_mask", gradient_mask)
+		set_active( true )
+		_update_grass_shader("gradient_mask", gradient_mask)
 
 ## Adding or deleting a new variant might remap your current variant placements
 @export var variants:Array[Texture2D]:
 	set(v):
 		variants = v
-		update_grass_shader("variants", variants)
+		set_active( true )
+		_update_grass_shader("variants", variants)
 		populate_grass()
+
 
 # To re-create the same series of spawn positions
 var _rng := RandomNumberGenerator.new()
@@ -102,42 +108,36 @@ func template(map_size:Vector2i):
 	size = Vector2(0.3, 0.3)
 	quality = 3
 	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
-	texture_resolution = 10
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, map_size*texture_resolution) )
+	set_texture_resolution( 10 )
+	set_texture( _create_texture(Color.BLACK, map_size*texture_resolution) )
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
-	if not active or not texture:
+	if not active:
 		return
 	
 	# Spawn with primary key, erase with secondary
-	var t_color:Color
 	if primary_action:
 		match spawn_type:
 			SpawnType.SPAWN_ONE_VARIANT:
 				# Middleground between variant color range
 				var v:float = float(variant)/variants.size() + 0.5/variants.size()
-				t_color = Color(v,v,v, 1.0)
+				out_color = Color(v,v,v, 1.0)
 			SpawnType.SPAWN_RANDOM_VARIANTS:
-				t_color = Color.WHITE
+				out_color = Color.WHITE
 	else:
-		t_color = Color.BLACK
+		out_color = Color.BLACK
 	
 	# Update textures and grass positions
-	_bake_brush_into_surface(t_color, scale, pos)
-	populate_grass()
+	_bake_brush_into_surface(scale, pos)
+	on_texture_update()
 
 
 func on_texture_update():
 	populate_grass()
 
-func get_textured_color(primary_action:bool) -> Color:
-	return Color.WHITE if primary_action else Color.BLACK
 
 func populate_grass():
-	if not tb or not tb.terrain_mesh or not texture:
-		return
-	
-	if variants.is_empty():
+	if not texture or variants.is_empty():
 		return
 	
 	# Caches
@@ -152,7 +152,7 @@ func populate_grass():
 	ray.collision_mask = 1<<(MainPlugin.COLLISION_LAYER-1)
 	
 	# Reset previous instances
-	var multimesh_instances:Array[MultiMeshInstance3D]
+	var multimesh_instances:Array[MultiMeshInstance3D] = []
 	for multimesh_inst in tb.grass_holder.get_children():
 		multimesh_instances.append( multimesh_inst )
 		multimesh_inst.multimesh.instance_count = 0
@@ -179,7 +179,7 @@ func populate_grass():
 	_rng.set_state(_rng_state)
 	
 	# Find all actual valid places to spawn
-	var transforms_variants:Array[Array]
+	var transforms_variants:Array[Array] = []
 	transforms_variants.resize(total_variants)
 	
 	for _i in density:

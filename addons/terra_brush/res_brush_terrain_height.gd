@@ -9,26 +9,24 @@ class_name TBrushTerrainHeight
 @export_range(8.0, 100.0, 1.0, "suffix:%") var strength:float = 20:
 	set(v):
 		strength = v
-		on_active.emit()
-		active = true
+		set_active( true )
 
 ## Current terrain height will be recalculated accodringly
 @export var max_height:float = 2:
 	set(v):
-		max_height = v
-		on_active.emit()
-		active = true
+		max_height = max( 0.1, v )
+		set_active( true )
 		update_terrain_collider()
 		_update_grass_height()
-		update_terrain_shader("max_height", max_height)
+		_update_terrain_shader("max_height", max_height)
 
 
 func setup():
 	resource_name = "terrain_height"
 
 func template(size:Vector2i):
-	texture_resolution = 6
-	texture = ImageTexture.create_from_image( _create_empty_img(Color.BLACK, size*texture_resolution) )
+	set_texture_resolution( 6 )
+	set_texture( _create_texture(Color.BLACK, size*texture_resolution) )
 
 
 func paint(scale:float, pos:Vector3, primary_action:bool):
@@ -36,32 +34,25 @@ func paint(scale:float, pos:Vector3, primary_action:bool):
 		return
 	
 	# Mountains with primary key, ridges with secondary (small alpha to blend the heightmap colors smoothly)
-	var t_color := Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
-	_bake_brush_into_surface(t_color, scale, pos)
-	
-	if tb and texture:
-		#[WARNING] Always update colliders first since grass placement is based of them
-		update_terrain_shader("terrain_height", texture)
-		update_terrain_collider()
-		_update_grass_height()
+	out_color = Color(1,1,1,strength*0.001) if primary_action else Color(0,0,0,strength*0.001)
+	_bake_brush_into_surface(scale, pos)
+	on_texture_update()
 
 
 func on_texture_update():
-	update_terrain_shader("terrain_height", texture)
+	#[WARNING] Always update colliders first since grass placement is based of them
+	_update_terrain_shader("terrain_height", texture)
 	update_terrain_collider()
 	_update_grass_height()
 
-func get_textured_color(primary_action:bool) -> Color:
-	return Color.WHITE if primary_action else Color.BLACK
-
 
 func update_terrain_collider():
-	if not tb or not tb.terrain_mesh or not texture:
+	if not texture:
 		return
 	
 	# Caches
 	var height_image:Image = texture.get_image()
-	var terrain_size_m:Vector2 = tb.terrain_mesh.size
+	var terrain_size_m:Vector2i = tb.map_size
 	var terrain_size_px:Vector2i = height_image.get_size() - Vector2i.ONE
 	var height_shape:HeightMapShape3D = tb.height_shape
 	
@@ -69,8 +60,8 @@ func update_terrain_collider():
 	for w in height_shape.map_width:
 		for d in height_shape.map_depth:
 			# Convert to range [0,1] then to pixel size
-			var x_px:int = (w / terrain_size_m.x) * terrain_size_px.x
-			var z_px:int = (d / terrain_size_m.y) * terrain_size_px.y
+			var x_px:int = (w as float / terrain_size_m.x) * terrain_size_px.x
+			var z_px:int = (d as float / terrain_size_m.y) * terrain_size_px.y
 			
 			# Update the new height with that texture pixel
 			var y_m:float = height_image.get_pixel(x_px, z_px).r * max_height
@@ -79,7 +70,7 @@ func update_terrain_collider():
 
 
 func _update_grass_height():
-	if not tb or not tb.terrain_mesh or not texture:
+	if not tb:
 		return
 	
 	# Caches

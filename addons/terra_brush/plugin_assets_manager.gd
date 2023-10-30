@@ -7,7 +7,7 @@ class_name AssetsManager
 # NOTES ABOUT RESOURCE MANAGEMENT:
 #  * Creating a 'floating resource' (withouth a resource_path) does not work well from @exports until you save it manually (so it gains a path)
 #  * 'ResourceSaver.save(floating_res, path)' would save but you won't get a reference from the now-saved resource. Use 'Resource.take_over_path()' before
-#  * ShaderMaterial uniforms are too unreliable to save resources into
+#  * ShaderMaterial uniforms can only save sampler textures in disk, not primitives like bools
 
 
 const DEFAULT_GRASS_GRADIENT:GradientTexture2D = preload("res://addons/terra_brush/textures/default_grass_gradient.tres")
@@ -30,12 +30,12 @@ static var _save_btn:Button
 static var _load_btn:Button
 
 
-# Start with a SceneTree reference from "plugin_terra_brush.gd" for notifications and delays
+# Start with a SceneTree reference from "MainPlugin" for notifications and delays
 func _init(scene_tree:SceneTree):
 	_tree = scene_tree
 
 # Creates "Load", "Save" and "Generate" buttons in inspector
-func _parse_category(object, category):
+func _parse_category(_object, category):
 	if category != "tool_terra_brush.gd":
 		return
 	
@@ -45,7 +45,7 @@ func _parse_category(object, category):
 	_popup_accept = inspector_menu.get_node("PopupAccept")
 	_save_btn = inspector_menu.get_node("Save")
 	_load_btn = inspector_menu.get_node("Load")
-	update_saved_state( _terra_brush )
+	AssetsManager.update_saved_state( _terra_brush )
 	
 	_load_btn.pressed.connect( load_assets.bind(_terra_brush) )
 	_save_btn.pressed.connect( save_assets.bind(_terra_brush) )
@@ -66,7 +66,7 @@ static func update_saved_state(terra_brush:TerraBrush):
 			_save_btn.text += " *"
 
 
-static func load_assets( terra_brush:TerraBrush ):
+static func load_assets(terra_brush:TerraBrush):
 	# Safety checks
 	var folder:String = terra_brush.assets_folder
 	var dir := DirAccess.open(folder)
@@ -85,62 +85,45 @@ static func load_assets( terra_brush:TerraBrush ):
 
 
 static func _load_confirmed(terra_brush:TerraBrush):
+	await _set_progress(10)
 	var folder:String = terra_brush.assets_folder
-	var meta_path:String = folder.path_join("metadata.tres")
-	var meta_res:Resource = load( meta_path )
+	var meta_res:Resource = load( folder.path_join("metadata.tres") )
 	var texture_brushes:Array[TBrush] = [terra_brush.grass_color, terra_brush.terrain_color, terra_brush.terrain_height]
 	
-	# Load map size first so it doesn't crop or expand the following textures
-	terra_brush.map_size = meta_res.get_meta("terrain_size")
-	
-	# Save textures. See the setter of "TBrush.texture"
-	for i in texture_brushes.size():
-		await _set_progress( i*15 )
-		var path:String = folder.path_join(texture_brushes[i].resource_name + ".png")
-		var brush:TBrush = texture_brushes[i]
-		brush.texture = load( path )
-	
-	await _set_progress(65)
+	# Load meshes. Correct material and shader resource paths are included with the mesh
+	await _set_progress(15)
 	var path:String = folder.path_join("terrain_mesh.tres")
 	terra_brush.terrain_mesh = load( path )
 	
-	await _set_progress(70)
-	path = folder.path_join("terrain_material.tres")
-	terra_brush.terrain_mesh.material = load( path )
-	
-	await _set_progress(75)
-	path = folder.path_join("terrain_shader.gdshader")
-	terra_brush.terrain_mesh.material.shader = load( path )
-	
-	await _set_progress(80)
+	await _set_progress(20)
 	path = folder.path_join("grass_mesh.tres")
 	terra_brush.grass_mesh = load( path )
 	
-	await _set_progress(85)
-	path = folder.path_join("grass_material.tres")
-	terra_brush.grass_mesh.material = load( path )
-	
-	await _set_progress(90)
-	path = folder.path_join("grass_shader.gdshader")
-	terra_brush.grass_mesh.material.shader = load( path )
-	
-	# Setting any property from "grass_spawn" will update anything needed to the terrain
+	# Load from metadata. See "TBrushGrassSpawn" for possible secondary effects
+	await _set_progress(25)
 	var grass_spawn:TBrushGrassSpawn = terra_brush.grass_spawn
 	grass_spawn.density = meta_res.get_meta("density")
 	grass_spawn.billboard_y = meta_res.get_meta("billboard_y")
 	grass_spawn.cross_billboard = meta_res.get_meta("cross_billboard", )
-	grass_spawn.enable_margin = meta_res.get_meta("enable_margin")
-	grass_spawn.margin_color = meta_res.get_meta("margin_color")
+	grass_spawn.enable_details = meta_res.get_meta("enable_details")
+	grass_spawn.detail_color = meta_res.get_meta("detail_color")
 	grass_spawn.quality = meta_res.get_meta("quality")
 	grass_spawn.size = meta_res.get_meta("size")
-	grass_spawn.variants = terra_brush.grass_mesh.material.get_shader_parameter("variants")
-	grass_spawn.texture = meta_res.get_meta("grass_spawn")
 	terra_brush.terrain_height.max_height = meta_res.get_meta("max_height")
 	
-	# Textures were updated at the begining but we need to update them again after all of the now changes
-	await _set_progress(95)
-	for brush in [terra_brush.grass_spawn, terra_brush.grass_color, terra_brush.terrain_color, terra_brush.terrain_height]:
-		brush.on_texture_update()
+	#[WARNING] Always set map size before textures because it will crop or expand them unintentionally
+	terra_brush.map_size = meta_res.get_meta("terrain_size")
+	
+	# These are embed inside the shader material. Just let the brush know it
+	grass_spawn.variants = terra_brush.grass_mesh.material.get_shader_parameter("variants")
+	grass_spawn.gradient_mask = terra_brush.grass_mesh.material.get_shader_parameter("gradient_mask")
+	
+	# Load textures. See the "TBrush.set_texture()"
+	grass_spawn.set_texture( meta_res.get_meta("grass_spawn") )
+	for i in texture_brushes.size():
+		await _set_progress( 30 + i*25 )
+		path = folder.path_join(texture_brushes[i].resource_name + ".png")
+		texture_brushes[i].set_texture( load(path) )
 	
 	await _end_progress()
 	terra_brush.unsaved_changes = false
@@ -169,11 +152,11 @@ static func save_assets( terra_brush:TerraBrush ):
 
 
 static func _save_confirmed( terra_brush:TerraBrush ):
-	# Save textures. This might take some time
-	# Don't save "grass_spawn" texture. That will be embedded in a metadata file because it is of no use for an end user (the grass is already scattered)
-	var folder:String = terra_brush.assets_folder
+	# "grass_spawn" texture is embedded in the metadata file because it is of no use for an end user (the grass is already scattered)
 	var brushes:Array[TBrush] = [terra_brush.grass_color, terra_brush.terrain_color, terra_brush.terrain_height]
+	var folder:String = terra_brush.assets_folder
 	
+	# Save textures
 	for i in brushes.size():
 		await _set_progress( i*15 )
 		var path:String = folder.path_join(brushes[i].resource_name + ".png")
@@ -222,8 +205,8 @@ static func _save_confirmed( terra_brush:TerraBrush ):
 	meta_res.set_meta("density", grass_spawn.density)
 	meta_res.set_meta("billboard_y", grass_spawn.billboard_y)
 	meta_res.set_meta("cross_billboard", grass_spawn.cross_billboard)
-	meta_res.set_meta("enable_margin", grass_spawn.enable_margin)
-	meta_res.set_meta("margin_color", grass_spawn.margin_color)
+	meta_res.set_meta("enable_details", grass_spawn.enable_details)
+	meta_res.set_meta("detail_color", grass_spawn.detail_color)
 	meta_res.set_meta("quality", grass_spawn.quality)
 	meta_res.set_meta("size", grass_spawn.size)
 	meta_res.set_meta("grass_spawn", grass_spawn.texture)

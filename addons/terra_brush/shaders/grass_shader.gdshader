@@ -5,8 +5,8 @@ render_mode unshaded, shadows_disabled;
 const int TOTAL_GRASS_VARIANTS = 4;
 
 uniform bool billboard_y = true;
-uniform bool enable_margin = true;
-uniform vec3 margin_color:source_color = vec3(0.3);
+uniform bool enable_details = true;
+uniform vec3 detail_color:source_color = vec3(0.2);
 uniform vec2 terrain_size = vec2(10.0);
 
 // Colors of all of the grass instanced from a MultiMesh as seen from the top
@@ -49,12 +49,12 @@ void fragment() {
 	ALBEDO = COLOR.rgb;
 	
 	// The margin will look awfull if you try to vertex-color it, so is better to process it here
-	vec4 margin_mask = texture(variants[variant_index], UV);
-	if(enable_margin){
-		ALBEDO = mix(margin_color, ALBEDO, margin_mask.r);
+	vec4 detail_mask = texture(variants[variant_index], UV);
+	if(enable_details){
+		ALBEDO = mix(detail_color, ALBEDO, detail_mask.r);
 	}
 	
 	// Enables alpha scissor
-	ALPHA = margin_mask.a;
+	ALPHA = detail_mask.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.8;
 }

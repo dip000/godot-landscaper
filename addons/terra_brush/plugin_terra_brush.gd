@@ -10,6 +10,9 @@ class_name MainPlugin
 #  3. The TBrush will ultimately draw over the 'TBrush.texture' that will represent either height, color or spawn area
 #  4. TBrush then sends that information to the shaders to visualize it
 #  5. Finally, user will press the "Save Assets To Folder" and AssetsManager will save the progress in given folder
+#
+# ABOUT CODE CUSTOMS:
+#  * Search for [WARNING] tags in comments for possibly problematic operations
 
 
 const COLLISION_LAYER:int = 32
