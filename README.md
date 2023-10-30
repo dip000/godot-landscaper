@@ -1,14 +1,27 @@
 # TerraBrush [Godot 4 Plugin] [Alpha]
-Texture-based multimesh scatterer and texturer using brushes.
+Texture-based Multimesh scatterer and colorer using brushes.
+![preview](https://github.com/dip000/terra-brush-scatterer/assets/58742147/6c951028-6ebe-45d5-a335-1fc86502c220)
 
-How To:
+
+## Content
+1. [Features And How To Use Them](#1-features-and-how-to-use-them)
+	- [Terrain Color](#11-terrain-color)
+	- [Terrain Height](#12-terrain-height)
+	- [Grass Color](#13-grass-color)
+	- [Grass Spawn](#14-grass-spawn)
+3. [Performance Concerns](#performance-concerns)
+4. [Roadmap To Beta And Asset Library](#roadmap-to-beta-and-asset-library)
+5. [Author Notes](#author-notes)
+
+
+# 1. Features And How To Use Them
 1. Download and install this Plugin. See [installing_plugins](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html)
 2. Open a scene, instantiate a TerraBrush node in the scene tree, and select it
 3. Activate the brush you want from the inspector
 4. Hover over your terrain and left-click-and-drag to start terra-brushing!
 
 
-# Terrain Color
+## 1.1 Terrain Color
 Select your color then left-click to paint your terrain or right-click to smooth it out!<br />
 
 _Brush settings on TerraBrush inspector:_ <br />
@@ -20,7 +33,7 @@ _Coloring terrain showcase:_ <br />
 
 
 
-# Terrain Height
+## 1.2 Terrain Height
 Set the strength of the height brush then left-click to create mountains, and right-click to create valleys<br />
 
 _Brush settings on TerraBrush inspector:_ <br />
@@ -31,7 +44,7 @@ _Heighting terrain showcase:_ <br />
 
 
 
-# Grass Color
+## 1.3 Grass Color
 Select your color then left-click to paint your grass or right-click to smooth its color out!<br />
 Do note that only the top of the grass is being colored. That's because the bottom half is taking the color of the terrain!<br />
 
@@ -44,7 +57,7 @@ _Coloring grass showcase:_ <br />
 
 
 
-# Grass Spawn
+## 1.4 Grass Spawn
 Select your color then left-click to spawn your grass or right-click to clear it!<br />
 Do note that the bottom half of the grasses are taking the color of the terrain!<br />
 
@@ -75,21 +88,18 @@ _Effect of density property showcase:_ <br />
 * You can actually set how many vertex to use per grass in the grass mesh resource. Of course, fewer subdivisions, worse color quality, and worse sway animation quality
 * You don't have to use the terrain shader in runtime. Just copy the baked images and use them in your own materials (this will be implemented in a button later in development)
 
-# Roadmap to Beta and Assets Library
+# Roadmap to Beta and Asset Library
 1. [ ] Asset Library friendly
-   - [ ] Icon size and format
-   - [ ] Update .gitignore for asset screenshots
-   - [ ] Copy the license inside the plugin folder
-   - [ ] Suppress print() calls
+   - [ ] [asset library requirements](https://docs.godotengine.org/en/stable/community/asset_library/submitting_to_assetlib.html)
    - [ ] In-code Documentation following [style guides](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html#doc-gdscript-styleguide)
 
- 2. [ ] Save and bake textures, shaders, and materials in user folder
-	- [ ] Keep TerraBrush open for modifications
-	- [ ] Clear all plugin dependencies and close. Like in [this repository for shader showcases](https://github.com/dip000/my-godotshaders/tree/main/StylizedCartoonGrass)
+ 2. [X] Save and bake textures, shaders, and materials in user folder
+	- [X] Keep TerraBrush open for modifications
+	- [X] Clear all plugin dependencies and close. Like in [this repository for shader showcases](https://github.com/dip000/my-godotshaders/tree/main/StylizedCartoonGrass)
 
   3. [ ] Add support for cross-billboarding grass like in Minecraft
 
 # Author notes
 Hi, thanks for passing by!<br />
-I'm not quite sure if I missed any important detail that completely breaks this whole plugin so I'd be glad to hear what you have to say!<br />
+I'd be glad to hear what you have to say about the grass shader [here](https://godotshaders.com/shader/stylized-cartoon-grass/). Or contact me about this plugin at [ab-cb@hotmail.com](mailto:ab-cb@hotmail.com?subject=[GitHub]%20TerraBrush%20Plugin)<br />
 See ya!<br />
