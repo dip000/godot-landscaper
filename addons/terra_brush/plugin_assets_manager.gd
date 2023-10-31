@@ -19,8 +19,12 @@ const _INSPECTOR_MENU:PackedScene = preload("res://addons/terra_brush/Scenes/ins
 
 const TERRAIN_SHADER:Shader = preload("res://addons/terra_brush/shaders/terrain_shader.gdshader")
 const TERRAIN_SHADER_OVERLAY:Shader = preload("res://addons/terra_brush/shaders/terrain_overlay_shader.gdshader")
+const GRASS_SHADER:Shader = preload("res://addons/terra_brush/shaders/grass_shader.gdshader")
+
+#[DEPRECATED]
 const GRASS_SHADER_DOUBLE_SIDE:Shader = preload("res://addons/terra_brush/shaders/grass_shader_double_side.gdshader")
 const GRASS_SHADER_BILLBOARD_Y:Shader = preload("res://addons/terra_brush/shaders/grass_shader_billboard_y.gdshader")
+
 
 static var _tree:SceneTree
 static var _terra_brush:TerraBrush
@@ -232,3 +236,18 @@ static func _end_progress():
 	if _progress:
 		_progress.value = 0
 		_progress.hide()
+
+
+const LINE_OFFSET:int = 6
+enum ShaderDirectives {BILLBOARD_Y=LINE_OFFSET, DETAILS, GL_COMPATIBILITY}
+static func set_shader_directive(shader:Shader, directive:ShaderDirectives, active:bool):
+	var directive_string:String = "#define %s" %ShaderDirectives.keys()[directive-LINE_OFFSET]
+	var new_code:String = shader.code
+	
+	if active:
+		new_code = new_code.replace("//" + directive_string, directive_string)
+	elif "//" + directive_string in new_code:
+		new_code = new_code.replace(directive_string, "//" + directive_string)
+	
+	shader.set_code( new_code )
+	print(new_code)
