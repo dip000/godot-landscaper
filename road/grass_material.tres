@@ -1,8 +1,8 @@
 [gd_resource type="ShaderMaterial" load_steps=8 format=3 uid="uid://cl38yybddp8rd"]
 
 [ext_resource type="Shader" path="res://road/grass_shader.gdshader" id="1_8w245"]
-[ext_resource type="Texture2D" uid="uid://d28vbwnlklwyg" path="res://road/grass_color.png" id="2_wv7lh"]
-[ext_resource type="Texture2D" uid="uid://cqhwem8ycgvix" path="res://road/terrain_color.png" id="3_4uogi"]
+[ext_resource type="Texture2D" uid="uid://d28vbwnlklwyg" path="res://road/grass_color.png" id="1_voab0"]
+[ext_resource type="Texture2D" uid="uid://cqhwem8ycgvix" path="res://road/terrain_color.png" id="2_0f28o"]
 
 [sub_resource type="Gradient" id="Gradient_86gnx"]
 offsets = PackedFloat32Array(0, 0.977778, 1)
@@ -22,11 +22,10 @@ load_path = "res://.godot/imported/default_grass_v2.png-1d728846e6cbd192c885b7fb
 [resource]
 render_priority = 0
 shader = ExtResource("1_8w245")
-shader_parameter/billboard_y = true
 shader_parameter/enable_details = false
 shader_parameter/detail_color = Color(0.2, 0.2, 0.2, 1)
 shader_parameter/terrain_size = Vector2(10, 10)
-shader_parameter/grass_color = ExtResource("2_wv7lh")
-shader_parameter/terrain_color = ExtResource("3_4uogi")
+shader_parameter/grass_color = ExtResource("1_voab0")
+shader_parameter/terrain_color = ExtResource("2_0f28o")
 shader_parameter/gradient_mask = SubResource("GradientTexture2D_1e2gs")
 shader_parameter/variants = Array[Texture2D]([SubResource("CompressedTexture2D_3rdvr"), SubResource("CompressedTexture2D_e1j0p")])

@@ -19,7 +19,8 @@ const _INSPECTOR_MENU:PackedScene = preload("res://addons/terra_brush/Scenes/ins
 
 const TERRAIN_SHADER:Shader = preload("res://addons/terra_brush/shaders/terrain_shader.gdshader")
 const TERRAIN_SHADER_OVERLAY:Shader = preload("res://addons/terra_brush/shaders/terrain_overlay_shader.gdshader")
-const GRASS_SHADER:Shader = preload("res://addons/terra_brush/shaders/grass_shader.gdshader")
+const GRASS_SHADER_DOUBLE_SIDE:Shader = preload("res://addons/terra_brush/shaders/grass_shader_double_side.gdshader")
+const GRASS_SHADER_BILLBOARD_Y:Shader = preload("res://addons/terra_brush/shaders/grass_shader_billboard_y.gdshader")
 
 static var _tree:SceneTree
 static var _terra_brush:TerraBrush
@@ -103,8 +104,7 @@ static func _load_confirmed(terra_brush:TerraBrush):
 	await _set_progress(25)
 	var grass_spawn:TBrushGrassSpawn = terra_brush.grass_spawn
 	grass_spawn.density = meta_res.get_meta("density")
-	grass_spawn.billboard_y = meta_res.get_meta("billboard_y")
-	grass_spawn.cross_billboard = meta_res.get_meta("cross_billboard", )
+	grass_spawn.billboard = meta_res.get_meta("billboard")
 	grass_spawn.enable_details = meta_res.get_meta("enable_details")
 	grass_spawn.detail_color = meta_res.get_meta("detail_color")
 	grass_spawn.quality = meta_res.get_meta("quality")
@@ -203,8 +203,7 @@ static func _save_confirmed( terra_brush:TerraBrush ):
 	meta_res.set_meta("what_is_this", "You need this file to load and continue editing this terrain using TerraBrush Addon")
 	meta_res.set_meta("terrain_size", terra_brush.map_size)
 	meta_res.set_meta("density", grass_spawn.density)
-	meta_res.set_meta("billboard_y", grass_spawn.billboard_y)
-	meta_res.set_meta("cross_billboard", grass_spawn.cross_billboard)
+	meta_res.set_meta("billboard", grass_spawn.billboard)
 	meta_res.set_meta("enable_details", grass_spawn.enable_details)
 	meta_res.set_meta("detail_color", grass_spawn.detail_color)
 	meta_res.set_meta("quality", grass_spawn.quality)

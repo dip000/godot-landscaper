@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, shadows_disabled, cull_back;
+render_mode unshaded, shadows_disabled, cull_disabled;
 
 // Internally capped at 16
 const int TOTAL_GRASS_VARIANTS = 4;
@@ -24,9 +24,6 @@ instance uniform int variant_index;
 void vertex(){
 	// I totally stole this line
 	VERTEX.x += sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * ( 1.0 - UV.y) * 0.08;
-	
-	// This is what setting "billboard_y" does in a standar material, don't ask me..
-	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz)), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(normalize(cross(INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0), MODEL_MATRIX[3]);
 	
 	// Vertex to world space (from center of texture). See note [1]
 	vec2 world_position = 0.5 + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / terrain_size;
