@@ -22,8 +22,12 @@ instance uniform int variant_index;
 
 
 void vertex(){
-	// I totally stole this line
-	VERTEX.x += sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * ( 1.0 - UV.y) * 0.08;
+	// Wind sway
+	float root = (1.0 - UV.y);
+	float sway_x = sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * root * 0.10;
+	float sway_y = sin(NODE_POSITION_WORLD.x + TIME * 0.6 + UV.y) * root * 0.08;
+	float sway_z = cos(NODE_POSITION_WORLD.z + TIME * 0.45 + UV.y) * root * 0.15;
+	VERTEX += (vec4(vec3(sway_x, sway_y, sway_z), 1.0) * MODEL_MATRIX).xyz;
 	
 	// This is what setting "billboard_y" does in a standar material, don't ask me..
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz)), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(normalize(cross(INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0), MODEL_MATRIX[3]);

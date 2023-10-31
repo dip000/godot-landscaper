@@ -22,8 +22,12 @@ instance uniform int variant_index;
 
 
 void vertex(){
-	// I totally stole this line
-	VERTEX.x += sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * ( 1.0 - UV.y) * 0.08;
+	// Wind sway
+	float root = (1.0 - UV.y);
+	float sway_x = sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * root * 0.10;
+	float sway_y = sin(NODE_POSITION_WORLD.x + TIME * 0.6 + UV.y) * root * 0.08;
+	float sway_z = cos(NODE_POSITION_WORLD.z + TIME * 0.45 + UV.y) * root * 0.15;
+	VERTEX += (vec4(vec3(sway_x, sway_y, sway_z), 1.0) * MODEL_MATRIX).xyz;
 	
 	// Vertex to world space (from center of texture). See note [1]
 	vec2 world_position = 0.5 + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / terrain_size;
