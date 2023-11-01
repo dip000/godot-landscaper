@@ -13,6 +13,7 @@ class_name MainPlugin
 #
 # ABOUT CODE CUSTOMS:
 #  * Search for [WARNING] tags in comments for possibly problematic operations
+#  * Tags in comments like [NOTES 1], means that there's a long explanation about that topic in "notes.txt" file
 
 
 const COLLISION_LAYER:int = 32
@@ -20,11 +21,15 @@ const COLLISION_LAYER:int = 32
 var _terra_brush:TerraBrush
 var _inspector_plugin:AssetsManager
 
+# Handy reference for AssetsManager
+static var tree:SceneTree
+
 
 func _enter_tree():
+	tree = get_tree()
 	add_custom_type( "TerraBrush", "Node", preload("tool_terra_brush.gd"), preload("icon.svg") )
 	
-	_inspector_plugin = load("res://addons/terra_brush/plugin_assets_manager.gd").new( get_tree() )
+	_inspector_plugin = load("res://addons/terra_brush/plugin_assets_manager.gd").new()
 	add_inspector_plugin( _inspector_plugin )
 	
 func _exit_tree():
@@ -52,7 +57,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 		
 		# Ignore colliders that aren't from the current _terra_brush instance
-		if result.collider != _terra_brush.terrain.get_node("Body"):
+		if not _terra_brush.terrain or result.collider != _terra_brush.terrain.get_node("Body"):
 			if lbm:
 				return EditorPlugin.AFTER_GUI_INPUT_STOP
 			return EditorPlugin.AFTER_GUI_INPUT_PASS

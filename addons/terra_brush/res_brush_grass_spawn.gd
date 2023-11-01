@@ -32,18 +32,19 @@ enum BillboardType {BILLBOAD_Y, CROSS_BILLBOARD, SCATTER}
 ## BILLBOAD_Y: Grass always looks at the camera in y-axis.
 ## CROSS_BILLBOARD: For each grass instance, spawns another grass 90 degrees in the same position.
 ## SCATTER Scatters the grass with random rotations
-@export var billboard := BillboardType.SCATTER:
+@export var billboard:BillboardType:
 	set(v):
 		billboard = v
 		set_active( true )
 		if tb:
+			var shader:Shader = tb.grass_mesh.material.shader
 			match billboard:
 				BillboardType.BILLBOAD_Y:
-					tb.grass_mesh.material.shader = AssetsManager.GRASS_SHADER_BILLBOARD_Y.duplicate() 
+					AssetsManager.set_shader_billboard_y( shader, true )
 				BillboardType.CROSS_BILLBOARD:
-					tb.grass_mesh.material.shader = AssetsManager.GRASS_SHADER_DOUBLE_SIDE.duplicate() 
+					AssetsManager.set_shader_billboard_y( shader, false )
 				BillboardType.SCATTER:
-					tb.grass_mesh.material.shader = AssetsManager.GRASS_SHADER_DOUBLE_SIDE.duplicate() 
+					AssetsManager.set_shader_billboard_y( shader, false )
 			populate_grass()
 
 ## If it should recolor the details you may have used in your variant texture.
@@ -85,9 +86,23 @@ enum BillboardType {BILLBOAD_Y, CROSS_BILLBOARD, SCATTER}
 		set_active( true )
 		_update_grass_shader("gradient_mask", gradient_mask)
 
-## Adding or deleting a new variant might remap your current variant placements
+## Grass variant texture. Set variant spawn type in "Spawn Type" property.
+## Compatibility renderer only supports one variant. Vulkan drivers supports 4
 @export var variants:Array[Texture2D]:
 	set(v):
+		if not tb:
+			return
+		
+		var shader:Shader = tb.grass_mesh.material.shader
+		var needs_vulkan:bool = v.size() > 1
+		if needs_vulkan and AssetsManager.has_vulkan:
+			AssetsManager.set_shader_compatibility( shader, false )
+		elif needs_vulkan and not AssetsManager.has_vulkan:
+			AssetsManager.accept_dialog( "You must enable either Mobile or Forward+ Renderers to use more than one grass variants" )
+			AssetsManager.set_shader_compatibility( shader, true )
+		else:
+			AssetsManager.set_shader_compatibility( shader, true )
+		
 		variants = v
 		set_active( true )
 		_update_grass_shader("variants", variants)
@@ -106,13 +121,21 @@ func setup():
 	_rng_state = _rng.get_state()
 
 func template(map_size:Vector2i):
-	variants = [
-		AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
-		AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
-	]
+	# Set one grass variant if renderer is set as "Compatibility". Set two otherwise
+	var shader:Shader = tb.grass_mesh.material.shader
+	variants = [ AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate() ]
+	
+	if AssetsManager.has_vulkan:
+		AssetsManager.set_shader_compatibility( shader, false )
+		variants.append( AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate() )
+	else:
+		AssetsManager.set_shader_compatibility( shader, true )
+	
+	billboard = BillboardType.SCATTER
 	size = Vector2(0.3, 0.3)
 	quality = 3
 	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
+	
 	set_texture_resolution( 10 )
 	set_texture( _create_texture(Color.BLACK, map_size*texture_resolution) )
 

@@ -104,7 +104,7 @@ func _create_terrain():
 	static_body.set_collision_layer_value( MainPlugin.COLLISION_LAYER, true )
 	
 	terrain_mesh = _create_mesh( PlaneMesh.new(), AssetsManager.TERRAIN_SHADER.duplicate() )
-	grass_mesh = _create_mesh( QuadMesh.new(), AssetsManager.GRASS_SHADER_DOUBLE_SIDE.duplicate() )
+	grass_mesh = _create_mesh( QuadMesh.new(), AssetsManager.GRASS_SHADER.duplicate() )
 	
 	# Create the hidden terrain for the brush overlay.
 	# Should not be under the actual terrain so the user don't carry it away
