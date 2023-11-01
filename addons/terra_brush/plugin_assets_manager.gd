@@ -9,6 +9,8 @@ class_name AssetsManager
 #  * 'ResourceSaver.save(floating_res, path)' would save but you won't get a reference from the now-saved resource. Use 'Resource.take_over_path()' before
 #  * ShaderMaterial uniforms can only save sampler textures in disk, not primitives like bools
 
+const SHADER_COMPATIBILITY := "#define GL_COMPATIBILITY"
+const SHADER_BILLBOARD_Y := "#define BILLBOARD_Y"
 
 const DEFAULT_GRASS_GRADIENT:GradientTexture2D = preload("res://addons/terra_brush/textures/default_grass_gradient.tres")
 const DEFAULT_BRUSH:Texture2D = preload("res://addons/terra_brush/textures/default_brush.tres")
@@ -28,11 +30,12 @@ static var _popup_confirm:ConfirmationDialog
 static var _popup_accept:AcceptDialog
 static var _save_btn:Button
 static var _load_btn:Button
+static var has_vulkan:bool
 
 
-# Start with a SceneTree reference from "MainPlugin" for notifications and delays
-func _init(scene_tree:SceneTree):
-	_tree = scene_tree
+
+func _init():
+	has_vulkan = true if RenderingServer.get_rendering_device() else false
 
 # Creates "Load", "Save" and "Generate" buttons in inspector
 func _parse_category(_object, category):
@@ -66,19 +69,22 @@ static func update_saved_state(terra_brush:TerraBrush):
 			_save_btn.text += " *"
 
 
+static func accept_dialog(message:String):
+	if _popup_accept:
+		_popup_accept.dialog_text = message
+		_popup_accept.popup_centered()
+
 static func load_assets(terra_brush:TerraBrush):
 	# Safety checks
 	var folder:String = terra_brush.assets_folder
 	var dir := DirAccess.open(folder)
 	if not dir:
-		_popup_accept.dialog_text = "Selected folder does not exist"
-		_popup_accept.popup_centered()
+		accept_dialog( "Selected folder does not exist" )
 		return
 	
 	var meta_path:String = folder.path_join("metadata.tres")
 	if not FileAccess.file_exists( meta_path ):
-		_popup_accept.dialog_text = "Folder doesn't have the metadata file"
-		_popup_accept.popup_centered()
+		accept_dialog( "Folder doesn't have the metadata file" )
 		return
 	
 	_load_confirmed( terra_brush )
@@ -103,8 +109,7 @@ static func _load_confirmed(terra_brush:TerraBrush):
 	await _set_progress(25)
 	var grass_spawn:TBrushGrassSpawn = terra_brush.grass_spawn
 	grass_spawn.density = meta_res.get_meta("density")
-	grass_spawn.billboard_y = meta_res.get_meta("billboard_y")
-	grass_spawn.cross_billboard = meta_res.get_meta("cross_billboard", )
+	grass_spawn.billboard = meta_res.get_meta("billboard")
 	grass_spawn.enable_details = meta_res.get_meta("enable_details")
 	grass_spawn.detail_color = meta_res.get_meta("detail_color")
 	grass_spawn.quality = meta_res.get_meta("quality")
@@ -114,9 +119,12 @@ static func _load_confirmed(terra_brush:TerraBrush):
 	#[WARNING] Always set map size before textures because it will crop or expand them unintentionally
 	terra_brush.map_size = meta_res.get_meta("terrain_size")
 	
-	# These are embed inside the shader material. Just let the brush know it
-	grass_spawn.variants = terra_brush.grass_mesh.material.get_shader_parameter("variants")
-	grass_spawn.gradient_mask = terra_brush.grass_mesh.material.get_shader_parameter("gradient_mask")
+	# 'variants' and 'gradient_mask' are bundled inside the shader material. Just let the brush know it
+	# Cannot load from shader material if it isn't compatible. Will be restored in 'variants' setter if possible
+	var grass_material:ShaderMaterial = terra_brush.grass_mesh.material
+	set_shader_compatibility( grass_material.shader, true )
+	grass_spawn.variants = grass_material.get_shader_parameter("variants")
+	grass_spawn.gradient_mask = grass_material.get_shader_parameter("gradient_mask")
 	
 	# Load textures. See the "TBrush.set_texture()"
 	grass_spawn.set_texture( meta_res.get_meta("grass_spawn") )
@@ -135,8 +143,7 @@ static func save_assets( terra_brush:TerraBrush ):
 	
 	var folder:String = terra_brush.assets_folder
 	if not folder:
-		_popup_accept.dialog_text = "Invalid folder"
-		_popup_accept.popup_centered()
+		accept_dialog( "Invalid folder" )
 	
 	# Make user confirm overwritig on non-empty folders
 	elif DirAccess.dir_exists_absolute(folder) and DirAccess.get_files_at(folder).size() > 0:
@@ -203,8 +210,7 @@ static func _save_confirmed( terra_brush:TerraBrush ):
 	meta_res.set_meta("what_is_this", "You need this file to load and continue editing this terrain using TerraBrush Addon")
 	meta_res.set_meta("terrain_size", terra_brush.map_size)
 	meta_res.set_meta("density", grass_spawn.density)
-	meta_res.set_meta("billboard_y", grass_spawn.billboard_y)
-	meta_res.set_meta("cross_billboard", grass_spawn.cross_billboard)
+	meta_res.set_meta("billboard", grass_spawn.billboard)
 	meta_res.set_meta("enable_details", grass_spawn.enable_details)
 	meta_res.set_meta("detail_color", grass_spawn.detail_color)
 	meta_res.set_meta("quality", grass_spawn.quality)
@@ -224,12 +230,31 @@ static func _set_progress(p:int):
 	if _progress:
 		_progress.show()
 		_progress.value = p
-	await _tree.process_frame
+	await MainPlugin.tree.process_frame
 
 static func _end_progress():
 	if _progress:
 		_progress.value = 100
-	await _tree.create_timer(0.7).timeout
+	await MainPlugin.tree.create_timer(0.7).timeout
 	if _progress:
 		_progress.value = 0
 		_progress.hide()
+
+
+# Litteraly changes te code to avoid compilation errors and allow this plugin to work in low-end devices. See [NOTES 2]
+static func set_shader_compatibility(shader:Shader, active:bool):
+	if active:
+		shader.set_code( shader.code.replace("//" + SHADER_COMPATIBILITY, SHADER_COMPATIBILITY) )
+	elif is_shader_compatibility( shader ):
+		shader.set_code( shader.code.replace(SHADER_COMPATIBILITY, "//" + SHADER_COMPATIBILITY) )
+
+static func set_shader_billboard_y(shader:Shader, active:bool):
+	if active:
+		shader.set_code( shader.code.replace("//" + SHADER_BILLBOARD_Y, SHADER_BILLBOARD_Y) )
+	elif is_shader_billboard( shader ):
+		shader.set_code( shader.code.replace(SHADER_BILLBOARD_Y, "//" + SHADER_BILLBOARD_Y) )
+
+static func is_shader_compatibility(shader:Shader) -> bool:
+	return not shader.code.contains( "//" + SHADER_COMPATIBILITY )
+static func is_shader_billboard(shader:Shader) -> bool:
+	return not shader.code.contains( "//" + SHADER_BILLBOARD_Y )

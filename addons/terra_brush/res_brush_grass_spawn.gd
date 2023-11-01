@@ -6,6 +6,7 @@ class_name TBrushGrassSpawn
 
 
 enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
+enum BillboardType {BILLBOAD_Y, CROSS_BILLBOARD, SCATTER}
 
 ## Action to perform while left-clicking over the terrain. Right click will clear grass
 @export var spawn_type:SpawnType = SpawnType.SPAWN_RANDOM_VARIANTS:
@@ -28,18 +29,23 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 
 @export_group("Grass Settings")
 
-## Grass always looks at the camera in y-axis
-@export var billboard_y := true:
+## BILLBOAD_Y: Grass always looks at the camera in y-axis.
+## CROSS_BILLBOARD: For each grass instance, spawns another grass 90 degrees in the same position.
+## SCATTER Scatters the grass with random rotations
+@export var billboard:BillboardType:
 	set(v):
-		billboard_y = v
-		_update_grass_shader("billboard_y", billboard_y)
+		billboard = v
 		set_active( true )
-
-##[NOT IMPLEMENTED]
-@export var cross_billboard := false:
-	set(v):
-		cross_billboard = v
-		set_active( true )
+		if tb:
+			var shader:Shader = tb.grass_mesh.material.shader
+			match billboard:
+				BillboardType.BILLBOAD_Y:
+					AssetsManager.set_shader_billboard_y( shader, true )
+				BillboardType.CROSS_BILLBOARD:
+					AssetsManager.set_shader_billboard_y( shader, false )
+				BillboardType.SCATTER:
+					AssetsManager.set_shader_billboard_y( shader, false )
+			populate_grass()
 
 ## If it should recolor the details you may have used in your variant texture.
 ## Remember that variant textures must be white and their details black
@@ -80,9 +86,23 @@ enum SpawnType {SPAWN_ONE_VARIANT, SPAWN_RANDOM_VARIANTS}
 		set_active( true )
 		_update_grass_shader("gradient_mask", gradient_mask)
 
-## Adding or deleting a new variant might remap your current variant placements
+## Grass variant texture. Set variant spawn type in "Spawn Type" property.
+## Compatibility renderer only supports one variant. Vulkan drivers supports 4
 @export var variants:Array[Texture2D]:
 	set(v):
+		if not tb:
+			return
+		
+		var shader:Shader = tb.grass_mesh.material.shader
+		var needs_vulkan:bool = v.size() > 1
+		if needs_vulkan and AssetsManager.has_vulkan:
+			AssetsManager.set_shader_compatibility( shader, false )
+		elif needs_vulkan and not AssetsManager.has_vulkan:
+			AssetsManager.accept_dialog( "You must enable either Mobile or Forward+ Renderers to use more than one grass variants" )
+			AssetsManager.set_shader_compatibility( shader, true )
+		else:
+			AssetsManager.set_shader_compatibility( shader, true )
+		
 		variants = v
 		set_active( true )
 		_update_grass_shader("variants", variants)
@@ -101,13 +121,21 @@ func setup():
 	_rng_state = _rng.get_state()
 
 func template(map_size:Vector2i):
-	variants = [
-		AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate(),
-		AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate(),
-	]
+	# Set one grass variant if renderer is set as "Compatibility". Set two otherwise
+	var shader:Shader = tb.grass_mesh.material.shader
+	variants = [ AssetsManager.DEFAULT_GRASS_VARIANT1.duplicate() ]
+	
+	if AssetsManager.has_vulkan:
+		AssetsManager.set_shader_compatibility( shader, false )
+		variants.append( AssetsManager.DEFAULT_GRASS_VARIANT2.duplicate() )
+	else:
+		AssetsManager.set_shader_compatibility( shader, true )
+	
+	billboard = BillboardType.SCATTER
 	size = Vector2(0.3, 0.3)
 	quality = 3
 	gradient_mask = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
+	
 	set_texture_resolution( 10 )
 	set_texture( _create_texture(Color.BLACK, map_size*texture_resolution) )
 
@@ -144,12 +172,13 @@ func populate_grass():
 	var terrain_image:Image = texture.get_image()
 	var terrain_size_m:Vector2 = tb.terrain_mesh.size
 	var terrain_size_px:Vector2 = terrain_image.get_size()
-	var max_height:float = tb.terrain_height.max_height
 	var total_variants:int = variants.size()
 	var max_index:int = total_variants - 1
+	var max_height:float = tb.terrain_height.max_height
 	var space := tb.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
 	ray.collision_mask = 1<<(MainPlugin.COLLISION_LAYER-1)
+	
 	
 	# Reset previous instances
 	var multimesh_instances:Array[MultiMeshInstance3D] = []
@@ -164,9 +193,9 @@ func populate_grass():
 			new_instance.multimesh = MultiMesh.new()
 			new_instance.multimesh.transform_format = MultiMesh.TRANSFORM_3D
 			new_instance.multimesh.mesh = tb.grass_mesh
-			multimesh_instances.append(new_instance)
+			multimesh_instances.append( new_instance )
 			
-			tb.grass_holder.add_child(new_instance)
+			tb.grass_holder.add_child( new_instance )
 			new_instance.owner = tb.owner
 			new_instance.name = "Grass"
 	
@@ -187,8 +216,10 @@ func populate_grass():
 		var rand := Vector2(_rng.randf(), _rng.randf())
 		var terrain_value:float = terrain_image.get_pixelv( rand*terrain_size_px ).r
 		
-		# WHITE = SPAWN_RANDOM_VARIANTS (always calculate to ensure full state restoration from RandomNumberGenerator)
+		# WHITE = SPAWN_RANDOM_VARIANTS (always calculate randoms to ensure full state restoration from RandomNumberGenerator)
 		var variant_index:int = _rng.randi_range(0, max_index)
+		var random_rotation:float = _rng.randf_range(0, 2*PI)
+		var random_scale:float = _rng.randf_range(0.8, 1.2)
 		
 		# BLACK = CLEAR
 		if is_zero_approx(terrain_value):
@@ -210,16 +241,33 @@ func populate_grass():
 		# Finally, we have the correct position to spawn
 		var pos := Vector3(x_m, y_m, z_m)
 		var transf := Transform3D(Basis(), Vector3()).translated( pos )
+		
+		transf = transf.rotated_local( Vector3.UP, random_rotation )
+		transf = transf.scaled_local( Vector3.ONE * random_scale )
 		transforms_variants[variant_index].append( transf )
 	
 	
-	# Place grass with the obtained transforms
+	# Setup one MultiMeshInstance3D for every type of grass
 	for variant_index in transforms_variants.size():
 		var multimesh_inst := multimesh_instances[variant_index]
 		var transforms := transforms_variants[variant_index]
-		multimesh_inst.multimesh.instance_count = transforms.size()
-		multimesh_inst.set_instance_shader_parameter("variant_index", variant_index)
+		var transforms_size:int = transforms.size()
 		
-		for transform_index in transforms.size():
-			multimesh_inst.multimesh.set_instance_transform( transform_index, transforms[transform_index] )
-
+		multimesh_inst.set_instance_shader_parameter("variant_index", variant_index)
+		if billboard == BillboardType.CROSS_BILLBOARD:
+			multimesh_inst.multimesh.instance_count = transforms_size*2
+		else:
+			multimesh_inst.multimesh.instance_count = transforms_size
+		
+		# Spawn the actual grass
+		for transform_index in transforms_size:
+			var transform:Transform3D = transforms[transform_index]
+			multimesh_inst.multimesh.set_instance_transform( transform_index, transform )
+		
+		# Spawn the cross billboard grass rotated 90 degrees in the same position
+		if billboard == BillboardType.CROSS_BILLBOARD:
+			for transform_index in transforms_size:
+				var transform:Transform3D = transforms[transform_index].rotated_local( Vector3.UP, PI*0.5 )
+				multimesh_inst.multimesh.set_instance_transform( transforms_size + transform_index, transform )
+		
+		

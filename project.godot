@@ -20,4 +20,4 @@ enabled=PackedStringArray("res://addons/terra_brush/plugin.cfg")
 
 [rendering]
 
-renderer/rendering_method="mobile"
+renderer/rendering_method="gl_compatibility"
