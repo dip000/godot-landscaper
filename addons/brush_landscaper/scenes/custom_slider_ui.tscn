@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://7l6ujrx1sram"]
+
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/custom_slider_ui.gd" id="1_00h5q"]
+
+[node name="CustomSlider" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_00h5q")
+
+[node name="Name" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+text = "Brush Size"
+vertical_alignment = 1
+
+[node name="Slider" type="HSlider" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+min_value = 1.0
+value = 1.0
+
+[node name="Percentage" type="Label" parent="."]
+custom_minimum_size = Vector2(47, 0)
+layout_mode = 2
+text = "1 %"
+horizontal_alignment = 2
+vertical_alignment = 1

@@ -1,0 +1,146 @@
+[gd_scene load_steps=13 format=3 uid="uid://blxybkm3ddq3j"]
+
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/dock_ui.gd" id="1_tcdq3"]
+[ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/brush_landscaper/textures/icons.svg" id="2_obihf"]
+[ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/brush_landscaper/scenes/custom_slider_ui.tscn" id="3_m8brp"]
+[ext_resource type="PackedScene" uid="uid://dm7ycgrpmdj5t" path="res://addons/brush_landscaper/scenes/custom_color_picker_ui.tscn" id="4_pjwji"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ksya5"]
+atlas = ExtResource("2_obihf")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ieiv0"]
+atlas = ExtResource("2_obihf")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rrt18"]
+atlas = ExtResource("2_obihf")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2yokp"]
+atlas = ExtResource("2_obihf")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t3o2m"]
+atlas = ExtResource("2_obihf")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
+bg_color = Color(0.145098, 0.168627, 0.203922, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7eg60"]
+resource_local_to_scene = true
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sp3nb"]
+resource_local_to_scene = true
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="Landscaper" type="VBoxContainer"]
+custom_minimum_size = Vector2(285, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tcdq3")
+
+[node name="TabBar" type="TabBar" parent="."]
+layout_mode = 2
+tab_count = 5
+tab_0/title = ""
+tab_0/icon = SubResource("AtlasTexture_ksya5")
+tab_1/title = ""
+tab_1/icon = SubResource("AtlasTexture_ieiv0")
+tab_2/title = ""
+tab_2/icon = SubResource("AtlasTexture_rrt18")
+tab_3/title = ""
+tab_3/icon = SubResource("AtlasTexture_2yokp")
+tab_4/title = ""
+tab_4/icon = SubResource("AtlasTexture_t3o2m")
+
+[node name="Description" type="Label" parent="."]
+layout_mode = 2
+text = "Left click to build, right click to erase terrain, and mouse wheel to change brush size."
+autowrap_mode = 3
+
+[node name="BrushSize" parent="." instance=ExtResource("3_m8brp")]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_fixda")
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="TerrainBuilder" type="VBoxContainer" parent="Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="TerrainColor" type="VBoxContainer" parent="Panel/MarginContainer"]
+visible = false
+layout_mode = 2
+
+[node name="ColorPicker" parent="Panel/MarginContainer/TerrainColor" instance=ExtResource("4_pjwji")]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_7eg60")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_7eg60")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7eg60")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_7eg60")
+theme_override_styles/focus = SubResource("StyleBoxFlat_7eg60")
+
+[node name="TerrainHeight" type="VBoxContainer" parent="Panel/MarginContainer"]
+visible = false
+layout_mode = 2
+
+[node name="GrassColor" type="VBoxContainer" parent="Panel/MarginContainer"]
+visible = false
+layout_mode = 2
+
+[node name="ColorPicker" parent="Panel/MarginContainer/GrassColor" instance=ExtResource("4_pjwji")]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_sp3nb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sp3nb")
+theme_override_styles/hover = SubResource("StyleBoxFlat_sp3nb")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_sp3nb")
+theme_override_styles/focus = SubResource("StyleBoxFlat_sp3nb")
+
+[node name="GrassSpawner" type="VBoxContainer" parent="Panel/MarginContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Notes" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.772549, 1, 0.92549, 1)
+text = "Building new terrain will increase all brush texture sizes accodringly.
+
+This won't affect your current terrain placements
+
+"
+autowrap_mode = 3
