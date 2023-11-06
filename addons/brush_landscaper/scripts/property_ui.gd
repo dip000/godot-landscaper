@@ -1,10 +1,11 @@
-extends Control
+extends HBoxContainer
 class_name PropertyUI
 # Interface for custom dock properties. See 'DockUI.get_property()'
 #
 # This is made like this because we need many global properties from DockUI
 # and routing every one of them (signals, getters, setters,..) does not scale well
 
+@export var property_name:String = ""
 
 var value:
 	set=set_value,

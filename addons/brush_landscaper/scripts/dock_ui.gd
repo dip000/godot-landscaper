@@ -15,19 +15,11 @@ const _DESCRIPTIONS:PackedStringArray = [
 	"Paint with left click, smooth color with right click",
 	"Spawn selected grass with left click, erase any grass with right click",
 ]
-#[NOTE] Using Array[PackedStringArray] causes Godot to crash..
-const _NOTES:Array[Array] = [
-	["Building new terrain will increase all brush texture sizes accodringly.", "This won't affect your current terrain placements"],
-	["This will generate a texture in your selected directory"],
-	[],
-	["This will generate a texture in your selected directory"],
-	["You can spawn up to 4 grass variants in Mobile or Forward+ renderers, but only one in Compatibility"],
-]
+
 
 static var _description_label:Label
 static var _tabs:TabBar
 static var _brushes:Array
-static var _notes_label:Label
 
 static var brush_size:CustomSliderUI
 static var active_brush:int
@@ -37,7 +29,6 @@ func _ready():
 	_description_label = $Description
 	_tabs = $TabBar
 	_brushes = $Panel/MarginContainer.get_children()
-	_notes_label = $Notes
 	brush_size = $BrushSize
 	
 	_tabs.tab_changed.connect( _brush_changed )
@@ -50,13 +41,9 @@ func _brush_changed(index:int):
 	
 	_brushes[index].show()
 	active_brush = index
-
-	# Show description and notes
-	_description_label.text = _DESCRIPTIONS[active_brush] + _COMMON_DESCRIPTION
 	
-	_notes_label.text = ""
-	for note in _NOTES[active_brush]:
-		_notes_label.text += note + "\n\n"
+	# Show description
+	_description_label.text = _DESCRIPTIONS[active_brush] + _COMMON_DESCRIPTION
 
 
 # Generic getter for any property in dock. See 'Brush'

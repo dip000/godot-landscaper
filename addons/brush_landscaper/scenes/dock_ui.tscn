@@ -1,9 +1,12 @@
-[gd_scene load_steps=13 format=3 uid="uid://blxybkm3ddq3j"]
+[gd_scene load_steps=16 format=3 uid="uid://blxybkm3ddq3j"]
 
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/dock_ui.gd" id="1_tcdq3"]
 [ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/brush_landscaper/textures/icons.svg" id="2_obihf"]
 [ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/brush_landscaper/scenes/custom_slider_ui.tscn" id="3_m8brp"]
+[ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/brush_landscaper/textures/icons_small.svg" id="3_o2i0y"]
+[ext_resource type="PackedScene" uid="uid://b6dp6o7trv5ru" path="res://addons/brush_landscaper/scenes/custom_file_input.tscn" id="4_g4ftj"]
 [ext_resource type="PackedScene" uid="uid://dm7ycgrpmdj5t" path="res://addons/brush_landscaper/scenes/custom_color_picker_ui.tscn" id="4_pjwji"]
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/toggle_file_paths_ui.gd" id="6_28qs3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ksya5"]
 atlas = ExtResource("2_obihf")
@@ -28,29 +31,13 @@ region = Rect2(256, 0, 64, 64)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
 bg_color = Color(0.145098, 0.168627, 0.203922, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7eg60"]
-resource_local_to_scene = true
-content_margin_left = 5.0
-content_margin_top = 5.0
-content_margin_right = 5.0
-content_margin_bottom = 5.0
-bg_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 7
-corner_radius_top_right = 7
-corner_radius_bottom_right = 7
-corner_radius_bottom_left = 7
+[sub_resource type="AtlasTexture" id="AtlasTexture_3hyxx"]
+atlas = ExtResource("3_o2i0y")
+region = Rect2(22, 0, 22, 22)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sp3nb"]
-resource_local_to_scene = true
-content_margin_left = 5.0
-content_margin_top = 5.0
-content_margin_right = 5.0
-content_margin_bottom = 5.0
-bg_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 7
-corner_radius_top_right = 7
-corner_radius_bottom_right = 7
-corner_radius_bottom_left = 7
+[sub_resource type="AtlasTexture" id="AtlasTexture_6rc6k"]
+atlas = ExtResource("3_o2i0y")
+region = Rect2(44, 0, 22, 22)
 
 [node name="Landscaper" type="VBoxContainer"]
 custom_minimum_size = Vector2(285, 0)
@@ -82,6 +69,7 @@ autowrap_mode = 3
 
 [node name="BrushSize" parent="." instance=ExtResource("3_m8brp")]
 layout_mode = 2
+property_name = "Brush Size"
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 2
@@ -102,45 +90,111 @@ theme_override_constants/margin_bottom = 5
 
 [node name="TerrainBuilder" type="VBoxContainer" parent="Panel/MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="TerrainColor" type="VBoxContainer" parent="Panel/MarginContainer"]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="ColorPicker" parent="Panel/MarginContainer/TerrainColor" instance=ExtResource("4_pjwji")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_7eg60")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_7eg60")
-theme_override_styles/hover = SubResource("StyleBoxFlat_7eg60")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_7eg60")
-theme_override_styles/focus = SubResource("StyleBoxFlat_7eg60")
 
 [node name="TerrainHeight" type="VBoxContainer" parent="Panel/MarginContainer"]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="GrassColor" type="VBoxContainer" parent="Panel/MarginContainer"]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="ColorPicker" parent="Panel/MarginContainer/GrassColor" instance=ExtResource("4_pjwji")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_sp3nb")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_sp3nb")
-theme_override_styles/hover = SubResource("StyleBoxFlat_sp3nb")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_sp3nb")
-theme_override_styles/focus = SubResource("StyleBoxFlat_sp3nb")
 
 [node name="GrassSpawner" type="VBoxContainer" parent="Panel/MarginContainer"]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="Notes" type="Label" parent="."]
+[node name="ShowHide" type="HBoxContainer" parent="."]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.772549, 1, 0.92549, 1)
-text = "Building new terrain will increase all brush texture sizes accodringly.
 
-This won't affect your current terrain placements
+[node name="HSeparator" type="HSeparator" parent="ShowHide"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 
-"
-autowrap_mode = 3
+[node name="ShowHidePaths" type="Button" parent="ShowHide"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.498039, 0.498039, 0.498039, 1)
+toggle_mode = true
+text = "Show File Paths"
+flat = true
+script = ExtResource("6_28qs3")
+
+[node name="HSeparator2" type="HSeparator" parent="ShowHide"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="PathsClip" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+
+[node name="Paths" type="VBoxContainer" parent="PathsClip"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FileInput" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Terrain Texture"
+
+[node name="FileInput2" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Terrain Mesh"
+
+[node name="FileInput3" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Terrain Material"
+
+[node name="FileInput4" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Grass Texture"
+
+[node name="FileInput5" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Grass Mesh"
+
+[node name="FileInput6" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Grass Material"
+
+[node name="FileInput7" parent="PathsClip/Paths" instance=ExtResource("4_g4ftj")]
+layout_mode = 2
+property_name = "Grass Shader"
+
+[node name="SaveLoadAll" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SaveAll" type="Button" parent="SaveLoadAll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+text = "Save All"
+icon = SubResource("AtlasTexture_3hyxx")
+alignment = 0
+
+[node name="LoadAll" type="Button" parent="SaveLoadAll"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load All"
+icon = SubResource("AtlasTexture_6rc6k")
+alignment = 0

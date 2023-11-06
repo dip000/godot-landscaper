@@ -15,7 +15,6 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.8
-text = "Brush Size"
 vertical_alignment = 1
 
 [node name="Slider" type="HSlider" parent="."]

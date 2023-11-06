@@ -13,16 +13,19 @@ class_name PluginLandscaper
 const COLLISION_LAYER:int = 32
 
 var _landscaper:Landscaper
-var _dock_ui:DockUI = load("res://addons/brush_landscaper/scenes/dock_ui.tscn").instantiate()
+var _dock_ui:PackedScene = load("res://addons/brush_landscaper/scenes/dock_ui.tscn")
+var _dock_ui_inst:DockUI
 
 
 func _enter_tree():
+	# Instantiate on tree enter so its ready cycle works
+	_dock_ui_inst = _dock_ui.instantiate()
+	add_control_to_dock( EditorPlugin.DOCK_SLOT_RIGHT_UL, _dock_ui_inst )
 	add_custom_type( "Landscaper", "Node", preload("scripts/tool_landscaper.gd"), preload("icon.svg") )
-	add_control_to_dock( EditorPlugin.DOCK_SLOT_RIGHT_UL, _dock_ui )
 
 func _exit_tree():
 	remove_custom_type( "Landscaper" )
-	remove_control_from_docks( _dock_ui )
+	remove_control_from_docks( _dock_ui_inst )
 
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active TerraBrush node

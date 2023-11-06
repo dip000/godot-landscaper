@@ -11,6 +11,7 @@ class_name CustomSliderUI
 
 
 func _ready():
+	_name_label.text = property_name
 	_slider.value_changed.connect( _on_slider_changed )
 	_on_slider_changed( _slider.value ) #start with inspector value
 

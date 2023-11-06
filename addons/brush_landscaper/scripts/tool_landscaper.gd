@@ -3,7 +3,6 @@ extends Node
 class_name Landscaper
 # Brushes manager:
 #   Creates a new terrain and receives control from PluginLandscaper.
-#
 #  * Unparent the Terrain node outside and delete this when you've finished
 #  * Saving/Loading mechanics are in reconstruction, again..
 
