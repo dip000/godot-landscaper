@@ -1,3 +1,4 @@
+@tool
 extends Brush
 class_name TerrainHeight
 # Brush that creates mountains or valleys when you paint over the terrain

@@ -12,27 +12,28 @@ class_name PluginLandscaper
 
 const COLLISION_LAYER:int = 32
 
-var _landscaper:Landscaper
-var _dock_ui:PackedScene = load("res://addons/brush_landscaper/scenes/dock_ui.tscn")
-var _dock_ui_inst:DockUI
+var _ui_template:PackedScene = load("res://addons/brush_landscaper/scenes/dock_ui.tscn")
+var _ui_inst:UILandscaper
+var _scene_inst:SceneLandscaper
 
 
 func _enter_tree():
 	# Instantiate on tree enter so its ready cycle works
-	_dock_ui_inst = _dock_ui.instantiate()
-	add_control_to_dock( EditorPlugin.DOCK_SLOT_RIGHT_UL, _dock_ui_inst )
-	add_custom_type( "Landscaper", "Node", preload("scripts/tool_landscaper.gd"), preload("icon.svg") )
+	_ui_inst = _ui_template.instantiate()
+	
+	add_control_to_dock.call_deferred( EditorPlugin.DOCK_SLOT_RIGHT_UL, _ui_inst )
+	add_custom_type( "SceneLandscaper", "Node", preload("scripts/scene_landscaper.gd"), preload("icon.svg") )
 
 func _exit_tree():
-	remove_custom_type( "Landscaper" )
-	remove_control_from_docks( _dock_ui_inst )
+	remove_custom_type( "SceneLandscaper" )
+	remove_control_from_docks( _ui_inst )
 
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active TerraBrush node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	# Ignore if not _landscaper or mouse is idle
-	if not _landscaper or not is_instance_valid( _landscaper ) or not event is InputEventMouse:
+	if not _scene_inst or not is_instance_valid( _scene_inst ) or not event is InputEventMouse:
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
 	# Raycast
@@ -53,39 +54,47 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	# Left clicking by default is box select and it's very anoying while drawing
 	if not result:
-		_landscaper.exit_terrain()
+		_ui_inst.exit_terrain()
 		if lbm:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	# Ignore colliders that aren't from the current _landscaper instance
-	if result.collider != _landscaper.terrain_body:
+	# Ignore colliders that aren't from the current SceneLandscaper instance
+	if result.collider != _scene_inst.terrain_body and result.collider != _scene_inst.overlay_body:
 		if lbm:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	_landscaper.over_terrain( result.position )
+	_ui_inst.over_terrain( result.position )
 	
 	# Paint and scale
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		_landscaper.paint( result.position, true )
+		_ui_inst.paint( result.position, true )
 	elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		_landscaper.paint( result.position, false )
+		_ui_inst.paint( result.position, false )
 	elif not pressed and (rbm or lbm):
-		_landscaper.paint_end()
+		_ui_inst.paint_end()
 	
 	if pressed and wheel_up:
-		_landscaper.scale( -2 )
+		_ui_inst.scale_by( -2 )
 	elif pressed and wheel_down:
-		_landscaper.scale( 2 )
+		_ui_inst.scale_by( 2 )
 	
 	if is_button:
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 
 
 func _handles(object):
-	if object is Landscaper:
-		_landscaper = object
+	if object is SceneLandscaper:
+		if _scene_inst != object:
+			_scene_inst = object
+			_ui_inst.update_from_scene.call_deferred( _scene_inst )
+		_ui_inst.set_enable( true )
 		return true
 	else:
+		_ui_inst.set_enable( false )
 		return false
+
+func _edit(object):
+	if not object:
+		_ui_inst.set_enable( false )

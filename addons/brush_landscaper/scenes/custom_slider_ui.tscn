@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://7l6ujrx1sram"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/custom_slider_ui.gd" id="1_00h5q"]
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_slider.gd" id="1_00h5q"]
 
 [node name="CustomSlider" type="HBoxContainer"]
 anchors_preset = 15
@@ -22,11 +22,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 min_value = 1.0
-value = 1.0
+value = 20.0
 
 [node name="Percentage" type="Label" parent="."]
 custom_minimum_size = Vector2(47, 0)
 layout_mode = 2
-text = "1 %"
+text = "20 %"
 horizontal_alignment = 2
 vertical_alignment = 1

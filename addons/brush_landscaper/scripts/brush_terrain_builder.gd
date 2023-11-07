@@ -1,3 +1,4 @@
+@tool
 extends Brush
 class_name TerrainBuilder
 # Brush that generates new mesh when you paint over the terrain
@@ -9,41 +10,75 @@ const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #triangle in second quadrant
 ]
 
-var pivot:Vector2i
+@onready var texture_preview:CustomToggleContent = $ToggleContent
+
+var world_center:Vector2i
 var bounds_size:Vector2i:
-	set(v):
-		return
 	get:
 		return texture.get_size()
 
 
-
-func setup():
-	resource_name = "terrain_builder"
-
-func template(size:Vector2i):
-	pivot = size * 0.5
-	texture = _create_texture( Color.WHITE, size, Image.FORMAT_L8 )
+func template(_size:Vector2i):
+	print("Build template")
+	world_center = _size * 0.5
+	texture = _create_texture( Color.WHITE, _size, Image.FORMAT_L8 )
 	update_texture()
+	
+	var tex := TextureRect.new()
+	tex.texture = texture
+	tex.custom_minimum_size = Vector2(100, 100)
+	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	texture_preview.value = tex
+	
 
 func paint(pos:Vector3, primary_action:bool):
-	var brush_size:float = DockUI.brush_size.value/100
+	if primary_action:
+		var pos_v2 := Vector2(pos.x, pos.z)
+		var brush_radius:Vector2 = ui.brush_size.value/200.0 * Vector2(bounds_size)
+		var world_reach:Vector2 = brush_radius + pos_v2.abs()
+		var world_bound:Vector2 = bounds_size - world_center
+		print( world_reach, world_bound )
+		
+		var resize_by:Vector2i
+		if world_reach.x > world_bound.x:
+			resize_by.x = ceili( world_reach.x - world_bound.x )
+		if world_reach.y > world_bound.y:
+			resize_by.y = ceili( world_reach.y - world_bound.y )
+		if resize_by != Vector2i.ZERO:
+			var new_size:Vector2i = resize_by + bounds_size
+			print("Resize by: ", resize_by)
+			print("New size: ", new_size)
+			extend_texture( new_size, Color.BLACK )
+	
 	pos = pos.ceil()
 	out_color = Color.WHITE if primary_action else Color.BLACK
-	_bake_out_color_into_texture(brush_size, pos)
+	_bake_out_color_into_texture(pos)
 	update_texture()
-	update_shaders()
+
+
+
+# Crops the texture on smaller sizes, expands on bigger ones. But always keeps pixels where they were
+func extend_texture(new_size:Vector2i, fill_color:Color):
+	var prev_size:Vector2i = texture.get_size()
+	var prev_img:Image = texture.get_image()
+	var prev_format:int = prev_img.get_format()
+	var new_img:Image = _create_img( fill_color, new_size, prev_format )
+	var prev_img_full_rect := Rect2i( Vector2i.ZERO, prev_size )
+	var center_px:Vector2 = (new_size - prev_size) / 2.0
+	
+	new_img.blit_rect( prev_img, prev_img_full_rect, center_px )
+	texture.set_image( new_img )
+
 
 func update_texture():
 	var img:Image = texture.get_image()
-	var vertices := PackedVector3Array()
+	var vertices_terrain := PackedVector3Array()
 	
 	for x in img.get_width():
 		for y in img.get_height():
 			if img.get_pixel(x, y).r > BUILD_FROM_PIXEL_UMBRAL:
-				create_square(vertices, x-pivot.x, y-pivot.y)
-	update_mesh( vertices )
-
+				create_square(vertices_terrain, x-world_center.x, y-world_center.y)
+	update_mesh( vertices_terrain )
 
 
 func create_square(vertices:PackedVector3Array, x:int, z:int):
@@ -54,8 +89,8 @@ func update_mesh(vertices:PackedVector3Array):
 	# Clear mesh and colliders if no vertices
 	if vertices.is_empty():
 		print("Empty :P")
-		landscaper.terrain.mesh.clear_surfaces()
-		landscaper.terrain_shape.set_faces( PackedVector3Array() )
+		scene.terrain.mesh.clear_surfaces()
+		scene.terrain_collider.shape.set_faces( PackedVector3Array() )
 		return
 	
 	# Setup the ArrayMesh
@@ -63,9 +98,9 @@ func update_mesh(vertices:PackedVector3Array):
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_TEX_UV] = recalculate_uv( vertices )
-	landscaper.terrain_mesh.clear_surfaces()
-	landscaper.terrain_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	landscaper.terrain_collider.shape.set_faces( vertices )
+	scene.terrain_mesh.clear_surfaces()
+	scene.terrain_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	scene.terrain_collider.shape.set_faces( vertices )
 
 
 func recalculate_uv(vertices:PackedVector3Array) -> PackedVector2Array:

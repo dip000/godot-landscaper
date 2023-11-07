@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://bdfmi4jds2j42"]
+
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_toggle_content.gd" id="1_c6jn3"]
+
+[node name="ToggleContent" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_c6jn3")
+property_name_pressed = "Hide Image"
+property_name = "Show Image"
+
+[node name="Toggle" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="Toggle"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="Button" type="Button" parent="Toggle"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.498039, 0.498039, 0.498039, 1)
+toggle_mode = true
+keep_pressed_outside = true
+flat = true
+
+[node name="HSeparator2" type="HSeparator" parent="Toggle"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="ContentClip" type="Control" parent="."]
+clip_contents = true
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="ContentClip"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

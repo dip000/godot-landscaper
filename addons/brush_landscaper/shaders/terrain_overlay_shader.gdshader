@@ -3,8 +3,8 @@ render_mode unshaded,shadows_disabled,ambient_light_disabled;
 
 group_uniforms BrushOverlay;
 uniform sampler2D brush_texture:repeat_disable;
-uniform vec2 brush_position;
-uniform float brush_scale;
+uniform vec2 brush_position = vec2(2.0);
+uniform float brush_scale = 0.2;
 uniform vec4 brush_color:source_color;
 group_uniforms;
 

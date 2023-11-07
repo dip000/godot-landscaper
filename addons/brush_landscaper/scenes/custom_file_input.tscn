@@ -1,30 +1,32 @@
 [gd_scene load_steps=6 format=3 uid="uid://b6dp6o7trv5ru"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/custom_file_input_ui.gd" id="1_ncjrd"]
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_file_input.gd" id="1_4yfar"]
 [ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/brush_landscaper/textures/icons_small.svg" id="1_t6udt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mpq2p"]
 atlas = ExtResource("1_t6udt")
 region = Rect2(66, 0, 22, 22)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_41kv4"]
-atlas = ExtResource("1_t6udt")
-region = Rect2(22, 0, 22, 22)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_dacga"]
 atlas = ExtResource("1_t6udt")
 region = Rect2(44, 0, 22, 22)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_41kv4"]
+atlas = ExtResource("1_t6udt")
+region = Rect2(22, 0, 22, 22)
+
 [node name="FileInput" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
-anchors_preset = 15
+anchors_preset = 14
+anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -842.0
+anchor_bottom = 0.5
+offset_top = -15.5
+offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
-script = ExtResource("1_ncjrd")
+script = ExtResource("1_4yfar")
 
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open a File"
@@ -32,6 +34,7 @@ initial_position = 2
 size = Vector2i(640, 320)
 ok_button_text = "Open"
 file_mode = 0
+filters = PackedStringArray("*.svg, *.png, *.jpg ; Supported Images", "*.tres, *.res ; Supported resources", "*.gdshader ; Shader")
 
 [node name="Name" type="Label" parent="."]
 layout_mode = 2
@@ -50,24 +53,25 @@ theme_override_constants/separation = 0
 [node name="Input" type="LineEdit" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-tooltip_text = "Drag and drop for easy input"
+tooltip_text = "Drag and drop your file here"
 mouse_filter = 1
-placeholder_text = "res://landscaper"
+placeholder_text = "res://landscaper/file.extension"
 
 [node name="Open" type="Button" parent="HBoxContainer"]
+visible = false
 layout_mode = 2
 tooltip_text = "Open file explorer"
 icon = SubResource("AtlasTexture_mpq2p")
-icon_alignment = 1
-
-[node name="Save" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-tooltip_text = "Save file to selected path"
-icon = SubResource("AtlasTexture_41kv4")
 icon_alignment = 1
 
 [node name="Load" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 tooltip_text = "Load file from selected path"
 icon = SubResource("AtlasTexture_dacga")
+icon_alignment = 1
+
+[node name="Save" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Save file to selected path"
+icon = SubResource("AtlasTexture_41kv4")
 icon_alignment = 1

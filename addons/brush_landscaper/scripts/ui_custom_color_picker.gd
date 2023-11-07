@@ -13,7 +13,7 @@ class_name CustomColorPicker
 func _ready():
 	_property.text = property_name
 	_color.color_changed.connect( _on_color_changed )
-	_on_color_changed( _color._color )
+	_on_color_changed( _color.color )
 
 func _on_color_changed(c:Color):
 	_stylebox.bg_color = c
@@ -26,11 +26,13 @@ func _on_color_changed(c:Color):
 	_color_code["theme_override_colors/font_uneditable_color"] = inv
 	_property["theme_override_colors/font_color"] = inv
 	_property["theme_override_colors/font_outline_color"] = inv
+	on_change.emit( c )
 
 
 # PropertyUI implementations
 func set_value(value):
+	_color.color = value
 	_on_color_changed( value )
 
 func get_value():
-	return _color._color
+	return _color.color

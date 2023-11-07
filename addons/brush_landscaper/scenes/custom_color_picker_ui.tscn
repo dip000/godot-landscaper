@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dm7ycgrpmdj5t"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/custom_color_picker_ui.gd" id="1_odb1g"]
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_color_picker.gd" id="1_odb1g"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yn3od"]
 resource_local_to_scene = true
