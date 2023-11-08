@@ -1,13 +1,16 @@
 @tool
 extends EditorPlugin
 class_name PluginLandscaper
-# MAIN PLUGIN:
-#  Controls any selected TerraBrush node instance from the scene and sends the user inputs to paint, scale, etc..
+# ABOUT THIS ADDON:
+#  * Creates, paints and heightens terrain
+#  * Spawns and paints grass
+#  * Based in textures and 'paint brushing' over terrain
 #
-# ABOUT CODE TAGS:
-#  * [WARNING] Possibly problematic operations
-#  * [TEST] Under testing, should not be in main branch
-#  * [NOT IMPLEMENTED] Placeholder for a future feature
+# ABOUT LANDSCAPER CLASSES:
+#  * PluginLandscaper: 3D world inputs controller like scale, paint, etc..
+#  * UILandscaper: UI Dock inputs controller. Works as a state machine for brushes
+#  * SceneLandscaper: Creates and mantains scene references and 'ResourceLandscaper' data
+#  * ResourceLandscaper: Raw data for each individual landscaping project
 
 
 const COLLISION_LAYER:int = 32
@@ -84,11 +87,14 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 
 
+func _save_external_data():
+	_ui_inst.pack()
+
 func _handles(object):
 	if object is SceneLandscaper:
 		if _scene_inst != object:
 			_scene_inst = object
-			_ui_inst.update_from_scene.call_deferred( _scene_inst )
+			_ui_inst.unpack.call_deferred( _scene_inst )
 		_ui_inst.set_enable( true )
 		return true
 	else:

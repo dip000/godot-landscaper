@@ -7,6 +7,7 @@ class_name PropertyUI
 
 @export var property_name:String = ""
 signal on_change(value)
+
 var value:
 	set=set_value,
 	get=get_value

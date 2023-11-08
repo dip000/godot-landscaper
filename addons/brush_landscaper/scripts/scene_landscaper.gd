@@ -1,11 +1,11 @@
 @tool
 extends Node
 class_name SceneLandscaper
-# Brushes manager:
-#  Creates a new terrain and keeps references updated.
-#  * Unparent the Terrain node outside and delete this when you've finished
-#  * Saving/Loading mechanics are in reconstruction, again..
+# Creates a new terrain and keeps references updated.
 
+
+## Raw save/load data. Do not use. Do not delete. Do not replace. Use the "Landscaper" UI Dock
+@export var raw := ResourceLandscaper.new()
 
 var terrain:MeshInstance3D
 var terrain_overlay:MeshInstance3D
@@ -30,10 +30,10 @@ var terrain_mesh:ArrayMesh:
 		return terrain.mesh
 
 
-
 func _ready():
 	# Wait a frame to let this node finish its ready cycle first
 	_fix_terrain.call_deferred()
+
 
 func _fix_terrain():
 	# Create or find nodes
@@ -68,7 +68,7 @@ func _fix_terrain():
 	# Setup terrain overlay
 	terrain_overlay.mesh = terrain.mesh
 	terrain_overlay.position.y = 0.13
-	terrain_overlay.owner = owner #[TEST] set to self
+	terrain_overlay.owner = self #[TEST] set to self
 	overlay_collider.shape = BoxShape3D.new()
 	overlay_collider.shape.size = Vector3(100, 0.1, 100)
 	

@@ -10,6 +10,9 @@ class_name CustomFileInput
 @onready var _file_save:Button = $HBoxContainer/Save
 @onready var _file_load:Button = $HBoxContainer/Load
 
+var SAVE:bool = true
+var LOAD:bool = false
+
 
 func _ready():
 	$Name.text = property_name
@@ -23,14 +26,11 @@ func _ready():
 
 # Save and load
 func on_file_save():
-	if FileAccess.file_exists( _input.text ):
-		print("Saving..")
-	else:
+	if _input.text.is_empty():
 		_input.text = _input.placeholder_text
-		print("Saving with default file path..")
+	on_change.emit( SAVE, _input.text )
 
 func on_file_load():
-	print("Select a file to load")
 	_file_dialog.title = "Load " + property_name
 	_file_dialog.popup()
 
@@ -41,7 +41,8 @@ func _on_text_changed(new_text:String):
 
 func _on_file_select(dir:String):
 	_input.text = dir
-	print("Loading..")
+	on_change.emit( LOAD, _input.text )
+
 
 # Drag and drop functionality
 func _can_drop_data(at_position, data):
@@ -50,7 +51,7 @@ func _can_drop_data(at_position, data):
 func _drop_data(at_position, data):
 	_input.text = data.files[0]
 	_file_load.set_disabled( false )
-	print("Loading..")
+	on_change.emit( LOAD, _input.text )
 
 
 # PropertyUI Implementation

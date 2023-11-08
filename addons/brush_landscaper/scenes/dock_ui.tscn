@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_landscaper.gd" id="1_wv6ow"]
 [ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/brush_landscaper/textures/icons.svg" id="2_obihf"]
+[ext_resource type="PackedScene" uid="uid://b5cbncjt0oya0" path="res://addons/brush_landscaper/scenes/ui_custom_tabs.tscn" id="3_f6qbm"]
 [ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/brush_landscaper/scenes/custom_slider_ui.tscn" id="3_m8brp"]
-[ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/brush_landscaper/textures/icons_small.svg" id="3_o2i0y"]
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/brush_terrain_builder.gd" id="4_e3tel"]
 [ext_resource type="PackedScene" uid="uid://b6dp6o7trv5ru" path="res://addons/brush_landscaper/scenes/custom_file_input.tscn" id="4_g4ftj"]
 [ext_resource type="PackedScene" uid="uid://dm7ycgrpmdj5t" path="res://addons/brush_landscaper/scenes/custom_color_picker_ui.tscn" id="4_pjwji"]
@@ -13,6 +13,14 @@
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/brush_grass_color.gd" id="8_vl82d"]
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/brush_grass_spawn.gd" id="9_5sbfh"]
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_assets_manager.gd" id="11_vjd2l"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fg34q"]
+bg_color = Color(0.211765, 0.239216, 0.290196, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
+bg_color = Color(0.145098, 0.168627, 0.203922, 1)
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_s7ajk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ksya5"]
 atlas = ExtResource("2_obihf")
@@ -34,32 +42,21 @@ region = Rect2(192, 0, 64, 64)
 atlas = ExtResource("2_obihf")
 region = Rect2(256, 0, 64, 64)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
-bg_color = Color(0.145098, 0.168627, 0.203922, 1)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6rc6k"]
-atlas = ExtResource("3_o2i0y")
-region = Rect2(44, 0, 22, 22)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3hyxx"]
-atlas = ExtResource("3_o2i0y")
-region = Rect2(22, 0, 22, 22)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r5508"]
 bg_color = Color(0.211765, 0.239216, 0.290196, 0.756863)
 
 [node name="Landscaper" type="Control"]
-custom_minimum_size = Vector2(285, 0)
+custom_minimum_size = Vector2(205, 0)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -947.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_wv6ow")
 
 [node name="Dock" type="VBoxContainer" parent="."]
-custom_minimum_size = Vector2(285, 0)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -67,19 +64,52 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TabBar" type="TabBar" parent="Dock"]
+[node name="Tabs" parent="Dock" instance=ExtResource("3_f6qbm")]
 layout_mode = 2
-tab_count = 5
-tab_0/title = ""
-tab_0/icon = SubResource("AtlasTexture_ksya5")
-tab_1/title = ""
-tab_1/icon = SubResource("AtlasTexture_ieiv0")
-tab_2/title = ""
-tab_2/icon = SubResource("AtlasTexture_rrt18")
-tab_3/title = ""
-tab_3/icon = SubResource("AtlasTexture_2yokp")
-tab_4/title = ""
-tab_4/icon = SubResource("AtlasTexture_t3o2m")
+property_name = "Select Brush"
+
+[node name="Label" parent="Dock/Tabs" index="0"]
+text = "Select Brush"
+
+[node name="TerrainBuilder" type="Button" parent="Dock/Tabs/Tabs" index="0"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_s7ajk")
+icon = SubResource("AtlasTexture_ksya5")
+
+[node name="TerrainColor" type="Button" parent="Dock/Tabs/Tabs" index="1"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_s7ajk")
+icon = SubResource("AtlasTexture_ieiv0")
+
+[node name="TerrainHeight" type="Button" parent="Dock/Tabs/Tabs" index="2"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_s7ajk")
+icon = SubResource("AtlasTexture_rrt18")
+
+[node name="GrassColor" type="Button" parent="Dock/Tabs/Tabs" index="3"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_s7ajk")
+icon = SubResource("AtlasTexture_2yokp")
+
+[node name="GrassSpawn" type="Button" parent="Dock/Tabs/Tabs" index="4"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_s7ajk")
+icon = SubResource("AtlasTexture_t3o2m")
 
 [node name="Description" type="Label" parent="Dock"]
 layout_mode = 2
@@ -123,6 +153,11 @@ layout_mode = 2
 theme_override_constants/separation = 10
 script = ExtResource("5_i82yk")
 
+[node name="ToggleContent" parent="Dock/Body/MarginContainer/TerrainColor" instance=ExtResource("5_16jyl")]
+layout_mode = 2
+property_name_pressed = "Hide Texture"
+property_name = "Show Texture"
+
 [node name="ColorPicker" parent="Dock/Body/MarginContainer/TerrainColor" instance=ExtResource("4_pjwji")]
 layout_mode = 2
 
@@ -132,11 +167,21 @@ layout_mode = 2
 theme_override_constants/separation = 10
 script = ExtResource("7_k3b8i")
 
+[node name="ToggleContent" parent="Dock/Body/MarginContainer/TerrainHeight" instance=ExtResource("5_16jyl")]
+layout_mode = 2
+property_name_pressed = "Hide Texture"
+property_name = "Show Texture"
+
 [node name="GrassColor" type="VBoxContainer" parent="Dock/Body/MarginContainer"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 script = ExtResource("8_vl82d")
+
+[node name="ToggleContent" parent="Dock/Body/MarginContainer/GrassColor" instance=ExtResource("5_16jyl")]
+layout_mode = 2
+property_name_pressed = "Hide Texture"
+property_name = "Show Texture"
 
 [node name="ColorPicker" parent="Dock/Body/MarginContainer/GrassColor" instance=ExtResource("4_pjwji")]
 layout_mode = 2
@@ -147,6 +192,11 @@ layout_mode = 2
 theme_override_constants/separation = 10
 script = ExtResource("9_5sbfh")
 
+[node name="ToggleContent" parent="Dock/Body/MarginContainer/GrassSpawner" instance=ExtResource("5_16jyl")]
+layout_mode = 2
+property_name_pressed = "Hide Texture"
+property_name = "Show Texture"
+
 [node name="AssetsManager" type="VBoxContainer" parent="Dock"]
 layout_mode = 2
 script = ExtResource("11_vjd2l")
@@ -156,60 +206,54 @@ layout_mode = 2
 property_name_pressed = "Hide Files"
 property_name = "Show Files"
 
-[node name="FileInput" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="0" instance=ExtResource("4_g4ftj")]
+[node name="Button" parent="Dock/AssetsManager/ToggleContent/Toggle" index="1"]
+text = "Show Files"
+
+[node name="Label" type="Label" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="0"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.737255, 1, 0.937255, 1)
+text = "Extract your files selecting a file path and pressing the save button"
+autowrap_mode = 3
+
+[node name="FileInput" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="1" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/terrain_texture.png"
 property_name = "Terrain Texture"
 
-[node name="FileInput2" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="1" instance=ExtResource("4_g4ftj")]
+[node name="FileInput2" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="2" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/terrain_mesh.tres"
 property_name = "Terrain Mesh"
 
-[node name="FileInput3" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="2" instance=ExtResource("4_g4ftj")]
+[node name="FileInput3" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="3" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/terrain_material.tres"
 property_name = "Terrain Material"
 
-[node name="FileInput4" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="3" instance=ExtResource("4_g4ftj")]
+[node name="FileInput4" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="4" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/grass_texture.png"
 property_name = "Grass Texture"
 
-[node name="FileInput5" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="4" instance=ExtResource("4_g4ftj")]
+[node name="FileInput5" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="5" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/grass_mesh.tres"
 property_name = "Grass Mesh"
 
-[node name="FileInput6" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="5" instance=ExtResource("4_g4ftj")]
+[node name="FileInput6" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="6" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/grass_material.tres"
 property_name = "Grass Material"
 
-[node name="FileInput7" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="6" instance=ExtResource("4_g4ftj")]
+[node name="FileInput7" parent="Dock/AssetsManager/ToggleContent/ContentClip/Content" index="7" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
 default_file_path = "res://landscaper/grass_shader.gdshader"
 property_name = "Grass Shader"
 
-[node name="Button" parent="Dock/AssetsManager/ToggleContent/Toggle" index="1"]
-text = "Show Image"
-
-[node name="SaveLoadAll" type="HBoxContainer" parent="Dock/AssetsManager"]
+[node name="FileInput" parent="Dock/AssetsManager" instance=ExtResource("4_g4ftj")]
 layout_mode = 2
-
-[node name="LoadAll" type="Button" parent="Dock/AssetsManager/SaveLoadAll"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Load All"
-icon = SubResource("AtlasTexture_6rc6k")
-alignment = 0
-
-[node name="SaveAll" type="Button" parent="Dock/AssetsManager/SaveLoadAll"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Save All"
-icon = SubResource("AtlasTexture_3hyxx")
-alignment = 0
+default_file_path = "res://landscaper/project.tres"
+property_name = "Project File"
 
 [node name="AcceptDialog" type="AcceptDialog" parent="Dock/AssetsManager"]
 initial_position = 2
@@ -240,4 +284,5 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
+[editable path="Dock/Tabs"]
 [editable path="Dock/AssetsManager/ToggleContent"]

@@ -1,10 +1,10 @@
 @tool
 extends Control
 class_name UILandscaper
-# UI Manager: Opens/closes UI, and routes UI values to brushes.
-#  * Order of node brushes must follow enumerators in 'Brush'
-#  * Order of node properties must follow enumerators in brush extensions like 'GrassSpawn'
-#  * Each property must implement 'PropertyUI'
+# * Opens/closes UI.
+# * Receives control from PluginLandscaper.
+# * Routes control values to active brush.
+
 
 
 const _COMMON_DESCRIPTION := ", and mouse wheel to change brush size."
@@ -19,17 +19,20 @@ const _DESCRIPTIONS:PackedStringArray = [
 
 @onready var _blocker:Panel = $Blocker
 @onready var _description_label:Label = $Dock/Description
-@onready var _tabs:TabBar = $Dock/TabBar
+@onready var _tabs:CustomTabs = $Dock/Tabs
+@onready var _assets_manager:AssetsManager = $Dock/AssetsManager
 
-@onready var brushes_holder:Control = $Dock/Body/MarginContainer
+@onready var _brushes_holder:Control = $Dock/Body/MarginContainer
 @onready var brush_size:CustomSliderUI = $Dock/BrushSize
 
+# For easy acces from Brush classes
 @onready var terrain_builder:TerrainBuilder = $Dock/Body/MarginContainer/TerrainBuilder
 @onready var terrain_clor:TerrainColor = $Dock/Body/MarginContainer/TerrainColor
 @onready var terrain_height:TerrainHeight = $Dock/Body/MarginContainer/TerrainHeight
 @onready var grass_color:GrassColor = $Dock/Body/MarginContainer/GrassColor
 @onready var grass_spawn:GrassSpawn = $Dock/Body/MarginContainer/GrassSpawner
 
+var _brushes:Array[Brush]
 var _scene:SceneLandscaper
 var _previous_brush:Brush
 var active_brush:Brush
@@ -40,29 +43,31 @@ func _ready():
 	active_brush = terrain_builder
 	active_brush.enter()
 	brush_size.on_change.connect( _on_brush_size_changed )
-	_tabs.tab_changed.connect( _brush_changed )
+	_tabs.on_change.connect( _brush_changed )
+	
+	for brush in _brushes_holder.get_children():
+		_brushes.append( brush )
 
 func set_enable(enable:bool):
 	_blocker.visible = not enable
 
-func update_from_scene(scene:SceneLandscaper):
-	print("update_from_scene")
+func unpack(scene:SceneLandscaper):
 	_scene = scene
+	_assets_manager.unpack( self, _scene, _brushes )
 	set_enable( true )
-	for brush in brushes_holder.get_children():
-		brush.scene = scene
-		brush.ui = self
-		brush.setup()
-		brush.template( Vector2i(10, 10) )
-	
+
+func pack():
+	_assets_manager.pack()
+
 
 func _on_brush_size_changed(value):
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_scale", value/100)
 
 func _brush_changed(index:int):
 	# Change to active brush properties
-	active_brush = brushes_holder.get_child(index)
+	active_brush = _brushes[index]
 	active_brush.enter()
+	
 	if _previous_brush:
 		_previous_brush.exit()
 	_previous_brush = active_brush

@@ -2,28 +2,61 @@
 extends VBoxContainer
 class_name AssetsManager
 
-@onready var toggle_content:CustomToggleContent = $ToggleContent
-@onready var save_all:Button = $SaveLoadAll/SaveAll
-@onready var load_all:Button = $SaveLoadAll/LoadAll
+@onready var _toggle_content:CustomToggleContent = $ToggleContent
+@onready var _project:CustomFileInput = $FileInput
+
+var _scene:SceneLandscaper
+var _brushes:Array[Brush]
+var _ui:UILandscaper
 
 
 func _ready():
-	save_all.pressed.connect( _on_save_all )
-	load_all.pressed.connect( _on_load_all )
+	_project.on_change.connect( _on_save_or_load )
+
+func _on_save_or_load(save:bool, path:String):
+	save_all() if save else load_all()
 
 
-func _on_save_all():
-	for file_input in toggle_content.value:
-		file_input.on_file_save()
-
-func _on_load_all():
-	for file_input in toggle_content.value:
-		if not FileAccess.file_exists( file_input.value ):
-			$AcceptDialog.dialog_text = "%s in path '%s' does not exist and cannot be loaded"%[file_input.property_name, file_input.value]
-			$AcceptDialog.popup()
-			return
+func unpack(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
+	if is_instance_valid( _scene ):
+		save_all()
 	
-	for file_input in toggle_content.value:
-		print("Loaded: ", file_input.value)
+	_scene = scene
+	_brushes = brushes
+	_ui = ui
+	load_all()
+
+func pack():
+	if _scene:
+		save_all()
 	
+
+func save_all():
+	for brush in _brushes:
+		brush.pack( _scene.raw )
+	
+	_scene.raw.terrain_mesh = _scene.terrain_mesh
+	_scene.raw.terrain_material = _scene.terrain.material_override
+	_scene.raw.grass_mesh = _scene.grass_mesh
+	_scene.raw.grass_material = _scene.grass_mesh.material
+	_scene.raw.grass_shader = _scene.grass_mesh.material.shader
+	_scene.raw.saved = true
+	print("Saved: ", _scene)
+
+
+func load_all():
+	if _scene.raw.saved:
+		_scene.grass_mesh.material.shader = _scene.grass_mesh.material.shader
+		_scene.grass_mesh.material = _scene.raw.grass_material
+		_scene.grass_mesh = _scene.raw.grass_mesh
+		_scene.terrain.material_override = _scene.raw.terrain_material
+		_scene.terrain_mesh = _scene.raw.terrain_mesh
+	
+	for brush in _brushes:
+		brush.unpack( _ui, _scene, _scene.raw )
+		
+		if not _scene.raw.initialized:
+			brush.template( Vector2i(10, 10) )
+	_scene.raw.initialized = true
+	print("Loaded: ", _scene)
 	

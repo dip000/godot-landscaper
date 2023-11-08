@@ -1,6 +1,9 @@
 @tool
 extends PropertyUI
 class_name CustomToggleContent
+# Shows content nodes if you press a button. Hides them if you press it again
+# Usefull to preview large content without polluting the UI
+
 
 @export var property_name_pressed:String = ""
 @onready var _content_clip:Control = $ContentClip
@@ -30,7 +33,10 @@ func _on_toggled(button_pressed:bool):
 
 
 func set_value(value):
-	_content.add_child(value)
+	for element in _content.get_children():
+		element.queue_free()
+	for element in value:
+		_content.add_child(element)
 func get_value():
 	return _content.get_children()
 
