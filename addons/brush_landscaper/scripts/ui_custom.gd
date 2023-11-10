@@ -13,8 +13,8 @@ var value:
 	get=get_value
 
 
-func get_value():
+func get_value() -> Variant:
 	return null
 
-func set_value(value):
+func set_value(value:Variant):
 	pass

@@ -2,11 +2,13 @@
 extends Node
 class_name SceneLandscaper
 # Creates a new terrain and keeps references updated.
+# Paint brushes will make use of raw and references
 
 
 ## Raw save/load data. Do not use. Do not delete. Do not replace. Use the "Landscaper" UI Dock
-@export var raw := ResourceLandscaper.new()
+@export var raw:RawLandscaper
 
+# Scene references for managers and brushes
 var terrain:MeshInstance3D
 var terrain_overlay:MeshInstance3D
 var grass_holder:Node3D
@@ -63,7 +65,7 @@ func _fix_terrain():
 	if not grass_mesh:
 		grass_mesh = QuadMesh.new()
 		grass_mesh.material = ShaderMaterial.new()
-		grass_mesh.material.shader = load("res://addons/brush_landscaper/shaders/grass_shader.gdshader").duplicate()
+		grass_mesh.material.shader = AssetsManager.GRASS_SHADER.duplicate()
 	
 	# Setup terrain overlay
 	terrain_overlay.mesh = terrain.mesh
@@ -76,8 +78,9 @@ func _fix_terrain():
 	terrain_overlay.set_display_folded( true )
 	
 	terrain_overlay.material_override = ShaderMaterial.new()
-	terrain_overlay.material_override.shader = load("res://addons/brush_landscaper/shaders/terrain_overlay_shader.gdshader")
-	terrain_overlay.material_override.set_shader_parameter( "brush_texture", load("res://addons/brush_landscaper/textures/default_brush.tres") )
+	terrain_overlay.material_override.shader = AssetsManager.TERRAIN_OVERLAY_SHADER
+	terrain_overlay.material_override.set_shader_parameter( "brush_texture", AssetsManager.DEFAULT_BRUSH )
+
 
 func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 	var found_node:Node = parent.get_node_or_null( node_name )

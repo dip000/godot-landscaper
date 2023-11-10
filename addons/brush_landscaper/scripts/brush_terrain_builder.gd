@@ -10,53 +10,50 @@ const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #triangle in second quadrant
 ]
 
-var world_center:Vector2i
 var bounds_size:Vector2i:
 	get:
 		return _texture.get_size()
 
 
 
-func pack(raw:ResourceLandscaper):
-	raw.tb_texture = _texture
-func unpack(ui:UILandscaper, scene:SceneLandscaper, raw:ResourceLandscaper):
-	_texture = raw.tb_texture
-	_preview_texture()
+func save_ui():
+	_raw.tb_texture = _texture
+func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	_raw = raw
 	_ui = ui
 	_scene = scene
-
-
-func template(_size:Vector2i):
-	print("Build template")
-	world_center = _size * 0.5
-	_create_texture( Color.WHITE, _size, Image.FORMAT_L8 )
+	_texture = _raw.tb_texture
 	_preview_texture()
-	update_texture()
+
+
+func template(_size:Vector2i, raw:RawLandscaper):
+	raw.world_center = _size * 0.5
+	raw.tb_texture = _create_texture( Color.WHITE, _size, Image.FORMAT_L8 )
 
 
 func paint(pos:Vector3, primary_action:bool):
-	if primary_action:
-		var pos_v2 := Vector2(pos.x, pos.z)
-		var brush_radius:Vector2 = _ui.brush_size.value/200.0 * Vector2(bounds_size)
-		var world_reach:Vector2 = brush_radius + pos_v2.abs()
-		var world_bound:Vector2 = bounds_size - world_center
-		print( world_reach, world_bound )
-		
-		var resize_by:Vector2i
-		if world_reach.x > world_bound.x:
-			resize_by.x = ceili( world_reach.x - world_bound.x )
-		if world_reach.y > world_bound.y:
-			resize_by.y = ceili( world_reach.y - world_bound.y )
-		if resize_by != Vector2i.ZERO:
-			var new_size:Vector2i = resize_by + bounds_size
-			print("Resize by: ", resize_by)
-			print("New size: ", new_size)
-			extend_texture( new_size, Color.BLACK )
+#	if primary_action:
+#		var pos_v2 := Vector2(pos.x, pos.z)
+#		var brush_radius:Vector2 = _ui.brush_size.value/200.0 * Vector2(bounds_size)
+#		var world_reach:Vector2 = brush_radius + pos_v2.abs()
+#		var world_bound:Vector2 = bounds_size - _raw.world_center
+#		print( world_reach, world_bound )
+#
+#		var resize_by:Vector2i
+#		if world_reach.x > world_bound.x:
+#			resize_by.x = ceili( world_reach.x - world_bound.x )
+#		if world_reach.y > world_bound.y:
+#			resize_by.y = ceili( world_reach.y - world_bound.y )
+#		if resize_by != Vector2i.ZERO:
+#			var new_size:Vector2i = resize_by + bounds_size
+#			print("Resize by: ", resize_by)
+#			print("New size: ", new_size)
+#			extend_texture( new_size, Color.BLACK )
 	
 	pos = pos.ceil()
 	out_color = Color.WHITE if primary_action else Color.BLACK
 	_bake_out_color_into_texture(pos)
-	update_texture()
+	rebuild_terrain()
 
 
 
@@ -73,14 +70,15 @@ func extend_texture(new_size:Vector2i, fill_color:Color):
 	_texture.set_image( new_img )
 
 
-func update_texture():
+func rebuild_terrain():
 	var img:Image = _texture.get_image()
 	var vertices_terrain := PackedVector3Array()
+	var center:Vector2i = _raw.world_center
 	
 	for x in img.get_width():
 		for y in img.get_height():
 			if img.get_pixel(x, y).r > BUILD_FROM_PIXEL_UMBRAL:
-				create_square(vertices_terrain, x-world_center.x, y-world_center.y)
+				create_square(vertices_terrain, x-center.x, y-center.y)
 	update_mesh( vertices_terrain )
 
 

@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="17.4625mm"
-   height="5.8208332mm"
-   viewBox="0 0 17.462499 5.8208333"
+   width="17.462502mm"
+   height="5.8208208mm"
+   viewBox="0 0 17.462501 5.8208209"
    version="1.1"
    id="svg6460"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
@@ -26,8 +26,8 @@
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="true"
      inkscape:zoom="4.3331088"
-     inkscape:cx="58.964593"
-     inkscape:cy="12.577575"
+     inkscape:cx="59.310766"
+     inkscape:cy="7.2696074"
      inkscape:window-width="1366"
      inkscape:window-height="705"
      inkscape:window-x="-8"
@@ -49,7 +49,7 @@
        id="g7651">
       <g
          id="g17352"
-         transform="matrix(0.6875,0,0,0.68749847,36.865252,56.92347)"
+         transform="matrix(0.6875,0,0,0.68749847,54.327753,56.92347)"
          style="stroke-width:1.45455">
         <rect
            style="fill:#000035;fill-opacity:0;stroke-width:0.727272;stroke-linecap:round;stroke-linejoin:round"
@@ -70,10 +70,10 @@
          style="stroke-width:1.20296;stroke-miterlimit:4;stroke-dasharray:none" />
       <g
          id="g17701"
-         transform="matrix(0.6875,0,0,0.68749847,36.986782,52.856787)"
+         transform="matrix(0.6875,0,0,0.68749847,19.524282,52.856775)"
          style="stroke-width:1.45455">
         <path
-           style="fill:#ebebeb;stroke:#ebebeb;stroke-width:1.74976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+           style="fill:#ebebeb;fill-opacity:1;stroke:#ebebeb;stroke-width:1.74976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            d="m 142.82057,199.37338 c 0.97697,0 8.06003,0 8.06003,0 l 1.95395,-4.09108 h -8.1211 z"
            id="path16751"
            transform="matrix(0.58787977,0,0,0.57597252,60.538498,79.667253)" />

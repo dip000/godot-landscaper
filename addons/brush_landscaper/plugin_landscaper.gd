@@ -9,8 +9,8 @@ class_name PluginLandscaper
 # ABOUT LANDSCAPER CLASSES:
 #  * PluginLandscaper: 3D world inputs controller like scale, paint, etc..
 #  * UILandscaper: UI Dock inputs controller. Works as a state machine for brushes
-#  * SceneLandscaper: Creates and mantains scene references and 'ResourceLandscaper' data
-#  * ResourceLandscaper: Raw data for each individual landscaping project
+#  * SceneLandscaper: Creates and mantains scene references and 'RawLandscaper' data
+#  * RawLandscaper: Raw data for each individual landscaping project
 
 
 const COLLISION_LAYER:int = 32
@@ -21,10 +21,9 @@ var _scene_inst:SceneLandscaper
 
 
 func _enter_tree():
-	# Instantiate on tree enter so its ready cycle works
 	_ui_inst = _ui_template.instantiate()
-	
 	add_control_to_dock.call_deferred( EditorPlugin.DOCK_SLOT_RIGHT_UL, _ui_inst )
+	
 	add_custom_type( "SceneLandscaper", "Node", preload("scripts/scene_landscaper.gd"), preload("icon.svg") )
 
 func _exit_tree():
@@ -87,20 +86,24 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 
 
+# Quick saves with "Ctrl+S"
 func _save_external_data():
-	_ui_inst.pack()
+	_ui_inst.save_ui()
 
+
+# Changes to a new SceneLandscaper node
+# Waits a frame in case SceneLandscaper is fixing its terrain
 func _handles(object):
 	if object is SceneLandscaper:
-		if _scene_inst != object:
+		if object != _scene_inst:
 			_scene_inst = object
-			_ui_inst.unpack.call_deferred( _scene_inst )
-		_ui_inst.set_enable( true )
+			await get_tree().process_frame
+			_ui_inst.change_scene( _scene_inst )
 		return true
-	else:
-		_ui_inst.set_enable( false )
-		return false
+	return false
+
 
 func _edit(object):
-	if not object:
-		_ui_inst.set_enable( false )
+	# Blocks the UI Dock if user is not selecting any SceneLandscaper
+	_ui_inst.set_enable( object is SceneLandscaper )
+

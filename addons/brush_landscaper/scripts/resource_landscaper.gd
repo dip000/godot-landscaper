@@ -1,14 +1,14 @@
 extends Resource
-class_name ResourceLandscaper
+class_name RawLandscaper
 # Saves all configurations for any number of landscaping projects.
 # Hosted inside a 'SceneLandscaper' node by default.
 # Save or load it from the "Landscaper" UI Dock
 
-@export var initialized:bool = false
-@export var saved:bool = false
+@export var saved_external:bool = false
 
 @export_group("Terrain Builder", "tb_")
 @export var tb_texture:Texture2D
+@export var world_center:Vector2i
 
 @export_group("Terrain Color", "tc_")
 @export var tc_texture:Texture2D
@@ -37,8 +37,8 @@ class_name ResourceLandscaper
 
 
 # Should not be setted until users actually saves them from the UI Dock
-# Otherwise, meshes will not be updated correctly
-@export_group("Other")
+# Otherwise, they might not be updated correctly
+@export_group("External Resources")
 @export var terrain_mesh:ArrayMesh
 @export var terrain_material:StandardMaterial3D
 @export var grass_mesh:QuadMesh

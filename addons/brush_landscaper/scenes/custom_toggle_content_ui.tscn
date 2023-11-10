@@ -26,7 +26,7 @@ size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.498039, 0.498039, 0.498039, 1)
 toggle_mode = true
 keep_pressed_outside = true
-text = "Show Image"
+text = "Show"
 flat = true
 
 [node name="HSeparator2" type="HSeparator" parent="Toggle"]
@@ -34,14 +34,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 
-[node name="ContentClip" type="Control" parent="."]
-clip_contents = true
+[node name="ContentClip" type="ScrollContainer" parent="."]
 layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="Content" type="VBoxContainer" parent="ContentClip"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
+size_flags_horizontal = 3

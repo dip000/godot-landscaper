@@ -8,27 +8,26 @@ class_name TerrainColor
 
 
 
-func pack(raw:ResourceLandscaper):
-	raw.tc_texture = _texture
-	raw.tc_color = color.value
-func unpack(ui:UILandscaper, scene:SceneLandscaper, raw:ResourceLandscaper):
+func save_ui():
+	_raw.tc_texture = _texture
+	_raw.tc_color = color.value
+func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	_ui = ui
+	_scene = scene
+	_raw = raw
 	_texture = raw.tc_texture
 	color.value = raw.tc_color
 	_preview_texture()
-	_ui = ui
-	_scene = scene
 
-func template(_size:Vector2i):
-	color.value = Color.LIGHT_GREEN
-	_create_texture( Color.SEA_GREEN, _size*10, Image.FORMAT_RGBA8 )
-	_preview_texture()
-	update_texture()
+func template(_size:Vector2i, raw:RawLandscaper):
+	raw.tc_color = Color.LIGHT_GREEN
+	raw.tc_texture = _create_texture( Color.SEA_GREEN, _size*10, Image.FORMAT_RGBA8 )
 
 func paint(pos:Vector3, primary_action:bool):
 	out_color = color.value if primary_action else Color(color.value, 0.1)
 	_bake_out_color_into_texture( pos )
-	update_texture()
+	rebuild_terrain()
 
-func update_texture():
+func rebuild_terrain():
 	_update_grass_shader("terrain_color", _texture)
 	_scene.terrain.material_override.albedo_texture = _texture

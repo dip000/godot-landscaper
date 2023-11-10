@@ -6,7 +6,9 @@ class_name CustomToggleContent
 
 
 @export var property_name_pressed:String = ""
-@onready var _content_clip:Control = $ContentClip
+@export var max_size:float = 100
+
+@onready var _content_clip:ScrollContainer = $ContentClip
 @onready var _toggle_button:Button = $Toggle/Button
 @onready var _content:VBoxContainer = $ContentClip/Content
 
@@ -16,14 +18,16 @@ func _ready():
 	_toggle_button.toggled.connect( _on_toggled )
 
 func _on_toggled(button_pressed:bool):
+	on_change.emit(button_pressed)
 	var final_value:Vector2
 	if button_pressed:
 		_toggle_button.text = property_name_pressed
-		final_value.y = _content.size.y
+		final_value.y = min( _content.size.y, max_size )
 	else:
 		_toggle_button.text = property_name
 		final_value = Vector2.ZERO
 	
+	_content_clip.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	create_tween().tween_property(
 		_content_clip,
 		"custom_minimum_size",
