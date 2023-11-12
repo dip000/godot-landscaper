@@ -24,8 +24,9 @@ const _EXTENSIONS:PackedStringArray = ["tres", "tres", "tres", "png", "tres", "t
 @onready var _toggle_files:CustomToggleContent = $ToggleContent
 @onready var _save_all:Button = $All/Save
 @onready var _load_all:Button = $All/Load
-@onready var _confirm_dialog:ConfirmationDialog = $ConfirmationDialog
 @onready var _accept_dialog:AcceptDialog = $AcceptDialog
+@onready var _confirm_save:ConfirmationDialog = $ConfirmationSaveDialog
+@onready var _confirm_load:ConfirmationDialog = $ConfirmationLoadDialog
 
 var _ui:UILandscaper
 var _scene:SceneLandscaper
@@ -37,14 +38,14 @@ func _ready():
 	_toggle_files.on_change.connect( _on_toggle_files )
 	_save_all.pressed.connect( _on_save_all_pressed )
 	_load_all.pressed.connect( _on_load_all_pressed )
-	_confirm_dialog.confirmed.connect( _save_confirmed )
+	_confirm_save.confirmed.connect( _save_confirmed )
+	_confirm_load.confirmed.connect( _load_confirmed )
 
 func _on_toggle_files(button_pressed:bool):
 	_ui.set_dock_enable( not button_pressed )
 
 
 func _load_ui():
-	print("load_ui()")
 	# Update UI input paths from external resources
 	var files:Array = _toggle_files.value
 	if _raw.saved_external:
@@ -62,29 +63,37 @@ func _load_ui():
 		brush.load_ui( _ui, _scene, _raw )
 
 func save_ui():
-	print("save_ui()")
 	# UI input paths are saved inside the external resources
 	for brush in _brushes:
 		brush.save_ui()
 
 func _rebuild_terrain():
-	print("_rebuild_terrain()")
 	for brush in _brushes:
 		brush.rebuild_terrain()
 
 
 func _on_load_all_pressed():
-	print("_on_load_all_pressed()")
-	_ui.set_foot_enable( false, "Loading.." )
 	var project:CustomFileInput = _toggle_files.value[_PROJECT]
 	
 	if not FileAccess.file_exists( project.value ):
-		_accept_dialog.dialog_text = " Project file '%s' does not exist\n" %project.value
+		_accept_dialog.dialog_text = "Project file '%s' does not exist\n" %project.value
 		_accept_dialog.popup()
 		_ui.set_foot_enable( true )
 		return
 	
-	# Quick save the current project just in case
+	# Warn user if the project was not saved in File System
+	if _raw.saved_external:
+		_confirm_load.dialog_text = "Override current project?"
+		_confirm_load.popup()
+		return
+	
+	_load_confirmed()
+
+func _load_confirmed():
+	var project:CustomFileInput = _toggle_files.value[_PROJECT]
+	_ui.set_foot_enable( false, "Loading.." )
+	
+	# Quicksave the current project just in case
 	save_ui()
 	
 	# Load project resource
@@ -103,7 +112,6 @@ func _on_load_all_pressed():
 
 
 func _on_save_all_pressed():
-	print("_on_save_all_pressed()")
 	var files:Array = _toggle_files.value
 	var warnings:String
 	var errors:String
@@ -136,15 +144,14 @@ func _on_save_all_pressed():
 		_accept_dialog.dialog_text = errors
 		_accept_dialog.popup()
 	elif warnings:
-		_confirm_dialog.dialog_text = warnings
-		_confirm_dialog.popup()
+		_confirm_save.dialog_text = warnings
+		_confirm_save.popup()
 	else:
 		_save_confirmed()
 
 
 # Saves in file system every resource, which might take a while on big textures
 func _save_confirmed():
-	print("_save_confirmed()")
 	var files:Array = _toggle_files.value
 	_ui.set_foot_enable( false, "Saving.." )
 	save_ui()
@@ -184,8 +191,6 @@ func _save_resource(file:CustomFileInput, res:Resource):
 
 
 func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
-	print("change_scene()")
-	
 	# Save previous UI properties if we have them
 	if _raw:
 		save_ui()

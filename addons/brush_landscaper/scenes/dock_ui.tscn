@@ -316,7 +316,10 @@ icon = SubResource("AtlasTexture_pbtfv")
 title = "Errors Found!"
 initial_position = 2
 
-[node name="ConfirmationDialog" type="ConfirmationDialog" parent="Foot/AssetsManager"]
+[node name="ConfirmationSaveDialog" type="ConfirmationDialog" parent="Foot/AssetsManager"]
+initial_position = 2
+
+[node name="ConfirmationLoadDialog" type="ConfirmationDialog" parent="Foot/AssetsManager"]
 initial_position = 2
 
 [node name="BlockerFoot" type="Panel" parent="Foot"]

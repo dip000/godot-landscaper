@@ -1,8 +1,8 @@
 @tool
 extends Node
 class_name SceneLandscaper
-# Creates a new terrain and keeps references updated.
-# Paint brushes will make use of raw and references
+## Creates a new 'paint-brush-able' terrain. Use "Landscaper" tab in the UI Dock
+# Keeps track of scene references
 
 
 ## Raw save/load data. Do not use. Do not delete. Do not replace. Use the "Landscaper" UI Dock
@@ -33,8 +33,9 @@ var terrain_mesh:ArrayMesh:
 
 
 func _ready():
-	# Wait a frame to let this node finish its ready cycle first
-	_fix_terrain.call_deferred()
+	if Engine.is_editor_hint():
+		# Wait a frame to let this node finish its ready cycle first
+		_fix_terrain.call_deferred()
 
 
 func _fix_terrain():
@@ -54,9 +55,8 @@ func _fix_terrain():
 	if not terrain.material_override:
 		terrain.material_override = StandardMaterial3D.new()
 		terrain.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		terrain.material_override.uv1_offset = Vector3(0.5, 0.5, 0)
 	if not terrain_collider.shape:
-		terrain_collider.shape = ConcavePolygonShape3D.new()
+		terrain_collider.shape = HeightMapShape3D.new()
 	
 	terrain_body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER, true )
 	terrain.set_display_folded( true )
@@ -70,7 +70,7 @@ func _fix_terrain():
 	# Setup terrain overlay
 	terrain_overlay.mesh = terrain.mesh
 	terrain_overlay.position.y = 0.13
-	terrain_overlay.owner = self #[TEST] set to self
+	terrain_overlay.owner = self
 	overlay_collider.shape = BoxShape3D.new()
 	overlay_collider.shape.size = Vector3(100, 0.1, 100)
 	
@@ -85,7 +85,6 @@ func _fix_terrain():
 func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 	var found_node:Node = parent.get_node_or_null( node_name )
 	if found_node:
-		print("Found node: ", found_node)
 		return found_node
 	
 	# Yeah, I'm also surprised this works!
@@ -93,7 +92,6 @@ func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 	parent.add_child( new_node )
 	new_node.owner = parent.owner
 	new_node.name = node_name
-	print("Created node: ", new_node)
 	return new_node
 
 

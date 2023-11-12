@@ -8,23 +8,28 @@ class_name RawLandscaper
 
 @export_group("Terrain Builder", "tb_")
 @export var tb_texture:Texture2D
-@export var world_center:Vector2i
+@export var tb_resolution:int
+@export var world_offset:Vector2i
 
 @export_group("Terrain Color", "tc_")
 @export var tc_texture:Texture2D
+@export var tc_resolution:int
 @export var tc_color:Color
 
 @export_group("Terrain Height", "th_")
 @export var th_texture:Texture2D
+@export var th_resolution:int
 @export var th_strenght:int
 @export var th_max_height:float
 
 @export_group("Grass Color", "gc_")
 @export var gc_texture:Texture2D
+@export var gc_resolution:int
 @export var gc_color:Color
 
 @export_group("Grass Spawn", "gs_")
 @export var gs_texture:Texture2D
+@export var gs_resolution:int
 @export var gs_spawn_variant:int
 @export var gs_density:int
 @export var gs_billboard:int

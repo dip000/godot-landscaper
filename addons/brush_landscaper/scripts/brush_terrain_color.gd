@@ -10,18 +10,21 @@ class_name TerrainColor
 
 func save_ui():
 	_raw.tc_texture = _texture
+	_raw.tc_resolution = _resolution
 	_raw.tc_color = color.value
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_ui = ui
 	_scene = scene
 	_raw = raw
 	_texture = raw.tc_texture
+	_resolution = _raw.tc_resolution
 	color.value = raw.tc_color
 	_preview_texture()
 
 func template(_size:Vector2i, raw:RawLandscaper):
-	raw.tc_color = Color.LIGHT_GREEN
-	raw.tc_texture = _create_texture( Color.SEA_GREEN, _size*10, Image.FORMAT_RGBA8 )
+	raw.tc_resolution = 10
+	raw.tc_color = Color.SEA_GREEN
+	raw.tc_texture = _create_texture( Color.SEA_GREEN, _size*raw.tc_resolution, Image.FORMAT_RGBA8 )
 
 func paint(pos:Vector3, primary_action:bool):
 	out_color = color.value if primary_action else Color(color.value, 0.1)
