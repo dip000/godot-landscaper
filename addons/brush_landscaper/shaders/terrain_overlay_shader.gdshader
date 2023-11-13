@@ -6,11 +6,24 @@ uniform sampler2D brush_texture:repeat_disable;
 uniform vec2 brush_position = vec2(2.0);
 uniform float brush_scale = 0.2;
 uniform vec4 brush_color:source_color;
+uniform vec2 terrain_size = vec2(10, 10);
 group_uniforms;
 
 
 vec2 scale_from_center(vec2 uv, float s){
-	return ((uv - 0.5)/s) + 0.5;
+	uv -= 0.5;
+	
+	// Keep aspect ratio
+	if(terrain_size.x > terrain_size.y){
+		uv.x *= 1.0 / s;
+		uv.y *= terrain_size.y / (terrain_size.x * s);
+	}
+	else{
+		uv.x *= terrain_size.x / (terrain_size.y * s);
+		uv.y *= 1.0 / s;
+	}
+	uv += 0.5;
+	return uv;
 }
 
 void fragment(){

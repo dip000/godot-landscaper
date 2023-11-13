@@ -5,6 +5,7 @@ class_name CustomTabs
 # Shows every tab without clipping or collapsing so we can have all content in view.
 
 @onready var tabs_holder:FlowContainer = $Tabs
+var _current_index:int
 
 
 # Emits 'PropertyUI.on_change' every press of a button
@@ -15,8 +16,9 @@ func _ready():
 		tabs[index].toggled.connect( _on_toggled_tab.bind(index) )
 
 func _on_toggled_tab(button_pressed:bool, index:int):
-	if button_pressed:
+	if button_pressed and _current_index != index:
 		on_change.emit(index)
+		_current_index = index
 
 
 # PropertyUI implementation

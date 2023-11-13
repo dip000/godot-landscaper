@@ -19,6 +19,7 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_texture = raw.tc_texture
 	_resolution = _raw.tc_resolution
 	color.value = raw.tc_color
+	out_color = raw.tc_color
 	_preview_texture()
 
 func template(_size:Vector2i, raw:RawLandscaper):

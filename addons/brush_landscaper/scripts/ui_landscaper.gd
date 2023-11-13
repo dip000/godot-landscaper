@@ -114,6 +114,7 @@ func over_terrain(pos:Vector3):
 	var uv_offset:Vector2 = Vector2(0.5, 0.5)
 	var pos_rel:Vector2 = (pos_v2-world_offset) / bounds_size - uv_offset
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_position", pos_rel)
+	_scene.terrain_overlay.material_override.set_shader_parameter("terrain_size", terrain_builder.bounds_size)
 
 func paint(pos:Vector3, main_action:bool):
 	_active_brush.paint( pos, main_action )

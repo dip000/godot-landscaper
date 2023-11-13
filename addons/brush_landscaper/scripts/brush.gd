@@ -60,15 +60,19 @@ func _bake_out_color_into_texture(pos:Vector3):
 	var texture_size:Vector2i = _texture.get_size()
 	var surface_full_rect := Rect2i(Vector2i.ZERO, texture_size)
 	var _size:Vector2i = texture_size * _scale #size in pixels
-	_size.x = max(1, _size.x)
-	_size.y = max(1, _size.y)
+	
+	# Even the brush size using the bigest axis
+	if _size.x > _size.y:
+		_size = Vector2i.ONE * maxi(1, _size.x)
+	else:
+		_size = Vector2i.ONE * maxi(1, _size.y)
 	
 	var pos_v2:Vector2 = Vector2(pos.x, pos.z)
 	var world_offset:Vector2 = _scene.raw.world_offset
 	var bounds_size:Vector2 = _ui.terrain_builder.bounds_size
 	var pos_absolute:Vector2 = (pos_v2-world_offset) / bounds_size #in [0,1] range
 	pos_absolute *= Vector2(texture_size) #move in pixel size
-	pos_absolute -= texture_size/2.0 * (_scale) #move from top-left corner
+	pos_absolute -= (texture_size/2.0) * _scale #move from top-left corner
 	
 	# Duplicate to keep original resolution
 	# 'texture_image' and 'brush_color' formats must match. 
@@ -85,6 +89,7 @@ func _bake_out_color_into_texture(pos:Vector3):
 
 
 # Crops texture on smaller sizes, expands on bigger ones. But always keeps pixels where they were
+# "min" and "max" are the new bounding box corners relative to the current texture size
 func extend_texture(min:Vector2i, max:Vector2i):
 	var prev_size:Vector2i = _texture.get_size()
 	var prev_img:Image = _texture.get_image()
@@ -119,5 +124,6 @@ func _preview_texture():
 	tex_rec.texture = _texture
 	tex_rec.custom_minimum_size = Vector2(100, 100)
 	tex_rec.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex_rec.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	texture_preview.value = [tex_rec]
 
