@@ -189,6 +189,16 @@ layout_mode = 2
 property_name_pressed = "Hide Texture"
 property_name = "Show Texture"
 
+[node name="Strenght" parent="Dock/Body/ScrollContainer/MarginContainer/TerrainHeight" instance=ExtResource("3_m8brp")]
+layout_mode = 2
+tooltip_text = "How quickly you want the terrain to create mountains ot valleys when you paint over the terrain"
+property_name = "Strength"
+
+[node name="MaxHeight" parent="Dock/Body/ScrollContainer/MarginContainer/TerrainHeight" instance=ExtResource("3_m8brp")]
+layout_mode = 2
+tooltip_text = "Current terrain height will be recalculated accodringly"
+property_name = "Max Height"
+
 [node name="GrassColor" type="VBoxContainer" parent="Dock/Body/ScrollContainer/MarginContainer"]
 visible = false
 layout_mode = 2

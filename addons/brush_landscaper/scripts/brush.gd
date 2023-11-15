@@ -25,20 +25,18 @@ var _texture:Texture2D
 var _resolution:int
 
 
-# Brush must unpack all of its new properties from "raw"
+# Unpack all of its new properties from "raw"
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	pass
+	_ui = ui
+	_scene = scene
+	_raw = raw
 
-# Brush must pack all of its new properties to "_raw" so they can be saved
+# Pack all of its properties to "_raw" so they can be saved
 func save_ui():
 	pass
 
 # Called while paint brushing over the 3D scene's terrain
 func paint(pos:Vector3, primary_action:bool):
-	pass
-
-# Create a custom template for new scene terrains
-func template(_size:Vector2i, raw:RawLandscaper):
 	pass
 
 # Any logic needed to rebuild the scene terrain; update textures, colliders, shaders, scatteres, ect..
@@ -103,6 +101,15 @@ func extend_texture(min:Vector2i, max:Vector2i):
 	new_img.blit_rect( prev_img, prev_img_full_rect, dst )
 	_texture.set_image( new_img )
 
+# "terrain_height" has to have one pixel more for the extra vertex
+func _extend_all_textures(min:Vector2i, max:Vector2i):
+	_ui.terrain_height.extend_texture( min, max+Vector2i.ONE )
+	_ui.terrain_clor.extend_texture( min, max )
+	_ui.grass_color.extend_texture( min, max )
+	_ui.grass_spawn.extend_texture( min, max )
+	_ui.terrain_builder.extend_texture( min, max )
+	# Update distance from world center to top-left corner of the bounding box terrain
+	_raw.world_offset += min
 
 
 # Handy wrappers

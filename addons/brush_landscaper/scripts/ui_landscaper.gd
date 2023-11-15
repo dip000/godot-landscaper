@@ -97,6 +97,7 @@ func change_scene(scene:SceneLandscaper):
 	_scene = scene
 	set_enable( true )
 	_assets_manager.change_scene( self, _scene, _brushes )
+	
 func save_ui():
 	_assets_manager.save_ui()
 

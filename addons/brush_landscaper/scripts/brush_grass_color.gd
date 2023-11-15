@@ -6,3 +6,16 @@ class_name GrassColor
 
 @onready var color:CustomColorPicker = $ColorPicker
 
+
+func save_ui():
+	_raw.gc_texture = _texture
+	_raw.gc_resolution = _resolution
+	_raw.gc_color = color.value
+
+func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	super(ui, scene, raw)
+	_texture = _raw.gc_texture
+	_resolution = _raw.gc_resolution
+	color.value = raw.gc_color
+	out_color = raw.gc_color
+	_preview_texture()

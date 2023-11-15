@@ -6,3 +6,12 @@ class_name GrassSpawn
 
 
 
+func save_ui():
+	_raw.gs_texture = _texture
+	_raw.gs_resolution = _resolution
+
+func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	super(ui, scene, raw)
+	_texture = _raw.gs_texture
+	_resolution = _raw.gs_resolution
+	_preview_texture()

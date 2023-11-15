@@ -18,3 +18,6 @@ func get_value() -> Variant:
 
 func set_value(value:Variant):
 	pass
+
+func add_value(value:Variant):
+	pass

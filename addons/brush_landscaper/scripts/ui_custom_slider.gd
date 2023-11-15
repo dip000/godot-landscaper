@@ -7,13 +7,13 @@ class_name CustomSliderUI
 
 @onready var _name_label:Label = $Name
 @onready var _percentage_label:Label = $Percentage
-@onready var slider:HSlider = $Slider
+@onready var _slider:HSlider = $Slider
 
 
 func _ready():
 	_name_label.text = property_name
-	slider.value_changed.connect( _on_slider_changed )
-	_on_slider_changed( slider.value ) #start with inspector value
+	_slider.value_changed.connect( _on_slider_changed )
+	_on_slider_changed( _slider.value ) #start with inspector value
 
 func _on_slider_changed(value:float):
 	_percentage_label.text = str(value) + " %"
@@ -22,8 +22,9 @@ func _on_slider_changed(value:float):
 
 # PropertyUI implementations
 func set_value(value):
-	slider.value = value
+	_slider.set_value_no_signal(value)
+	_percentage_label.text = str(value) + " %"
 
 func get_value():
-	return slider.value
+	return _slider.value
 

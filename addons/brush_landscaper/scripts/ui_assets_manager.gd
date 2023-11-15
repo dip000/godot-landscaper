@@ -1,7 +1,7 @@
 @tool
 extends VBoxContainer
 class_name AssetsManager
-# Due some acctions taking quite a bit of time to perform, the following table was implemented:
+# Due some acctions taking a bit of time to perform, the following table was implemented:
 #
 #                | Save UI    | Load UI    | Rebuild  | Create   | Save External | Load External |
 #                | Properties | Properties | Terrain  | Template | Resources     | Resources     |
@@ -16,6 +16,9 @@ class_name AssetsManager
 const GRASS_SHADER:Shader = preload("res://addons/brush_landscaper/shaders/grass_shader.gdshader")
 const TERRAIN_OVERLAY_SHADER:Shader = preload("res://addons/brush_landscaper/shaders/terrain_overlay_shader.gdshader")
 const DEFAULT_BRUSH:Resource = preload("res://addons/brush_landscaper/textures/default_brush.tres")
+const DEFAULT_GRASS_GRADIENT:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_gradient.tres")
+const DEFAULT_GRASS_1:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v1.png")
+const DEFAULT_GRASS_2:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v2.png")
 
 # Content child indexes and extensions for external resources
 enum { _PROJECT, _TERRAIN_MESH, _TERRAIN_MATERIAL, _TERRAIN_TEXTURE, _GRASS_MESH, _GRASS_MATERIAL, _GRASS_SHADER, _GRASS_TEXTURE}
@@ -47,8 +50,8 @@ func _on_toggle_files(button_pressed:bool):
 
 func _load_ui():
 	# Update UI input paths from external resources
-	var files:Array = _toggle_files.value
 	if _raw.saved_external:
+		var files:Array = _toggle_files.value
 		files[_PROJECT].value = _raw.resource_path
 		files[_TERRAIN_MESH].value = _raw.terrain_mesh.resource_path
 		files[_TERRAIN_MATERIAL].value = _raw.terrain_material.resource_path
@@ -56,7 +59,7 @@ func _load_ui():
 		files[_GRASS_MESH].value = _raw.grass_mesh.resource_path
 		files[_GRASS_MATERIAL].value = _raw.grass_material.resource_path
 		files[_GRASS_SHADER].value = _raw.grass_shader.resource_path
-#		files[_GRASS_TEXTURE].value = _raw.gc_texture.resource_path #[TEST] uncomment
+		files[_GRASS_TEXTURE].value = _raw.gc_texture.resource_path
 	
 	# Load brush UI properties
 	for brush in _brushes:
@@ -205,17 +208,14 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 		_load_ui()
 		return
 	
-	# Or create a new terrain from templates on a new scene
+	# Or create a new template terrain for a new scene
 	_raw = RawLandscaper.new()
 	_scene.raw = _raw
-	for brush in _brushes:
-		brush.template( Vector2i(10, 10), _raw )
-		brush.load_ui( _ui, _scene, _raw )
-		brush.rebuild_terrain()
+	_load_ui()
+	_rebuild_terrain()
 	
 	# Default external resource file inputs
 	var files:Array = _toggle_files.value
 	for i in files.size():
 		files[i].value = files[i].default_file_path
-	
 
