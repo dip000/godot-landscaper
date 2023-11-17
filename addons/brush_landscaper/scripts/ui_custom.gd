@@ -1,4 +1,4 @@
-extends BoxContainer
+extends Control
 class_name PropertyUI
 # Interface for custom dock properties.
 #
@@ -16,7 +16,7 @@ var value:
 func get_value() -> Variant:
 	return null
 
-func set_value(value:Variant):
+func set_value(value):
 	pass
 
 func add_value(value:Variant):

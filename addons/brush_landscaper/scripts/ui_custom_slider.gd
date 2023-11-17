@@ -6,8 +6,8 @@ class_name CustomSliderUI
 # Call "property" or "value" externally from code
 
 @onready var _name_label:Label = $Name
-@onready var _percentage_label:Label = $Percentage
-@onready var _slider:HSlider = $Slider
+@onready var _suffix_label:Label = $HBoxContainer/Percentage
+@onready var _slider:HSlider = $HBoxContainer/Slider
 
 
 func _ready():
@@ -16,15 +16,16 @@ func _ready():
 	_on_slider_changed( _slider.value ) #start with inspector value
 
 func _on_slider_changed(value:float):
-	_percentage_label.text = str(value) + " %"
-	on_change.emit( value )
+	_suffix_label.text = str(value) + "%"
+	on_change.emit( value/100.0 )
 	
 
 # PropertyUI implementations
 func set_value(value):
+	value = roundf( clamp(value*100.0, 1, 100) )
 	_slider.set_value_no_signal(value)
-	_percentage_label.text = str(value) + " %"
+	_suffix_label.text = str(value) + " %"
 
 func get_value():
-	return _slider.value
+	return _slider.value/100.0
 

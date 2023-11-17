@@ -4,16 +4,15 @@ class_name CustomColorPicker
 # Used a StyleBoxFlat in each style override to round the borders.
 # Seting a color will update the border color and the hex code.
 
-@onready var _color:ColorPickerButton = $Color
-@onready var _property:Label = $Color/Name
-@onready var _color_code:LineEdit = $Color/Code
-@onready var _stylebox:StyleBoxFlat = _color.get_theme_stylebox("normal")
+@onready var _property:Label = $HBoxContainer/Name
+@onready var _color_code:LineEdit = $HBoxContainer/Code
+@onready var _stylebox:StyleBoxFlat = self.get_theme_stylebox("normal")
 
 
 func _ready():
 	_property.text = property_name
-	_color.color_changed.connect( _on_color_changed )
-	_on_color_changed( _color.color )
+	self.color_changed.connect( _on_color_changed )
+	_on_color_changed( self.color )
 
 func _on_color_changed(c:Color):
 	_stylebox.bg_color = c
@@ -31,8 +30,8 @@ func _on_color_changed(c:Color):
 
 # PropertyUI implementations
 func set_value(value):
-	_color.color = value
+	self.color = value
 	_on_color_changed( value )
 
 func get_value():
-	return _color.color
+	return self.color

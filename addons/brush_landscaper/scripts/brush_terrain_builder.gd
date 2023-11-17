@@ -29,7 +29,7 @@ func paint(pos:Vector3, primary_action:bool):
 	if primary_action:
 		# Position to texture-space
 		var texture_pos := Vector2(pos.x, pos.z) - Vector2(_raw.world_offset)
-		var brush_radius:Vector2 = _ui.brush_size.value/200.0 * bounds_size
+		var brush_radius:Vector2 = _ui.brush_size.value/2.0 * bounds_size
 		var bounds_i := Vector2i(bounds_size)
 		
 		# How many squares will be drawn if i were to paint here

@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=3 uid="uid://b6dp6o7trv5ru"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_file_input.gd" id="1_4yfar"]
-[ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/brush_landscaper/textures/icons_small.svg" id="1_t6udt"]
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_file_input.gd" id="1_omvyv"]
+[ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/brush_landscaper/textures/icons_small.svg" id="2_hyfif"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mpq2p"]
-atlas = ExtResource("1_t6udt")
+atlas = ExtResource("2_hyfif")
 region = Rect2(0, 0, 22, 22)
 
 [node name="FileInput" type="HBoxContainer"]
@@ -18,7 +18,7 @@ offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
-script = ExtResource("1_4yfar")
+script = ExtResource("1_omvyv")
 
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open File(s)"

@@ -4,10 +4,10 @@ class_name TerrainHeight
 # Brush that creates mountains or valleys when you paint over the terrain
 # Paints shades of gray colors over the "texture" depending on the height
 
-const STRENGTH_TO_ALPHA:float = 0.001
+const STRENGTH_TO_ALPHA:float = 0.1
 
 @onready var strength:CustomSliderUI = $Strenght
-@onready var max_height:CustomSliderUI = $MaxHeight
+@onready var max_height:CustomNumberInput = $MaxHeight
 
 func _ready():
 	max_height.on_change.connect( rebuild_terrain.unbind(1) )

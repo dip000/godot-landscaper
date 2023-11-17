@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=3 uid="uid://bdfmi4jds2j42"]
+
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_toggle_content.gd" id="1_isc4s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fyww6"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vubk"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.27451, 0.439216, 0.584314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ynvqe"]
+bg_color = Color(0.27451, 0.439216, 0.584314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ajbk"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 1)
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.27451, 0.439216, 0.584314, 1)
+
+[node name="VBoxContainer" type="VBoxContainer"]
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 1151.0
+offset_bottom = 28.0
+size_flags_vertical = 0
+theme_override_constants/separation = 0
+script = ExtResource("1_isc4s")
+property_name_pressed = "Show"
+property_name = "Hide"
+
+[node name="ToggleButton" type="Button" parent="."]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fyww6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_1vubk")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ynvqe")
+toggle_mode = true
+text = "Hide"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_0ajbk")
+
+[node name="ContentClip" type="ScrollContainer" parent="PanelContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 3
+
+[node name="Content" type="VBoxContainer" parent="PanelContainer/ContentClip"]
+layout_mode = 2
+size_flags_horizontal = 3

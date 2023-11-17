@@ -16,8 +16,8 @@ const TEMPLATE_SIZE := Vector2i(10, 10)
 
 @export_group("Terrain Color", "tc_")
 @export var tc_resolution:int = 10
-@export var tc_texture:Texture2D = _texture(Color.SEA_GREEN, Image.FORMAT_RGBA8, tc_resolution*TEMPLATE_SIZE)
-@export var tc_color := Color.SEA_GREEN
+@export var tc_texture:Texture2D = _texture(Color.DARK_GREEN, Image.FORMAT_RGBA8, tc_resolution*TEMPLATE_SIZE)
+@export var tc_color := Color.DARK_GREEN
 
 # Height texture uses FORMAT_LA8 for smoothing height with alpha blend
 # Also has one extra pixel for the extra vertices (total_vertices = terrain_size+1)
@@ -35,13 +35,14 @@ const TEMPLATE_SIZE := Vector2i(10, 10)
 @export_group("Grass Spawn", "gs_")
 @export var gs_resolution:int = 5
 @export var gs_texture:Texture2D = _texture(Color.LIGHT_GREEN, Image.FORMAT_L8, gs_resolution*TEMPLATE_SIZE)
-@export var gs_spawn_variant:int = 0
+@export var gs_selected_variant:int = 0
 @export var gs_density:int = 1024
-@export var gs_billboard:int = 0
+@export var gs_selected_billboard:int = 0
 @export var gs_enable_details:bool = true
-@export var gs_detail_color:Color = Color.DIM_GRAY
+@export var gs_detail_color:Color = Color(0, 0.1, 0)
 @export var gs_quality:int = 1
 @export var gs_size:Vector2 = Vector2(0.3, 0.3)
+@export var gs_gradient_value:float = 0.5
 @export var gs_gradient_mask:Texture2D = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
 @export var gs_variants:Array[Texture2D] = [ AssetsManager.DEFAULT_GRASS_1.duplicate() ]
 

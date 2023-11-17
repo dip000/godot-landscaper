@@ -54,7 +54,7 @@ func resize_texture(new_resolution:Vector2i):
 # Paints "texture" with "out_color" at given "pos" with the global brush size
 func _bake_out_color_into_texture(pos:Vector3):
 	# Transforms
-	var _scale:float = _ui.brush_size.value/100
+	var _scale:float = _ui.brush_size.value
 	var texture_size:Vector2i = _texture.get_size()
 	var surface_full_rect := Rect2i(Vector2i.ZERO, texture_size)
 	var _size:Vector2i = texture_size * _scale #size in pixels

@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=3 uid="uid://ldq3svxcclhh"]
+
+[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_number_input.gd" id="1_06luu"]
+
+[node name="CustomNumberInput" type="HBoxContainer"]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -15.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_06luu")
+property_name = "input"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+text = "input"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LineEdit" type="LineEdit" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+virtual_keyboard_type = 2
+
+[node name="Suffix" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.6
+theme_override_colors/font_color = Color(1, 1, 1, 0.447059)
+text = "suffix"

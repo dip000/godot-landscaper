@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="135.46666mm"
+   height="135.46666mm"
+   viewBox="0 0 135.46666 135.46666"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="default_grass_v1.svg"
+   inkscape:export-filename="C:\Users\ab-cb\Desktop\grass.png"
+   inkscape:export-xdpi="125.50024"
+   inkscape:export-ydpi="125.50024"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#f1f1f1"
+     bordercolor="#000000"
+     borderopacity="0.35294118"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.2708193"
+     inkscape:cx="160.62371"
+     inkscape:cy="415.40614"
+     inkscape:window-width="1350"
+     inkscape:window-height="705"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:object-paths="true"
+     inkscape:snap-midpoints="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-global="false" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-48.302239,-366.57661)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="464.92505"
+       y="558.8772"
+       id="text1825"><tspan
+         sodipodi:role="line"
+         id="tspan1823"
+         style="stroke-width:0.264583"
+         x="464.92505"
+         y="558.8772" /></text>
+    <g
+       id="g8441"
+       inkscape:export-filename="C:\Users\ab-cb\Documents\GitHub\my-godotshaders\GrassPainter\addons\terra_grass\icon.png"
+       inkscape:export-xdpi="125.50024"
+       inkscape:export-ydpi="125.50024">
+      <g
+         id="g8254" />
+    </g>
+    <g
+       id="g1229"
+       transform="matrix(0.84523324,0,0,0.8452333,-82.49315,126.00649)">
+      <rect
+         style="fill:#79f09e;fill-opacity:0.0199115;stroke-width:0.264999;stroke-linecap:round;stroke-linejoin:round"
+         id="rect1103"
+         width="160.27133"
+         height="160.27133"
+         x="154.74474"
+         y="284.61978"
+         ry="1.8997453" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.90736;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 156.69841,442.93743 c 17.659,-22.93981 13.21949,-60.77405 31.09216,-10.9737 11.8835,-39.21404 -15.13629,-164.37222 28.92339,-34.9168 16.73406,-17.62165 -9.07339,-68.83352 12.04509,-40.80174 -1.19495,-44.44662 7.17375,-13.32587 14.2658,4.02369 3.41647,-37.46235 8.36664,-101.12006 16.09476,20.48425 12.04851,-76.08988 14.02667,16.31243 22.31319,54.8685 6.34847,-54.54547 19.18588,-75.98785 15.72897,-7.31581 18.21396,-64.5482 17.37272,-24.16558 13.90002,14.08293"
+         id="path825-0"
+         sodipodi:nodetypes="ccccccccc"
+         inkscape:export-filename="C:\Users\ab-cb\Documents\GitHub\my-godotshaders\GrassPainter\Images\grass_texture.png"
+         inkscape:export-xdpi="125.50024"
+         inkscape:export-ydpi="125.50024" />
+    </g>
+  </g>
+</svg>

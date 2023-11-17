@@ -15,7 +15,7 @@ class_name PluginLandscaper
 
 const COLLISION_LAYER:int = 32
 
-var _ui_template:PackedScene = load("res://addons/brush_landscaper/scenes/dock_ui.tscn")
+var _ui_template:PackedScene = load("res://addons/brush_landscaper/scenes/ui_landscaper.tscn")
 var _ui_inst:UILandscaper
 var _scene_inst:SceneLandscaper
 
@@ -78,9 +78,9 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		_ui_inst.paint_end()
 	
 	if pressed and wheel_up:
-		_ui_inst.scale_by( -2 )
+		_ui_inst.scale_by( -0.02 )
 	elif pressed and wheel_down:
-		_ui_inst.scale_by( 2 )
+		_ui_inst.scale_by( 0.02 )
 	
 	if is_button:
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
