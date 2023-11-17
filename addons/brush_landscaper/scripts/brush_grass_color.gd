@@ -19,3 +19,12 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	color.value = raw.gc_color
 	out_color = raw.gc_color
 	_preview_texture()
+	_update_grass_shader("grass_color", _texture)
+
+
+func paint(pos:Vector3, primary_action:bool):
+	# Paint alpha with secondary to smooth the texture
+	out_color = color.value if primary_action else Color(color.value, 0.1)
+	_bake_out_color_into_texture(pos)
+	rebuild_terrain()
+
