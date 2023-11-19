@@ -212,6 +212,7 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	# Or create a new template terrain for a new scene
 	_raw = RawLandscaper.new()
 	_scene.raw = _raw
+	_scene.terrain_overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
 	_load_ui()
 	_rebuild_terrain()
 	

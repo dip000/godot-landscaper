@@ -13,6 +13,12 @@ var selected_tab:int:
 		selected_tab = v
 		_tabs_holder.get_child(v).button_pressed = true
 
+var tabs:Array[Node]:
+	set(v):
+		pass
+	get:
+		return _tabs_holder.get_children()
+
 
 # Emits 'PropertyUI.on_change' every press of a button
 func _ready():

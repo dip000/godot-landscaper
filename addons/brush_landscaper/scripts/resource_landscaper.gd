@@ -24,7 +24,7 @@ const TEMPLATE_SIZE := Vector2i(10, 10)
 @export_group("Terrain Height", "th_")
 @export var th_resolution:int = 1
 @export var th_texture:Texture2D = _texture(Color.BLACK, Image.FORMAT_LA8, th_resolution*TEMPLATE_SIZE + Vector2i.ONE)
-@export var th_strength:int = 20
+@export var th_strength:int = 0.2
 @export var th_max_height:float = 2
 
 @export_group("Grass Color", "gc_")
@@ -34,7 +34,7 @@ const TEMPLATE_SIZE := Vector2i(10, 10)
 
 @export_group("Grass Spawn", "gs_")
 @export var gs_resolution:int = 5
-@export var gs_texture:Texture2D = _texture(Color.LIGHT_GREEN, Image.FORMAT_L8, gs_resolution*TEMPLATE_SIZE)
+@export var gs_texture:Texture2D = _texture(Color.WHITE, Image.FORMAT_L8, gs_resolution*TEMPLATE_SIZE)
 @export var gs_selected_variant:int = 0
 @export var gs_density:int = 1024
 @export var gs_selected_billboard:int = 0

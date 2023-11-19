@@ -28,3 +28,10 @@ func paint(pos:Vector3, primary_action:bool):
 	_bake_out_color_into_texture(pos)
 	rebuild_terrain()
 
+# Let grass shader know the new properties when extending color texture
+func extend_texture(min:Vector2i, max:Vector2i):
+	super(min, max)
+	_update_grass_shader("terrain_size", _ui.terrain_builder.bounds_size)
+	
+	var offset_texture:Vector2 = float(-_resolution) * _raw.world_offset / _texture.get_size()
+	_update_grass_shader("world_offset", offset_texture)

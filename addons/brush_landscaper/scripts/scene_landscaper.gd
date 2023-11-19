@@ -57,8 +57,9 @@ func _fix_terrain():
 		terrain.material_override.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	if not terrain_collider.shape:
 		terrain_collider.shape = HeightMapShape3D.new()
+		terrain_collider.hide()
 	
-	terrain_body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER, true )
+	terrain_body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, true )
 	terrain.set_display_folded( true )
 	
 	# Setup grass
@@ -74,7 +75,7 @@ func _fix_terrain():
 	overlay_collider.shape = BoxShape3D.new()
 	overlay_collider.shape.size = Vector3(100, 0.1, 100)
 	
-	overlay_body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER, true )
+	overlay_body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_OVERLAY, true )
 	terrain_overlay.set_display_folded( true )
 	
 	terrain_overlay.material_override = ShaderMaterial.new()

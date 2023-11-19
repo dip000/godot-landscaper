@@ -9,7 +9,7 @@ content_margin_left = 5.0
 content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.647059, 0.647059, 0.647059, 1)
+bg_color = Color(0, 0, 0, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -27,11 +27,3 @@ script = ExtResource("2_lievb")
 layout_mode = 2
 size_flags_vertical = 4
 button_pressed = true
-
-[node name="Name" parent="HBoxContainer" index="1"]
-theme_override_colors/font_color = Color(0.352941, 0.352941, 0.352941, 1)
-theme_override_colors/font_outline_color = Color(0.352941, 0.352941, 0.352941, 1)
-
-[node name="Code" parent="HBoxContainer" index="2"]
-theme_override_colors/font_uneditable_color = Color(0.352941, 0.352941, 0.352941, 1)
-text = "#a5a5a5ff"

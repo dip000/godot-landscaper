@@ -25,6 +25,7 @@ func _on_reset_pressed():
 	tooltip_text = ""
 	_reset.hide()
 	_icon = null
+	on_change.emit( null )
 
 # Drag and drop functionality
 func _can_drop_data(at_position, data):

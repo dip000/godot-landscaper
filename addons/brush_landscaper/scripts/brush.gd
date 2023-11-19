@@ -101,16 +101,6 @@ func extend_texture(min:Vector2i, max:Vector2i):
 	new_img.blit_rect( prev_img, prev_img_full_rect, dst )
 	_texture.set_image( new_img )
 
-# "terrain_height" has to have one pixel more for the extra vertex
-func _extend_all_textures(min:Vector2i, max:Vector2i):
-	_ui.terrain_height.extend_texture( min, max+Vector2i.ONE )
-	_ui.terrain_clor.extend_texture( min, max )
-	_ui.grass_color.extend_texture( min, max )
-	_ui.grass_spawn.extend_texture( min, max )
-	_ui.terrain_builder.extend_texture( min, max )
-	# Update distance from world center to top-left corner of the bounding box terrain
-	_raw.world_offset += min
-
 
 # Handy wrappers
 func _update_grass_shader(property:String, value:Variant):

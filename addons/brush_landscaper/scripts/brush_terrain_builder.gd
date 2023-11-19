@@ -49,7 +49,7 @@ func paint(pos:Vector3, primary_action:bool):
 	out_color = Color.WHITE if primary_action else Color.BLACK
 	_bake_out_color_into_texture(pos)
 	rebuild_terrain()
-	_ui.terrain_height.update_collider()
+	
 
 
 func rebuild_terrain():
@@ -114,5 +114,17 @@ func rebuild_terrain():
 	_scene.terrain_collider.shape.map_depth = bounds_size.y + 1
 	_scene.terrain_collider.global_position.x = bounds_size.x * 0.5 + _raw.world_offset.x
 	_scene.terrain_collider.global_position.z = bounds_size.y * 0.5 + _raw.world_offset.y
+
+
+# Every brush may override the base function for specific behaviors like respawning grass or updating shaders
+func _extend_all_textures(min:Vector2i, max:Vector2i):
+	# Update distance from world center to top-left corner of the bounding box terrain
+	_raw.world_offset += min
+
+	_ui.terrain_height.extend_texture( min, max )
+	_ui.terrain_clor.extend_texture( min, max )
+	_ui.grass_color.extend_texture( min, max )
+	_ui.grass_spawn.extend_texture( min, max )
+	_ui.terrain_builder.extend_texture( min, max )
 
 

@@ -56,7 +56,7 @@ func _update_grass():
 	# Caches
 	var space := _scene.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
-	ray.collision_mask = 1<<(PluginLandscaper.COLLISION_LAYER-1)
+	ray.collision_mask = 1<<(PluginLandscaper.COLLISION_LAYER_TERRAIN-1)
 	
 	# Raycast collider for the exact ground level position
 	for multimesh_inst in _scene.grass_holder.get_children():
@@ -71,5 +71,11 @@ func _update_grass():
 			# Update the new height with that collision point
 			transform.origin.y = result.position.y
 			multimesh.set_instance_transform(instance_index , transform)
-			
+	
 
+# Has to have one pixel more for the extra vertex
+# Also recaclulate collider
+func extend_texture(min:Vector2i, max:Vector2i):
+	super(min, max + Vector2i.ONE)
+	update_collider()
+	

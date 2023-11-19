@@ -13,7 +13,8 @@ class_name PluginLandscaper
 #  * RawLandscaper: Raw data for each individual landscaping project
 
 
-const COLLISION_LAYER:int = 32
+const COLLISION_LAYER_TERRAIN:int = 32
+const COLLISION_LAYER_OVERLAY:int = 31
 
 var _ui_template:PackedScene = load("res://addons/brush_landscaper/scenes/ui_landscaper.tscn")
 var _ui_inst:UILandscaper
@@ -23,7 +24,6 @@ var _scene_inst:SceneLandscaper
 func _enter_tree():
 	_ui_inst = _ui_template.instantiate()
 	add_control_to_dock.call_deferred( EditorPlugin.DOCK_SLOT_RIGHT_UL, _ui_inst )
-	
 	add_custom_type( "SceneLandscaper", "Node", preload("scripts/scene_landscaper.gd"), preload("icon.svg") )
 
 func _exit_tree():
@@ -43,7 +43,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	var space:PhysicsDirectSpaceState3D = get_tree().get_edited_scene_root().get_world_3d().direct_space_state
 	var from:Vector3 = cam.project_ray_origin( mouse )
 	var to:Vector3 =  from + (cam.project_ray_normal( mouse ) * cam.far)
-	var ray: = PhysicsRayQueryParameters3D.create(from, to, 1<<(COLLISION_LAYER-1)) #layer to value
+	var ray: = PhysicsRayQueryParameters3D.create(from, to, 1<<(COLLISION_LAYER_TERRAIN-1)) #layer to value
 	var result = space.intersect_ray( ray )
 	
 	# Mouse actions
@@ -54,9 +54,15 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	var wheel_up:bool = is_button and (event.button_index == MOUSE_BUTTON_WHEEL_UP)
 	var wheel_down:bool = is_button and (event.button_index == MOUSE_BUTTON_WHEEL_DOWN)
 	
-	# Left clicking by default is box select and it's very anoying while drawing
+	# Try with overlay collider if terrain was not detected
+	if not result:
+		ray = PhysicsRayQueryParameters3D.create(from, to, 1<<(COLLISION_LAYER_OVERLAY-1)) #layer to value
+		result = space.intersect_ray( ray )
+	
 	if not result:
 		_ui_inst.exit_terrain()
+		
+		# Left clicking by default is box select and it's very anoying while drawing
 		if lbm:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
