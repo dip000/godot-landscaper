@@ -45,14 +45,16 @@ func paint(pos:Vector3, primary_action:bool):
 		
 		# Make room for possible strokes inside the new bounding box
 		_extend_all_textures( min_pos, max_pos )
-		print( min_pos, max_pos )
 	
 	pos = pos.ceil()
 	out_color = Color.WHITE if primary_action else Color.BLACK
 	_bake_out_color_into_texture(pos)
 	rebuild_terrain()
-	
 
+# Respawning grass is a heavy process, it is better to do so at the end of the stroke
+func paint_end():
+	_ui.grass_spawn.rebuild_terrain()
+	
 
 func rebuild_terrain():
 	# Cashes

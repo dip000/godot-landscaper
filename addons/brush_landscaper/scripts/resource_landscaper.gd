@@ -34,8 +34,8 @@ const TEMPLATE_SIZE := Vector2i(6, 6)
 
 @export_group("Grass Spawn", "gs_")
 @export var gs_resolution:int = 5
-@export var gs_texture:Texture2D = _texture(Color.WHITE, Image.FORMAT_L8, gs_resolution*TEMPLATE_SIZE)
-@export var gs_selected_variant:int = GrassSpawn.VARIANT_RANDOM
+@export var gs_texture:Texture2D = _texture(Color(0.125,0.125,0.125), Image.FORMAT_L8, gs_resolution*TEMPLATE_SIZE)
+@export var gs_selected_variant:int = GrassSpawn.VARIANT_0
 @export var gs_density:int = 10
 @export var gs_selected_billboard:int = 0
 @export var gs_enable_details:bool = true
