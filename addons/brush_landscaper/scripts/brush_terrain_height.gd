@@ -41,7 +41,15 @@ func rebuild_terrain():
 func update_collider():
 	# Caches
 	var height_image:Image = _texture.get_image()
-	var height_shape:HeightMapShape3D = _scene.terrain_collider.shape
+	var height_collider:CollisionShape3D = _scene.terrain_collider
+	var height_shape:HeightMapShape3D = height_collider.shape
+	var bounds_size:Vector2 = _ui.terrain_builder.bounds_size
+	
+	height_shape.map_width = bounds_size.x + 1
+	height_shape.map_depth = bounds_size.y + 1
+	height_collider.global_position.x = bounds_size.x * 0.5 + _raw.world_offset.x
+	height_collider.global_position.z = bounds_size.y * 0.5 + _raw.world_offset.y
+	
 	
 	# Update _terrain collider
 	for x in height_shape.map_width:
@@ -52,6 +60,7 @@ func update_collider():
 			var coordinate:int = z * (height_shape.map_width) + x
 			height_shape.map_data[coordinate] = y
 	
+
 func _update_grass():
 	# Caches
 	var space := _scene.terrain.get_world_3d().direct_space_state
@@ -74,8 +83,5 @@ func _update_grass():
 	
 
 # Has to have one pixel more for the extra vertex
-# Also recaclulate collider
-func extend_texture(min:Vector2i, max:Vector2i):
-	super(min, max + Vector2i.ONE)
-	update_collider()
-	
+func extend_texture(min:Vector2i, max:Vector2i, fill_color:Color):
+	super(min, max + Vector2i.ONE, fill_color)

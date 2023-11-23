@@ -30,3 +30,9 @@ func paint(pos:Vector3, primary_action:bool):
 func rebuild_terrain():
 	_update_grass_shader("terrain_color", _texture)
 	_scene.terrain.material_override.albedo_texture = _texture
+
+# Fill with the current terrain color
+func extend_texture(min:Vector2i, max:Vector2i, _fill_color:Color):
+	super(min, max, color.value)
+
+

@@ -4,15 +4,19 @@ class_name TerrainBuilder
 # Brush that generates new mesh when you paint over the terrain
 # Paints colors over the "_texture" depending if is built or not
 
-const BUILD_FROM_PIXEL_UMBRAL:int = 0.2
 const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(1,0), Vector2i(0,1), Vector2i(0,0), #triangle in fourth quadrant
 	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #triangle in second quadrant
 ]
 
+var _mesh_arrays:Array = []
 var bounds_size:Vector2:
 	get:
 		return _texture.get_size()
+
+
+func _ready():
+	_mesh_arrays.resize(Mesh.ARRAY_MAX)
 
 
 func save_ui():
@@ -30,20 +34,18 @@ func paint(pos:Vector3, primary_action:bool):
 		# Position to texture-space
 		var texture_pos := Vector2(pos.x, pos.z) - Vector2(_raw.world_offset)
 		var brush_radius:Vector2 = _ui.brush_size.value/2.0 * bounds_size
-		var bounds_i := Vector2i(bounds_size)
 		
 		# How many squares will be drawn if i were to paint here
-		var world_reach_max:Vector2i = (texture_pos + brush_radius).ceil()
-		var world_reach_min:Vector2i = (texture_pos - brush_radius).floor()
+		var world_reach_min:Vector2i = (texture_pos - brush_radius).round()
+		var world_reach_max:Vector2i = (texture_pos + brush_radius).round()
 		
 		# New bounding box
-		var max_pos := Vector2i( maxi(world_reach_max.x, bounds_i.x), maxi(world_reach_max.y, bounds_i.y) )
 		var min_pos := Vector2i( mini(world_reach_min.x, 0), mini(world_reach_min.y, 0) )
+		var max_pos := Vector2i( maxi(world_reach_max.x, bounds_size.x), maxi(world_reach_max.y, bounds_size.y) )
 		
-		# Extend every texture to new bounding box if bounds are different
-		if min_pos != Vector2i.ZERO or max_pos != bounds_i:
-			out_color = Color.BLACK
-			_extend_all_textures( min_pos, max_pos )
+		# Make room for possible strokes inside the new bounding box
+		_extend_all_textures( min_pos, max_pos )
+		print( min_pos, max_pos )
 	
 	pos = pos.ceil()
 	out_color = Color.WHITE if primary_action else Color.BLACK
@@ -53,29 +55,21 @@ func paint(pos:Vector3, primary_action:bool):
 
 
 func rebuild_terrain():
+	# Cashes
 	var build_map:Image = _texture.get_image()
 	var height_map:Image = _raw.th_texture.get_image()
 	var vertices := PackedVector3Array()
 	var offset:Vector2i = _raw.world_offset
-	var buildmap_size:Vector2i = build_map.get_size()
+	var buildmap_size:Vector2i = bounds_size
 	var max_height:float = _ui.terrain_height.max_height.value
-	var min_bound:Vector2i = buildmap_size
+	var min_bound:Vector2i = bounds_size
 	var max_bound:Vector2i = Vector2i.ZERO
+	var uv := PackedVector2Array()
 	
+	# Find the actual min and max built points
 	for x in buildmap_size.x:
 		for z in buildmap_size.y:
-			
-			if build_map.get_pixel(x, z).r > BUILD_FROM_PIXEL_UMBRAL:
-				var texture := Vector2i(x, z)
-				var world := texture + offset
-				
-				for shape in SQUARE_SHAPE:
-					var uv:Vector2i = shape + texture
-					var world_pos:Vector2i = shape + world
-					var y:float = height_map.get_pixelv( uv ).r * max_height
-					vertices.push_back( Vector3(world_pos.x, y, world_pos.y) )
-				
-				# Find the actual min and max built points
+			if not is_zero_approx( build_map.get_pixel(x, z).r ):
 				if x < min_bound.x:
 					min_bound.x = x
 				if x > max_bound.x:
@@ -85,46 +79,38 @@ func rebuild_terrain():
 				if z > max_bound.y:
 					max_bound.y = z
 	
-	if vertices.is_empty():
-		return
+	# Crop textures if possible
+	# Add one to convert from index to size 
+	_extend_all_textures( min_bound, max_bound+Vector2i.ONE )
+	var bounds:Vector2 = bounds_size
 	
-	# Crop texture to optimize sizes if possible
-	if max_bound != Vector2i.ZERO or min_bound != buildmap_size:
-		max_bound += Vector2i.ONE
-		_extend_all_textures( min_bound, max_bound )
+	# Generate vertex and UV data
+	for x in bounds.x:
+		for z in bounds.y:
+			if not is_zero_approx( build_map.get_pixel(x, z).r ):
+				var texture := Vector2i(x, z)
+				var world := texture + offset
+				
+				for offset_shape in SQUARE_SHAPE:
+					var texture_pos:Vector2 = offset_shape + texture
+					var world_pos:Vector2 = offset_shape + world
+					var y:float = height_map.get_pixelv( texture_pos ).r * max_height
+					
+					uv.push_back( texture_pos / bounds )
+					vertices.push_back( Vector3(world_pos.x, y, world_pos.y) )
+					
 	
-	# Calculate UVs
-	var uv := PackedVector2Array()
-	var bounds:Vector2 = build_map.get_size()
-	uv.resize( vertices.size() )
-	
-	for i in vertices.size():
-		var vertex := Vector2i(vertices[i].x, vertices[i].z)
-		uv[i] = Vector2(vertex - offset) / bounds
-	
-	# Setup the ArrayMesh
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_TEX_UV] = uv
+	# Update ArrayMesh
+	_mesh_arrays[Mesh.ARRAY_VERTEX] = vertices
+	_mesh_arrays[Mesh.ARRAY_TEX_UV] = uv
 	_scene.terrain_mesh.clear_surfaces()
-	_scene.terrain_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, arrays )
-	
-	_scene.terrain_collider.shape.map_width = bounds_size.x + 1
-	_scene.terrain_collider.shape.map_depth = bounds_size.y + 1
-	_scene.terrain_collider.global_position.x = bounds_size.x * 0.5 + _raw.world_offset.x
-	_scene.terrain_collider.global_position.z = bounds_size.y * 0.5 + _raw.world_offset.y
+	_scene.terrain_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, _mesh_arrays )
+	_ui.terrain_height.update_collider()
 
 
-# Every brush may override the base function for specific behaviors like respawning grass or updating shaders
+# Every brush may override the base function for specific behaviors like updating shaders
+# Updates distance from world center to top-left corner of the bounding box terrain
 func _extend_all_textures(min:Vector2i, max:Vector2i):
-	# Update distance from world center to top-left corner of the bounding box terrain
 	_raw.world_offset += min
-
-	_ui.terrain_height.extend_texture( min, max )
-	_ui.terrain_clor.extend_texture( min, max )
-	_ui.grass_color.extend_texture( min, max )
-	_ui.grass_spawn.extend_texture( min, max )
-	_ui.terrain_builder.extend_texture( min, max )
-
-
+	for brush in _ui.brushes:
+		brush.extend_texture( min, max, Color.BLACK )

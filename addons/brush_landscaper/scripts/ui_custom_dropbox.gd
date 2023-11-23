@@ -25,7 +25,7 @@ func _on_reset_pressed():
 	tooltip_text = ""
 	_reset.hide()
 	_icon = null
-	on_change.emit( null )
+	on_change.emit( false )
 
 # Drag and drop functionality
 func _can_drop_data(at_position, data):
@@ -40,7 +40,7 @@ func _can_drop_data(at_position, data):
 func _drop_data(at_position, data):
 	_icon = load(data.files[0])
 	tooltip_text = _icon.resource_path.get_file()
-	on_change.emit( _icon )
+	on_change.emit( true )
 	set_value( _icon )
 
 

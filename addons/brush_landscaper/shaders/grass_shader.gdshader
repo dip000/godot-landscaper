@@ -1,4 +1,4 @@
-#define BILLBOARD_Y
+//#define BILLBOARD_Y
 //#define GL_COMPATIBILITY
 
 /* Ok i know directives are annoying but is absolutely needed to change render mode.
@@ -46,15 +46,18 @@ instance uniform int variant_index;
 void vertex(){
 	// Wind sway
 	float root = (1.0 - UV.y);
-	float sway_x = sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * root * 0.10;
-	float sway_y = sin(NODE_POSITION_WORLD.x + TIME * 0.6 + UV.y) * root * 0.08;
-	float sway_z = cos(NODE_POSITION_WORLD.z + TIME * 0.45 + UV.y) * root * 0.15;
-	VERTEX += (vec4(vec3(sway_x, sway_y, sway_z), 1.0) * MODEL_MATRIX).xyz;
+	vec3 sway;
+	sway.x = sin(NODE_POSITION_WORLD.x + TIME * 1.25 + UV.y) * root * 0.10;
+	sway.y = sin(NODE_POSITION_WORLD.x + TIME * 0.6 + UV.y) * root * 0.08;
+	sway.z = cos(NODE_POSITION_WORLD.z + TIME * 0.45 + UV.y) * root * 0.15;
 	
 #if defined BILLBOARD_Y
+	VERTEX += sway;
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz)), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(normalize(cross(INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0), MODEL_MATRIX[3]);
+#else
+	VERTEX += (vec4(sway, 1.0) * MODEL_MATRIX).xyz;
 #endif
-
+	
 	// Vertex to world space (from center of texture). See [NOTES 1]
 	vec2 world_position = world_offset + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / terrain_size;
 	

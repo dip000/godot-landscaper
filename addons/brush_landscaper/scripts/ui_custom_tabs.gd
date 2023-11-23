@@ -38,9 +38,12 @@ func _on_toggled_tab(button_pressed:bool, tab_index:int):
 
 # PropertyUI implementation
 func set_value(tab_icons):
-	for i in tab_icons.size():
+	for i in _tabs_holder.get_child_count():
 		var dropbox:CustomDropbox = _tabs_holder.get_child(i)
-		dropbox.value = tab_icons[i]
+		if i < tab_icons.size():
+			dropbox.value = tab_icons[i]
+		else:
+			dropbox.value = null
 
 func get_value():
 	var tab_icons:Array[Texture2D]

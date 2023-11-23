@@ -35,7 +35,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 @onready var grass_color:GrassColor = _brushes_holder.get_node( "GrassColor" )
 @onready var grass_spawn:GrassSpawn = _brushes_holder.get_node( "GrassSpawner" )
 
-var _brushes:Array[Brush]
+var brushes:Array[Brush]
 var _scene:SceneLandscaper
 var _active_brush:Brush
 var _prev_brush:Brush
@@ -51,7 +51,7 @@ func _ready():
 	
 	# For a type safe array
 	for brush in _brushes_holder.get_children():
-		_brushes.append( brush )
+		brushes.append( brush )
 	_brush_changed(0)
 
 func _on_brush_size_changed(value):
@@ -59,7 +59,7 @@ func _on_brush_size_changed(value):
 
 func _brush_changed(index:int):
 	# Change to active brush properties
-	_active_brush = _brushes[index]
+	_active_brush = brushes[index]
 	_active_brush.show()
 	
 	if _prev_brush:
@@ -96,7 +96,7 @@ func fade(blocker:Control, fade_out:bool):
 func change_scene(scene:SceneLandscaper):
 	_scene = scene
 	set_enable( true )
-	_assets_manager.change_scene( self, _scene, _brushes )
+	_assets_manager.change_scene( self, _scene, brushes )
 	
 func save_ui():
 	_assets_manager.save_ui()
@@ -122,7 +122,8 @@ func paint(pos:Vector3, main_action:bool):
 	_scene.terrain_overlay.position.y = 0.02
 
 func paint_end():
-	_scene.terrain_overlay.position.y = 0.13
+	_active_brush.paint_end()
+	_scene.terrain_overlay.position.y = 0.07
 
 func scale_by(sca:float):
 	brush_size.value += sca

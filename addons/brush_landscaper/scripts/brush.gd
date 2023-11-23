@@ -21,8 +21,12 @@ var _ui:UILandscaper
 var _raw:RawLandscaper
 
 # The texture you'll painting over; color, heightmap, etc..
-var _texture:Texture2D
 var _resolution:int
+var _texture:Texture2D:
+	get=get_texture
+	
+func get_texture() -> Texture2D:
+	return _texture
 
 
 # Unpack all of its new properties from "raw"
@@ -37,6 +41,8 @@ func save_ui():
 
 # Called while paint brushing over the 3D scene's terrain
 func paint(pos:Vector3, primary_action:bool):
+	pass
+func paint_end():
 	pass
 
 # Any logic needed to rebuild the scene terrain; update textures, colliders, shaders, scatteres, ect..
@@ -88,13 +94,13 @@ func _bake_out_color_into_texture(pos:Vector3):
 
 # Crops texture on smaller sizes, expands on bigger ones. But always keeps pixels where they were
 # "min" and "max" are the new bounding box corners relative to the current texture size
-func extend_texture(min:Vector2i, max:Vector2i):
+func extend_texture(min:Vector2i, max:Vector2i, fill_color:Color):
 	var prev_size:Vector2i = _texture.get_size()
 	var prev_img:Image = _texture.get_image()
 	var prev_format:int = prev_img.get_format()
 	
 	var new_size:Vector2i = (max - min) * _resolution
-	var new_img:Image = _create_img( out_color, new_size, prev_format )
+	var new_img:Image = _create_img( fill_color, new_size, prev_format )
 	var prev_img_full_rect := Rect2i( Vector2i.ZERO, prev_size )
 	var dst:Vector2 = (-min) * _resolution
 	

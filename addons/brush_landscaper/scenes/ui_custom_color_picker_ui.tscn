@@ -1,65 +1,39 @@
-[gd_scene load_steps=3 format=3 uid="uid://dm7ycgrpmdj5t"]
+[gd_scene load_steps=2 format=3 uid="uid://dm7ycgrpmdj5t"]
 
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_color_picker.gd" id="1_j1kjv"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yn3od"]
-resource_local_to_scene = true
-content_margin_left = 5.0
-content_margin_top = 5.0
-content_margin_right = 5.0
-content_margin_bottom = 5.0
-bg_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[node name="ColorPicker" type="ColorPickerButton"]
-custom_minimum_size = Vector2(0, 40)
-anchors_preset = 15
+[node name="ColorPicker" type="HBoxContainer"]
+anchors_preset = 14
+anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 0.5
+offset_top = -20.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 3
-mouse_default_cursor_shape = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_yn3od")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_yn3od")
-theme_override_styles/hover = SubResource("StyleBoxFlat_yn3od")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_yn3od")
-theme_override_styles/focus = SubResource("StyleBoxFlat_yn3od")
-text = "Color"
 script = ExtResource("1_j1kjv")
+enable_button = true
 property_name = "Color"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 8.0
-offset_right = -8.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
 
-[node name="Name" type="Label" parent="HBoxContainer"]
+[node name="CheckBox" type="CheckBox" parent="HBoxContainer"]
+layout_mode = 2
+button_pressed = true
+
+[node name="PropertyName" type="Label" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 14
 text = "Color"
 vertical_alignment = 1
 
-[node name="Code" type="LineEdit" parent="HBoxContainer"]
+[node name="ColorPickerButton" type="ColorPickerButton" parent="."]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.658824, 0.658824, 0.658824, 1)
-theme_override_colors/font_uneditable_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "#000000ff"
-editable = false
-expand_to_text_length = true
-virtual_keyboard_type = 2
-flat = true
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+text = "Color"
