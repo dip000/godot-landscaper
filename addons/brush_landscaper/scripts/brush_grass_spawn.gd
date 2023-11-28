@@ -26,8 +26,8 @@ func _ready():
 	detail_color.on_change.connect( _on_detail_changed )
 	quality.on_change.connect( _on_quality_changed )
 	grass_size.on_change.connect( _on_size_changed )
+	billboard.on_change.connect( _on_billboard_changed )
 	density.on_change.connect( rebuild_terrain.unbind(1) )
-	billboard.on_change.connect( rebuild_terrain.unbind(1) )
 	
 	for dropbox in variants.tabs:
 		dropbox.on_change.connect( _on_variant_changed )
@@ -48,7 +48,33 @@ func _on_size_changed(value:Vector2):
 	_scene.grass_mesh.size = value
 	_scene.grass_mesh.center_offset.y = value.y*0.5 #origin rooted to the ground
 
+func _on_billboard_changed(tab_index:int):
+	var shader:Shader = _scene.grass_mesh.material.shader
+	if tab_index == BILLBOARD_Y:
+		AssetsManager.set_shader_billboard_y( shader, true )
+	else:
+		AssetsManager.set_shader_billboard_y( shader, false )
+	rebuild_terrain()
+
 func _on_variant_changed(want_to_add:bool):
+	var total_variants:int = 0
+	for variant in variants.value:
+		if variant:
+			total_variants += 1;
+	
+	var shader:Shader = _scene.grass_mesh.material.shader
+	var needs_vulkan:bool = (total_variants > 1)
+	
+	if needs_vulkan and AssetsManager.has_vulkan:
+		print("Changed to vulkan shader")
+		AssetsManager.set_shader_compatibility( shader , false )
+	elif needs_vulkan and not AssetsManager.has_vulkan:
+		print("Upgrade to vulkan drivers first")
+		AssetsManager.set_shader_compatibility( shader , true )
+		return
+	else:
+		print("Changed to compatibility shaders")
+		AssetsManager.set_shader_compatibility( shader , true )
 	_update_grass_shader("variants", variants.value)
 	rebuild_terrain()
 

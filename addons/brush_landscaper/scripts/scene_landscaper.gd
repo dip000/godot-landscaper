@@ -71,7 +71,7 @@ func _fix_terrain():
 	# Setup terrain overlay
 	terrain_overlay.mesh = _create_mesh_overlay()
 	terrain_overlay.position.y = 0.13
-	terrain_overlay.owner = owner
+	terrain_overlay.owner = self
 	overlay_collider.shape = BoxShape3D.new()
 	overlay_collider.shape.size = Vector3(100, 0.1, 100)
 	

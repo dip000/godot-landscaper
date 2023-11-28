@@ -26,5 +26,4 @@ void fragment(){
 	// Black ring
 	ALPHA = brush_pixel_outer_line.r * 0.8 * clamp(brush_color.a, 0.5, 0.9);
 	ALBEDO = brush;
-//	ALBEDO = vec3(0.8);
 }

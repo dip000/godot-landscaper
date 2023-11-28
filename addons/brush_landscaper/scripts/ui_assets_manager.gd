@@ -21,6 +21,10 @@ const DEFAULT_BRUSH:GradientTexture2D = preload("res://addons/brush_landscaper/t
 const DEFAULT_GRASS_1:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v1.svg")
 const DEFAULT_GRASS_2:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v2.svg")
 
+# For grass shader logic
+const SHADER_COMPATIBILITY := "#define GL_COMPATIBILITY"
+const SHADER_BILLBOARD_Y := "#define BILLBOARD_Y"
+
 # Content child indexes and extensions for external resources
 enum { _PROJECT, _TERRAIN_MESH, _TERRAIN_MATERIAL, _TERRAIN_TEXTURE, _GRASS_MESH, _GRASS_MATERIAL, _GRASS_SHADER, _GRASS_TEXTURE}
 const _EXTENSIONS:PackedStringArray = ["tres", "tres", "tres", "png", "tres", "tres", "gdshader", "png"]
@@ -37,6 +41,8 @@ var _scene:SceneLandscaper
 var _raw:RawLandscaper
 var _brushes:Array[Brush]
 
+static var has_vulkan:bool
+
 
 func _ready():
 	_toggle_files.on_change.connect( _on_toggle_files )
@@ -44,6 +50,7 @@ func _ready():
 	_load_all.pressed.connect( _on_load_all_pressed )
 	_confirm_save.confirmed.connect( _save_confirmed )
 	_confirm_load.confirmed.connect( _load_confirmed )
+	has_vulkan = true if RenderingServer.get_rendering_device() else false
 
 func _on_toggle_files(button_pressed:bool):
 	_ui.set_dock_enable( not button_pressed )
@@ -212,6 +219,9 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	# Or create a new template terrain for a new scene
 	_raw = RawLandscaper.new()
 	_scene.raw = _raw
+	_raw.gs_variants.append( DEFAULT_GRASS_2.duplicate() )
+	if has_vulkan:
+		set_shader_compatibility( _scene.grass_mesh.material.shader, false )
 	_scene.terrain_overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
 	_load_ui()
 	_rebuild_terrain()
@@ -221,3 +231,21 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	for i in files.size():
 		files[i].value = files[i].default_file_path
 
+
+# Litteraly changes te code to avoid compilation errors and allow this plugin to work in low-end devices
+static func set_shader_compatibility(shader:Shader, active:bool):
+	if active:
+		shader.set_code( shader.code.replace("//" + SHADER_COMPATIBILITY, SHADER_COMPATIBILITY) )
+	elif is_shader_compatibility( shader ):
+		shader.set_code( shader.code.replace(SHADER_COMPATIBILITY, "//" + SHADER_COMPATIBILITY) )
+
+static func set_shader_billboard_y(shader:Shader, active:bool):
+	if active:
+		shader.set_code( shader.code.replace("//" + SHADER_BILLBOARD_Y, SHADER_BILLBOARD_Y) )
+	elif is_shader_billboard( shader ):
+		shader.set_code( shader.code.replace(SHADER_BILLBOARD_Y, "//" + SHADER_BILLBOARD_Y) )
+
+static func is_shader_compatibility(shader:Shader) -> bool:
+	return not shader.code.contains( "//" + SHADER_COMPATIBILITY )
+static func is_shader_billboard(shader:Shader) -> bool:
+	return not shader.code.contains( "//" + SHADER_BILLBOARD_Y )

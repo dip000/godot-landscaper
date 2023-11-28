@@ -1,5 +1,5 @@
 //#define BILLBOARD_Y
-//#define GL_COMPATIBILITY
+#define GL_COMPATIBILITY
 
 /* Ok i know directives are annoying but is absolutely needed to change render mode.
  * And most importantly, for OpenGL compatibility! Otherwise this plugin won't even open

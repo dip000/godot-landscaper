@@ -26,9 +26,9 @@
      inkscape:pagecheckerboard="1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.2708193"
-     inkscape:cx="755.11605"
-     inkscape:cy="430.17614"
+     inkscape:zoom="0.38299633"
+     inkscape:cx="210.18478"
+     inkscape:cy="379.8992"
      inkscape:window-width="1350"
      inkscape:window-height="705"
      inkscape:window-x="0"
@@ -72,25 +72,55 @@
       <g
          id="g8254" />
     </g>
-    <g
-       id="g1377"
-       transform="matrix(0.84523329,0,0,0.84523328,-14.398168,52.825963)">
-      <rect
-         style="fill:#79f09e;fill-opacity:0;stroke-width:0.264999;stroke-linecap:round;stroke-linejoin:round"
-         id="rect1225"
-         width="160.27133"
-         height="160.27133"
-         x="-111.96909"
-         y="366.5766"
-         ry="1.8997453" />
-      <path
-         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:4.20917;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 46.197654,524.74335 c 0,0 -13.368806,-21.38501 -24.492977,-24.34622 -5.926819,-1.57768 -11.8120729,6.217 -17.7713944,4.76694 -8.392383,-2.04206 -10.5076293,-17.4224 -19.1447956,-17.46127 -12.474462,-0.0561 -15.781689,21.91353 -27.876288,24.96901 -12.69636,3.20752 -25.354844,-11.70911 -38.201104,-9.16766 -11.531867,2.28141 -28.575605,20.66716 -28.575605,20.66716"
-         id="path999"
-         sodipodi:nodetypes="caaaaac"
-         inkscape:export-filename="C:\Users\ab-cb\Documents\GitHub\my-godotshaders\GrassPainter\Images\grass_small_texture.png"
-         inkscape:export-xdpi="51.140163"
-         inkscape:export-ydpi="51.140163" />
-    </g>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.558;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect883"
+       width="9.2445927"
+       height="66.88604"
+       x="-44.316288"
+       y="432.94174"
+       ry="1.9412131" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1383"
+       cx="-57.571732"
+       cy="396.86453"
+       r="17.961441" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1465"
+       cx="-36.156166"
+       cy="387.53839"
+       r="17.961441" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1467"
+       cx="-15.776837"
+       cy="408.95395"
+       r="17.961441" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1469"
+       cx="-27.175447"
+       cy="430.71494"
+       r="17.961441" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1471"
+       cx="-47.209362"
+       cy="433.47824"
+       r="17.961441" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1473"
+       cx="-62.407505"
+       cy="418.28009"
+       r="17.961441" />
+    <circle
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1475"
+       cx="-39.264877"
+       cy="412.40808"
+       r="17.961441" />
   </g>
 </svg>

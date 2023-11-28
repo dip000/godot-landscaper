@@ -25,7 +25,7 @@ const MAX_BUILD_REACH := Vector2i(100, 100)
 @export_group("Terrain Height", "th_")
 @export var th_resolution:int = 1
 @export var th_texture:Texture2D = _texture(Color.BLACK, Image.FORMAT_LA8, th_resolution*world.size + Vector2i.ONE)
-@export var th_strength:float = 0.01
+@export var th_strength:float = 0.02
 @export var th_max_height:float = 2
 
 @export_group("Grass Color", "gc_")
