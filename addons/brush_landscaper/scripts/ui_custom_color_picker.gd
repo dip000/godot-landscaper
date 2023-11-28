@@ -1,9 +1,10 @@
 @tool
 extends PropertyUI
 class_name CustomColorPicker
-# 
+## Same as an inspector color property with enable.
+## Use as 'my_color_picker.value'
 
-@export var enable_button:bool = false
+@export var _enable_button:bool = false
 @onready var _property:Label = $HBoxContainer/PropertyName
 @onready var _picker:ColorPickerButton = $ColorPickerButton
 @onready var _checkbox:CheckBox = $HBoxContainer/CheckBox
@@ -22,7 +23,7 @@ func _ready():
 	_checkbox.toggled.connect( _on_ckeckbox_toggled )
 	
 	_on_color_changed( _picker.color )
-	if not enable_button:
+	if not _enable_button:
 		enabled = true
 		_checkbox.hide()
 

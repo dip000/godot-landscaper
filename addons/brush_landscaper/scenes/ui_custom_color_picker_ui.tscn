@@ -12,7 +12,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_j1kjv")
-enable_button = true
+_enable_button = null
 property_name = "Color"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]

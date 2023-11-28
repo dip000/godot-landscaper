@@ -7,7 +7,7 @@ class_name UILandscaper
 
 
 
-const _COMMON_DESCRIPTION := ", and mouse wheel to change brush size."
+const _COMMON_DESCRIPTION := ", and mouse wheel + Shift to change brush size."
 const _DESCRIPTIONS:PackedStringArray = [
 	"Left click to build, right click to erase terrain",
 	"Paint with left click, smooth color with right click",
@@ -46,8 +46,9 @@ func _ready():
 	set_dock_enable( true )
 	set_foot_enable( true )
 	
-	brush_size.on_change.connect( _on_brush_size_changed )
 	_tabs.on_change.connect( _brush_changed )
+	brush_size.on_change.connect( _on_brush_size_changed )
+	brush_size.value = 0.01
 	
 	# For a type safe array
 	for brush in _brushes_holder.get_children():
@@ -101,21 +102,13 @@ func change_scene(scene:SceneLandscaper):
 func save_ui():
 	_assets_manager.save_ui()
 
-func exit_terrain():
-	print("Exit")
-
 func over_terrain(pos:Vector3):
-	var color_brush:bool = (_active_brush == terrain_clor or _active_brush == grass_color)
-	var color:Color = _active_brush.color.value if color_brush else _active_brush.out_color
+	var is_color_brush:bool = (_active_brush == terrain_clor or _active_brush == grass_color)
+	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_color", color)
 	
-	var bounds_size:Vector2 = terrain_builder.bounds_size
-	var world_offset:Vector2 = _scene.raw.world_offset
-	var pos_v2:Vector2 = Vector2(pos.x, pos.z)
-	var uv_offset:Vector2 = Vector2(0.5, 0.5)
-	var pos_rel:Vector2 = (pos_v2-world_offset) / bounds_size - uv_offset
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_position", pos_rel)
-	_scene.terrain_overlay.material_override.set_shader_parameter("terrain_size", terrain_builder.bounds_size)
+	var brush_position:Vector2 = Vector2( pos.x, pos.z ) / Vector2( RawLandscaper.MAX_BUILD_REACH )
+	_scene.terrain_overlay.material_override.set_shader_parameter("brush_position", brush_position)
 
 func paint(pos:Vector3, main_action:bool):
 	_active_brush.paint( pos, main_action )

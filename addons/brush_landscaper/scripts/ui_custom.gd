@@ -1,9 +1,7 @@
 extends Control
 class_name PropertyUI
-# Interface for custom dock properties.
-#
-# This is made like this because we need many properties from 'UILandscaper' and
-# managing each one individually does not scale well
+## Interface for custom dock properties.
+## Managing each 'UILandscaper' property would not have scaled well otherwise
 
 @export var property_name:String = ""
 signal on_change(value)
@@ -19,5 +17,5 @@ func get_value() -> Variant:
 func set_value(value):
 	pass
 
-func add_value(value:Variant):
+func add_value(value):
 	pass

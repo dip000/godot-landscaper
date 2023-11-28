@@ -27,12 +27,12 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
-min_value = 1.0
-value = 1.0
+max_value = 0.0
+step = 0.0
 
 [node name="Percentage" type="Label" parent="HBoxContainer"]
 custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
-text = "1%"
+text = "nan%"
 horizontal_alignment = 2
 vertical_alignment = 1

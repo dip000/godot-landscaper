@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://b5tpsl64nk1gq"]
+[gd_scene load_steps=32 format=3 uid="uid://b5tpsl64nk1gq"]
 
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_landscaper.gd" id="1_ihtkw"]
 [ext_resource type="PackedScene" uid="uid://b5cbncjt0oya0" path="res://addons/brush_landscaper/scenes/ui_custom_tabs.tscn" id="2_vth1l"]
@@ -12,9 +12,8 @@
 [ext_resource type="PackedScene" uid="uid://ldq3svxcclhh" path="res://addons/brush_landscaper/scenes/ui_custom_number_input.tscn" id="10_0grxw"]
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/brush_grass_color.gd" id="11_fu302"]
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/brush_grass_spawn.gd" id="12_osa4l"]
-[ext_resource type="PackedScene" uid="uid://p50ttrm5ogux" path="res://addons/brush_landscaper/scenes/ui_custom_vector_input.tscn" id="13_ban71"]
+[ext_resource type="PackedScene" uid="uid://cf4qb7d6noqq1" path="res://addons/brush_landscaper/scenes/ui_custom_vector2_input.tscn" id="13_ldph7"]
 [ext_resource type="PackedScene" uid="uid://dpqsi2h5lwv4j" path="res://addons/brush_landscaper/scenes/ui_custom_dropbox.tscn" id="15_veelq"]
-[ext_resource type="Texture2D" uid="uid://tmivf4lwnx1p" path="res://addons/brush_landscaper/textures/icons_medium.svg" id="16_yh0hp"]
 [ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_assets_manager.gd" id="17_xgvx6"]
 [ext_resource type="PackedScene" uid="uid://b6dp6o7trv5ru" path="res://addons/brush_landscaper/scenes/ui_custom_file_input.tscn" id="18_n0bpv"]
 [ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/brush_landscaper/textures/icons_small.svg" id="19_jftko"]
@@ -25,7 +24,7 @@ bg_color = Color(0.211765, 0.239216, 0.290196, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
 bg_color = Color(0.145098, 0.168627, 0.203922, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_dvug1"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_ypuci"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ksya5"]
 atlas = ExtResource("3_36jfa")
@@ -47,13 +46,9 @@ region = Rect2(192, 0, 64, 64)
 atlas = ExtResource("3_36jfa")
 region = Rect2(256, 0, 64, 64)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_42pql"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_gat3y"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ehtu0"]
-atlas = ExtResource("16_yh0hp")
-region = Rect2(0, 0, 40, 40)
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_nn42r"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_u54k3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r5508"]
 bg_color = Color(0.211765, 0.239216, 0.290196, 0.756863)
@@ -103,7 +98,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
 button_pressed = true
-button_group = SubResource("ButtonGroup_dvug1")
+button_group = SubResource("ButtonGroup_ypuci")
 icon = SubResource("AtlasTexture_ksya5")
 
 [node name="TerrainColor" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="1"]
@@ -111,7 +106,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_dvug1")
+button_group = SubResource("ButtonGroup_ypuci")
 icon = SubResource("AtlasTexture_ieiv0")
 
 [node name="TerrainHeight" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="2"]
@@ -119,7 +114,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_dvug1")
+button_group = SubResource("ButtonGroup_ypuci")
 icon = SubResource("AtlasTexture_rrt18")
 
 [node name="GrassColor" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="3"]
@@ -127,7 +122,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_dvug1")
+button_group = SubResource("ButtonGroup_ypuci")
 icon = SubResource("AtlasTexture_2yokp")
 
 [node name="GrassSpawn" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="4"]
@@ -135,16 +130,18 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_dvug1")
+button_group = SubResource("ButtonGroup_ypuci")
 icon = SubResource("AtlasTexture_t3o2m")
 
 [node name="Description" type="Label" parent="Dock"]
 layout_mode = 2
-text = "Left click to build, right click to erase terrain, and mouse wheel to change brush size."
+text = "Left click to build, right click to erase terrain, and mouse wheel + Shift to change brush size."
 autowrap_mode = 3
 
 [node name="BrushSize" parent="Dock" instance=ExtResource("4_d0wrk")]
 layout_mode = 2
+_min_value = 0.001
+_max_value = 0.1
 property_name = "Brush Size"
 
 [node name="Body" type="Panel" parent="Dock"]
@@ -192,7 +189,7 @@ property_name = "Show Texture"
 
 [node name="ColorPicker" parent="Dock/Body/ScrollContainer/MarginContainer/TerrainColor" instance=ExtResource("8_hfv6j")]
 layout_mode = 2
-enable_button = false
+_enable_button = false
 
 [node name="TerrainHeight" type="VBoxContainer" parent="Dock/Body/ScrollContainer/MarginContainer"]
 visible = false
@@ -208,11 +205,14 @@ property_name = "Show Texture"
 [node name="Strenght" parent="Dock/Body/ScrollContainer/MarginContainer/TerrainHeight" instance=ExtResource("4_d0wrk")]
 layout_mode = 2
 tooltip_text = "How quickly you want the terrain to create mountains ot valleys when you paint over the terrain"
+_min_value = 0.01
+_max_value = 0.1
 property_name = "Strength"
 
 [node name="MaxHeight" parent="Dock/Body/ScrollContainer/MarginContainer/TerrainHeight" instance=ExtResource("10_0grxw")]
 layout_mode = 2
 suffix = "m"
+step = 0.1
 property_name = "Max Height"
 
 [node name="GrassColor" type="VBoxContainer" parent="Dock/Body/ScrollContainer/MarginContainer"]
@@ -228,7 +228,7 @@ property_name = "Show Texture"
 
 [node name="ColorPicker" parent="Dock/Body/ScrollContainer/MarginContainer/GrassColor" instance=ExtResource("8_hfv6j")]
 layout_mode = 2
-enable_button = false
+_enable_button = false
 
 [node name="GrassSpawner" type="VBoxContainer" parent="Dock/Body/ScrollContainer/MarginContainer"]
 visible = false
@@ -243,24 +243,28 @@ property_name = "Show Texture"
 
 [node name="Density" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("10_0grxw")]
 layout_mode = 2
-suffix = "grass/meter"
+suffix = "grass per meter"
 property_name = "Density"
 
 [node name="Quality" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("4_d0wrk")]
 layout_mode = 2
+_max_value = 10.0
 property_name = "Quality"
 
 [node name="Gradient" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("4_d0wrk")]
 layout_mode = 2
+_max_value = 1.0
 property_name = "Gradient value"
-
-[node name="Size" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("13_ban71")]
-layout_mode = 2
-property_name = "Size"
 
 [node name="DetailColor" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("8_hfv6j")]
 layout_mode = 2
+_enable_button = true
 property_name = "Detail Color"
+
+[node name="Size" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("13_ldph7")]
+layout_mode = 2
+step = 0.1
+property_name = "Size"
 
 [node name="Variants" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("2_vth1l")]
 layout_mode = 2
@@ -272,34 +276,26 @@ text = "Select Grass:"
 [node name="Variant0" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="0" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_42pql")
+button_group = SubResource("ButtonGroup_gat3y")
 property_name = "Variant 0"
 
 [node name="Variant1" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="1" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_42pql")
+button_group = SubResource("ButtonGroup_gat3y")
 property_name = "Variant 1"
 
 [node name="Variant2" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="2" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_42pql")
+button_group = SubResource("ButtonGroup_gat3y")
 property_name = "Variant 2"
 
 [node name="Variant3" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="3" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_42pql")
+button_group = SubResource("ButtonGroup_gat3y")
 property_name = "Variant 3"
-
-[node name="Random" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="4" instance=ExtResource("15_veelq")]
-layout_mode = 2
-button_group = SubResource("ButtonGroup_42pql")
-icon = SubResource("AtlasTexture_ehtu0")
-dropeable = false
-can_reset = false
-property_name = "Random"
 
 [node name="Billboard" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner" instance=ExtResource("2_vth1l")]
 layout_mode = 2
@@ -311,19 +307,19 @@ text = "Billboarding"
 [node name="Scatter" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="0"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_nn42r")
+button_group = SubResource("ButtonGroup_u54k3")
 text = "Scatter"
 
 [node name="CrossBillboard" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="1"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_nn42r")
+button_group = SubResource("ButtonGroup_u54k3")
 text = "Cross Billboard"
 
 [node name="BillboardY" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="2"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_nn42r")
+button_group = SubResource("ButtonGroup_u54k3")
 text = "Billboard Y"
 
 [node name="BlockerDock" type="Panel" parent="."]

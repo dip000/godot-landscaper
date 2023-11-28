@@ -10,7 +10,7 @@ enum {BILLBOARD_SCATTER, BILLBOARD_CROSS, BILLBOARD_Y}
 @onready var density:CustomNumberInput = $Density
 @onready var quality:CustomSliderUI = $Quality
 @onready var gradient:CustomSliderUI = $Gradient
-@onready var grass_size:CustomVectorInput = $Size
+@onready var grass_size:CustomVector2Input = $Size
 @onready var detail_color:CustomColorPicker = $DetailColor
 @onready var variants:CustomTabs = $Variants
 @onready var billboard:CustomTabs = $Billboard
@@ -43,7 +43,7 @@ func _on_detail_changed(color:Color, pressed:bool):
 	_update_grass_shader("detail_color", color)
 	_update_grass_shader("enable_details", pressed)
 func _on_quality_changed(value:float):
-	_scene.grass_mesh.subdivide_depth = value*10
+	_scene.grass_mesh.subdivide_depth = value
 func _on_size_changed(value:Vector2):
 	_scene.grass_mesh.size = value
 	_scene.grass_mesh.center_offset.y = value.y*0.5 #origin rooted to the ground
@@ -67,19 +67,18 @@ func save_ui():
 	_raw.gs_enable_details = detail_color.enabled
 	
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	_texture = raw.gs_texture
 	super(ui, scene, raw)
-	_texture = _raw.gs_texture
-	_resolution = _raw.gs_resolution
-	variants.value = _raw.gs_variants
-	variants.selected_tab = _raw.gs_selected_variant
-	density.value = _raw.gs_density
-	billboard.selected_tab = _raw.gs_selected_billboard
-	quality.value = _raw.gs_quality
-	gradient.value = _raw.gs_gradient_value
-	grass_size.value = _raw.gs_size
-	detail_color.enabled = _raw.gs_enable_details
-	detail_color.value = _raw.gs_detail_color
-	_preview_texture()
+	_resolution = raw.gs_resolution
+	variants.value = raw.gs_variants
+	variants.selected_tab = raw.gs_selected_variant
+	density.value = raw.gs_density
+	billboard.selected_tab = raw.gs_selected_billboard
+	quality.value = raw.gs_quality
+	gradient.value = raw.gs_gradient_value
+	grass_size.value = raw.gs_size
+	detail_color.enabled = raw.gs_enable_details
+	detail_color.value = raw.gs_detail_color
 	_on_gradient_change( gradient.value )
 	_on_detail_changed( detail_color.value, detail_color.enabled )
 	_on_quality_changed( quality.value )
@@ -101,16 +100,16 @@ func paint(pos:Vector3, primary_action:bool):
 
 func rebuild_terrain():
 	# Caches
-	var spawn_img:Image = _texture.get_image()
-	var bounds_size:Vector2 = _ui.terrain_builder.bounds_size
-	var world_offset:Vector2 = _raw.world_offset
-	var spawn_size_px:Vector2 = spawn_img.get_size()
+	var world_size:Vector2 = _raw.world.size
+	var world_position:Vector2 = _raw.world.position
+	var world_position_inv:Vector2 = _raw.MAX_BUILD_REACH*0.5 + Vector2(_raw.world.position)
+	var spawn_size_px:Vector2 = img.get_size()
 	var max_index:int = VARIANT_TOTAL - 1
 	var grass_holder:Node3D = _scene.grass_holder
 	var valid_variants:Array[Texture2D] = variants.value
 	var max_height:float = _ui.terrain_height.max_height.value
-	var builder_img = _ui.terrain_builder.get_texture().get_image()
-	var total_grass = density.value * bounds_size.x * bounds_size.y
+	var builder_img = _ui.terrain_builder.img
+	var total_grass = density.value * world_size.x * world_size.y
 	var is_cross_billboard:bool = (billboard.selected_tab == BILLBOARD_CROSS)
 	
 	var space := _scene.terrain.get_world_3d().direct_space_state
@@ -130,7 +129,7 @@ func rebuild_terrain():
 				multimesh_inst.queue_free()
 			continue
 		
-		# Add MultiMeshInstance3D nodes if more variants were added
+		# Add 'MultiMeshInstance3D' nodes if more variants were added
 		elif not multimesh_inst:
 			multimesh_inst = MultiMeshInstance3D.new()
 			multimesh_inst.multimesh = MultiMesh.new()
@@ -151,28 +150,28 @@ func rebuild_terrain():
 			var random_scale:float = _rng.randf_range( 0.8, 1.2 )
 			
 			# Variant found in texture. Zero/black = Nothing to spawn
-			var spawn_value:float = spawn_img.get_pixelv( rand*spawn_size_px ).r
+			var spawn_value:float = img.get_pixelv( rand*spawn_size_px ).r
 			# Either zero or one. This avoids spawning when there's no ground below
-			var valid_ground:float = builder_img.get_pixelv( rand*bounds_size ).r
-			# 
-			var spawn_variant:int = roundi( spawn_value*max_index )
+			var valid_ground:float = builder_img.get_pixelv( rand*world_size + world_position_inv ).r
 			
+			# Ignore non-spawns and non-current-variants
+			var spawn_variant:int = roundi( spawn_value*max_index )
 			if is_zero_approx( spawn_value * valid_ground ) or variant_index != spawn_variant:
 				continue
 			
-			# Random position in worldspace
-			var world_pos:Vector2 = rand * bounds_size + world_offset
+			# Random position in XZ worldspace
+			var pos_2d:Vector2 = rand * world_size + world_position
 			
 			# Raycast to the HeightMapShape3D to find the actual ground level (shape should've been updated in TBrushTerrainHeight)
-			ray.from = Vector3(world_pos.x, max_height+1, world_pos.y)
-			ray.to = Vector3(world_pos.x, -max_height-1, world_pos.y)
+			ray.from = Vector3(pos_2d.x, max_height+1, pos_2d.y)
+			ray.to = Vector3(pos_2d.x, -max_height-1, pos_2d.y)
 			var result:Dictionary = space.intersect_ray(ray)
 			if not result:
 				continue
 			
 			# Finally, we have the correct position to spawn
 			var y:float = result.position.y
-			var pos_3d := Vector3(world_pos.x, y, world_pos.y)
+			var pos_3d := Vector3(pos_2d.x, y, pos_2d.y)
 			var transf := Transform3D(Basis(), Vector3()).translated( pos_3d )
 			
 			transf = transf.rotated_local( Vector3.UP, random_rotation )
@@ -194,5 +193,3 @@ func rebuild_terrain():
 				transform = transform.rotated_local( Vector3.UP, PI*0.5 )
 				multimesh_inst.multimesh.set_instance_transform( transforms_size+transform_index, transform )
 		
-
-

@@ -5,14 +5,11 @@ class_name TerrainBuilder
 # Paints colors over the "_texture" depending if is built or not
 
 const SQUARE_SHAPE:Array[Vector2i] = [
-	Vector2i(1,0), Vector2i(0,1), Vector2i(0,0), #triangle in fourth quadrant
-	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #triangle in second quadrant
+	Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), #top-left triangle
+	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #bottom-right triangle
 ]
 
 var _mesh_arrays:Array = []
-var bounds_size:Vector2:
-	get:
-		return _texture.get_size()
 
 
 func _ready():
@@ -24,95 +21,85 @@ func save_ui():
 	_raw.tb_resolution = _resolution
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	_texture = raw.tb_texture
 	super(ui, scene, raw)
-	_texture = _raw.tb_texture
-	_resolution = _raw.tb_resolution
-	_preview_texture()
+	_resolution = raw.tb_resolution
 
 func paint(pos:Vector3, primary_action:bool):
-	if primary_action:
-		# Position to texture-space
-		var texture_pos := Vector2(pos.x, pos.z) - Vector2(_raw.world_offset)
-		var brush_radius:Vector2 = _ui.brush_size.value/2.0 * bounds_size
-		
-		# How many squares will be drawn if i were to paint here
-		var world_reach_min:Vector2i = (texture_pos - brush_radius).round()
-		var world_reach_max:Vector2i = (texture_pos + brush_radius).round()
-		
-		# New bounding box
-		var min_pos := Vector2i( mini(world_reach_min.x, 0), mini(world_reach_min.y, 0) )
-		var max_pos := Vector2i( maxi(world_reach_max.x, bounds_size.x), maxi(world_reach_max.y, bounds_size.y) )
-		
-		# Make room for possible strokes inside the new bounding box
-		_extend_all_textures( min_pos, max_pos )
+	out_color = Color.WHITE if primary_action else Color(0,0,0,0)
 	
-	pos = pos.ceil()
-	out_color = Color.WHITE if primary_action else Color.BLACK
-	_bake_out_color_into_texture(pos)
+	# Builder uses the max texture size instead of the minimum size given by '_raw.world'
+	var world_offset:Vector2 = -_raw.MAX_BUILD_REACH*0.5 - Vector2(0.5, 0.5)
+	_bake_out_color_into_texture( pos, false, world_offset )
 	rebuild_terrain()
 
 # Respawning grass is a heavy process, it is better to do so at the end of the stroke
 func paint_end():
 	_ui.grass_spawn.rebuild_terrain()
-	
+
 
 func rebuild_terrain():
-	# Cashes
-	var build_map:Image = _texture.get_image()
-	var height_map:Image = _raw.th_texture.get_image()
+	# Caches
+	var build_rect:Rect2i = img.get_used_rect()
+	var build_map:Image = img.get_region( build_rect )
+	var overlay_mesh:ArrayMesh = _scene.terrain_overlay.mesh
+	var terrain_mesh:ArrayMesh = _scene.terrain_mesh
+	var overlay_mesh_array:Array = overlay_mesh.surface_get_arrays( 0 )
+	var overlay_vertices:PackedVector3Array = overlay_mesh_array[Mesh.ARRAY_VERTEX]
 	var vertices := PackedVector3Array()
-	var offset:Vector2i = _raw.world_offset
-	var buildmap_size:Vector2i = bounds_size
-	var max_height:float = _ui.terrain_height.max_height.value
-	var min_bound:Vector2i = bounds_size
-	var max_bound:Vector2i = Vector2i.ZERO
 	var uv := PackedVector2Array()
+	var max_height:float = _ui.terrain_height.max_height.value
+	var max_size:Vector2i = img.get_size()
+	var shape_size:int = SQUARE_SHAPE.size()
 	
-	# Find the actual min and max built points
-	for x in buildmap_size.x:
-		for z in buildmap_size.y:
-			if not is_zero_approx( build_map.get_pixel(x, z).r ):
-				if x < min_bound.x:
-					min_bound.x = x
-				if x > max_bound.x:
-					max_bound.x = x
-				if z < min_bound.y:
-					min_bound.y = z
-				if z > max_bound.y:
-					max_bound.y = z
+	if build_rect.size != _raw.world.size:
+		var new_position:Vector2i = build_rect.position - RawLandscaper.MAX_BUILD_REACH/2
+		var resize_rect := Rect2i( _raw.world.position - new_position, build_rect.size )
+		_raw.world.position = new_position
+		_raw.world.size = build_rect.size
+		for brush in _ui.brushes:
+			brush.resize_texture( resize_rect, Color.BLACK )
 	
-	# Crop textures if possible
-	# Add one to convert from index to size 
-	_extend_all_textures( min_bound, max_bound+Vector2i.ONE )
-	var bounds:Vector2 = bounds_size
+	var world_position:Vector2i = _raw.world.position
+	var world_size:Vector2 = _raw.world.size
+	var height_map:Image = _ui.terrain_height.img
+	var world_position_inv:Vector2i = max_size/2 + world_position
 	
 	# Generate vertex and UV data
-	for x in bounds.x:
-		for z in bounds.y:
-			if not is_zero_approx( build_map.get_pixel(x, z).r ):
+	for x in world_size.x:
+		for z in world_size.y:
+			if not is_zero_approx( build_map.get_pixel(x, z).a ):
 				var texture := Vector2i(x, z)
-				var world := texture + offset
+				var world := texture + world_position
+				var world_index := texture + world_position_inv
 				
-				for offset_shape in SQUARE_SHAPE:
+				for i in range( shape_size ):
+					var offset_shape:Vector2i = SQUARE_SHAPE[i]
 					var texture_pos:Vector2 = offset_shape + texture
 					var world_pos:Vector2 = offset_shape + world
 					var y:float = height_map.get_pixelv( texture_pos ).r * max_height
 					
-					uv.push_back( texture_pos / bounds )
+					uv.push_back( texture_pos / world_size )
 					vertices.push_back( Vector3(world_pos.x, y, world_pos.y) )
 					
+					# Update the overlay mesh. Overlay is a constant size so only update its height
+					var square_indx:int = world_index.y + max_size.y * world_index.x
+					var vertex_indx:int = i + shape_size*square_indx
+					overlay_vertices[vertex_indx].y = y
 	
 	# Update ArrayMesh
+	terrain_mesh.clear_surfaces()
 	_mesh_arrays[Mesh.ARRAY_VERTEX] = vertices
 	_mesh_arrays[Mesh.ARRAY_TEX_UV] = uv
-	_scene.terrain_mesh.clear_surfaces()
-	_scene.terrain_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, _mesh_arrays )
+	terrain_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, _mesh_arrays )
+	
+	overlay_mesh.clear_surfaces()
+	overlay_mesh_array[Mesh.ARRAY_VERTEX] = overlay_vertices
+	overlay_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, overlay_mesh_array )
+	
 	_ui.terrain_height.update_collider()
 
 
-# Every brush may override the base function for specific behaviors like updating shaders
-# Updates distance from world center to top-left corner of the bounding box terrain
-func _extend_all_textures(min:Vector2i, max:Vector2i):
-	_raw.world_offset += min
-	for brush in _ui.brushes:
-		brush.extend_texture( min, max, Color.BLACK )
+# Builder brush should not be resized
+func resize_texture(rect:Rect2i, fill_color:Color):
+	return

@@ -3,31 +3,23 @@ extends PropertyUI
 class_name CustomNumberInput
 
 @export var suffix:String = ""
-@onready var _input:LineEdit = $HBoxContainer/LineEdit
-@onready var _suffix:Label = $HBoxContainer/Suffix
+@export var step:float = 1
+@onready var _input:SpinBox = $SpinBox
 var _prev_text:String
 
 
 func _ready():
 	$Label.text = property_name
-	_input.text_changed.connect( _on_text_changed )
+	_input.suffix = suffix
+	_input.step = step
+	_input.value_changed.connect( _on_value_changed )
 
-func _on_text_changed(new_text:String):
-	if new_text.is_valid_float():
-		_prev_text = new_text
-		on_change.emit( float(new_text) )
-	elif new_text.is_empty():
-		_prev_text = "0"
-		on_change.emit( 0 )
-	else:
-		_input.text = _prev_text
+func _on_value_changed(val:float):
+	on_change.emit( val )
 
 func set_value(value):
-	_input.text = str(value)
-	if suffix.is_empty():
-		_suffix.hide()
-	_suffix.text = suffix
+	_input.value = value
 
 func get_value():
-	return float( _input.text )
+	return _input.value
 

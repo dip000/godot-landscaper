@@ -21,19 +21,29 @@ var _ui:UILandscaper
 var _raw:RawLandscaper
 
 # The texture you'll painting over; color, heightmap, etc..
-var _resolution:int
-var _texture:Texture2D:
-	get=get_texture
-	
-func get_texture() -> Texture2D:
-	return _texture
+var _texture:Texture2D
+
+# How many pixels has the texture per meter
+var _resolution:float
+
+# Cached texture image. For faster image processing
+var img:Image
 
 
 # Unpack all of its new properties from "raw"
+# "_texture" should've been setted before calling super()
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_ui = ui
 	_scene = scene
 	_raw = raw
+	img = _texture.get_image()
+	
+	var tex_rec := TextureRect.new()
+	tex_rec.texture = _texture
+	tex_rec.custom_minimum_size = Vector2(100, 100)
+	tex_rec.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex_rec.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	texture_preview.value = [tex_rec]
 
 # Pack all of its properties to "_raw" so they can be saved
 func save_ui():
@@ -50,62 +60,54 @@ func rebuild_terrain():
 	pass
 
 
-# Change texture resolution
-func resize_texture(new_resolution:Vector2i):
-	var img:Image = _texture.get_image()
-	img.resize( new_resolution.x, new_resolution.y )
+# Usefull for color textures
+func _change_resolution(new_resolution:float):
+	var world_size:Vector2 = _raw.world.size
+	img.resize( world_size.x*new_resolution, world_size.y*new_resolution )
 	_texture.set_image( img )
+	_resolution = new_resolution
 
 
 # Paints "texture" with "out_color" at given "pos" with the global brush size
-func _bake_out_color_into_texture(pos:Vector3):
-	# Transforms
-	var _scale:float = _ui.brush_size.value
-	var texture_size:Vector2i = _texture.get_size()
-	var surface_full_rect := Rect2i(Vector2i.ZERO, texture_size)
-	var _size:Vector2i = texture_size * _scale #size in pixels
+func _bake_out_color_into_texture(pos:Vector3, blend:=true, world_offset:Vector2=_raw.world.position):
+	var max_size:Vector2i = RawLandscaper.MAX_BUILD_REACH
+	var brush_scale:float = _ui.brush_size.value
+	var src_size:Vector2i = max_size * brush_scale * _resolution
+	var full_rect := Rect2i(Vector2i.ZERO, img.get_size())
+	src_size = Vector2i( max(src_size.x, 1), max(src_size.y, 1) )
 	
-	# Even the brush size using the bigest axis
-	if _size.x > _size.y:
-		_size = Vector2i.ONE * maxi(1, _size.x)
-	else:
-		_size = Vector2i.ONE * maxi(1, _size.y)
+	var dst := Vector2( pos.x, pos.z)
+	dst -= world_offset # To texture space (positive indexes)
+	dst *= _resolution # Relative to this texture resolition
+	dst -= src_size*0.5 # Draw from texture center
 	
-	var pos_v2:Vector2 = Vector2(pos.x, pos.z)
-	var world_offset:Vector2 = _scene.raw.world_offset
-	var bounds_size:Vector2 = _ui.terrain_builder.bounds_size
-	var pos_absolute:Vector2 = (pos_v2-world_offset) / bounds_size #in [0,1] range
-	pos_absolute *= Vector2(texture_size) #move in pixel size
-	pos_absolute -= (texture_size/2.0) * _scale #move from top-left corner
-	
-	# Duplicate to keep original resolution
-	# 'texture_image' and 'brush_color' formats must match. 
+	# Fun fact: get_image() returns a copy unless the texture is constant
+	var src:Image = _create_img( out_color, src_size, img.get_format() )
 	var brush_mask:Image = AssetsManager.DEFAULT_BRUSH.get_image().duplicate()
-	var texture_image:Image = _texture.get_image()
-	var texture_format:int = texture_image.get_format()
-	var brush_color:Image = _create_img(out_color, _size, texture_format)
+	brush_mask.resize( src_size.x, src_size.y )
 	
-	# Blend brush over surface
-	# 'brush_color' and 'brush_mask' sizes must match
-	brush_mask.resize(_size.x, _size.y)
-	texture_image.blend_rect_mask( brush_color, brush_mask, surface_full_rect, pos_absolute)
-	_texture.update(texture_image)
+	if blend:
+		img.blend_rect_mask( src, brush_mask, full_rect, dst )
+	else:
+		img.blit_rect_mask( src, brush_mask, full_rect, dst )
+	
+	_texture.update( img )
 
 
 # Crops texture on smaller sizes, expands on bigger ones. But always keeps pixels where they were
-# "min" and "max" are the new bounding box corners relative to the current texture size
-func extend_texture(min:Vector2i, max:Vector2i, fill_color:Color):
-	var prev_size:Vector2i = _texture.get_size()
-	var prev_img:Image = _texture.get_image()
-	var prev_format:int = prev_img.get_format()
+func resize_texture(rect:Rect2i, fill_color:Color):
+	var prev_size:Vector2i = img.get_size()
+	var prev_format:int = img.get_format()
 	
-	var new_size:Vector2i = (max - min) * _resolution
+	var new_size:Vector2i = rect.size * _resolution
 	var new_img:Image = _create_img( fill_color, new_size, prev_format )
 	var prev_img_full_rect := Rect2i( Vector2i.ZERO, prev_size )
-	var dst:Vector2 = (-min) * _resolution
+	var dst:Vector2 = rect.position * _resolution
 	
-	new_img.blit_rect( prev_img, prev_img_full_rect, dst )
+	# Note that 'img' is being kept internally so 'get_image()' is never called, for performance
+	new_img.blit_rect( img, prev_img_full_rect, dst )
 	_texture.set_image( new_img )
+	img = new_img
 
 
 # Handy wrappers
@@ -114,19 +116,8 @@ func _update_grass_shader(property:String, value:Variant):
 func _update_terrain_shader(property:String, value:Variant):
 	_scene.terrain_overlay.material_override.set_shader_parameter(property, value)
 
-func _create_texture(color:Color, img_size:Vector2i, format:int):
-	return ImageTexture.create_from_image( _create_img(color, img_size, format) )
-
 func _create_img(color:Color, img_size:Vector2i, format:int) -> Image:
 	var img := Image.create(img_size.x, img_size.y, false, format)
 	img.fill(color)
 	return img
-
-func _preview_texture():
-	var tex_rec := TextureRect.new()
-	tex_rec.texture = _texture
-	tex_rec.custom_minimum_size = Vector2(100, 100)
-	tex_rec.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tex_rec.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	texture_preview.value = [tex_rec]
 

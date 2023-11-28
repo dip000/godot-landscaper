@@ -31,14 +31,17 @@ func _exit_tree():
 	remove_control_from_docks( _ui_inst )
 
 
-# Raycasts terrain colliders to track mouse pointer and sends input to an active TerraBrush node
+# Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
-	# Ignore if not _landscaper or mouse is idle
-	if not _scene_inst or not is_instance_valid( _scene_inst ) or not event is InputEventMouse:
+	# Accepted inputs
+	var is_motion:bool = (event is InputEventMouseMotion)
+	var is_button:bool = (event is InputEventMouseButton)
+	
+	if not _scene_inst or not (is_motion or is_button):
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	# Raycast
+	# Raycast to terrain
 	var mouse = event.get_position()
 	var space:PhysicsDirectSpaceState3D = get_tree().get_edited_scene_root().get_world_3d().direct_space_state
 	var from:Vector3 = cam.project_ray_origin( mouse )
@@ -46,50 +49,40 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	var ray: = PhysicsRayQueryParameters3D.create(from, to, 1<<(COLLISION_LAYER_TERRAIN-1)) #layer to value
 	var result = space.intersect_ray( ray )
 	
-	# Mouse actions
-	var is_button:bool = event is InputEventMouseButton
-	var pressed:bool = is_button and event.is_pressed()
-	var lbm:bool = is_button and (event.button_index == MOUSE_BUTTON_LEFT)
-	var rbm:bool = is_button and (event.button_index == MOUSE_BUTTON_RIGHT)
-	var wheel_up:bool = is_button and (event.button_index == MOUSE_BUTTON_WHEEL_UP)
-	var wheel_down:bool = is_button and (event.button_index == MOUSE_BUTTON_WHEEL_DOWN)
-	
 	# Try with overlay collider if terrain was not detected
 	if not result:
-		ray = PhysicsRayQueryParameters3D.create(from, to, 1<<(COLLISION_LAYER_OVERLAY-1)) #layer to value
+		ray.collision_mask = 1 << (COLLISION_LAYER_OVERLAY-1) #layer to value
 		result = space.intersect_ray( ray )
-	
-	if not result:
-		_ui_inst.exit_terrain()
-		
-		# Left clicking by default is box select and it's very anoying while drawing
-		if lbm:
-			return EditorPlugin.AFTER_GUI_INPUT_STOP
-		return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if not result:
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
 	# Ignore colliders that aren't from the current SceneLandscaper instance
 	if result.collider != _scene_inst.terrain_body and result.collider != _scene_inst.overlay_body:
-		if lbm:
-			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
 	_ui_inst.over_terrain( result.position )
 	
-	# Paint and scale
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	# Paint
+	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		_ui_inst.paint( result.position, true )
-	elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		_ui_inst.paint( result.position, false )
-	elif not pressed and (rbm or lbm):
-		_ui_inst.paint_end()
-	
-	if pressed and wheel_up:
-		_ui_inst.scale_by( -0.02 )
-	elif pressed and wheel_down:
-		_ui_inst.scale_by( 0.02 )
-	
-	if is_button:
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
+		_ui_inst.paint( result.position, false )
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	elif is_button and not event.is_pressed():
+		_ui_inst.paint_end()
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	
+	# Scale with any special key + Mouse Wheel
+	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
+		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
+			_ui_inst.scale_by( 0.001 )
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
+			_ui_inst.scale_by( -0.001 )
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+	
+	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
 # Quick saves with "Ctrl+S"

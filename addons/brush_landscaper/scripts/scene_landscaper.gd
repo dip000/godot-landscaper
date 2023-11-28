@@ -69,9 +69,9 @@ func _fix_terrain():
 		grass_mesh.material.shader = AssetsManager.GRASS_SHADER.duplicate()
 	
 	# Setup terrain overlay
-	terrain_overlay.mesh = terrain.mesh
+	terrain_overlay.mesh = _create_mesh_overlay()
 	terrain_overlay.position.y = 0.13
-	terrain_overlay.owner = self
+	terrain_overlay.owner = owner
 	overlay_collider.shape = BoxShape3D.new()
 	overlay_collider.shape.size = Vector3(100, 0.1, 100)
 	
@@ -95,3 +95,35 @@ func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 	new_node.name = node_name
 	return new_node
 
+
+func _create_mesh_overlay() -> ArrayMesh:
+	# Caches
+	var overlay_mesh := ArrayMesh.new()
+	var vertices := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var max_size:Vector2 = raw.MAX_BUILD_REACH
+	var square_shape:Array[Vector2i] = TerrainBuilder.SQUARE_SHAPE
+	var mesh_arrays:Array = []
+	mesh_arrays.resize( Mesh.ARRAY_MAX )
+	
+	var world_position:Vector2i = -max_size*0.5
+	var y:int = 0
+	
+	# Generate vertex and UV data
+	for x in max_size.x:
+		for z in max_size.y:
+			var texture := Vector2i(x, z)
+			var world := texture + world_position
+			
+			for offset_shape in square_shape:
+				var texture_pos:Vector2 = offset_shape + texture
+				var world_pos:Vector2 = offset_shape + world
+				
+				uv.push_back( texture_pos / max_size )
+				vertices.push_back( Vector3(world_pos.x, y, world_pos.y) )
+	
+	mesh_arrays[Mesh.ARRAY_VERTEX] = vertices
+	mesh_arrays[Mesh.ARRAY_TEX_UV] = uv
+	overlay_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, mesh_arrays )
+	return overlay_mesh
+	

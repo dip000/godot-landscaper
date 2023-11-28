@@ -2,8 +2,6 @@
 extends PropertyUI
 class_name CustomDropbox
 
-@export var dropeable:bool = true
-@export var can_reset:bool = true
 @onready var _property:Label = $Label
 @onready var _reset:Button = $Close
 
@@ -13,10 +11,7 @@ var _icon:Texture2D
 
 func _ready():
 	_property.text = property_name
-	if can_reset:
-		_reset.pressed.connect( _on_reset_pressed )
-	if self.disabled or not dropeable:
-		_reset.hide()
+	_reset.pressed.connect( _on_reset_pressed )
 
 func _on_reset_pressed():
 	self.icon = _default_icon
@@ -29,8 +24,6 @@ func _on_reset_pressed():
 
 # Drag and drop functionality
 func _can_drop_data(at_position, data):
-	if not dropeable:
-		return false
 	if typeof(data) != TYPE_DICTIONARY or data.type != "files" or data.files.size() != 1:
 		return false
 	if not data.files[0].get_extension() in ["tres", "res", "svg", "png", "jpg"]:
@@ -45,7 +38,7 @@ func _drop_data(at_position, data):
 
 
 func _set_icon(btn_icon):
-	var img:Image = btn_icon.get_image().duplicate()
+	var img:Image = btn_icon.get_image()
 	if img.is_compressed():
 		img.decompress()
 	if img.has_mipmaps():
@@ -61,8 +54,13 @@ func set_value(btn_icon):
 		_set_icon( btn_icon )
 		self.disabled = false
 		_reset.show()
-	elif dropeable:
-		_on_reset_pressed()
+	else:
+		self.icon = _default_icon
+		self.disabled = true
+		_property.text = property_name
+		tooltip_text = ""
+		_reset.hide()
+		_icon = null
 
 func get_value():
 	return _icon

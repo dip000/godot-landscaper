@@ -4,10 +4,9 @@ class_name TerrainHeight
 # Brush that creates mountains or valleys when you paint over the terrain
 # Paints shades of gray colors over the "texture" depending on the height
 
-const STRENGTH_TO_ALPHA:float = 0.1
-
 @onready var strength:CustomSliderUI = $Strenght
 @onready var max_height:CustomNumberInput = $MaxHeight
+
 
 func _ready():
 	max_height.on_change.connect( rebuild_terrain.unbind(1) )
@@ -19,18 +18,20 @@ func save_ui():
 	_raw.th_max_height = max_height.value
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
+	_texture = raw.th_texture
 	super(ui, scene, raw)
-	_texture = _raw.th_texture
-	_resolution = _raw.th_resolution
-	strength.value = _raw.th_strength
-	max_height.value = _raw.th_max_height
-	_preview_texture()
+	_resolution = raw.th_resolution
+	strength.value = raw.th_strength
+	max_height.value = raw.th_max_height
 
 
 func paint(pos:Vector3, primary_action:bool):
-	var alpha:float = strength.value * STRENGTH_TO_ALPHA
+	var alpha:float = strength.value
 	out_color = Color(1,1,1,alpha) if primary_action else Color(0,0,0,alpha)
-	_bake_out_color_into_texture( pos )
+
+	# Compenzate one pixel for the extra vertex
+	var world_offset:Vector2 = Vector2(_raw.world.position) - Vector2(1, 1)
+	_bake_out_color_into_texture( pos, true, world_offset )
 	rebuild_terrain()
 
 func rebuild_terrain():
@@ -40,15 +41,15 @@ func rebuild_terrain():
 
 func update_collider():
 	# Caches
-	var height_image:Image = _texture.get_image()
 	var height_collider:CollisionShape3D = _scene.terrain_collider
 	var height_shape:HeightMapShape3D = height_collider.shape
-	var bounds_size:Vector2 = _ui.terrain_builder.bounds_size
+	var world:Rect2i = _raw.world
+	var position_offset:Vector2 = Vector2(world.position) + (world.size * 0.5)
 	
-	height_shape.map_width = bounds_size.x + 1
-	height_shape.map_depth = bounds_size.y + 1
-	height_collider.global_position.x = bounds_size.x * 0.5 + _raw.world_offset.x
-	height_collider.global_position.z = bounds_size.y * 0.5 + _raw.world_offset.y
+	height_shape.map_width = world.size.x + 1
+	height_shape.map_depth = world.size.y + 1
+	height_collider.global_position.x = position_offset.x
+	height_collider.global_position.z = position_offset.y
 	
 	
 	# Update _terrain collider
@@ -56,7 +57,7 @@ func update_collider():
 		for z in height_shape.map_depth:
 			
 			# Update height with that pixel's value
-			var y:float = height_image.get_pixel(x, z).r * max_height.value
+			var y:float = img.get_pixel(x, z).r * max_height.value
 			var coordinate:int = z * (height_shape.map_width) + x
 			height_shape.map_data[coordinate] = y
 	
@@ -82,6 +83,7 @@ func _update_grass():
 			multimesh.set_instance_transform(instance_index , transform)
 	
 
-# Has to have one pixel more for the extra vertex
-func extend_texture(min:Vector2i, max:Vector2i, fill_color:Color):
-	super(min, max + Vector2i.ONE, fill_color)
+# Compenzate one pixel for the extra vertex
+func resize_texture(rect:Rect2i, fill_color:Color):
+	rect.size += Vector2i.ONE
+	super(rect, fill_color)
