@@ -109,6 +109,10 @@ func over_terrain(pos:Vector3):
 	
 	var brush_position:Vector2 = Vector2( pos.x, pos.z ) / Vector2( RawLandscaper.MAX_BUILD_REACH )
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_position", brush_position)
+	
+	pos.y += 1
+	_scene.brush_sprite.global_position = pos
+	_scene.brush_sprite.frame = _tabs.selected_tab
 
 func paint(pos:Vector3, main_action:bool):
 	_active_brush.paint( pos, main_action )

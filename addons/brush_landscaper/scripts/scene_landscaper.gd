@@ -16,6 +16,7 @@ var terrain_body:StaticBody3D
 var terrain_collider:CollisionShape3D
 var overlay_body:StaticBody3D
 var overlay_collider:CollisionShape3D
+var brush_sprite:Sprite3D
 
 # Stores the grass mesh and sends it to each multimesh grass, if any
 var grass_mesh:QuadMesh:
@@ -48,6 +49,15 @@ func _fix_terrain():
 	terrain_overlay = _create_or_find_node( MeshInstance3D, self, "Overlay" )
 	overlay_body = _create_or_find_node( StaticBody3D, terrain_overlay, "Body" )
 	overlay_collider = _create_or_find_node( CollisionShape3D, overlay_body, "Collider" )
+	brush_sprite = _create_or_find_node( Sprite3D, terrain_overlay, "BrushSprite" )
+	
+	# Setup brush sprite
+	brush_sprite.texture = AssetsManager.ICONS
+	brush_sprite.hframes = 5
+	brush_sprite.pixel_size = 0.003
+	brush_sprite.modulate.a = 0.5
+	brush_sprite.fixed_size = true
+	brush_sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	
 	# Setup terrain
 	if not terrain.mesh:

@@ -14,10 +14,11 @@ class_name AssetsManager
 
 # File System Resources
 const ICONS_MEDIUM:Texture2D = preload("res://addons/brush_landscaper/textures/icons_medium.svg")
+const ICONS:Texture2D = preload("res://addons/brush_landscaper/textures/icons.svg")
 const GRASS_SHADER:Shader = preload("res://addons/brush_landscaper/shaders/grass_shader.gdshader")
 const TERRAIN_OVERLAY_SHADER:Shader = preload("res://addons/brush_landscaper/shaders/terrain_overlay_shader.gdshader")
-const DEFAULT_GRASS_GRADIENT:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_gradient.tres")
 const DEFAULT_BRUSH:GradientTexture2D = preload("res://addons/brush_landscaper/textures/default_brush.tres")
+const DEFAULT_GRASS_GRADIENT:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_gradient.tres")
 const DEFAULT_GRASS_1:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v1.svg")
 const DEFAULT_GRASS_2:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v2.svg")
 
