@@ -42,7 +42,7 @@ var _scene:SceneLandscaper
 var _raw:RawLandscaper
 var _brushes:Array[Brush]
 
-static var has_vulkan:bool
+var has_vulkan:bool
 
 
 func _ready():
@@ -88,8 +88,7 @@ func _on_load_all_pressed():
 	var project:CustomFileInput = _toggle_files.value[_PROJECT]
 	
 	if not FileAccess.file_exists( project.value ):
-		_accept_dialog.dialog_text = "Project file '%s' does not exist\n" %project.value
-		_accept_dialog.popup()
+		popup_accept( "Project file '%s' does not exist\n" %project.value )
 		_ui.set_foot_enable( true )
 		return
 	
@@ -153,8 +152,7 @@ func _on_save_all_pressed():
 	
 	# Don't save if errors. Ask to save if warnings. Or just save
 	if errors:
-		_accept_dialog.dialog_text = errors
-		_accept_dialog.popup()
+		popup_accept( errors )
 	elif warnings:
 		_confirm_save.dialog_text = warnings
 		_confirm_save.popup()
@@ -220,9 +218,8 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	# Or create a new template terrain for a new scene
 	_raw = RawLandscaper.new()
 	_scene.raw = _raw
-	_raw.gs_variants.append( DEFAULT_GRASS_2.duplicate() )
-	if has_vulkan:
-		set_shader_compatibility( _scene.grass_mesh.material.shader, false )
+	
+	# Setup, load, and build
 	_scene.terrain_overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
 	_load_ui()
 	_rebuild_terrain()
@@ -232,21 +229,31 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	for i in files.size():
 		files[i].value = files[i].default_file_path
 
+func popup_accept(msg:String):
+	_accept_dialog.dialog_text = msg
+	_accept_dialog.popup()
+
+
+
+func fix_shader_compatibility(variants:Array):
+	var total_variants:int = variants.filter(func(v): return v).size()
+	var needs_vulkan:bool = (total_variants > 1)
+	
+	if needs_vulkan and has_vulkan:
+		set_shader_directive( SHADER_COMPATIBILITY , false )
+	elif needs_vulkan and not has_vulkan:
+		popup_accept("Upgrade to Mobile or Forward+ renderer to add more than one grass variant")
+		set_shader_directive( SHADER_COMPATIBILITY , true )
+	else:
+		set_shader_directive( SHADER_COMPATIBILITY , true )
 
 # Litteraly changes te code to avoid compilation errors and allow this plugin to work in low-end devices
-static func set_shader_compatibility(shader:Shader, active:bool):
+func set_shader_directive(directive:String, active:bool):
+	var shader:Shader = _scene.grass_mesh.material.shader
+	var not_directive:String = "//" + directive
+	print(directive, "=", active)
 	if active:
-		shader.set_code( shader.code.replace("//" + SHADER_COMPATIBILITY, SHADER_COMPATIBILITY) )
-	elif is_shader_compatibility( shader ):
-		shader.set_code( shader.code.replace(SHADER_COMPATIBILITY, "//" + SHADER_COMPATIBILITY) )
+		shader.set_code( shader.code.replace(not_directive, directive) )
+	elif not shader.code.contains( not_directive ):
+		shader.set_code( shader.code.replace(directive, not_directive) )
 
-static func set_shader_billboard_y(shader:Shader, active:bool):
-	if active:
-		shader.set_code( shader.code.replace("//" + SHADER_BILLBOARD_Y, SHADER_BILLBOARD_Y) )
-	elif is_shader_billboard( shader ):
-		shader.set_code( shader.code.replace(SHADER_BILLBOARD_Y, "//" + SHADER_BILLBOARD_Y) )
-
-static func is_shader_compatibility(shader:Shader) -> bool:
-	return not shader.code.contains( "//" + SHADER_COMPATIBILITY )
-static func is_shader_billboard(shader:Shader) -> bool:
-	return not shader.code.contains( "//" + SHADER_BILLBOARD_Y )

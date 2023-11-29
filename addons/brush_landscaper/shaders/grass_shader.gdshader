@@ -37,7 +37,7 @@ uniform sampler2D variants[TOTAL_GRASS_VARIANTS];
 
 // "instance" keyword is only for Vulkan rendering drivers. This avoids compilation errors
 #if defined GL_COMPATIBILITY
-const int variant_index = 0;
+uniform int variant_index = 0;
 #else
 instance uniform int variant_index;
 #endif

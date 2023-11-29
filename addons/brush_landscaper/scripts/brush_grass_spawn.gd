@@ -27,6 +27,7 @@ func _ready():
 	quality.on_change.connect( _on_quality_changed )
 	grass_size.on_change.connect( _on_size_changed )
 	billboard.on_change.connect( _on_billboard_changed )
+	variants.on_change.connect( _on_variant_tabs_changed )
 	density.on_change.connect( rebuild_terrain.unbind(1) )
 	
 	for dropbox in variants.tabs:
@@ -49,32 +50,17 @@ func _on_size_changed(value:Vector2):
 	_scene.grass_mesh.center_offset.y = value.y*0.5 #origin rooted to the ground
 
 func _on_billboard_changed(tab_index:int):
-	var shader:Shader = _scene.grass_mesh.material.shader
-	if tab_index == BILLBOARD_Y:
-		AssetsManager.set_shader_billboard_y( shader, true )
-	else:
-		AssetsManager.set_shader_billboard_y( shader, false )
+	var directive:String = AssetsManager.SHADER_BILLBOARD_Y
+	var is_billboard_y:bool = (tab_index == BILLBOARD_Y)
+	_ui.assets_manager.set_shader_directive( directive, is_billboard_y )
 	rebuild_terrain()
 
+
+func _on_variant_tabs_changed(tab_index:int):
+	_ui.assets_manager.fix_shader_compatibility( variants.value )
+	_update_grass_shader("variant_index", tab_index)
 func _on_variant_changed(want_to_add:bool):
-	var total_variants:int = 0
-	for variant in variants.value:
-		if variant:
-			total_variants += 1;
-	
-	var shader:Shader = _scene.grass_mesh.material.shader
-	var needs_vulkan:bool = (total_variants > 1)
-	
-	if needs_vulkan and AssetsManager.has_vulkan:
-		print("Changed to vulkan shader")
-		AssetsManager.set_shader_compatibility( shader , false )
-	elif needs_vulkan and not AssetsManager.has_vulkan:
-		print("Upgrade to vulkan drivers first")
-		AssetsManager.set_shader_compatibility( shader , true )
-		return
-	else:
-		print("Changed to compatibility shaders")
-		AssetsManager.set_shader_compatibility( shader , true )
+	_ui.assets_manager.fix_shader_compatibility( variants.value )
 	_update_grass_shader("variants", variants.value)
 	rebuild_terrain()
 
@@ -110,6 +96,7 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_on_quality_changed( quality.value )
 	_on_size_changed( grass_size.value )
 	_update_grass_shader("variants", variants.value)
+	_ui.assets_manager.fix_shader_compatibility( variants.value )
 
 func paint(pos:Vector3, primary_action:bool):
 	# Spawn with primary key, erase with secondary

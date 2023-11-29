@@ -45,7 +45,10 @@ const MAX_BUILD_REACH := Vector2i(100, 100)
 @export var gs_size:Vector2 = Vector2(0.3, 0.3)
 @export var gs_gradient_value:float = 0.2
 @export var gs_gradient_mask:Texture2D = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
-@export var gs_variants:Array[Texture2D] = [ AssetsManager.DEFAULT_GRASS_1.duplicate() ]
+@export var gs_variants:Array[Texture2D] = [
+	AssetsManager.DEFAULT_GRASS_1.duplicate(),
+	AssetsManager.DEFAULT_GRASS_2.duplicate(),
+]
 
 
 # Should not be setted until users actually saves them from the UI Dock

@@ -23,7 +23,6 @@ const _DESCRIPTIONS:PackedStringArray = [
 
 @onready var _description_label:Label = $Dock/Description
 @onready var _tabs:CustomTabs = $Dock/Tabs
-@onready var _assets_manager:AssetsManager = $Foot/AssetsManager
 
 @onready var _brushes_holder:Control = $Dock/Body/ScrollContainer/MarginContainer
 @onready var brush_size:CustomSliderUI = $Dock/BrushSize
@@ -34,6 +33,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 @onready var terrain_height:TerrainHeight = _brushes_holder.get_node( "TerrainHeight" )
 @onready var grass_color:GrassColor = _brushes_holder.get_node( "GrassColor" )
 @onready var grass_spawn:GrassSpawn = _brushes_holder.get_node( "GrassSpawner" )
+@onready var assets_manager:AssetsManager = $Foot/AssetsManager
 
 var brushes:Array[Brush]
 var _scene:SceneLandscaper
@@ -97,10 +97,10 @@ func fade(blocker:Control, fade_out:bool):
 func change_scene(scene:SceneLandscaper):
 	_scene = scene
 	set_enable( true )
-	_assets_manager.change_scene( self, _scene, brushes )
+	assets_manager.change_scene( self, _scene, brushes )
 	
 func save_ui():
-	_assets_manager.save_ui()
+	assets_manager.save_ui()
 
 func over_terrain(pos:Vector3):
 	var is_color_brush:bool = (_active_brush == terrain_clor or _active_brush == grass_color)
