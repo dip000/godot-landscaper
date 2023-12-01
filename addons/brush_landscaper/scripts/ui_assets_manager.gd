@@ -27,7 +27,7 @@ const SHADER_COMPATIBILITY := "#define GL_COMPATIBILITY"
 const SHADER_BILLBOARD_Y := "#define BILLBOARD_Y"
 
 # Content child indexes and extensions for external resources
-enum { _PROJECT, _TERRAIN_MESH, _TERRAIN_MATERIAL, _TERRAIN_TEXTURE, _GRASS_MESH, _GRASS_MATERIAL, _GRASS_SHADER, _GRASS_TEXTURE}
+enum { FILE_PROJECT, FILE_TERRAIN_MESH, FILE_TERRAIN_MATERIAL, FILE_TERRAIN_TEXTURE, FILE_GRASS_MESH, FILE_GRASS_MATERIAL, FILE_GRASS_SHADER, FILE_GRASS_TEXTURE}
 const _EXTENSIONS:PackedStringArray = ["tres", "tres", "tres", "png", "tres", "tres", "gdshader", "png"]
 
 @onready var _toggle_files:CustomToggleContent = $ToggleContent
@@ -61,14 +61,14 @@ func _load_ui():
 	# Update UI input paths from external resources
 	if _raw.saved_external:
 		var files:Array = _toggle_files.value
-		files[_PROJECT].value = _raw.resource_path
-		files[_TERRAIN_MESH].value = _raw.terrain_mesh.resource_path
-		files[_TERRAIN_MATERIAL].value = _raw.terrain_material.resource_path
-		files[_TERRAIN_TEXTURE].value = _raw.tc_texture.resource_path
-		files[_GRASS_MESH].value = _raw.grass_mesh.resource_path
-		files[_GRASS_MATERIAL].value = _raw.grass_material.resource_path
-		files[_GRASS_SHADER].value = _raw.grass_shader.resource_path
-		files[_GRASS_TEXTURE].value = _raw.gc_texture.resource_path
+		files[FILE_PROJECT].value = _raw.resource_path
+		files[FILE_TERRAIN_MESH].value = _raw.terrain_mesh.resource_path
+		files[FILE_TERRAIN_MATERIAL].value = _raw.terrain_material.resource_path
+		files[FILE_TERRAIN_TEXTURE].value = _raw.tc_texture.resource_path
+		files[FILE_GRASS_MESH].value = _raw.grass_mesh.resource_path
+		files[FILE_GRASS_MATERIAL].value = _raw.grass_material.resource_path
+		files[FILE_GRASS_SHADER].value = _raw.grass_shader.resource_path
+		files[FILE_GRASS_TEXTURE].value = _raw.gc_texture.resource_path
 	
 	# Load brush UI properties
 	for brush in _brushes:
@@ -85,7 +85,7 @@ func _rebuild_terrain():
 
 
 func _on_load_all_pressed():
-	var project:CustomFileInput = _toggle_files.value[_PROJECT]
+	var project:CustomFileInput = _toggle_files.value[FILE_PROJECT]
 	
 	if not FileAccess.file_exists( project.value ):
 		popup_accept( "Project file '%s' does not exist\n" %project.value )
@@ -101,7 +101,7 @@ func _on_load_all_pressed():
 	_load_confirmed()
 
 func _load_confirmed():
-	var project:CustomFileInput = _toggle_files.value[_PROJECT]
+	var project:CustomFileInput = _toggle_files.value[FILE_PROJECT]
 	_ui.set_foot_enable( false, "Loading.." )
 	
 	# Quicksave the current project just in case
@@ -117,6 +117,10 @@ func _load_confirmed():
 	for brush in _brushes:
 		await get_tree().process_frame
 		brush.rebuild_terrain()
+	
+	# Load copies of external textures with the internal format 'ImageTexture2D'
+	_raw.gc_texture = format_texture( _raw.gc_texture )
+	_raw.tc_texture = format_texture( _raw.tc_texture )
 	
 	await get_tree().create_timer(0.2).timeout
 	_ui.set_foot_enable( true )
@@ -167,24 +171,24 @@ func _save_confirmed():
 	save_ui()
 	
 	_raw.terrain_mesh = _scene.terrain_mesh
-	await _save_resource( files[_TERRAIN_MESH], _raw.terrain_mesh )
+	await _save_resource( files[FILE_TERRAIN_MESH], _raw.terrain_mesh )
 	
 	_raw.terrain_material = _scene.terrain.material_override
-	await _save_resource( files[_TERRAIN_MATERIAL], _raw.terrain_material )
+	await _save_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
 	
-	await _save_resource( files[_TERRAIN_TEXTURE], _raw.tc_texture )
+	await _save_resource( files[FILE_TERRAIN_TEXTURE], _raw.tc_texture )
 	
 	_raw.grass_mesh = _scene.grass_mesh
-	await _save_resource( files[_GRASS_MESH], _raw.grass_mesh )
+	await _save_resource( files[FILE_GRASS_MESH], _raw.grass_mesh )
 	
 	_raw.grass_material = _scene.grass_mesh.material
-	await _save_resource( files[_GRASS_MATERIAL], _raw.grass_material )
+	await _save_resource( files[FILE_GRASS_MATERIAL], _raw.grass_material )
 	
 	_raw.grass_shader = _scene.grass_mesh.material.shader
-	await _save_resource( files[_GRASS_SHADER], _raw.grass_shader )
+	await _save_resource( files[FILE_GRASS_SHADER], _raw.grass_shader )
 	
-	await _save_resource( files[_GRASS_TEXTURE], _raw.gc_texture )
-	await _save_resource( files[_PROJECT], _raw )
+	await _save_resource( files[FILE_GRASS_TEXTURE], _raw.gc_texture )
+	await _save_resource( files[FILE_PROJECT], _raw )
 	
 	await get_tree().create_timer(0.2).timeout
 	_ui.set_foot_enable( true )
@@ -251,9 +255,21 @@ func fix_shader_compatibility(variants:Array):
 func set_shader_directive(directive:String, active:bool):
 	var shader:Shader = _scene.grass_mesh.material.shader
 	var not_directive:String = "//" + directive
-	print(directive, "=", active)
+	
 	if active:
 		shader.set_code( shader.code.replace(not_directive, directive) )
 	elif not shader.code.contains( not_directive ):
 		shader.set_code( shader.code.replace(directive, not_directive) )
+
+
+static func format_texture(texture:Texture2D, resize:=Vector2i.ZERO) -> ImageTexture:
+	var img:Image = texture.get_image()
+	if img.is_compressed():
+		img.decompress()
+	if img.has_mipmaps():
+		img.clear_mipmaps()
+	if resize != Vector2i.ZERO:
+		img.resize( resize.x, resize.y )
+	
+	return ImageTexture.create_from_image( img )
 

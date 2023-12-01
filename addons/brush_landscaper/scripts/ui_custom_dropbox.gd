@@ -2,6 +2,7 @@
 extends PropertyUI
 class_name CustomDropbox
 
+@export var preview_size:Vector2i = Vector2i(40, 40)
 @onready var _property:Label = $Label
 @onready var _reset:Button = $Close
 
@@ -37,22 +38,11 @@ func _drop_data(at_position, data):
 	set_value( _icon )
 
 
-func _set_icon(btn_icon):
-	var img:Image = btn_icon.get_image()
-	if img.is_compressed():
-		img.decompress()
-	if img.has_mipmaps():
-		img.clear_mipmaps()
-	
-	img.resize( 40, 40 )
-	self.icon = ImageTexture.create_from_image( img )
-	_icon = btn_icon
-
-
 func set_value(btn_icon):
 	if btn_icon:
-		_set_icon( btn_icon )
+		self.icon = AssetsManager.format_texture( btn_icon, preview_size )
 		self.disabled = false
+		_icon = btn_icon
 		_reset.show()
 	else:
 		self.icon = _default_icon

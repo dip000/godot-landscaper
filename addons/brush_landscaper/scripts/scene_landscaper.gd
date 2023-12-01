@@ -2,7 +2,7 @@
 extends Node
 class_name SceneLandscaper
 ## Creates a new 'paint-brush-able' terrain. Use "Landscaper" tab in the UI Dock
-# Keeps track of scene references
+## Keeps track of scene references
 
 
 ## Raw save/load data. Do not use. Do not delete. Do not replace. Use the "Landscaper" UI Dock

@@ -30,7 +30,7 @@ border_color = Color(0.270588, 0.435294, 0.580392, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_w2odr"]
 atlas = ExtResource("1_kxnfy")
-region = Rect2(40, 0, 40, 40)
+region = Rect2(0, 0, 40, 40)
 
 [node name="CustomDropbox" type="Button"]
 offset_right = 54.0

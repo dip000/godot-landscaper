@@ -25,7 +25,7 @@ bg_color = Color(0.211765, 0.239216, 0.290196, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
 bg_color = Color(0.145098, 0.168627, 0.203922, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_ss37m"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_qqj1t"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ksya5"]
 atlas = ExtResource("3_36jfa")
@@ -47,13 +47,13 @@ region = Rect2(192, 0, 64, 64)
 atlas = ExtResource("3_36jfa")
 region = Rect2(256, 0, 64, 64)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_o1n6x"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_vsv4u"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_epkdy"]
 atlas = ExtResource("15_xivst")
 region = Rect2(0, 0, 40, 40)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_m4baa"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_pjvji"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3lbna"]
 atlas = ExtResource("15_xivst")
@@ -115,7 +115,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
 button_pressed = true
-button_group = SubResource("ButtonGroup_ss37m")
+button_group = SubResource("ButtonGroup_qqj1t")
 icon = SubResource("AtlasTexture_ksya5")
 
 [node name="TerrainColor" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="1"]
@@ -123,7 +123,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_ss37m")
+button_group = SubResource("ButtonGroup_qqj1t")
 icon = SubResource("AtlasTexture_ieiv0")
 
 [node name="TerrainHeight" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="2"]
@@ -131,7 +131,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_ss37m")
+button_group = SubResource("ButtonGroup_qqj1t")
 icon = SubResource("AtlasTexture_rrt18")
 
 [node name="GrassColor" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="3"]
@@ -139,7 +139,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_ss37m")
+button_group = SubResource("ButtonGroup_qqj1t")
 icon = SubResource("AtlasTexture_2yokp")
 
 [node name="GrassSpawn" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="4"]
@@ -147,7 +147,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_ss37m")
+button_group = SubResource("ButtonGroup_qqj1t")
 icon = SubResource("AtlasTexture_t3o2m")
 
 [node name="Description" type="Label" parent="Dock"]
@@ -293,28 +293,28 @@ text = "Select Grass:"
 [node name="Variant0" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="0" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_o1n6x")
+button_group = SubResource("ButtonGroup_vsv4u")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 0"
 
 [node name="Variant1" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="1" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_o1n6x")
+button_group = SubResource("ButtonGroup_vsv4u")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 1"
 
 [node name="Variant2" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="2" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_o1n6x")
+button_group = SubResource("ButtonGroup_vsv4u")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 2"
 
 [node name="Variant3" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="3" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_o1n6x")
+button_group = SubResource("ButtonGroup_vsv4u")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 3"
 
@@ -328,21 +328,21 @@ text = "Billboarding"
 [node name="Scatter" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="0"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_m4baa")
+button_group = SubResource("ButtonGroup_pjvji")
 text = "Scatter"
 icon = SubResource("AtlasTexture_3lbna")
 
 [node name="CrossBillboard" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="1"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_m4baa")
+button_group = SubResource("ButtonGroup_pjvji")
 text = "Cross"
 icon = SubResource("AtlasTexture_p30kj")
 
 [node name="BillboardY" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="2"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_m4baa")
+button_group = SubResource("ButtonGroup_pjvji")
 text = "Y"
 icon = SubResource("AtlasTexture_xpq74")
 
