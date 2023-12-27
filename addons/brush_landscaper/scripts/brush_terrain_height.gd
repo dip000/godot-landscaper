@@ -6,10 +6,22 @@ class_name TerrainHeight
 
 @onready var strength:CustomSliderUI = $Strenght
 @onready var max_height:CustomNumberInput = $MaxHeight
+@onready var aplly_all_height:CustomDoubleButtons = $ApplyAll
 
 
 func _ready():
 	max_height.on_change.connect( rebuild_terrain.unbind(1) )
+	aplly_all_height.on_change.connect( _on_apply_all_changed )
+
+func _on_apply_all_changed(heighten:bool):
+	var src_size:Vector2i = img.get_size()
+	var full_rect := Rect2i(Vector2i.ZERO, src_size)
+	var color := Color(1, 1, 1, 0.05) if heighten else Color(0, 0, 0, 0.05)
+	var src:Image = _create_img( color, src_size, img.get_format() )
+	img.blend_rect( src, full_rect, Vector2i.ZERO )
+	_texture.update( img )
+	rebuild_terrain()
+
 
 func save_ui():
 	_raw.th_texture = _texture

@@ -63,13 +63,16 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	_ui_inst.over_terrain( result.position )
 	
 	# Paint
+	var mbl:bool = is_button and event.button_index == MOUSE_BUTTON_LEFT
+	var mbr:bool = is_button and event.button_index == MOUSE_BUTTON_RIGHT
+	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		_ui_inst.paint( result.position, true )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		_ui_inst.paint( result.position, false )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
-	elif is_button and not event.is_pressed():
+	elif (mbl or mbr) and not event.is_pressed():
 		_ui_inst.paint_end()
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
@@ -77,10 +80,9 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
 		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
 			_ui_inst.scale_by( 0.001 )
-			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
 			_ui_inst.scale_by( -0.001 )
-			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 

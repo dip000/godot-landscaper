@@ -46,6 +46,7 @@ const MAX_BUILD_REACH := Vector2i(100, 100)
 @export var gs_gradient_value:float = 0.2
 @export var gs_gradient_mask:Texture2D = AssetsManager.DEFAULT_GRASS_GRADIENT.duplicate()
 @export var gs_variants:Array[Texture2D] = [
+	AssetsManager.DEFAULT_GRASS_0.duplicate(),
 	AssetsManager.DEFAULT_GRASS_1.duplicate(),
 	AssetsManager.DEFAULT_GRASS_2.duplicate(),
 ]

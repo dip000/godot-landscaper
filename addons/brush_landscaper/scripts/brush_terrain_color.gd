@@ -5,7 +5,11 @@ class_name TerrainColor
 # Paints different colors over the "texture" depending on "color"
 
 @onready var color:CustomColorPicker = $ColorPicker
+@onready var resolution:CustomSliderUI = $Resolution
 
+
+func _ready():
+	resolution.on_change.connect( _change_resolution )
 
 func save_ui():
 	_raw.tc_texture = _texture
@@ -15,9 +19,11 @@ func save_ui():
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_texture = raw.tc_texture
 	super(ui, scene, raw)
-	_resolution = raw.tc_resolution
 	color.value = raw.tc_color
 	out_color = raw.tc_color
+	_resolution = raw.tc_resolution
+	_change_resolution( _resolution )
+	resolution.value = _resolution
 
 
 func paint(pos:Vector3, primary_action:bool):

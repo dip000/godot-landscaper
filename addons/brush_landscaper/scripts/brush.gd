@@ -62,8 +62,8 @@ func rebuild_terrain():
 
 # Usefull for color textures
 func _change_resolution(new_resolution:float):
-	var world_size:Vector2 = _raw.world.size
-	img.resize( world_size.x*new_resolution, world_size.y*new_resolution )
+	var world_resolution:Vector2 = _raw.world.size * new_resolution
+	img.resize( world_resolution.x, world_resolution.y )
 	_texture.set_image( img )
 	_resolution = new_resolution
 

@@ -19,6 +19,7 @@ const GRASS_SHADER:Shader = preload("res://addons/brush_landscaper/shaders/grass
 const TERRAIN_OVERLAY_SHADER:Shader = preload("res://addons/brush_landscaper/shaders/terrain_overlay_shader.gdshader")
 const DEFAULT_BRUSH:GradientTexture2D = preload("res://addons/brush_landscaper/textures/default_brush.tres")
 const DEFAULT_GRASS_GRADIENT:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_gradient.tres")
+const DEFAULT_GRASS_0:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v0.svg")
 const DEFAULT_GRASS_1:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v1.svg")
 const DEFAULT_GRASS_2:Texture2D = preload("res://addons/brush_landscaper/textures/default_grass_v2.svg")
 
@@ -112,15 +113,15 @@ func _load_confirmed():
 	_raw = load(project.value)
 	_scene.raw = _raw
 	
+	# Load copies of external textures with the internal format 'ImageTexture2D'
+	_raw.gc_texture = format_texture( _raw.gc_texture )
+	_raw.tc_texture = format_texture( _raw.tc_texture )
+	
 	# Update UI properties and rebuild terrain
 	_load_ui()
 	for brush in _brushes:
 		await get_tree().process_frame
 		brush.rebuild_terrain()
-	
-	# Load copies of external textures with the internal format 'ImageTexture2D'
-	_raw.gc_texture = format_texture( _raw.gc_texture )
-	_raw.tc_texture = format_texture( _raw.tc_texture )
 	
 	await get_tree().create_timer(0.2).timeout
 	_ui.set_foot_enable( true )
