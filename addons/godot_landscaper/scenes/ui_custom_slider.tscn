@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://7l6ujrx1sram"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_slider.gd" id="1_wvxh2"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_slider.gd" id="1_wvxh2"]
 
 [node name="CustomSlider" type="HBoxContainer"]
 anchors_preset = 15

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dm7ycgrpmdj5t"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_color_picker.gd" id="1_j1kjv"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_color_picker.gd" id="1_j1kjv"]
 
 [node name="ColorPicker" type="HBoxContainer"]
 anchors_preset = 14

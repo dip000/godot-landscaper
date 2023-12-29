@@ -16,7 +16,7 @@ class_name PluginLandscaper
 const COLLISION_LAYER_TERRAIN:int = 32
 const COLLISION_LAYER_OVERLAY:int = 31
 
-var _ui_template:PackedScene = load("res://addons/brush_landscaper/scenes/ui_landscaper.tscn")
+var _ui_template:PackedScene = load("res://addons/godot_landscaper/scenes/ui_landscaper.tscn")
 var _ui_inst:UILandscaper
 var _scene_inst:SceneLandscaper
 
@@ -65,6 +65,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	# Paint
 	var mbl:bool = is_button and event.button_index == MOUSE_BUTTON_LEFT
 	var mbr:bool = is_button and event.button_index == MOUSE_BUTTON_RIGHT
+	var pressed:bool = is_button and event.is_pressed()
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		_ui_inst.paint( result.position, true )
@@ -72,17 +73,22 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		_ui_inst.paint( result.position, false )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
-	elif (mbl or mbr) and not event.is_pressed():
+	elif (mbl or mbr) and not pressed:
 		_ui_inst.paint_end()
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
 	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
-		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
+		var up:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP )
+		var down:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN )
+		if up:
 			_ui_inst.scale_by( 0.001 )
-		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		elif down:
 			_ui_inst.scale_by( -0.001 )
-		return EditorPlugin.AFTER_GUI_INPUT_STOP
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		elif not event is InputEventMouseMotion: # Pass Panning and Zoom with special keys
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 

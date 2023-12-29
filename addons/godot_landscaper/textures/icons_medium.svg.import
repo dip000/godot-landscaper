@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://0udtge5h7am"
-path.s3tc="res://.godot/imported/icon.svg-f0a68077961b413d4f18c57408b8e5b0.s3tc.ctex"
+uid="uid://tmivf4lwnx1p"
+path.s3tc="res://.godot/imported/icons_medium.svg-d50f1dcfbd851918068a899686f0facc.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/brush_landscaper/icon.svg"
-dest_files=["res://.godot/imported/icon.svg-f0a68077961b413d4f18c57408b8e5b0.s3tc.ctex"]
+source_file="res://addons/godot_landscaper/textures/icons_medium.svg"
+dest_files=["res://.godot/imported/icons_medium.svg-d50f1dcfbd851918068a899686f0facc.s3tc.ctex"]
 
 [params]
 

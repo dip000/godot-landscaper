@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://dpqsi2h5lwv4j"]
 
-[ext_resource type="Texture2D" uid="uid://tmivf4lwnx1p" path="res://addons/brush_landscaper/textures/icons_medium.svg" id="1_kxnfy"]
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_dropbox.gd" id="2_p7pka"]
+[ext_resource type="Texture2D" uid="uid://tmivf4lwnx1p" path="res://addons/godot_landscaper/textures/icons_medium.svg" id="1_kxnfy"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_dropbox.gd" id="2_p7pka"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_juga1"]
 content_margin_left = 7.0

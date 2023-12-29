@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c4i53bn8ovmsg"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_double_button.gd" id="1_bdk8j"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_double_button.gd" id="1_bdk8j"]
 
 [node name="DoubleButton" type="HBoxContainer"]
 anchors_preset = 14

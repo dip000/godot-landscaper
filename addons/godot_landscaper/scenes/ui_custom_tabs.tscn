@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://b5cbncjt0oya0"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_tabs.gd" id="1_xfx6m"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_tabs.gd" id="1_xfx6m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p7j34"]
 draw_center = false

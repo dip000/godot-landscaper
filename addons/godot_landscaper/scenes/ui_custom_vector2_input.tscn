@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cf4qb7d6noqq1"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_vector2_input.gd" id="1_s7a0f"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_vector2_input.gd" id="1_s7a0f"]
 
 [node name="VectorInput" type="HBoxContainer"]
 anchors_preset = 14

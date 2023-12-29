@@ -11,12 +11,12 @@ config_version=5
 [application]
 
 config/name="Landscaper"
-config/features=PackedStringArray("4.1", "Mobile")
+config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/brush_landscaper/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_landscaper/plugin.cfg")
 
 [rendering]
 

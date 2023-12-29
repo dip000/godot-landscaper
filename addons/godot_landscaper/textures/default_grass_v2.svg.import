@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dr3fxgus560u8"
-path.s3tc="res://.godot/imported/default_grass_v2.svg-a7defe1ef9506caffaa75976820ded95.s3tc.ctex"
+path.s3tc="res://.godot/imported/default_grass_v2.svg-1f590523d093aabb315eef4a33020778.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/brush_landscaper/textures/default_grass_v2.svg"
-dest_files=["res://.godot/imported/default_grass_v2.svg-a7defe1ef9506caffaa75976820ded95.s3tc.ctex"]
+source_file="res://addons/godot_landscaper/textures/default_grass_v2.svg"
+dest_files=["res://.godot/imported/default_grass_v2.svg-1f590523d093aabb315eef4a33020778.s3tc.ctex"]
 
 [params]
 

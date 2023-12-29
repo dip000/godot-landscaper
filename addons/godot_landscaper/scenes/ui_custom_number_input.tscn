@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ldq3svxcclhh"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_number_input.gd" id="1_06luu"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_number_input.gd" id="1_06luu"]
 
 [node name="CustomNumberInput" type="HBoxContainer"]
 anchors_preset = 14

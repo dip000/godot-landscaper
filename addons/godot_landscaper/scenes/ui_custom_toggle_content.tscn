@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://bdfmi4jds2j42"]
 
-[ext_resource type="Script" path="res://addons/brush_landscaper/scripts/ui_custom_toggle_content.gd" id="1_isc4s"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_toggle_content.gd" id="1_isc4s"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fyww6"]
 bg_color = Color(0.25098, 0.266667, 0.298039, 1)
