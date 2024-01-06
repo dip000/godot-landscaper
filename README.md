@@ -1,6 +1,8 @@
-# TerraBrush [Godot 4] [Plugin] [Alpha]
-Grass scatterer, grass colorer, terrain builder, terrain texturer, and terrain colorer. Based on textures and brushes
-![preview](https://github.com/dip000/terra-brush-scatterer/assets/58742147/6c951028-6ebe-45d5-a335-1fc86502c220)
+# Godot Landscaper
+Terrain builder, terrain texturizer, grass scatterer, and grass colorer. Based on textures and paintbrushes
+![landscaper](https://github.com/dip000/godot-landscaper/assets/58742147/011ccfec-2462-463b-85aa-925e1c63936d)
+
+
 
 
 ## Content
@@ -24,53 +26,50 @@ Follow the next steps:
 4. Select your brush and click and drag over your terrain to start terra-brushing!
 
 ## 1.1 Terrain Builder
-Brush that generates new mesh when you paint over the terrain. Paints colors over the "_texture" depending if it is built or not.
+Brush that generates new mesh when you paint over the terrain.<br />
+Paint white with left-click to build a new mesh, and paint black with right-click to erase.<br />
+![TerrainBuilder](https://github.com/dip000/godot-landscaper/assets/58742147/63591979-0ab5-4e3e-a08b-ecf8109fa383)
+
 
 ## 1.2 Terrain Color
-Select your color then left-click to paint your terrain or right-click to smooth it out!<br />
+Brush that color-paints your created terrain.<br />
+Paint with the selected color using left-click, use right-click to smooth the selected color.<br />
+![TerrainColor](https://github.com/dip000/godot-landscaper/assets/58742147/50506297-cd5a-45b5-9ae0-726c645af90c)
 
-_Brush settings on TerraBrush inspector:_ <br />
-<br />
 
-_Coloring terrain:_ <br />
-<br />
+Brush Properties:
+* **Color** of the terrain paint<br />
+* **Resolution** of the texture in pixels per meter.<br />
 
 
 ## 1.3 Terrain Height
-Set the strength of the height brush then left-click to create mountains, and right-click to create valleys<br />
-**Max height** is the relative height of the entire heightmap<br />
-
-_Brush settings on TerraBrush inspector:_ <br />
-
+Brush that changes the height of your created terrain.<br />
+Create mounds with left-click, and create ditches with right-click.<br />
+![TerrainHeight](https://github.com/dip000/godot-landscaper/assets/58742147/536f8b03-8d91-45b8-b485-50eedb89bbb9)
 
 
-_Heighting terrain:_ <br />
-
-
+Brush Properties:
+* **Max Height** is the relative height of the entire terrain.<br />
+* **Apply To All** Heighten or lowers the whole terrain evenly.<br />
 
 
 ## 1.4 Grass Color
-Select your color then left-click to paint your grass or right-click to smooth its color out!<br />
-Do note that only the top of the grass is being colored. That's because the bottom half is taking the color of the terrain!<br />
+Brush that color-paints your spawned grass.<br />
+Paint with the selected color using left-click, use right-click to smooth the selected color.<br />
+![GrassColor](https://github.com/dip000/godot-landscaper/assets/58742147/c922ce65-ff0d-4db3-92f7-d1177b16bb60)
 
-_Brush settings on TerraBrush inspector:_ <br />
+>Note that only the top of the grass is being colored. That's because the bottom half is taking the color of the terrain!<br />
 
-
-_Coloring grass:_ <br />
-
+Brush Properties:
+* **Color** of the terrain paint<br />
 
 
 ## 1.5 Grass Spawn
-Select your color then left-click to spawn your grass or right-click to clear it!<br />
-Do note that the bottom half of the grasses are taking the color of the terrain!<br />
+Brush that spawns new grass over your created terrain.<br />
+Spawn grass with left-click to spawn your selected grass variant or right-click to clear it<br />
+![GrassSpawn](https://github.com/dip000/godot-landscaper/assets/58742147/61b742fe-cd7c-4051-b897-49aee6160d1f)
 
-_Brush settings on TerraBrush inspector:_ <br />
-<br />
-
-_Spawning grass:_ <br />
-<br />
-
-### Grass Color Properties
+Brush Properties:
 * **Density:** How many grass instances are inside the area you have painted with this brush
 * **Billboard:** Tipes of billboarding. BillboardY (grass always looks at the camera), CrossBillboard (for each grass, spawns another 90 degrees in the same position), and Scatter (Scatters the grass with random rotations)
 * **Enable Details:** Renders the details of your grass variant texture. These are the sharp margin edges in the preview grass shown here
@@ -82,9 +81,16 @@ _Spawning grass:_ <br />
 
 
 # Performance concerns
+About Textures:
+* Terrain and Grass color textures are stored in separate files as PNG and their size in pixels is calculated as "resolution*world_size". This means that the file is as big as the terrain's bounding box.
+* Terrain and Grass color textures are not mipmapped (LOD) internally but after saving the project, they will be mipmapped automatically.
+* Every texture except colored ones, are stored in a "project.tres" file. They are not relevant for end-products and the project file itself can be deleted if the user doesn't want to edit the landscape anymore.
+
+About Grass:
 * This version now supports GL Compatibility rendering! But it is limited to one grass variant due to the lack of shader instance variables in Compatibility
 * Coloring the grass is optimized by using vertex colors. This means that the shader is only coloring as less as 4 vertex per instance (The vertices of a square)
-* You can actually set how many vertex to use per grass in: Grass Spawn Brush > Quality
+* You can set how many vertex to use per grass in "GrassSpawn Brush > Quality"
+* Grass chunking has not been implemented yet.
 
 
 # Roadmap to Beta and Asset Library
@@ -96,15 +102,24 @@ _Spawning grass:_ <br />
 	- [X] Cross billboard
 	- [X] Billboard Y
  	- [X] Scatter
+
 3. [X] Add Terrain generator brush
-	- [X Click over the terrain and create a mesh surface
+	- [X] Click over the terrain and create a mesh surface
 	- [X] Meshes are ImmediateMesh that are generated dynamically instead of using a shader
-4. [ ] Asset Library friendly
+
+4. [X] Dedicated UI for paintbrushes
+	- [X] Custom control in rightmost Dock
+	- [X] Recouple brushes for this new system
+
+5. [ ] Add Instancer Brush
+	- [ ] Use the same logic as the grass spawner but with custom scenes instead of grass
+
+6. [ ] Asset Library friendly
    - [ ] [asset library requirements](https://docs.godotengine.org/en/stable/community/asset_library/submitting_to_assetlib.html)
    - [ ] In-code Documentation following [style guides](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html#doc-gdscript-styleguide)
 
 
 # Author notes
-Hi, thanks for passing by!<br />
-I'd be glad to hear what you have to say about the grass shader [here](https://godotshaders.com/shader/stylized-cartoon-grass/). Or contact me about this plugin at [ab-cb@hotmail.com](mailto:ab-cb@hotmail.com?subject=[GitHub]%20TerraBrush%20Plugin)<br />
+Hi, nickname's DIP. Thanks for passing by!<br />
+I'd be glad to hear what you have to say about the grass shader [here](https://godotshaders.com/shader/stylized-cartoon-grass/). Or contact me about this plugin at [ab-cb@hotmail.com](mailto:ab-cb@hotmail.com?subject=[GitHub]%20Godot%20Landscaper%20Plugin)<br />
 See ya!<br />
