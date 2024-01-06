@@ -28,37 +28,48 @@ Follow the next steps:
 ## 1.1 Terrain Builder
 Brush that generates new mesh when you paint over the terrain.<br />
 Paint white with left-click to build a new mesh, and paint black with right-click to erase.<br />
+![TerrainBuilder](https://github.com/dip000/godot-landscaper/assets/58742147/63591979-0ab5-4e3e-a08b-ecf8109fa383)
 
-_Building terrain:_ <br />
-![TerrainBuilder](https://github.com/dip000/godot-landscaper/assets/58742147/cac44f39-d5c2-4c84-b9d9-6c1a73512128)
-<br />
 
 ## 1.2 Terrain Color
 Brush that color-paints your created terrain.<br />
 Paint with the selected color using left-click, use right-click to smooth the selected color.<br />
+![TerrainColor](https://github.com/dip000/godot-landscaper/assets/58742147/50506297-cd5a-45b5-9ae0-726c645af90c)
 
-**Resolution** of the texture in pixels per meter.<br />
-<br />
+
+Brush Properties:
+* **Color** of the terrain paint<br />
+* **Resolution** of the texture in pixels per meter.<br />
 
 
 ## 1.3 Terrain Height
 Brush that changes the height of your created terrain.<br />
 Create mounds with left-click, and create ditches with right-click.<br />
+![TerrainHeight](https://github.com/dip000/godot-landscaper/assets/58742147/536f8b03-8d91-45b8-b485-50eedb89bbb9)
 
-**Max Height** is the relative height of the entire terrain.<br />
-**Apply To All** Heighten or lowers the whole terrain evenly.<br />
+
+Brush Properties:
+* **Max Height** is the relative height of the entire terrain.<br />
+* **Apply To All** Heighten or lowers the whole terrain evenly.<br />
 
 
 ## 1.4 Grass Color
 Brush that color-paints your spawned grass.<br />
 Paint with the selected color using left-click, use right-click to smooth the selected color.<br />
+![GrassColor](https://github.com/dip000/godot-landscaper/assets/58742147/c922ce65-ff0d-4db3-92f7-d1177b16bb60)
+
 >Note that only the top of the grass is being colored. That's because the bottom half is taking the color of the terrain!<br />
+
+Brush Properties:
+* **Color** of the terrain paint<br />
 
 
 ## 1.5 Grass Spawn
 Brush that spawns new grass over your created terrain.<br />
 Spawn grass with left-click to spawn your selected grass variant or right-click to clear it<br />
+![GrassSpawn](https://github.com/dip000/godot-landscaper/assets/58742147/61b742fe-cd7c-4051-b897-49aee6160d1f)
 
+Brush Properties:
 * **Density:** How many grass instances are inside the area you have painted with this brush
 * **Billboard:** Tipes of billboarding. BillboardY (grass always looks at the camera), CrossBillboard (for each grass, spawns another 90 degrees in the same position), and Scatter (Scatters the grass with random rotations)
 * **Enable Details:** Renders the details of your grass variant texture. These are the sharp margin edges in the preview grass shown here
