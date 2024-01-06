@@ -12,10 +12,10 @@ func _ready():
 	resolution.on_change.connect( _change_resolution )
 
 func save_ui():
-	_raw.tc_texture = _texture
-	_raw.tc_resolution = _resolution
-	_raw.tc_color = color.value
 	_resolution = resolution.value
+	_raw.tc_texture = _texture
+	_raw.tc_color = color.value
+	_raw.tc_resolution = _resolution
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_texture = raw.tc_texture
@@ -25,6 +25,7 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_resolution = raw.tc_resolution
 	_change_resolution( _resolution )
 	resolution.value = _resolution
+	_update_grass_shader("terrain_color", _texture)
 
 
 func paint(pos:Vector3, primary_action:bool):

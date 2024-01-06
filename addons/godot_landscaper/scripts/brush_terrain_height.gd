@@ -88,7 +88,9 @@ func _update_grass():
 			
 			ray.from = transform.origin + Vector3.UP * max_height.value
 			ray.to = transform.origin + Vector3.DOWN * max_height.value
-			var result = space.intersect_ray(ray)
+			var result:Dictionary = space.intersect_ray(ray)
+			if not result:
+				continue
 			
 			# Update the new height with that collision point
 			transform.origin.y = result.position.y

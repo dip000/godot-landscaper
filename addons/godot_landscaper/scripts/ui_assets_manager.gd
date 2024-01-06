@@ -59,7 +59,10 @@ func _on_toggle_files(button_pressed:bool):
 
 
 func _load_ui():
-	# Update UI input paths from external resources
+	for brush in _brushes:
+		brush.load_ui( _ui, _scene, _raw )
+
+func _update_paths():
 	if _raw.saved_external:
 		var files:Array = _toggle_files.value
 		files[FILE_PROJECT].value = _raw.resource_path
@@ -71,9 +74,6 @@ func _load_ui():
 		files[FILE_GRASS_SHADER].value = _raw.grass_shader.resource_path
 		files[FILE_GRASS_TEXTURE].value = _raw.gc_texture.resource_path
 	
-	# Load brush UI properties
-	for brush in _brushes:
-		brush.load_ui( _ui, _scene, _raw )
 
 func save_ui():
 	# UI input paths are saved inside the external resources
@@ -113,15 +113,15 @@ func _load_confirmed():
 	_raw = load(project.value)
 	_scene.raw = _raw
 	
+	_update_paths()
+	
 	# Load copies of external textures with the internal format 'ImageTexture2D'
 	_raw.gc_texture = format_texture( _raw.gc_texture )
 	_raw.tc_texture = format_texture( _raw.tc_texture )
 	
 	# Update UI properties and rebuild terrain
 	_load_ui()
-	for brush in _brushes:
-		await get_tree().process_frame
-		brush.rebuild_terrain()
+	_rebuild_terrain()
 	
 	await get_tree().create_timer(0.2).timeout
 	_ui.set_foot_enable( true )
@@ -217,6 +217,7 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	
 	# Load new UI properties
 	if _raw:
+		_update_paths()
 		_load_ui()
 		return
 	
@@ -226,6 +227,7 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	
 	# Setup, load, and build
 	_scene.terrain_overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
+	_update_paths()
 	_load_ui()
 	_rebuild_terrain()
 	
