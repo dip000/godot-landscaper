@@ -1,0 +1,55 @@
+[gd_scene load_steps=4 format=3 uid="uid://b6dp6o7trv5ru"]
+
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_file_input.gd" id="1_omvyv"]
+[ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/godot_landscaper/textures/icons_small.svg" id="2_hyfif"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mpq2p"]
+atlas = ExtResource("2_hyfif")
+region = Rect2(0, 0, 22, 22)
+
+[node name="FileInput" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -15.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+script = ExtResource("1_omvyv")
+
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Open File(s)"
+initial_position = 2
+size = Vector2i(640, 320)
+ok_button_text = "Open"
+file_mode = 1
+filters = PackedStringArray("*.svg, *.png, *.jpg ; Supported Images", "*.tres, *.res ; Supported resources", "*.gdshader ; Shader")
+
+[node name="Name" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+mouse_filter = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Input" type="LineEdit" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Drag and drop your file or folder here"
+mouse_filter = 1
+
+[node name="Open" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Open file explorer"
+icon = SubResource("AtlasTexture_mpq2p")
+icon_alignment = 1

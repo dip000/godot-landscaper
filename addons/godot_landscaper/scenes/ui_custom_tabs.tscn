@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3 uid="uid://b5cbncjt0oya0"]
+
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_tabs.gd" id="1_xfx6m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p7j34"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25098, 0.266667, 0.298039, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lskyg"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 1)
+
+[node name="Tabs" type="BoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 32.0
+grow_horizontal = 2
+script = ExtResource("1_xfx6m")
+tab_size = Vector2i(40, 40)
+property_name = "Tabs"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_p7j34")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_lskyg")
+text = "Tabs"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Tabs" type="FlowContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1

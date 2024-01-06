@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://dm7ycgrpmdj5t"]
+
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_color_picker.gd" id="1_j1kjv"]
+
+[node name="ColorPicker" type="HBoxContainer"]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_j1kjv")
+_enable_button = null
+property_name = "Color"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+
+[node name="CheckBox" type="CheckBox" parent="HBoxContainer"]
+layout_mode = 2
+button_pressed = true
+
+[node name="PropertyName" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "Color"
+vertical_alignment = 1
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="."]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+text = "Color"
