@@ -16,6 +16,3 @@ func get_value() -> Variant:
 
 func set_value(value):
 	pass
-
-func add_value(value):
-	pass

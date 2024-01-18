@@ -34,7 +34,7 @@ func _ready():
 		dropbox.on_change.connect( _on_variant_changed )
 	
 	# Setup RNG as documentation suggests
-	_rng.set_seed( hash("TerraBrush") )
+	_rng.set_seed( hash("GodotLandscaper") )
 	_rng_state = _rng.get_state()
 
 func _on_gradient_change(value:float):
@@ -115,7 +115,7 @@ func rebuild_terrain():
 	# Caches
 	var world_size:Vector2 = _raw.world.size
 	var world_position:Vector2 = _raw.world.position
-	var world_position_inv:Vector2 = _raw.MAX_BUILD_REACH*0.5 + Vector2(_raw.world.position)
+	var world_position_inv:Vector2 = _raw.MAX_BUILD_REACH*0.5 + world_position
 	var spawn_size_px:Vector2 = img.get_size()
 	var max_index:int = VARIANT_TOTAL - 1
 	var grass_holder:Node3D = _scene.grass_holder

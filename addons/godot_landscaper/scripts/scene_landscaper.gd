@@ -12,6 +12,7 @@ class_name SceneLandscaper
 var terrain:MeshInstance3D
 var terrain_overlay:MeshInstance3D
 var grass_holder:Node3D
+var instance_holder:Node3D
 var terrain_body:StaticBody3D
 var terrain_collider:CollisionShape3D
 var overlay_body:StaticBody3D
@@ -45,6 +46,7 @@ func _fix_terrain():
 	terrain_body = _create_or_find_node( StaticBody3D, terrain, "Body" )
 	terrain_collider = _create_or_find_node( CollisionShape3D, terrain_body, "Collider" )
 	grass_holder = _create_or_find_node( Node3D, terrain, "Grass" )
+	instance_holder = _create_or_find_node( Node3D, terrain, "Instances" )
 	
 	terrain_overlay = _create_or_find_node( MeshInstance3D, self, "Overlay" )
 	overlay_body = _create_or_find_node( StaticBody3D, terrain_overlay, "Body" )
@@ -53,7 +55,7 @@ func _fix_terrain():
 	
 	# Setup brush sprite
 	brush_sprite.texture = AssetsManager.ICONS
-	brush_sprite.hframes = 5
+	brush_sprite.hframes = 6
 	brush_sprite.pixel_size = 0.003
 	brush_sprite.modulate.a = 0.5
 	brush_sprite.fixed_size = true

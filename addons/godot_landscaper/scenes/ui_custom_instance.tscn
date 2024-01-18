@@ -1,0 +1,85 @@
+[gd_scene load_steps=9 format=3 uid="uid://dop1ullwx5cmr"]
+
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_instance.gd" id="1_2ybi5"]
+[ext_resource type="PackedScene" uid="uid://b6dp6o7trv5ru" path="res://addons/godot_landscaper/scenes/ui_custom_file_input.tscn" id="2_3nula"]
+[ext_resource type="PackedScene" uid="uid://ldq3svxcclhh" path="res://addons/godot_landscaper/scenes/ui_custom_number_input.tscn" id="3_iqr6n"]
+[ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/godot_landscaper/scenes/ui_custom_slider.tscn" id="4_xwpl7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fyww6"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 0.227451)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_74tch"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 0.227451)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.27451, 0.439216, 0.584314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ynvqe"]
+bg_color = Color(0.27451, 0.439216, 0.584314, 0.227451)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gxnbm"]
+resource_local_to_scene = true
+bg_color = Color(0.251, 0.267, 0.298, 1)
+
+[node name="CustomInstance" type="Button"]
+custom_minimum_size = Vector2(230, 164)
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_fyww6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_74tch")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ynvqe")
+toggle_mode = true
+script = ExtResource("1_2ybi5")
+property_name = "Open A Scene"
+
+[node name="Content" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+
+[node name="MarginHead" type="MarginContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/margin_left = 1
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 1
+theme_override_constants/margin_bottom = 1
+
+[node name="Label" type="Label" parent="Content/MarginHead"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_gxnbm")
+text = "Open A Scene"
+horizontal_alignment = 1
+
+[node name="MarginBody" type="MarginContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Content/MarginBody"]
+layout_mode = 2
+
+[node name="FileInput" parent="Content/MarginBody/VBoxContainer" instance=ExtResource("2_3nula")]
+layout_mode = 2
+default_file_path = "res://"
+property_name = "Scene"
+
+[node name="CustomNumberInput" parent="Content/MarginBody/VBoxContainer" instance=ExtResource("3_iqr6n")]
+layout_mode = 2
+property_name = "Density"
+
+[node name="CustomSlider" parent="Content/MarginBody/VBoxContainer" instance=ExtResource("4_xwpl7")]
+layout_mode = 2
+_max_value = 1.0
+property_name = "Randomness"

@@ -14,6 +14,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 	"Create mountains with left click, valleys with right click",
 	"Paint with left click, smooth color with right click",
 	"Spawn selected grass with left click, erase any grass with right click",
+	"Spawn your custom scenes like a rock or a tree with left click, erase with right click",
 ]
 
 
@@ -33,6 +34,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 @onready var terrain_height:TerrainHeight = _brushes_holder.get_node( "TerrainHeight" )
 @onready var grass_color:GrassColor = _brushes_holder.get_node( "GrassColor" )
 @onready var grass_spawn:GrassSpawn = _brushes_holder.get_node( "GrassSpawner" )
+@onready var instancer:Instancer = _brushes_holder.get_node( "Instancer" )
 @onready var assets_manager:AssetsManager = $Foot/AssetsManager
 
 var brushes:Array[Brush]
