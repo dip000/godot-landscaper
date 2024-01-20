@@ -1,8 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://dop1ullwx5cmr"]
+[gd_scene load_steps=8 format=3 uid="uid://dop1ullwx5cmr"]
 
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_instance.gd" id="1_2ybi5"]
 [ext_resource type="PackedScene" uid="uid://b6dp6o7trv5ru" path="res://addons/godot_landscaper/scenes/ui_custom_file_input.tscn" id="2_3nula"]
-[ext_resource type="PackedScene" uid="uid://ldq3svxcclhh" path="res://addons/godot_landscaper/scenes/ui_custom_number_input.tscn" id="3_iqr6n"]
 [ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/godot_landscaper/scenes/ui_custom_slider.tscn" id="4_xwpl7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fyww6"]
@@ -24,9 +23,10 @@ resource_local_to_scene = true
 bg_color = Color(0.251, 0.267, 0.298, 1)
 
 [node name="CustomInstance" type="Button"]
-custom_minimum_size = Vector2(230, 164)
+custom_minimum_size = Vector2(230, 120)
 anchors_preset = 10
 anchor_right = 1.0
+offset_bottom = 120.0
 grow_horizontal = 2
 size_flags_horizontal = 3
 mouse_filter = 1
@@ -74,10 +74,6 @@ layout_mode = 2
 layout_mode = 2
 default_file_path = "res://"
 property_name = "Scene"
-
-[node name="CustomNumberInput" parent="Content/MarginBody/VBoxContainer" instance=ExtResource("3_iqr6n")]
-layout_mode = 2
-property_name = "Density"
 
 [node name="CustomSlider" parent="Content/MarginBody/VBoxContainer" instance=ExtResource("4_xwpl7")]
 layout_mode = 2

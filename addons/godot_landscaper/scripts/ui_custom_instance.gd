@@ -1,16 +1,14 @@
 @tool
 extends PropertyUI
 class_name CustomInstance
-# Loads a scene and a density property only for Instancer brush.
+# Loads a scene and a range property only for Instancer brush.
 # The following tree shows the UI hierarchy:
 # ┖╴CustomTabs
 #    ┠╴CustomInstance
 #    ┃  ┠╴CustomFileInput
-#    ┃  ┖╴CustomNumberInput
 #    ┃  ┖╴CustomRange
 #    ┖╴CustomInstance..
 
-@onready var density:CustomNumberInput = $Content/MarginBody/VBoxContainer/CustomNumberInput
 @onready var randomness:CustomSliderUI = $Content/MarginBody/VBoxContainer/CustomSlider
 @onready var _file:CustomFileInput = $Content/MarginBody/VBoxContainer/FileInput
 @onready var _label:Label = $Content/MarginHead/Label
@@ -27,17 +25,12 @@ var scene:PackedScene:
 func _ready():
 	_label.text = property_name
 	self.toggled.connect( _on_toggled )
-	density.on_change.connect( _on_density_changed )
 	_file.on_change.connect( _on_file_changed )
 	randomness.on_change.connect( _on_randomness_changed )
 
 func _on_toggled(button_pressed:bool):
 	set_enable( button_pressed )
 
-func _on_density_changed(density:float):
-	self.button_pressed = true
-	on_change.emit()
-	
 func _on_file_changed(file:String):
 	if not FileAccess.file_exists( file ):
 		scene = null

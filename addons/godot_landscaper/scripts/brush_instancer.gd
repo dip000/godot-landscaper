@@ -28,7 +28,6 @@ func save_ui():
 	for i in instances.tabs.size():
 		var instance:CustomInstance = instances.tabs[i]
 		_raw.i_scenes[i] = instance.scene
-		_raw.i_densities[i] = instance.density.value as int
 		_raw.i_randomnesses[i] = instance.randomness.value
 	
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
@@ -39,7 +38,6 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	for i in instances.tabs.size():
 		var instance:CustomInstance = instances.tabs[i]
 		instance.scene = _raw.i_scenes[i]
-		instance.density.value = _raw.i_densities[i]
 		instance.randomness.value = _raw.i_randomnesses[i]
 	
 
@@ -57,19 +55,20 @@ func paint(pos:Vector3, primary_action:bool):
 
 
 func rebuild_terrain():
-	save_ui()
+	var scenes:Array[PackedScene]
+	var randomnesses:Array[float]
+	
+	for i in instances.tabs.size():
+		var instance:CustomInstance = instances.tabs[i]
+		scenes.append( instance.scene )
+		randomnesses.append( instance.randomness.value )
 	
 	# Caches
 	var world_size:Vector2 = _raw.world.size
 	var world_position:Vector2 = _raw.world.position
-	var world_position_inv:Vector2 = _raw.MAX_BUILD_REACH*0.5 + world_position
-	var spawn_size_px:Vector2 = img.get_size()
-	var builder_img = _ui.terrain_builder.img
+	var size_px:Vector2 = img.get_size()
 	var max_index:int = INSTANCE_TOTAL - 1
 	var max_height:float = _ui.terrain_height.max_height.value
-	var scenes:Array[PackedScene] = _raw.i_scenes
-	var densities:Array[int] = _raw.i_densities
-	var randomnesses:Array[float] = _raw.i_randomnesses
 	
 	var space := _scene.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
@@ -79,28 +78,24 @@ func rebuild_terrain():
 	for instance in _scene.instance_holder.get_children():
 		instance.queue_free()
 	
-	for scene_index in scenes.size():
-		var scene:PackedScene = scenes[scene_index]
-		if not scene:
-			continue
-		
-		var density:int = densities[scene_index] * world_size.x * world_size.y
-		var randomness:float = randomnesses[scene_index]
-		for i in density:
-			var rand := Vector2( _rng.randf(), _rng.randf() )
+	for x in img.get_width():
+		for y in img.get_height():
 			var transf := Vector3( _rng.randf(), _rng.randf(), _rng.randf() )
 			
-			var spawn_value:float = img.get_pixelv( rand*spawn_size_px ).r
-			var valid_ground:float = builder_img.get_pixelv( rand*world_size + world_position_inv ).r
-			
-			# Ignore non-spawns
-			var spawn_variant:int = roundi( spawn_value*max_index )
-			if is_zero_approx( spawn_value * valid_ground ):
+			# Skip black pixels (empty slots)
+			var pixel := Vector2( x, y )
+			var value:float = img.get_pixelv(pixel).r
+			if is_zero_approx( value ):
 				continue
 			
-			# Random position in XZ worldspace
-			var pos_2d:Vector2 = rand * world_size + world_position
-			var instance:Node3D = scene.instantiate()
+			# Skip invalid scenes (in case a scene was seted previously and then deleted)
+			var scene_index:int = roundi( value*max_index )
+			var scene:PackedScene = scenes[scene_index]
+			if not scene:
+				continue
+			
+			var randomness:float = randomnesses[scene_index]
+			var pos_2d:Vector2 = pixel/size_px * world_size + world_position
 			
 			# Raycast to the HeightMapShape3D to find the actual ground level
 			ray.from = Vector3( pos_2d.x, max_height+1, pos_2d.y )
@@ -109,9 +104,10 @@ func rebuild_terrain():
 			if not result:
 				continue
 			
+			var instance:Node3D = scene.instantiate()
 			_scene.instance_holder.add_child( instance )
 			instance.owner = _scene.owner
 			instance.global_position = Vector3( pos_2d.x, result.position.y, pos_2d.y )
-			instance.global_rotation = transf * randomness
+			instance.global_rotation = transf * randomness * PI
 			instance.scale = (transf*2 - Vector3.ONE) * randomness + Vector3.ONE
 
