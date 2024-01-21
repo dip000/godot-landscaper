@@ -26,7 +26,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 @onready var _tabs:CustomTabs = $Dock/Tabs
 
 @onready var _brushes_holder:Control = $Dock/Body/ScrollContainer/MarginContainer
-@onready var brush_size:CustomSliderUI = $Dock/BrushSize
+@onready var brush_size:CustomSliderUI = $Dock/BrushSize #coeficient from 0 to 1
 
 # For easier public acces
 @onready var terrain_builder:TerrainBuilder = _brushes_holder.get_node( "TerrainBuilder" )

@@ -57,7 +57,7 @@ const MAX_BUILD_REACH := Vector2i(100, 100)
 @export var i_resolution:int = 3
 @export var i_texture:Texture2D = _texture(Color.BLACK, Image.FORMAT_L8, i_resolution*world.size)
 @export var i_selected_instance:int = 0
-@export var i_scenes:Array[PackedScene] = [null, null, null, null, null, null, null, null]
+@export var i_scenes:Array[PackedScene] = [AssetsManager.DEFAULT_STONE, null, null, null, null, null, null, null]
 @export var i_randomnesses:Array[float] = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
 
 # Should not be setted until users actually saves them from the UI Dock

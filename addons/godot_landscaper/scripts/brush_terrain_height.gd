@@ -41,10 +41,14 @@ func paint(pos:Vector3, primary_action:bool):
 	var alpha:float = strength.value
 	out_color = Color(1,1,1,alpha) if primary_action else Color(0,0,0,alpha)
 
-	# Compenzate one pixel for the extra vertex
-	var world_offset:Vector2 = Vector2(_raw.world.position) - Vector2(1, 1)
+	# Compenzate half pixel for the extra vertex
+	var world_offset:Vector2 = Vector2(_raw.world.position) - Vector2(0.5, 0.5)
 	_bake_out_color_into_texture( pos, true, world_offset )
 	rebuild_terrain()
+
+func paint_end():
+	_ui.instancer.rebuild_terrain()
+
 
 func rebuild_terrain():
 	_ui.terrain_builder.rebuild_terrain()

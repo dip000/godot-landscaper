@@ -80,8 +80,10 @@ func _bake_out_color_into_texture(pos:Vector3, blend:=true, world_offset:Vector2
 	dst -= world_offset # To texture space (positive indexes)
 	dst *= _resolution # Relative to this texture resolition
 	dst -= src_size*0.5 # Draw from texture center
+	dst = dst.round()
 	
-	# Fun fact: get_image() returns a copy unless the texture is constant
+	# Create copies so the original doesn't get distorted
+	# 'get_image()' returns a copy unless the texture is constant
 	var src:Image = _create_img( out_color, src_size, img.get_format() )
 	var brush_mask:Image = AssetsManager.DEFAULT_BRUSH.get_image().duplicate()
 	brush_mask.resize( src_size.x, src_size.y )
