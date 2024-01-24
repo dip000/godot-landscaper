@@ -23,7 +23,7 @@ var _raw:RawLandscaper
 # The texture you'll painting over; color, heightmap, etc..
 var _texture:Texture2D
 
-# How many pixels has the texture per meter
+# How many pixels has the texture per meter squared
 var _resolution:float
 
 # Cached texture image. For faster image processing

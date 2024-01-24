@@ -23,6 +23,7 @@ const DEFAULT_GRASS_0:Texture2D = preload("res://addons/godot_landscaper/texture
 const DEFAULT_GRASS_1:Texture2D = preload("res://addons/godot_landscaper/textures/default_grass_v1.svg")
 const DEFAULT_GRASS_2:Texture2D = preload("res://addons/godot_landscaper/textures/default_grass_v2.svg")
 const DEFAULT_STONE:PackedScene = preload("res://addons/godot_landscaper/scenes/default_stone.glb")
+const DEFAULT_TREE:PackedScene = preload("res://addons/godot_landscaper/scenes/default_tree.glb")
 
 # For grass shader logic
 const SHADER_COMPATIBILITY := "#define GL_COMPATIBILITY"

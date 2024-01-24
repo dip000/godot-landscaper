@@ -55,15 +55,8 @@ func paint(pos:Vector3, primary_action:bool):
 
 
 func rebuild_terrain():
-	var scenes:Array[PackedScene]
-	var randomnesses:Array[float]
-	
-	for i in instances.tabs.size():
-		var instance:CustomInstance = instances.tabs[i]
-		scenes.append( instance.scene )
-		randomnesses.append( instance.randomness.value )
-	
 	# Caches
+	var tabs:Array[Node] = instances.tabs
 	var world_size:Vector2 = _raw.world.size
 	var world_position:Vector2 = _raw.world.position
 	var size_px:Vector2 = img.get_size()
@@ -80,22 +73,23 @@ func rebuild_terrain():
 	
 	for x in img.get_width():
 		for y in img.get_height():
-			var transf := Vector3( _rng.randf(), _rng.randf(), _rng.randf() )
+			var rand_rotation := Vector3( _rng.randf_range(-PI,PI), _rng.randf_range(-PI,PI), _rng.randf_range(-PI,PI) )
+			var rand_scale := Vector3( _rng.randf_range(0,2), _rng.randf_range(0,2), _rng.randf_range(0,2) )
 			
 			# Skip black pixels (empty slots)
-			var pixel := Vector2( x, y )
-			var value:float = img.get_pixelv(pixel).r
-			if is_zero_approx( value ):
+			var position_px := Vector2( x, y )
+			var value_px:float = img.get_pixelv( position_px ).r
+			if is_zero_approx( value_px ):
 				continue
 			
 			# Skip invalid scenes (in case a scene was seted previously and then deleted)
-			var scene_index:int = roundi( value*max_index )
-			var scene:PackedScene = scenes[scene_index]
+			var scene_index:int = roundi( value_px*max_index )
+			var scene:PackedScene = tabs[scene_index].scene
 			if not scene:
 				continue
 			
-			var randomness:float = randomnesses[scene_index]
-			var pos_2d:Vector2 = pixel/size_px * world_size + world_position
+			var randomness:float = tabs[scene_index].randomness.value
+			var pos_2d:Vector2 = position_px/size_px * world_size + world_position
 			
 			# Raycast to the HeightMapShape3D to find the actual ground level
 			ray.from = Vector3( pos_2d.x, max_height+1, pos_2d.y )
@@ -108,6 +102,6 @@ func rebuild_terrain():
 			_scene.instance_holder.add_child( instance )
 			instance.owner = _scene.owner
 			instance.global_position = Vector3( pos_2d.x, result.position.y, pos_2d.y )
-			instance.global_rotation = transf * randomness * PI
-			instance.scale = (transf*2 - Vector3.ONE) * randomness + Vector3.ONE
+			instance.global_rotation = rand_rotation * randomness
+			instance.scale = (rand_scale - Vector3.ONE) * randomness + Vector3.ONE
 
