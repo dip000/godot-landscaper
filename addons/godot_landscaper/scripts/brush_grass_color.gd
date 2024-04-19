@@ -19,8 +19,9 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	color.value = raw.gc_color
 	out_color = raw.gc_color
 	_update_grass_shader("grass_color", _texture)
-	_update_grass_shader("world_size", _raw.world.size)
 	_update_grass_shader("world_position", _get_offset_texture())
+	_update_grass_shader("world_size", _raw.world.size)
+	print("world_size changed: ", _raw.world.size)
 
 func paint(pos:Vector3, primary_action:bool):
 	# Paint alpha with secondary to smooth the texture
@@ -31,9 +32,9 @@ func paint(pos:Vector3, primary_action:bool):
 # Fill with the current grass color
 func resize_texture(rect:Rect2i, fill_color:Color):
 	super(rect, color.value)
-	_update_grass_shader("world_size", _raw.world.size)
 	_update_grass_shader("world_position", _get_offset_texture())
-
+	_update_grass_shader("world_size", _raw.world.size)
+	print("world_size changed: ", _raw.world.size)
 
 func _get_offset_texture() -> Vector2:
 	return float(-_resolution) * _raw.world.position / Vector2(img.get_size())

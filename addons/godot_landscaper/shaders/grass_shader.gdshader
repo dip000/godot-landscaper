@@ -24,8 +24,8 @@ const int TOTAL_GRASS_VARIANTS = 4;
 
 uniform bool enable_details = true;
 uniform vec3 detail_color:source_color = vec3(0.2);
-uniform vec2 world_size = vec2(10.0);
-uniform vec2 world_position = vec2(0);
+uniform vec2 world_size;
+uniform ivec2 world_position;
 
 // Colors of all of the grass instanced from a MultiMesh as seen from the top
 uniform sampler2D grass_color:source_color,filter_linear_mipmap,repeat_disable;
@@ -59,7 +59,8 @@ void vertex(){
 #endif
 	
 	// Vertex to world space (from center of texture). See [NOTES 1]
-	vec2 world_space = world_position + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / world_size;
+	vec2 world_space = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / world_size;
+	world_space += vec2(world_position);
 	
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
 	vec3 recolor_top = texture(grass_color, world_space).rgb;

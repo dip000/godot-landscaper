@@ -18,8 +18,6 @@ var scene:PackedScene:
 		scene = value
 		self.disabled = not value
 		set_enable( not self.disabled )
-	get:
-		return scene
 
 
 func _ready():

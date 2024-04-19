@@ -115,8 +115,10 @@ func resize_texture(rect:Rect2i, fill_color:Color):
 # Handy wrappers
 func _update_grass_shader(property:String, value:Variant):
 	_scene.grass_mesh.material.set_shader_parameter(property, value)
+	_scene.grass_mesh.emit_changed()
 func _update_terrain_shader(property:String, value:Variant):
 	_scene.terrain_overlay.material_override.set_shader_parameter(property, value)
+	_scene.terrain_overlay.material_override.emit_changed()
 
 func _create_img(color:Color, img_size:Vector2i, format:int) -> Image:
 	var img := Image.create(img_size.x, img_size.y, false, format)

@@ -29,7 +29,7 @@ func paint(pos:Vector3, primary_action:bool):
 	out_color = Color.WHITE if primary_action else Color(0,0,0,0)
 	
 	# Builder uses the max texture size instead of the minimum size given by '_raw.world'
-	var world_offset:Vector2 = -_raw.MAX_BUILD_REACH*0.5 - Vector2(0.5, 0.5)
+	var world_offset:Vector2 = -_raw.MAX_BUILD_REACH*0.5
 	_bake_out_color_into_texture( pos, false, world_offset )
 	rebuild_terrain()
 

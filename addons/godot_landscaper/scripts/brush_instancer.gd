@@ -25,20 +25,25 @@ func save_ui():
 	_raw.i_texture = _texture
 	_raw.i_resolution = _resolution
 	_raw.i_selected_instance = instances.selected_tab
-	for i in instances.tabs.size():
-		var instance:CustomInstance = instances.tabs[i]
-		_raw.i_scenes[i] = instance.scene
-		_raw.i_randomnesses[i] = instance.randomness.value
+	
+	# Idk who's clearing 'i_randomnesses' in some other place or what in tarnation is happening
+	var tabs:Array[Node] = instances.tabs
+	var randomnesses := _raw.i_randomnesses.duplicate()
+	for i in tabs.size():
+		_raw.i_scenes[i] = tabs[i].scene
+		randomnesses[i] = tabs[i].randomness.value
+	_raw.i_randomnesses = randomnesses
 	
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_texture = raw.i_texture
 	super(ui, scene, raw)
 	_resolution = _raw.i_resolution
 	instances.selected_tab = _raw.i_selected_instance
-	for i in instances.tabs.size():
-		var instance:CustomInstance = instances.tabs[i]
-		instance.scene = _raw.i_scenes[i]
-		instance.randomness.value = _raw.i_randomnesses[i]
+	
+	var tabs:Array[Node] = instances.tabs
+	for i in tabs.size():
+		tabs[i].scene = _raw.i_scenes[i]
+		tabs[i].randomness.value = _raw.i_randomnesses[i]
 	
 
 func paint(pos:Vector3, primary_action:bool):
