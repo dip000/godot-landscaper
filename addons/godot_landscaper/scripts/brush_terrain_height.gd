@@ -19,18 +19,17 @@ func _on_apply_all_changed(heighten:bool):
 	var color := Color(1, 1, 1, 0.05) if heighten else Color(0, 0, 0, 0.05)
 	var src:Image = _create_img( color, src_size, img.get_format() )
 	img.blend_rect( src, full_rect, Vector2i.ZERO )
-	_texture.update( img )
+	texture.update( img )
 	rebuild_terrain()
 
 
 func save_ui():
-	_raw.th_texture = _texture
 	_raw.th_resolution = _resolution
 	_raw.th_strength = strength.value
 	_raw.th_max_height = max_height.value
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_texture = raw.th_texture
+	_format_texture( raw.th_texture )
 	super(ui, scene, raw)
 	_resolution = raw.th_resolution
 	strength.value = raw.th_strength

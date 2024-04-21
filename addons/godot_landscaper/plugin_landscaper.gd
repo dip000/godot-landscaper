@@ -113,4 +113,11 @@ func _handles(object):
 func _edit(object):
 	# Blocks the UI Dock if user is not selecting any SceneLandscaper
 	_ui_inst.set_enable( object is SceneLandscaper )
-
+	
+	# Clear reference if it was deleted from scene tree (deletion takes one frame to be noticed)
+	# It will actually be sent to trash bin for Ctrl+Z revival
+	await get_tree().process_frame
+	if _scene_inst and (not is_instance_valid(_scene_inst) or not _scene_inst.is_inside_tree()):
+		_scene_inst = null
+		_ui_inst.scene_deleted()
+	

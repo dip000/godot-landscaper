@@ -17,7 +17,7 @@ var scene:PackedScene:
 	set(value):
 		scene = value
 		self.disabled = not value
-		set_enable( not self.disabled )
+		_set_enable( true if value else false )
 
 
 func _ready():
@@ -27,7 +27,7 @@ func _ready():
 	randomness.on_change.connect( _on_randomness_changed )
 
 func _on_toggled(button_pressed:bool):
-	set_enable( button_pressed )
+	_set_enable( button_pressed )
 
 func _on_file_changed(file:String):
 	if not FileAccess.file_exists( file ):
@@ -44,10 +44,11 @@ func _on_file_changed(file:String):
 	on_change.emit()
 	
 func _on_randomness_changed(value:float):
-	self.button_pressed = true
-	on_change.emit()
+	if not self.disabled:
+		self.button_pressed = true
+		on_change.emit()
 
-func set_enable(value:bool):
+func _set_enable(value:bool):
 	if scene:
 		_file.value = scene.resource_path
 	

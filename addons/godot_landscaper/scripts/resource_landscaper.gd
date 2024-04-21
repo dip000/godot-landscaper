@@ -64,8 +64,7 @@ const MAX_BUILD_REACH := Vector2i(100, 100)
 	null, null, null, null, null, null
 ]
 
-# Should not be setted until users actually saves them from the UI Dock
-# Otherwise, they might not be updated correctly
+# Should not be setted until users actually saves them from the UI Dock or they might not be updated correctly
 @export_group("External Resources")
 @export var terrain_mesh:ArrayMesh
 @export var terrain_material:StandardMaterial3D

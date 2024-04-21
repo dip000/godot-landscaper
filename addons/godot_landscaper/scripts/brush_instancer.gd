@@ -22,29 +22,33 @@ func _ready():
 
 
 func save_ui():
-	_raw.i_texture = _texture
 	_raw.i_resolution = _resolution
 	_raw.i_selected_instance = instances.selected_tab
 	
-	# Idk who's clearing 'i_randomnesses' in some other place or what in tarnation is happening
+	# Idk who's clearing '_raw.i_etc' in some other place or what in tarnation is happening
+	# but when assigned directly to raw throws "index out of range"
 	var tabs:Array[Node] = instances.tabs
 	var randomnesses := _raw.i_randomnesses.duplicate()
+	var scenes:Array[PackedScene]
 	for i in tabs.size():
-		_raw.i_scenes[i] = tabs[i].scene
+		scenes.append( _raw.i_scenes[i] )
+	for i in tabs.size():
+		scenes[i] = tabs[i].scene
 		randomnesses[i] = tabs[i].randomness.value
 	_raw.i_randomnesses = randomnesses
+	_raw.i_scenes = scenes
 	
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_texture = raw.i_texture
+	_format_texture( raw.i_texture )
 	super(ui, scene, raw)
 	_resolution = _raw.i_resolution
-	instances.selected_tab = _raw.i_selected_instance
 	
 	var tabs:Array[Node] = instances.tabs
 	for i in tabs.size():
 		tabs[i].scene = _raw.i_scenes[i]
 		tabs[i].randomness.value = _raw.i_randomnesses[i]
-	
+		instances.selected_tab = i
+	instances.selected_tab = _raw.i_selected_instance
 
 func paint(pos:Vector3, primary_action:bool):
 	# Spawn with primary key, erase with secondary

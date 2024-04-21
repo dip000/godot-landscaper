@@ -56,13 +56,23 @@ func _ready():
 	_confirm_load.confirmed.connect( _load_confirmed )
 	has_vulkan = true if RenderingServer.get_rendering_device() else false
 
+
 func _on_toggle_files(button_pressed:bool):
 	_ui.set_dock_enable( not button_pressed )
-
 
 func _load_ui():
 	for brush in _brushes:
 		brush.load_ui( _ui, _scene, _raw )
+
+func save_ui():
+	# UI input paths are saved inside the external resources
+	for brush in _brushes:
+		brush.save_ui()
+
+func _rebuild_terrain():
+	for brush in _brushes:
+		brush.rebuild_terrain()
+
 
 func _update_paths():
 	if _raw.saved_external:
@@ -77,31 +87,41 @@ func _update_paths():
 		files[FILE_GRASS_TEXTURE].value = _raw.gc_texture.resource_path
 	
 
-func save_ui():
-	# UI input paths are saved inside the external resources
-	for brush in _brushes:
-		brush.save_ui()
-
-func _rebuild_terrain():
-	for brush in _brushes:
-		brush.rebuild_terrain()
-
-
 func _on_load_all_pressed():
-	var project:CustomFileInput = _toggle_files.value[FILE_PROJECT]
+	var files:Array = _toggle_files.value
+	var warnings:String
+	var errors:String
 	
-	if not FileAccess.file_exists( project.value ):
-		popup_accept( "Project file '%s' does not exist\n" %project.value )
-		_ui.set_foot_enable( true )
-		return
+	for file_index in files.size():
+		var file:CustomFileInput = files[file_index]
+		var extension:String = _EXTENSIONS[file_index]
+		
+		if not FileAccess.file_exists( file.value ):
+			errors += "File '%s' does not exist. Must be an absolute path like res://my_file.%s\n" %[file.value, extension]
+			continue
+		
+		if not file.value:
+			errors += "File path to '%s' is empty. Please provide a valid path\n" %file.property_name
+			continue
+		
+		# Watch out for extensions
+		if file.value.get_extension() != extension:
+			errors += "The extension of %s file '%s' is not supported. Use '%s' instead\n" %[file.property_name, file.value.get_extension(), extension]
+			continue
 	
-	# Warn user if the project was not saved in File System
+	# Warn override
 	if _raw.saved_external:
-		_confirm_load.dialog_text = "Override current project?"
-		_confirm_load.popup()
-		return
+		warnings += "Override current project?"
 	
-	_load_confirmed()
+	# Don't load if errors. Ask to load if warnings. Or just load
+	if errors:
+		popup_accept( errors )
+	elif warnings:
+		_confirm_load.dialog_text = warnings
+		_confirm_load.popup()
+	else:
+		_load_confirmed()
+
 
 func _load_confirmed():
 	var project:CustomFileInput = _toggle_files.value[FILE_PROJECT]
@@ -109,23 +129,30 @@ func _load_confirmed():
 	
 	# Quicksave the current project just in case
 	save_ui()
+	await get_tree().process_frame
 	
 	# Load project resource
-	await get_tree().process_frame
 	_raw = load(project.value)
 	_scene.raw = _raw
+	await get_tree().process_frame
 	
-	_update_paths()
+	# Load the specific files selected by the user
+	var files:Array = _toggle_files.value
+	_raw.terrain_mesh = _load_resource( files[FILE_TERRAIN_MESH], _raw.terrain_mesh )
+	_raw.terrain_material = _load_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
+	_raw.tc_texture = _load_resource( files[FILE_TERRAIN_TEXTURE], _raw.tc_texture )
+	await get_tree().process_frame
 	
-	# Load copies of external textures with the internal format 'ImageTexture2D'
-	_raw.gc_texture = format_texture( _raw.gc_texture )
-	_raw.tc_texture = format_texture( _raw.tc_texture )
+	_raw.grass_mesh = _load_resource( files[FILE_GRASS_MESH], _raw.grass_mesh )
+	_raw.grass_material = _load_resource( files[FILE_GRASS_MATERIAL], _raw.grass_material )
+	_raw.gc_texture = _load_resource( files[FILE_GRASS_TEXTURE], _raw.gc_texture )
+	await get_tree().process_frame
 	
 	# Update UI properties and rebuild terrain
 	_load_ui()
 	_rebuild_terrain()
-	
 	await get_tree().create_timer(0.2).timeout
+	
 	_ui.set_foot_enable( true )
 
 
@@ -137,14 +164,18 @@ func _on_save_all_pressed():
 	for file_index in files.size():
 		var file:CustomFileInput = files[file_index]
 		
-		# Files without path are saved locally in RawLandscaper by default
 		if not file.value:
+			errors += "File path to '%s' is empty. Please provide a valid path\n" %file.property_name
+			continue
+		
+		var extension:String = _EXTENSIONS[file_index]
+		if not file.value.is_absolute_path():
+			errors += "File path to '%s' is invalid. Must be an absolute path like res://my_file.%s\n" %[file.property_name, extension]
 			continue
 		
 		# Watch out for extensions
-		var extension:String = _EXTENSIONS[file_index]
 		if file.value.get_extension() != extension:
-			errors += "File '%s' extension not supported. Use '%s' instead\n" %[file.value, extension]
+			errors += "The extension of %s file '%s' is not supported. Use '%s' instead\n" %[file.property_name, file.value.get_extension(), extension]
 			continue
 		
 		# Create directory if it wasn't found
@@ -172,6 +203,7 @@ func _save_confirmed():
 	var files:Array = _toggle_files.value
 	_ui.set_foot_enable( false, "Saving.." )
 	save_ui()
+	await get_tree().process_frame
 	
 	_raw.terrain_mesh = _scene.terrain_mesh
 	await _save_resource( files[FILE_TERRAIN_MESH], _raw.terrain_mesh )
@@ -179,6 +211,7 @@ func _save_confirmed():
 	_raw.terrain_material = _scene.terrain.material_override
 	await _save_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
 	
+	_raw.tc_texture = _ui.terrain_color.texture.duplicate(true)
 	await _save_resource( files[FILE_TERRAIN_TEXTURE], _raw.tc_texture )
 	
 	_raw.grass_mesh = _scene.grass_mesh
@@ -190,10 +223,12 @@ func _save_confirmed():
 	_raw.grass_shader = _scene.grass_mesh.material.shader
 	await _save_resource( files[FILE_GRASS_SHADER], _raw.grass_shader )
 	
+	_raw.gc_texture = _ui.grass_color.texture.duplicate(true)
 	await _save_resource( files[FILE_GRASS_TEXTURE], _raw.gc_texture )
+	
 	await _save_resource( files[FILE_PROJECT], _raw )
 	
-	await get_tree().create_timer(0.2).timeout
+	EditorInterface.get_resource_filesystem().scan()
 	_ui.set_foot_enable( true )
 	_raw.saved_external = true
 
@@ -206,6 +241,10 @@ func _save_resource(file:CustomFileInput, res:Resource):
 		res.take_over_path( file.value )
 		ResourceSaver.save( res )
 
+func _load_resource(file:CustomFileInput, res:Resource) -> Resource:
+	if file.value != res.resource_path:
+		return load(file.value)
+	return res
 
 func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	# Save previous UI properties if we have them
@@ -229,7 +268,6 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	
 	# Setup, load, and build
 	_scene.terrain_overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
-	_update_paths()
 	_load_ui()
 	_rebuild_terrain()
 	
@@ -237,6 +275,11 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	var files:Array = _toggle_files.value
 	for i in files.size():
 		files[i].value = files[i].default_file_path
+
+func scene_deleted():
+	_ui = null
+	_scene = null
+	_raw = null
 
 func popup_accept(msg:String):
 	_accept_dialog.dialog_text = msg
@@ -277,4 +320,5 @@ static func format_texture(texture:Texture2D, resize:=Vector2i.ZERO) -> ImageTex
 		img.resize( resize.x, resize.y )
 	
 	return ImageTexture.create_from_image( img )
+
 

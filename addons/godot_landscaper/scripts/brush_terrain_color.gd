@@ -13,19 +13,18 @@ func _ready():
 
 func save_ui():
 	_resolution = resolution.value
-	_raw.tc_texture = _texture
 	_raw.tc_color = color.value
 	_raw.tc_resolution = _resolution
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_texture = raw.tc_texture
+	_format_texture( raw.tc_texture )
 	super(ui, scene, raw)
 	color.value = raw.tc_color
 	out_color = raw.tc_color
 	_resolution = raw.tc_resolution
 	_change_resolution( _resolution )
 	resolution.value = _resolution
-	_update_grass_shader("terrain_color", _texture)
+	_update_grass_shader("terrain_color", texture)
 
 
 func paint(pos:Vector3, primary_action:bool):
@@ -35,8 +34,8 @@ func paint(pos:Vector3, primary_action:bool):
 
 
 func rebuild_terrain():
-	_update_grass_shader("terrain_color", _texture)
-	_scene.terrain.material_override.albedo_texture = _texture
+	_update_grass_shader("terrain_color", texture)
+	_scene.terrain.material_override.albedo_texture = texture
 
 # Fill with the current terrain color
 func resize_texture(rect:Rect2i, _fill_color:Color):

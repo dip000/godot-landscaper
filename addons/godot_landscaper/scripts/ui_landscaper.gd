@@ -30,7 +30,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 
 # For easier public acces
 @onready var terrain_builder:TerrainBuilder = _brushes_holder.get_node( "TerrainBuilder" )
-@onready var terrain_clor:TerrainColor = _brushes_holder.get_node( "TerrainColor" )
+@onready var terrain_color:TerrainColor = _brushes_holder.get_node( "TerrainColor" )
 @onready var terrain_height:TerrainHeight = _brushes_holder.get_node( "TerrainHeight" )
 @onready var grass_color:GrassColor = _brushes_holder.get_node( "GrassColor" )
 @onready var grass_spawn:GrassSpawn = _brushes_holder.get_node( "GrassSpawner" )
@@ -73,6 +73,7 @@ func _brush_changed(index:int):
 	_description_label.text = _DESCRIPTIONS[index] + _COMMON_DESCRIPTION
 
 
+
 # Blockers
 func set_enable(enable:bool):
 	fade( _blocker_full, enable )
@@ -100,12 +101,16 @@ func change_scene(scene:SceneLandscaper):
 	_scene = scene
 	set_enable( true )
 	assets_manager.change_scene( self, _scene, brushes )
-	
+
+func scene_deleted():
+	_scene = null
+	assets_manager.scene_deleted()
+
 func save_ui():
 	assets_manager.save_ui()
 
 func over_terrain(pos:Vector3):
-	var is_color_brush:bool = (_active_brush == terrain_clor or _active_brush == grass_color)
+	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
 	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_color", color)
 	

@@ -21,7 +21,7 @@ var _ui:UILandscaper
 var _raw:RawLandscaper
 
 # The texture you'll painting over; color, heightmap, etc..
-var _texture:Texture2D
+var texture:ImageTexture
 
 # How many pixels has the texture per meter squared
 var _resolution:float
@@ -31,15 +31,14 @@ var img:Image
 
 
 # Unpack all of its new properties from "raw"
-# "_texture" should've been setted before calling super()
+# "texture" should've been formated with '_format_texture()' before calling super()
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_ui = ui
 	_scene = scene
 	_raw = raw
-	img = _texture.get_image()
 	
 	var tex_rec := TextureRect.new()
-	tex_rec.texture = _texture
+	tex_rec.texture = texture
 	tex_rec.custom_minimum_size = Vector2(100, 100)
 	tex_rec.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tex_rec.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -64,7 +63,7 @@ func rebuild_terrain():
 func _change_resolution(new_resolution:float):
 	var world_resolution:Vector2 = _raw.world.size * new_resolution
 	img.resize( world_resolution.x, world_resolution.y )
-	_texture.set_image( img )
+	texture.set_image( img )
 	_resolution = new_resolution
 
 
@@ -93,7 +92,7 @@ func _bake_out_color_into_texture(pos:Vector3, blend:=true, world_offset:Vector2
 	else:
 		img.blit_rect_mask( src, brush_mask, full_rect, dst )
 	
-	_texture.update( img )
+	texture.update( img )
 
 
 # Crops texture on smaller sizes, expands on bigger ones. But always keeps pixels where they were
@@ -108,7 +107,7 @@ func resize_texture(rect:Rect2i, fill_color:Color):
 	
 	# Note that 'img' is being kept internally so 'get_image()' is never called, for performance
 	new_img.blit_rect( img, prev_img_full_rect, dst )
-	_texture.set_image( new_img )
+	texture.set_image( new_img )
 	img = new_img
 
 
@@ -119,6 +118,10 @@ func _update_grass_shader(property:String, value:Variant):
 func _update_terrain_shader(property:String, value:Variant):
 	_scene.terrain_overlay.material_override.set_shader_parameter(property, value)
 	_scene.terrain_overlay.material_override.emit_changed()
+
+func _format_texture(tex:Texture2D):
+	texture = AssetsManager.format_texture( tex )
+	img = texture.get_image()
 
 func _create_img(color:Color, img_size:Vector2i, format:int) -> Image:
 	var img := Image.create(img_size.x, img_size.y, false, format)

@@ -2,7 +2,7 @@
 extends Brush
 class_name TerrainBuilder
 # Brush that generates new mesh when you paint over the terrain
-# Paints white or black over the "_texture" depending if is built or not
+# Paints white or black over the "texture" depending if is built or not
 
 const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), #top-left triangle
@@ -17,11 +17,10 @@ func _ready():
 
 
 func save_ui():
-	_raw.tb_texture = _texture
 	_raw.tb_resolution = _resolution
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_texture = raw.tb_texture
+	_format_texture( raw.tb_texture )
 	super (ui, scene, raw )
 	_resolution = raw.tb_resolution
 

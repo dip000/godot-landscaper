@@ -66,7 +66,6 @@ func _on_variant_changed(want_to_add:bool):
 
 
 func save_ui():
-	_raw.gs_texture = _texture
 	_raw.gs_resolution = _resolution
 	_raw.gs_variants = variants.value
 	_raw.gs_selected_variant = variants.selected_tab
@@ -79,7 +78,7 @@ func save_ui():
 	_raw.gs_enable_details = detail_color.enabled
 	
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_texture = raw.gs_texture
+	_format_texture( raw.gs_texture )
 	super(ui, scene, raw)
 	_resolution = raw.gs_resolution
 	variants.value = raw.gs_variants

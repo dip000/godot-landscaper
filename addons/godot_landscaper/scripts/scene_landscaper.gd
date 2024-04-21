@@ -75,7 +75,9 @@ func _fix_terrain():
 	terrain.set_display_folded( true )
 	
 	# Setup grass
-	if not grass_mesh:
+	if grass_holder.get_child_count() > 0:
+		grass_mesh = grass_holder.get_child(0).multimesh.mesh
+	else:
 		grass_mesh = QuadMesh.new()
 		grass_mesh.material = ShaderMaterial.new()
 		grass_mesh.material.shader = AssetsManager.GRASS_SHADER.duplicate()
@@ -138,4 +140,5 @@ func _create_mesh_overlay() -> ArrayMesh:
 	mesh_arrays[Mesh.ARRAY_TEX_UV] = uv
 	overlay_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, mesh_arrays )
 	return overlay_mesh
-	
+
+
