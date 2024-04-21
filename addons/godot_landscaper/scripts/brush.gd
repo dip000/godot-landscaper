@@ -120,7 +120,7 @@ func _update_terrain_shader(property:String, value:Variant):
 	_scene.terrain_overlay.material_override.emit_changed()
 
 func _format_texture(tex:Texture2D):
-	texture = AssetsManager.format_texture( tex )
+	texture = tex
 	img = texture.get_image()
 
 func _create_img(color:Color, img_size:Vector2i, format:int) -> Image:

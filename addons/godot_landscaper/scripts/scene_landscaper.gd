@@ -34,7 +34,7 @@ var terrain_mesh:ArrayMesh:
 		return terrain.mesh
 
 
-func _ready():
+func _enter_tree():
 	if Engine.is_editor_hint():
 		# Wait a frame to let this node finish its ready cycle first
 		_fix_terrain.call_deferred()
@@ -95,6 +95,11 @@ func _fix_terrain():
 	terrain_overlay.material_override = ShaderMaterial.new()
 	terrain_overlay.material_override.shader = AssetsManager.TERRAIN_OVERLAY_SHADER
 	terrain_overlay.material_override.set_shader_parameter( "brush_texture", AssetsManager.DEFAULT_BRUSH )
+	
+	if raw:
+		terrain.material_override.albedo_texture = raw.tc_texture
+		grass_mesh.material.set_shader_parameter("grass_color", raw.gc_texture)
+		grass_mesh.material.set_shader_parameter("terrain_color", raw.tc_texture)
 
 
 func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:

@@ -66,6 +66,7 @@ func _on_variant_changed(want_to_add:bool):
 
 
 func save_ui():
+	_raw.gs_texture = texture
 	_raw.gs_resolution = _resolution
 	_raw.gs_variants = variants.value
 	_raw.gs_selected_variant = variants.selected_tab

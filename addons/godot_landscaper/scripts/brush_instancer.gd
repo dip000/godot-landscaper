@@ -22,6 +22,7 @@ func _ready():
 
 
 func save_ui():
+	_raw.i_texture = texture
 	_raw.i_resolution = _resolution
 	_raw.i_selected_instance = instances.selected_tab
 	

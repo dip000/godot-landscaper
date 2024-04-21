@@ -17,6 +17,7 @@ func _ready():
 
 
 func save_ui():
+	_raw.tb_texture = texture
 	_raw.tb_resolution = _resolution
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
@@ -97,6 +98,7 @@ func rebuild_terrain():
 	overlay_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, overlay_mesh_array )
 	
 	_ui.terrain_height.update_collider()
+	
 
 
 # Builder brush should not be resized

@@ -68,9 +68,11 @@ const MAX_BUILD_REACH := Vector2i(100, 100)
 @export_group("External Resources")
 @export var terrain_mesh:ArrayMesh
 @export var terrain_material:StandardMaterial3D
+@export var terrain_texture:Texture2D
 @export var grass_mesh:QuadMesh
 @export var grass_material:ShaderMaterial
 @export var grass_shader:Shader
+@export var grass_texture:Texture2D
 
 
 # Create a texture template

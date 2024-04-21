@@ -110,6 +110,9 @@ func save_ui():
 	assets_manager.save_ui()
 
 func over_terrain(pos:Vector3):
+	if not _scene:
+		return
+	
 	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
 	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_color", color)
@@ -128,7 +131,11 @@ func paint(pos:Vector3, main_action:bool):
 func paint_end():
 	_active_brush.paint_end()
 	_scene.terrain_overlay.position.y = 0.07
+	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
+	if is_color_brush:
+		assets_manager.set_unsaved_changes( true )
 
 func scale_by(sca:float):
 	brush_size.value += sca
 	_scene.terrain_overlay.material_override.set_shader_parameter("brush_scale", brush_size.value)
+

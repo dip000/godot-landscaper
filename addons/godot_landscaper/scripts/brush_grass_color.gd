@@ -8,6 +8,7 @@ class_name GrassColor
 
 
 func save_ui():
+	_raw.gc_texture = texture
 	_raw.gc_resolution = _resolution
 	_raw.gc_color = color.value
 
@@ -25,6 +26,10 @@ func paint(pos:Vector3, primary_action:bool):
 	# Paint alpha with secondary to smooth the texture
 	out_color = color.value if primary_action else Color(color.value, 0.1)
 	_bake_out_color_into_texture(pos)
+	rebuild_terrain()
+
+func rebuild_terrain():
+	_update_grass_shader("grass_color", texture)
 
 # Let grass shader know the new properties
 # Fill with the current grass color
@@ -32,6 +37,8 @@ func resize_texture(rect:Rect2i, fill_color:Color):
 	super(rect, color.value)
 	_update_grass_shader("world_position", _get_offset_texture())
 	_update_grass_shader("world_size", _raw.world.size as Vector2)
+	_update_grass_shader("grass_color", texture)
+	_ui.assets_manager.set_unsaved_changes( true )
 
 func _get_offset_texture() -> Vector2:
 	return float(-_resolution) * _raw.world.position / Vector2(img.get_size())

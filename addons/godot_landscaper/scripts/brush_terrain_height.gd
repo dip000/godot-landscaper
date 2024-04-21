@@ -21,9 +21,12 @@ func _on_apply_all_changed(heighten:bool):
 	img.blend_rect( src, full_rect, Vector2i.ZERO )
 	texture.update( img )
 	rebuild_terrain()
-
+	update_collider()
+	_update_grass()
+	_ui.instancer.rebuild_terrain()
 
 func save_ui():
+	_raw.th_texture = texture
 	_raw.th_resolution = _resolution
 	_raw.th_strength = strength.value
 	_raw.th_max_height = max_height.value
@@ -47,12 +50,12 @@ func paint(pos:Vector3, primary_action:bool):
 
 func paint_end():
 	_ui.instancer.rebuild_terrain()
-
+	update_collider()
+	_update_grass()
 
 func rebuild_terrain():
 	_ui.terrain_builder.rebuild_terrain()
-	update_collider()
-	_update_grass()
+
 
 func update_collider():
 	# Caches

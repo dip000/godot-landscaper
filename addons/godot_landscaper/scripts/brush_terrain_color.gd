@@ -12,6 +12,7 @@ func _ready():
 	resolution.on_change.connect( _change_resolution )
 
 func save_ui():
+	_raw.tc_texture = texture
 	_resolution = resolution.value
 	_raw.tc_color = color.value
 	_raw.tc_resolution = _resolution
@@ -40,5 +41,7 @@ func rebuild_terrain():
 # Fill with the current terrain color
 func resize_texture(rect:Rect2i, _fill_color:Color):
 	super(rect, color.value)
-
+	_update_grass_shader("terrain_color", texture)
+	_scene.terrain.material_override.albedo_texture = texture
+	_ui.assets_manager.set_unsaved_changes( true )
 

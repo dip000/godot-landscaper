@@ -31,7 +31,7 @@ const SHADER_BILLBOARD_Y := "#define BILLBOARD_Y"
 
 # Content child indexes and extensions for external resources
 enum { FILE_PROJECT, FILE_TERRAIN_MESH, FILE_TERRAIN_MATERIAL, FILE_TERRAIN_TEXTURE, FILE_GRASS_MESH, FILE_GRASS_MATERIAL, FILE_GRASS_SHADER, FILE_GRASS_TEXTURE}
-const _EXTENSIONS:PackedStringArray = ["tres", "tres", "tres", "png", "tres", "tres", "gdshader", "png"]
+const _EXTENSIONS:PackedStringArray = ["res", "res", "res", "png", "res", "res", "gdshader", "png"]
 
 @onready var _toggle_files:CustomToggleContent = $ToggleContent
 @onready var _save_all:Button = $All/Save
@@ -54,8 +54,12 @@ func _ready():
 	_load_all.pressed.connect( _on_load_all_pressed )
 	_confirm_save.confirmed.connect( _save_confirmed )
 	_confirm_load.confirmed.connect( _load_confirmed )
+	
 	has_vulkan = true if RenderingServer.get_rendering_device() else false
 
+
+func set_unsaved_changes(unsaved:bool):
+	_save_all.text = "Save Project *" if unsaved else "Save Project"
 
 func _on_toggle_files(button_pressed:bool):
 	_ui.set_dock_enable( not button_pressed )
@@ -80,11 +84,11 @@ func _update_paths():
 		files[FILE_PROJECT].value = _raw.resource_path
 		files[FILE_TERRAIN_MESH].value = _raw.terrain_mesh.resource_path
 		files[FILE_TERRAIN_MATERIAL].value = _raw.terrain_material.resource_path
-		files[FILE_TERRAIN_TEXTURE].value = _raw.tc_texture.resource_path
+		files[FILE_TERRAIN_TEXTURE].value = _raw.terrain_texture.resource_path
 		files[FILE_GRASS_MESH].value = _raw.grass_mesh.resource_path
 		files[FILE_GRASS_MATERIAL].value = _raw.grass_material.resource_path
 		files[FILE_GRASS_SHADER].value = _raw.grass_shader.resource_path
-		files[FILE_GRASS_TEXTURE].value = _raw.gc_texture.resource_path
+		files[FILE_GRASS_TEXTURE].value = _raw.grass_texture.resource_path
 	
 
 func _on_load_all_pressed():
@@ -140,18 +144,28 @@ func _load_confirmed():
 	var files:Array = _toggle_files.value
 	_raw.terrain_mesh = _load_resource( files[FILE_TERRAIN_MESH], _raw.terrain_mesh )
 	_raw.terrain_material = _load_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
-	_raw.tc_texture = _load_resource( files[FILE_TERRAIN_TEXTURE], _raw.tc_texture )
+	_raw.terrain_texture = _load_resource( files[FILE_TERRAIN_TEXTURE], _raw.terrain_texture )
 	await get_tree().process_frame
 	
 	_raw.grass_mesh = _load_resource( files[FILE_GRASS_MESH], _raw.grass_mesh )
 	_raw.grass_material = _load_resource( files[FILE_GRASS_MATERIAL], _raw.grass_material )
-	_raw.gc_texture = _load_resource( files[FILE_GRASS_TEXTURE], _raw.gc_texture )
+	_raw.grass_texture = _load_resource( files[FILE_GRASS_TEXTURE], _raw.grass_texture )
 	await get_tree().process_frame
+	
+	# Update interal textures from the external ones
+	_raw.gc_texture = format_texture( _raw.grass_texture )
+	_raw.tc_texture = format_texture( _raw.terrain_texture )
 	
 	# Update UI properties and rebuild terrain
 	_load_ui()
 	_rebuild_terrain()
 	await get_tree().create_timer(0.2).timeout
+	
+	# Update shader references
+	_raw.terrain_material.albedo_texture = _raw.terrain_texture
+	_raw.grass_material.set_shader_parameter("grass_color", _raw.grass_texture)
+	_raw.grass_material.set_shader_parameter("terrain_color", _raw.terrain_texture)
+	set_unsaved_changes( false )
 	
 	_ui.set_foot_enable( true )
 
@@ -211,8 +225,8 @@ func _save_confirmed():
 	_raw.terrain_material = _scene.terrain.material_override
 	await _save_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
 	
-	_raw.tc_texture = _ui.terrain_color.texture.duplicate(true)
-	await _save_resource( files[FILE_TERRAIN_TEXTURE], _raw.tc_texture )
+	_raw.terrain_texture = _raw.tc_texture
+	await _save_resource( files[FILE_TERRAIN_TEXTURE], _raw.terrain_texture )
 	
 	_raw.grass_mesh = _scene.grass_mesh
 	await _save_resource( files[FILE_GRASS_MESH], _raw.grass_mesh )
@@ -223,12 +237,19 @@ func _save_confirmed():
 	_raw.grass_shader = _scene.grass_mesh.material.shader
 	await _save_resource( files[FILE_GRASS_SHADER], _raw.grass_shader )
 	
-	_raw.gc_texture = _ui.grass_color.texture.duplicate(true)
-	await _save_resource( files[FILE_GRASS_TEXTURE], _raw.gc_texture )
-	
+	_raw.grass_texture = _raw.gc_texture
+	await _save_resource( files[FILE_GRASS_TEXTURE], _raw.grass_texture )
+
 	await _save_resource( files[FILE_PROJECT], _raw )
 	
+	# This will independize the internal textures from the saved ones
+	_raw.gc_texture = format_texture( _raw.grass_texture )
+	_ui.grass_color.texture = _raw.gc_texture
+	_raw.tc_texture = format_texture( _raw.terrain_texture )
+	_ui.terrain_color.texture = _raw.tc_texture
+	
 	EditorInterface.get_resource_filesystem().scan()
+	set_unsaved_changes( false )
 	_ui.set_foot_enable( true )
 	_raw.saved_external = true
 
@@ -255,6 +276,7 @@ func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
 	_scene = scene
 	_brushes = brushes
 	_raw = scene.raw
+	set_unsaved_changes( true )
 	
 	# Load new UI properties
 	if _raw:
