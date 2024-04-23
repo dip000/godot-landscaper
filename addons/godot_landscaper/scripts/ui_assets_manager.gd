@@ -11,6 +11,7 @@ class_name AssetsManager
 # LOAD BUTTON    |      F     |      T     |     T    |     F    |       F       |       T       |
 # SAVE BUTTON    |      T     |      F     |     F    |     F    |       T       |       F       |
 
+const DEBUGS := true
 
 # File System Resources
 const ICONS_MEDIUM:Texture2D = preload("res://addons/godot_landscaper/textures/icons_medium.svg")
@@ -24,6 +25,7 @@ const DEFAULT_GRASS_1:Texture2D = preload("res://addons/godot_landscaper/texture
 const DEFAULT_GRASS_2:Texture2D = preload("res://addons/godot_landscaper/textures/default_grass_v2.svg")
 const DEFAULT_STONE:PackedScene = preload("res://addons/godot_landscaper/scenes/default_stone.glb")
 const DEFAULT_TREE:PackedScene = preload("res://addons/godot_landscaper/scenes/default_tree.glb")
+const TERRAIN_OVERLAY:PackedScene = preload("res://addons/godot_landscaper/scenes/terrain_overlay.tscn")
 
 # For grass shader logic
 const SHADER_COMPATIBILITY := "#define GL_COMPATIBILITY"
@@ -39,12 +41,10 @@ const _EXTENSIONS:PackedStringArray = ["res", "res", "res", "png", "res", "res",
 @onready var _accept_dialog:AcceptDialog = $AcceptDialog
 @onready var _confirm_save:ConfirmationDialog = $ConfirmationSaveDialog
 @onready var _confirm_load:ConfirmationDialog = $ConfirmationLoadDialog
+@onready var _ui:UILandscaper = owner
 
-var _ui:UILandscaper
 var _scene:SceneLandscaper
 var _raw:RawLandscaper
-var _brushes:Array[Brush]
-
 var has_vulkan:bool
 
 
@@ -57,7 +57,6 @@ func _ready():
 	
 	has_vulkan = true if RenderingServer.get_rendering_device() else false
 
-
 func set_unsaved_changes(unsaved:bool):
 	_save_all.text = "Save Project *" if unsaved else "Save Project"
 
@@ -65,16 +64,19 @@ func _on_toggle_files(button_pressed:bool):
 	_ui.set_dock_enable( not button_pressed )
 
 func _load_ui():
-	for brush in _brushes:
+	debug("Loading UI properties of '%s'.." %_scene.name)
+	for brush in _ui.brushes:
 		brush.load_ui( _ui, _scene, _raw )
 
 func save_ui():
 	# UI input paths are saved inside the external resources
-	for brush in _brushes:
+	debug("Saving UI properties of '%s'.." %_scene.name)
+	for brush in _ui.brushes:
 		brush.save_ui()
 
 func _rebuild_terrain():
-	for brush in _brushes:
+	debug("Rebuilding terrain of '%s'.." %_scene.name)
+	for brush in _ui.brushes:
 		brush.rebuild_terrain()
 
 
@@ -89,7 +91,11 @@ func _update_paths():
 		files[FILE_GRASS_MATERIAL].value = _raw.grass_material.resource_path
 		files[FILE_GRASS_SHADER].value = _raw.grass_shader.resource_path
 		files[FILE_GRASS_TEXTURE].value = _raw.grass_texture.resource_path
-	
+	else:
+		var files:Array = _toggle_files.value
+		for i in files.size():
+			files[i].value = files[i].default_file_path
+
 
 func _on_load_all_pressed():
 	var files:Array = _toggle_files.value
@@ -128,6 +134,7 @@ func _on_load_all_pressed():
 
 
 func _load_confirmed():
+	debug("Loading project '%s'.." %_scene.name)
 	var project:CustomFileInput = _toggle_files.value[FILE_PROJECT]
 	_ui.set_foot_enable( false, "Loading.." )
 	
@@ -214,6 +221,7 @@ func _on_save_all_pressed():
 
 # Saves in file system every resource, which might take a while on big textures
 func _save_confirmed():
+	debug("Saving project '%s'.." %_scene.name)
 	var files:Array = _toggle_files.value
 	_ui.set_foot_enable( false, "Saving.." )
 	save_ui()
@@ -267,46 +275,48 @@ func _load_resource(file:CustomFileInput, res:Resource) -> Resource:
 		return load(file.value)
 	return res
 
-func change_scene(ui:UILandscaper, scene:SceneLandscaper, brushes:Array[Brush]):
-	# Save previous UI properties if we have them
-	if _raw:
+
+func selected_scene(scene:SceneLandscaper):
+	debug("Selected '%s'" %scene.name)
+	
+	# Save previous
+	if _scene:
 		save_ui()
 	
-	_ui = ui
+	# Update references
 	_scene = scene
-	_brushes = brushes
 	_raw = scene.raw
 	set_unsaved_changes( true )
 	
 	# Load new UI properties
-	if _raw:
-		_update_paths()
+	if scene.raw:
 		_load_ui()
+		_update_paths()
+		scene.overlay.enable()
 		return
 	
-	# Or create a new template terrain for a new scene
+	# Build and setup new scene
 	_raw = RawLandscaper.new()
-	_scene.raw = _raw
+	scene.raw = _raw
+	scene.update_terrain()
+	scene.overlay.resize(_raw.canvas.size.x, _raw.canvas.size.y)
+	scene.overlay.enable()
 	
-	# Setup, load, and build
-	_scene.terrain_overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
+	_scene.overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
 	_load_ui()
 	_rebuild_terrain()
+	_update_paths()
 	
-	# Default external resource file inputs
-	var files:Array = _toggle_files.value
-	for i in files.size():
-		files[i].value = files[i].default_file_path
 
-func scene_deleted():
-	_ui = null
+func deselected_scene(scene:SceneLandscaper):
+	debug("Deselected '%s'" %scene.name)
+	scene.overlay.disable()
+	save_ui()
 	_scene = null
-	_raw = null
 
 func popup_accept(msg:String):
 	_accept_dialog.dialog_text = msg
 	_accept_dialog.popup()
-
 
 
 func fix_shader_compatibility(variants:Array):
@@ -343,4 +353,8 @@ static func format_texture(texture:Texture2D, resize:=Vector2i.ZERO) -> ImageTex
 	
 	return ImageTexture.create_from_image( img )
 
+
+func debug(msg:String):
+	if DEBUGS:
+		printt("AssetsManager", msg)
 

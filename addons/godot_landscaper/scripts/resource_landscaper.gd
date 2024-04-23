@@ -5,15 +5,17 @@ class_name RawLandscaper
 # Save or load it from the "Landscaper" UI Dock
 # Creates templates for every brush on new()
 
-const MAX_BUILD_REACH := Vector2i(100, 100)
 @export var saved_external:bool = false
 
-## Position of terrain in 3D space. Starts with size of 6x6 and centered
+## Canvas in 3D space. Starts with size of 32x32 wold-centered
+@export var canvas := Rect2i(-16, -16, 32, 32)
+## Terrain in 3D space. Starts with size of 6x6 wold-centered
 @export var world:Rect2i = Rect2i(-3, -3, 6, 6)
 
 @export_group("Terrain Builder", "tb_")
 @export var tb_resolution:int = 1
 @export var tb_texture:Texture2D = _builder_texture()
+@export var tb_canvas_size:int = 32
 
 @export_group("Terrain Color", "tc_")
 @export var tc_resolution:int = 10
@@ -85,11 +87,11 @@ func _texture(color:Color, format:Image.Format, size:Vector2i) -> Texture2D:
 # Builder texture uses FORMAT_LA8 for the "Image.get_used_rect()" functionality
 # Size is the maximum building reach. The actual terrain size is given by "Image.get_used_rect().size"
 func _builder_texture() -> Texture2D:
-	var img := Image.create(MAX_BUILD_REACH.x, MAX_BUILD_REACH.y, false, Image.FORMAT_LA8)
+	var img := Image.create(canvas.size.x, canvas.size.y, false, Image.FORMAT_LA8)
 	var pos:Vector2i
 	var build_rect:Rect2i = world
 	
-	build_rect.position += MAX_BUILD_REACH/2
+	build_rect.position += canvas.size/2
 	img.fill(Color.TRANSPARENT)
 	img.fill_rect( build_rect, Color.WHITE )
 	return ImageTexture.create_from_image( img )

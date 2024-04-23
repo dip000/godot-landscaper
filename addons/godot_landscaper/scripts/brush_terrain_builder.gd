@@ -9,27 +9,45 @@ const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #bottom-right triangle
 ]
 
+@onready var canvas_size:CustomNumberInput = $CustomNumberInput
 var _mesh_arrays:Array = []
 
 
 func _ready():
 	_mesh_arrays.resize(Mesh.ARRAY_MAX)
+	canvas_size.on_change.connect( _on_canvas_size_changed )
+
+func _on_canvas_size_changed(new_size:float):
+	if new_size <= 0:
+		canvas_size.value = 2
+		return
+	
+	var size_vector := Vector2i(new_size, new_size)
+	var image_pos:Vector2i = (size_vector*0.5 - _raw.canvas.size*0.5).round()
+	_scene.overlay.resize( new_size, new_size )
+	resize_texture( Rect2(image_pos, size_vector), Color.TRANSPARENT )
+	_raw.canvas.size = size_vector
+	_raw.canvas.position = size_vector/2
+	rebuild_terrain()
+	_ui.grass_spawn.rebuild_terrain()
 
 
 func save_ui():
 	_raw.tb_texture = texture
 	_raw.tb_resolution = _resolution
+	_raw.tb_canvas_size = canvas_size.value
 
 func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 	_format_texture( raw.tb_texture )
 	super (ui, scene, raw )
 	_resolution = raw.tb_resolution
+	canvas_size.value = _raw.tb_canvas_size
 
 func paint(pos:Vector3, primary_action:bool):
 	out_color = Color.WHITE if primary_action else Color(0,0,0,0)
 	
 	# Builder uses the max texture size instead of the minimum size given by '_raw.world'
-	var world_offset:Vector2 = -_raw.MAX_BUILD_REACH*0.5
+	var world_offset:Vector2 = -_raw.canvas.size*0.5
 	_bake_out_color_into_texture( pos, false, world_offset )
 	rebuild_terrain()
 
@@ -39,10 +57,14 @@ func paint_end():
 
 
 func rebuild_terrain():
-	# Caches
 	var build_rect:Rect2i = img.get_used_rect()
+	if build_rect.size <= Vector2i.ZERO:
+		push_warning("Terrain cannot be fully debuilt")
+		return
+	
+	# Caches
 	var build_map:Image = img.get_region( build_rect )
-	var overlay_mesh:ArrayMesh = _scene.terrain_overlay.mesh
+	var overlay_mesh:ArrayMesh = _scene.overlay.mesh
 	var terrain_mesh:ArrayMesh = _scene.terrain_mesh
 	var overlay_mesh_array:Array = overlay_mesh.surface_get_arrays( 0 )
 	var overlay_vertices:PackedVector3Array = overlay_mesh_array[Mesh.ARRAY_VERTEX]
@@ -53,12 +75,13 @@ func rebuild_terrain():
 	var shape_size:int = SQUARE_SHAPE.size()
 	
 	if build_rect.size != _raw.world.size:
-		var new_position:Vector2i = build_rect.position - RawLandscaper.MAX_BUILD_REACH/2
+		var new_position:Vector2i = build_rect.position - _raw.canvas.size/2
 		var resize_rect := Rect2i( _raw.world.position - new_position, build_rect.size )
 		_raw.world.position = new_position
 		_raw.world.size = build_rect.size
 		for brush in _ui.brushes:
-			brush.resize_texture( resize_rect, Color.BLACK )
+			if brush != self:
+				brush.resize_texture( resize_rect, Color.BLACK )
 	
 	var world_position:Vector2i = _raw.world.position
 	var world_size:Vector2 = _raw.world.size
@@ -99,8 +122,3 @@ func rebuild_terrain():
 	
 	_ui.terrain_height.update_collider()
 	
-
-
-# Builder brush should not be resized
-func resize_texture(rect:Rect2i, fill_color:Color):
-	return

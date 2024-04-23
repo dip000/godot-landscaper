@@ -59,7 +59,7 @@ func rebuild_terrain():
 
 func update_collider():
 	# Caches
-	var height_collider:CollisionShape3D = _scene.terrain_collider
+	var height_collider:CollisionShape3D = _scene.collider
 	var height_shape:HeightMapShape3D = height_collider.shape
 	var world:Rect2i = _raw.world
 	var position_offset:Vector2 = Vector2(world.position) + (world.size * 0.5)

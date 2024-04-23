@@ -56,10 +56,6 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		if not result:
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	# Ignore colliders that aren't from the current SceneLandscaper instance
-	if result.collider != _scene_inst.terrain_body and result.collider != _scene_inst.overlay_body:
-		return EditorPlugin.AFTER_GUI_INPUT_PASS
-	
 	_ui_inst.over_terrain( result.position )
 	
 	# Paint
@@ -93,31 +89,26 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
-# Quick saves with "Ctrl+S"
+# Quick-saves UI properties with "Ctrl+S"
 func _save_external_data():
-	_ui_inst.save_ui()
+	if _scene_inst:
+		_ui_inst.save_ui()
 
 
-# Changes to a new SceneLandscaper node
-# Waits a frame in case SceneLandscaper is fixing its terrain
 func _handles(object):
-	if object is SceneLandscaper:
-		if object != _scene_inst:
-			_scene_inst = object
-			await get_tree().process_frame
-			_ui_inst.change_scene( _scene_inst )
-		return true
-	return false
+	return object is SceneLandscaper
 
 
-func _edit(object):
-	# Blocks the UI Dock if user is not selecting any SceneLandscaper
-	_ui_inst.set_enable( object is SceneLandscaper )
+func _edit(new_scene:Variant):
+	if new_scene == _scene_inst:
+		return
 	
-	# Clear reference if it was deleted from scene tree (deletion takes one frame to be noticed)
-	# It will actually be sent to trash bin for Ctrl+Z revival
-	await get_tree().process_frame
-	if _scene_inst and (not is_instance_valid(_scene_inst) or not _scene_inst.is_inside_tree()):
+	if new_scene:
+		if _scene_inst:
+			_ui_inst.deselected_scene( _scene_inst )
+		_ui_inst.selected_scene( new_scene )
+		_scene_inst = new_scene
+	else:
+		_ui_inst.deselected_scene( _scene_inst )
 		_scene_inst = null
-		_ui_inst.scene_deleted()
-	
+

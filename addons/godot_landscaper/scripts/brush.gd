@@ -69,7 +69,7 @@ func _change_resolution(new_resolution:float):
 
 # Paints "texture" with "out_color" at given "pos" with the global brush size
 func _bake_out_color_into_texture(pos:Vector3, blend:=true, world_offset:Vector2=_raw.world.position):
-	var max_size:Vector2i = RawLandscaper.MAX_BUILD_REACH
+	var max_size:Vector2i = _raw.canvas.size
 	var brush_scale:float = _ui.brush_size.value
 	var src_size:Vector2i = max_size * brush_scale * _resolution
 	var full_rect := Rect2i(Vector2i.ZERO, img.get_size())
@@ -116,8 +116,8 @@ func _update_grass_shader(property:String, value:Variant):
 	_scene.grass_mesh.material.set_shader_parameter(property, value)
 	_scene.grass_mesh.emit_changed()
 func _update_terrain_shader(property:String, value:Variant):
-	_scene.terrain_overlay.material_override.set_shader_parameter(property, value)
-	_scene.terrain_overlay.material_override.emit_changed()
+	_scene.overlay.material_override.set_shader_parameter(property, value)
+	_scene.overlay.material_override.emit_changed()
 
 func _format_texture(tex:Texture2D):
 	texture = tex

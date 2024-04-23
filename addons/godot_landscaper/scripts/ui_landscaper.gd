@@ -56,9 +56,10 @@ func _ready():
 	for brush in _brushes_holder.get_children():
 		brushes.append( brush )
 	_brush_changed(0)
+	
 
 func _on_brush_size_changed(value):
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_scale", value)
+	_scene.overlay.material_override.set_shader_parameter("brush_scale", value)
 
 func _brush_changed(index:int):
 	# Change to active brush properties
@@ -96,15 +97,16 @@ func fade(blocker:Control, fade_out:bool):
 
 
 
-# Brush control routing
-func change_scene(scene:SceneLandscaper):
+# Control routing
+func selected_scene(scene:SceneLandscaper):
 	_scene = scene
 	set_enable( true )
-	assets_manager.change_scene( self, _scene, brushes )
+	assets_manager.selected_scene( scene )
 
-func scene_deleted():
+func deselected_scene(scene:SceneLandscaper):
 	_scene = null
-	assets_manager.scene_deleted()
+	set_enable( false )
+	assets_manager.deselected_scene( scene )
 
 func save_ui():
 	assets_manager.save_ui()
@@ -115,27 +117,27 @@ func over_terrain(pos:Vector3):
 	
 	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
 	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_color", color)
+	_scene.overlay.material_override.set_shader_parameter("brush_color", color)
 	
-	var brush_position:Vector2 = Vector2( pos.x, pos.z ) / Vector2( RawLandscaper.MAX_BUILD_REACH )
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_position", brush_position)
+	var brush_position:Vector2 = Vector2( pos.x, pos.z ) / Vector2( _scene.raw.canvas.size )
+	_scene.overlay.material_override.set_shader_parameter("brush_position", brush_position)
 	
 	pos.y += 1
-	_scene.brush_sprite.global_position = pos
-	_scene.brush_sprite.frame = _tabs.selected_tab
+	_scene.overlay.brush_sprite.global_position = pos
+	_scene.overlay.brush_sprite.frame = _tabs.selected_tab
 
 func paint(pos:Vector3, main_action:bool):
 	_active_brush.paint( pos, main_action )
-	_scene.terrain_overlay.position.y = 0.02
+	_scene.overlay.position.y = 0.02
 
 func paint_end():
 	_active_brush.paint_end()
-	_scene.terrain_overlay.position.y = 0.07
+	_scene.overlay.position.y = 0.07
 	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
 	if is_color_brush:
 		assets_manager.set_unsaved_changes( true )
 
 func scale_by(sca:float):
 	brush_size.value += sca
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_scale", brush_size.value)
+	_scene.overlay.material_override.set_shader_parameter("brush_scale", brush_size.value)
 

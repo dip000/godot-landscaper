@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3 uid="uid://58nosf20enj3"]
+
+[ext_resource type="Shader" path="res://addons/godot_landscaper/shaders/terrain_overlay_shader.gdshader" id="1_gmebd"]
+[ext_resource type="Script" path="res://addons/godot_landscaper/scripts/terrain_overlay.gd" id="1_oiy47"]
+[ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/godot_landscaper/textures/icons.svg" id="1_y577x"]
+[ext_resource type="Texture2D" uid="uid://bc03njqi82w58" path="res://addons/godot_landscaper/textures/default_brush.tres" id="2_dbjae"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qekta"]
+render_priority = 0
+shader = ExtResource("1_gmebd")
+shader_parameter/brush_position = Vector2(2, 2)
+shader_parameter/brush_scale = 0.005
+shader_parameter/brush_color = null
+shader_parameter/brush_texture = ExtResource("2_dbjae")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6gnmv"]
+size = Vector3(50, 0.1, 32)
+
+[node name="Overlay" type="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.13, 0)
+material_override = SubResource("ShaderMaterial_qekta")
+script = ExtResource("1_oiy47")
+
+[node name="Body" type="StaticBody3D" parent="."]
+unique_name_in_owner = true
+collision_layer = 1073741825
+
+[node name="Collider" type="CollisionShape3D" parent="Body"]
+unique_name_in_owner = true
+shape = SubResource("BoxShape3D_6gnmv")
+
+[node name="Sprite" type="Sprite3D" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.5)
+pixel_size = 0.003
+billboard = 1
+fixed_size = true
+texture = ExtResource("1_y577x")
+hframes = 6
