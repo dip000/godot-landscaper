@@ -10,8 +10,14 @@ class_name TerrainHeight
 
 
 func _ready():
-	max_height.on_change.connect( rebuild_terrain.unbind(1) )
+	max_height.on_change.connect( _on_max_height )
 	aplly_all_height.on_change.connect( _on_apply_all_changed )
+
+func _on_max_height(height:float):
+	rebuild_terrain()
+	_ui.instancer.rebuild_terrain()
+	update_collider()
+	_update_grass()
 
 func _on_apply_all_changed(heighten:bool):
 	var src_size:Vector2i = img.get_size()
@@ -21,9 +27,9 @@ func _on_apply_all_changed(heighten:bool):
 	img.blend_rect( src, full_rect, Vector2i.ZERO )
 	texture.update( img )
 	rebuild_terrain()
+	_ui.instancer.rebuild_terrain()
 	update_collider()
 	_update_grass()
-	_ui.instancer.rebuild_terrain()
 
 func save_ui():
 	_raw.th_texture = texture
@@ -83,6 +89,7 @@ func update_collider():
 
 func _update_grass():
 	# Caches
+	var terrain_pos:Vector3 = _scene.terrain.global_position
 	var space := _scene.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
 	ray.collision_mask = 1<<(PluginLandscaper.COLLISION_LAYER_TERRAIN-1)
@@ -92,15 +99,16 @@ func _update_grass():
 		var multimesh:MultiMesh = multimesh_inst.multimesh
 		for instance_index in multimesh.instance_count:
 			var transform:Transform3D = multimesh.get_instance_transform(instance_index)
+			var pos:Vector3 = transform.origin + terrain_pos
 			
-			ray.from = transform.origin + Vector3.UP * max_height.value
-			ray.to = transform.origin + Vector3.DOWN * max_height.value
+			ray.from = pos + Vector3.UP * max_height.value
+			ray.to = pos + Vector3.DOWN * max_height.value
 			var result:Dictionary = space.intersect_ray(ray)
 			if not result:
 				continue
 			
 			# Update the new height with that collision point
-			transform.origin.y = result.position.y
+			transform.origin.y = result.position.y - terrain_pos.y
 			multimesh.set_instance_transform(instance_index , transform)
 	
 

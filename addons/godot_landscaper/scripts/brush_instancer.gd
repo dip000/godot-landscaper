@@ -20,7 +20,6 @@ func _ready():
 	_rng.set_seed( hash("GodotLandscaper") )
 	_rng_state = _rng.get_state()
 
-
 func save_ui():
 	_raw.i_texture = texture
 	_raw.i_resolution = _resolution
@@ -65,6 +64,9 @@ func paint(pos:Vector3, primary_action:bool):
 
 
 func rebuild_terrain():
+	if not _raw:
+		return
+	
 	# Caches
 	var tabs:Array[Node] = instances.tabs
 	var world_size:Vector2 = _raw.world.size
@@ -104,8 +106,8 @@ func rebuild_terrain():
 			var pos_2d:Vector2 = position_px/size_px * world_size + world_position + terrain_pos_2d
 			
 			# Raycast to the HeightMapShape3D to find the actual ground level
-			ray.from = Vector3( pos_2d.x, terrain_pos.y+1, pos_2d.y )
-			ray.to = Vector3( pos_2d.x, terrain_pos.y-1, pos_2d.y )
+			ray.from = Vector3( pos_2d.x, terrain_pos.y+max_height, pos_2d.y )
+			ray.to = Vector3( pos_2d.x, terrain_pos.y-max_height, pos_2d.y )
 			var result:Dictionary = space.intersect_ray( ray )
 			if not result:
 				continue

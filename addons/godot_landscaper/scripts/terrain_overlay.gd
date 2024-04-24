@@ -14,6 +14,7 @@ func _ready():
 	material_override = ShaderMaterial.new()
 	material_override.shader = AssetsManager.TERRAIN_OVERLAY_SHADER
 	material_override.set_shader_parameter( "brush_texture", AssetsManager.DEFAULT_BRUSH )
+	material_override.set_shader_parameter( "brush_scale", 0.05 )
 
 
 func enable():

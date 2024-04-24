@@ -293,12 +293,15 @@ func selected_scene(scene:SceneLandscaper):
 		_load_ui()
 		_update_paths()
 		scene.overlay.enable()
+		scene.body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, true )
 		return
 	
 	# Build and setup new scene
+	debug("Generating '%s' Raw for the first time.." %scene.name)
 	_raw = RawLandscaper.new()
 	scene.raw = _raw
 	scene.update_terrain()
+	scene.body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, true )
 	scene.overlay.resize(_raw.canvas.size.x, _raw.canvas.size.y)
 	scene.overlay.enable()
 	
@@ -311,6 +314,7 @@ func selected_scene(scene:SceneLandscaper):
 func deselected_scene(scene:SceneLandscaper):
 	debug("Deselected '%s'" %scene.name)
 	scene.overlay.disable()
+	scene.body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, false )
 	save_ui()
 	_scene = null
 
@@ -356,5 +360,5 @@ static func format_texture(texture:Texture2D, resize:=Vector2i.ZERO) -> ImageTex
 
 func debug(msg:String):
 	if DEBUGS:
-		printt("AssetsManager", msg)
+		print("AssetsManager --> ", msg)
 

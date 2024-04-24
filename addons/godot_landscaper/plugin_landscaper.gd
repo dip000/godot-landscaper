@@ -105,7 +105,7 @@ func _edit(new_scene:Variant):
 	if new_scene:
 		if _scene_inst:
 			_ui_inst.deselected_scene( _scene_inst )
-		_ui_inst.selected_scene( new_scene )
+		_ui_inst.selected_scene.call_deferred( new_scene )
 		_scene_inst = new_scene
 	else:
 		_ui_inst.deselected_scene( _scene_inst )

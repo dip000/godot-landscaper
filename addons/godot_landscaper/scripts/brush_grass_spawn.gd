@@ -178,8 +178,8 @@ func rebuild_terrain():
 			var pos_2d:Vector2 = rand * world_size + world_position + terrain_pos_2d
 			
 			# Raycast to the HeightMapShape3D to find the actual ground level (shape should've been updated in TerrainHeight)
-			ray.from = Vector3(pos_2d.x, terrain_pos.y+1, pos_2d.y)
-			ray.to = Vector3(pos_2d.x, terrain_pos.y-1, pos_2d.y)
+			ray.from = Vector3(pos_2d.x, terrain_pos.y+max_height, pos_2d.y)
+			ray.to = Vector3(pos_2d.x, terrain_pos.y-max_height, pos_2d.y)
 			var result:Dictionary = space.intersect_ray(ray)
 			if not result:
 				continue

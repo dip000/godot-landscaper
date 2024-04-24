@@ -31,7 +31,15 @@ var terrain_mesh:ArrayMesh:
 		return terrain.mesh
 
 
+func _init():
+	# Only by opening the scene for the first time or entering the editor will call '_init()' and that's when we need to update the references
+	# Calls deferred because init happens before entering tree and we need the tree references
+	update_terrain.call_deferred()
+
 func update_terrain():
+	if not raw:
+		return
+	
 	# Create or find nodes
 	terrain = _create_or_find_node( MeshInstance3D, self , "Terrain" )
 	body = _create_or_find_node( StaticBody3D, terrain, "Body" )
@@ -49,7 +57,6 @@ func update_terrain():
 		collider.shape = HeightMapShape3D.new()
 		collider.hide()
 	
-	body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, true )
 	terrain.set_display_folded( true )
 	
 	# Setup grass
@@ -66,11 +73,11 @@ func update_terrain():
 		overlay = AssetsManager.TERRAIN_OVERLAY.instantiate()
 		add_child( overlay )
 		overlay.owner = self
+		overlay.resize(raw.canvas.size.x, raw.canvas.size.y)
 	
 	terrain.material_override.albedo_texture = raw.tc_texture
 	grass_mesh.material.set_shader_parameter("grass_color", raw.gc_texture)
 	grass_mesh.material.set_shader_parameter("terrain_color", raw.tc_texture)
-
 
 
 func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
@@ -88,7 +95,7 @@ func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 
 var _prev_snap:Vector3
 func _process(delta):
-	if Engine.is_editor_hint():
+	if Engine.is_editor_hint() and overlay:
 		var terrain:MeshInstance3D = get_child(0)
 		var snap:Vector3 = terrain.global_position.round()
 		terrain.global_position = snap

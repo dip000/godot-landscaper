@@ -50,7 +50,7 @@ func _ready():
 	
 	_tabs.on_change.connect( _brush_changed )
 	brush_size.on_change.connect( _on_brush_size_changed )
-	brush_size.value = 0.01
+	brush_size.value = 0.05
 	
 	# For a type safe array
 	for brush in _brushes_holder.get_children():

@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/godot_landscaper/textures/icons.svg" id="1_y577x"]
 [ext_resource type="Texture2D" uid="uid://bc03njqi82w58" path="res://addons/godot_landscaper/textures/default_brush.tres" id="2_dbjae"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_qekta"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1drf3"]
 render_priority = 0
 shader = ExtResource("1_gmebd")
 shader_parameter/brush_position = Vector2(2, 2)
@@ -14,16 +14,17 @@ shader_parameter/brush_color = null
 shader_parameter/brush_texture = ExtResource("2_dbjae")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6gnmv"]
-size = Vector3(50, 0.1, 32)
+size = Vector3(32, 0.1, 32)
 
 [node name="Overlay" type="MeshInstance3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.13, 0)
-material_override = SubResource("ShaderMaterial_qekta")
+material_override = SubResource("ShaderMaterial_1drf3")
 script = ExtResource("1_oiy47")
 
 [node name="Body" type="StaticBody3D" parent="."]
 unique_name_in_owner = true
-collision_layer = 1073741825
+collision_layer = 1073741824
+collision_mask = 0
 
 [node name="Collider" type="CollisionShape3D" parent="Body"]
 unique_name_in_owner = true
