@@ -33,7 +33,6 @@ func _exit_tree():
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
-	
 	# Accepted inputs
 	var is_motion:bool = (event is InputEventMouseMotion)
 	var is_button:bool = (event is InputEventMouseButton)
@@ -78,10 +77,10 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		var up:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP )
 		var down:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN )
 		if up:
-			_ui_inst.scale_by( 0.001 )
+			_ui_inst.scale_by( 0.005 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif down:
-			_ui_inst.scale_by( -0.001 )
+			_ui_inst.scale_by( -0.005 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif not event is InputEventMouseMotion: # Pass Panning and Zoom with special keys
 			return EditorPlugin.AFTER_GUI_INPUT_STOP

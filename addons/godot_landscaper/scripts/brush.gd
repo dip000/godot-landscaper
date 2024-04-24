@@ -75,8 +75,9 @@ func _bake_out_color_into_texture(pos:Vector3, blend:=true, world_offset:Vector2
 	var full_rect := Rect2i(Vector2i.ZERO, img.get_size())
 	src_size = Vector2i( max(src_size.x, 1), max(src_size.y, 1) )
 	
+	var node:Vector3 = _scene.terrain.global_position
 	var dst := Vector2( pos.x, pos.z)
-	dst -= world_offset # To texture space (positive indexes)
+	dst -= world_offset + Vector2(node.x, node.z)# To texture space (positive indexes)
 	dst *= _resolution # Relative to this texture resolition
 	dst -= src_size*0.5 # Draw from texture center
 	dst = dst.round()

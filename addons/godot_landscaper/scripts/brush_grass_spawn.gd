@@ -121,9 +121,11 @@ func rebuild_terrain():
 	var grass_holder:Node3D = _scene.grass_holder
 	var valid_variants:Array[Texture2D] = variants.value
 	var max_height:float = _ui.terrain_height.max_height.value
-	var builder_img = _ui.terrain_builder.img
-	var total_grass = density.value * world_size.x * world_size.y
+	var builder_img:Image = _ui.terrain_builder.img
+	var total_grass:int = density.value * world_size.x * world_size.y
 	var is_cross_billboard:bool = (billboard.selected_tab == BILLBOARD_CROSS)
+	var terrain_pos:Vector3 = _scene.terrain.global_position
+	var terrain_pos_2d := Vector2(terrain_pos.x, terrain_pos.z)
 	
 	var space := _scene.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
@@ -173,11 +175,11 @@ func rebuild_terrain():
 				continue
 			
 			# Random position in XZ worldspace
-			var pos_2d:Vector2 = rand * world_size + world_position
+			var pos_2d:Vector2 = rand * world_size + world_position + terrain_pos_2d
 			
-			# Raycast to the HeightMapShape3D to find the actual ground level (shape should've been updated in TBrushTerrainHeight)
-			ray.from = Vector3(pos_2d.x, max_height+1, pos_2d.y)
-			ray.to = Vector3(pos_2d.x, -max_height-1, pos_2d.y)
+			# Raycast to the HeightMapShape3D to find the actual ground level (shape should've been updated in TerrainHeight)
+			ray.from = Vector3(pos_2d.x, terrain_pos.y+1, pos_2d.y)
+			ray.to = Vector3(pos_2d.x, terrain_pos.y-1, pos_2d.y)
 			var result:Dictionary = space.intersect_ray(ray)
 			if not result:
 				continue
@@ -185,7 +187,7 @@ func rebuild_terrain():
 			# Finally, we have the correct position to spawn
 			var y:float = result.position.y
 			var pos_3d := Vector3(pos_2d.x, y, pos_2d.y)
-			var transf := Transform3D(Basis(), Vector3()).translated( pos_3d )
+			var transf := Transform3D(Basis(), pos_3d - terrain_pos )
 			
 			transf = transf.rotated_local( Vector3.UP, random_rotation )
 			transf = transf.scaled_local( Vector3.ONE * random_scale )

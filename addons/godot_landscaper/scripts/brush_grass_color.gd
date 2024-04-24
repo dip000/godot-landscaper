@@ -41,4 +41,6 @@ func resize_texture(rect:Rect2i, fill_color:Color):
 	_ui.assets_manager.set_unsaved_changes( true )
 
 func _get_offset_texture() -> Vector2:
-	return float(-_resolution) * _raw.world.position / Vector2(img.get_size())
+	var node:Vector3 = _scene.terrain.global_position
+	var offset:Vector2 = _raw.world.position + Vector2i(node.x, node.z)
+	return float(-_resolution) * offset / Vector2(img.get_size())

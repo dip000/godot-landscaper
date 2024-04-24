@@ -86,4 +86,27 @@ func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 	return new_node
 
 
+var _prev_snap:Vector3
+func _process(delta):
+	if Engine.is_editor_hint():
+		var terrain:MeshInstance3D = get_child(0)
+		var snap:Vector3 = terrain.global_position.round()
+		terrain.global_position = snap
+		if _prev_snap != snap:
+			update_grass_texture()
+			overlay.global_position = snap
+			overlay.global_position.y += 0.13
+		_prev_snap = snap
+
+func update_grass_texture():
+	var node:Vector3 = terrain.global_position
+	var offset:Vector2 = raw.world.position + Vector2i(node.x, node.z)
+	var grass_texture:Texture2D = grass_mesh.material.get_shader_parameter("grass_color")
+	var texure_size:Vector2 = grass_texture.get_size()
+	var resolution:Vector2 = texure_size / Vector2(raw.world.size)
+	
+	var world_position = -resolution * offset / texure_size
+	grass_mesh.material.set_shader_parameter( "world_position", world_position )
+
+
 

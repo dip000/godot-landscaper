@@ -26,7 +26,7 @@ const _DESCRIPTIONS:PackedStringArray = [
 @onready var _tabs:CustomTabs = $Dock/Tabs
 
 @onready var _brushes_holder:Control = $Dock/Body/ScrollContainer/MarginContainer
-@onready var brush_size:CustomSliderUI = $Dock/BrushSize #coeficient from 0 to 1
+@onready var brush_size:CustomSliderUI = $Dock/BrushSize
 
 # For easier public acces
 @onready var terrain_builder:TerrainBuilder = _brushes_holder.get_node( "TerrainBuilder" )
@@ -119,7 +119,8 @@ func over_terrain(pos:Vector3):
 	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
 	_scene.overlay.material_override.set_shader_parameter("brush_color", color)
 	
-	var brush_position:Vector2 = Vector2( pos.x, pos.z ) / Vector2( _scene.raw.canvas.size )
+	var node:Vector3 = _scene.terrain.global_position
+	var brush_position:Vector2 = Vector2( pos.x - node.x, pos.z - node.z ) / Vector2( _scene.raw.canvas.size )
 	_scene.overlay.material_override.set_shader_parameter("brush_position", brush_position)
 	
 	pos.y += 1
@@ -128,11 +129,11 @@ func over_terrain(pos:Vector3):
 
 func paint(pos:Vector3, main_action:bool):
 	_active_brush.paint( pos, main_action )
-	_scene.overlay.position.y = 0.02
+	_scene.overlay.paint()
 
 func paint_end():
 	_active_brush.paint_end()
-	_scene.overlay.position.y = 0.07
+	_scene.overlay.paint_end()
 	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
 	if is_color_brush:
 		assets_manager.set_unsaved_changes( true )

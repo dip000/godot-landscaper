@@ -8,7 +8,7 @@ class_name TerrainOverlay
 
 
 func _ready():
-	global_position.y = 0.13
+	position.y = 0.13
 	body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_OVERLAY, true )
 	
 	material_override = ShaderMaterial.new()
@@ -23,6 +23,18 @@ func enable():
 func disable():
 	process_mode = Node.PROCESS_MODE_DISABLED
 	hide()
+
+var _painting:bool = false
+func paint():
+	if not _painting:
+		_painting = true
+		position.y -= 0.05
+
+func paint_end():
+	if _painting:
+		position.y += 0.05
+		_painting = false
+
 
 func resize(x:int, z:int):
 	collider.shape.size.x = x

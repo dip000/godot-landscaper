@@ -72,6 +72,8 @@ func rebuild_terrain():
 	var size_px:Vector2 = img.get_size()
 	var max_index:int = INSTANCE_TOTAL - 1
 	var max_height:float = _ui.terrain_height.max_height.value
+	var terrain_pos:Vector3 = _scene.terrain.global_position
+	var terrain_pos_2d := Vector2(terrain_pos.x, terrain_pos.z)
 	
 	var space := _scene.terrain.get_world_3d().direct_space_state
 	var ray := PhysicsRayQueryParameters3D.new()
@@ -99,11 +101,11 @@ func rebuild_terrain():
 				continue
 			
 			var randomness:float = tabs[scene_index].randomness.value
-			var pos_2d:Vector2 = position_px/size_px * world_size + world_position
+			var pos_2d:Vector2 = position_px/size_px * world_size + world_position + terrain_pos_2d
 			
 			# Raycast to the HeightMapShape3D to find the actual ground level
-			ray.from = Vector3( pos_2d.x, max_height+1, pos_2d.y )
-			ray.to = Vector3( pos_2d.x, -max_height-1, pos_2d.y )
+			ray.from = Vector3( pos_2d.x, terrain_pos.y+1, pos_2d.y )
+			ray.to = Vector3( pos_2d.x, terrain_pos.y-1, pos_2d.y )
 			var result:Dictionary = space.intersect_ray( ray )
 			if not result:
 				continue

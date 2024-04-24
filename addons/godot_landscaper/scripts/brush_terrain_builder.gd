@@ -18,7 +18,7 @@ func _ready():
 	canvas_size.on_change.connect( _on_canvas_size_changed )
 
 func _on_canvas_size_changed(new_size:float):
-	if new_size <= 0:
+	if new_size < 2:
 		canvas_size.value = 2
 		return
 	
@@ -27,9 +27,7 @@ func _on_canvas_size_changed(new_size:float):
 	_scene.overlay.resize( new_size, new_size )
 	resize_texture( Rect2(image_pos, size_vector), Color.TRANSPARENT )
 	_raw.canvas.size = size_vector
-	_raw.canvas.position = size_vector/2
-	rebuild_terrain()
-	_ui.grass_spawn.rebuild_terrain()
+	_raw.canvas.position = -size_vector/2
 
 
 func save_ui():
@@ -46,9 +44,17 @@ func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
 func paint(pos:Vector3, primary_action:bool):
 	out_color = Color.WHITE if primary_action else Color(0,0,0,0)
 	
-	# Builder uses the max texture size instead of the minimum size given by '_raw.world'
+	# Builder uses the canvas size instead of the minimum size given by '_raw.world'
 	var world_offset:Vector2 = -_raw.canvas.size*0.5
 	_bake_out_color_into_texture( pos, false, world_offset )
+	
+	# 
+	if img.get_used_rect().size <= Vector2i.ZERO:
+		push_warning("Terrain Builder: Terrain cannot be fully debuilt")
+		out_color = Color.WHITE
+		_bake_out_color_into_texture( pos, false, world_offset )
+		return
+	
 	rebuild_terrain()
 
 # Respawning grass is a heavy process, it is better to do so at the end of the stroke
@@ -57,12 +63,8 @@ func paint_end():
 
 
 func rebuild_terrain():
-	var build_rect:Rect2i = img.get_used_rect()
-	if build_rect.size <= Vector2i.ZERO:
-		push_warning("Terrain cannot be fully debuilt")
-		return
-	
 	# Caches
+	var build_rect:Rect2i = img.get_used_rect()
 	var build_map:Image = img.get_region( build_rect )
 	var overlay_mesh:ArrayMesh = _scene.overlay.mesh
 	var terrain_mesh:ArrayMesh = _scene.terrain_mesh
