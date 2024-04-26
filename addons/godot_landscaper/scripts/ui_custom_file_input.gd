@@ -1,8 +1,8 @@
 @tool
 extends PropertyUI
 class_name CustomFileInput
-# This custom property only stores a path to a file.
-# To actually save or load a resource, refer to AssetsManager
+## This custom property only stores a path to a file.
+## To actually save or load a resource, refer to AssetsManager
 
 @export var default_file_path:String = ""
 @export var default_file_on_dir_open:String = ""

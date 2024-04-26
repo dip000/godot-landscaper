@@ -5,8 +5,12 @@ class_name SceneLandscaper
 ## Use the "Landscaper" Tab on the UI Dock to create, remove, save, or load a terrain.
 
 
-## Raw save/load data. Do not use. Do not delete. Do not replace. Use the "Landscaper" UI Dock
-@export var raw:RawLandscaper
+## Project save/load data. Do not use. Do not delete. Do not replace. Use the "Landscaper" UI Dock
+@export var project:ProjectLandscaper
+
+# When the scene or the editor is closed, this variable will be automatically reseted to false
+# Altough you could say the same for any other non-export variable, it's good to be explicit
+var updated:bool = false
 
 # Scene references for managers and brushes
 var terrain:MeshInstance3D
@@ -31,15 +35,7 @@ var terrain_mesh:ArrayMesh:
 		return terrain.mesh
 
 
-func _init():
-	# Only by opening the scene for the first time or entering the editor will call '_init()' and that's when we need to update the references
-	# Calls deferred because init happens before entering tree and we need the tree references
-	update_terrain.call_deferred()
-
 func update_terrain():
-	if not raw:
-		return
-	
 	# Create or find nodes
 	terrain = _create_or_find_node( MeshInstance3D, self , "Terrain" )
 	body = _create_or_find_node( StaticBody3D, terrain, "Body" )
@@ -73,11 +69,10 @@ func update_terrain():
 		overlay = AssetsManager.TERRAIN_OVERLAY.instantiate()
 		add_child( overlay )
 		overlay.owner = self
-		overlay.resize(raw.canvas.size.x, raw.canvas.size.y)
+		overlay.resize(project.canvas.size.x, project.canvas.size.y)
+		overlay.snap( terrain.global_position )
 	
-	terrain.material_override.albedo_texture = raw.tc_texture
-	grass_mesh.material.set_shader_parameter("grass_color", raw.gc_texture)
-	grass_mesh.material.set_shader_parameter("terrain_color", raw.tc_texture)
+	updated = true
 
 
 func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
@@ -95,22 +90,20 @@ func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 
 var _prev_snap:Vector3
 func _process(delta):
-	if Engine.is_editor_hint() and overlay:
+	if Engine.is_editor_hint() and updated:
 		var terrain:MeshInstance3D = get_child(0)
 		var snap:Vector3 = terrain.global_position.round()
 		terrain.global_position = snap
 		if _prev_snap != snap:
 			update_grass_texture()
-			overlay.global_position = snap
-			overlay.global_position.y += 0.13
+			overlay.snap( snap )
 		_prev_snap = snap
 
 func update_grass_texture():
 	var node:Vector3 = terrain.global_position
-	var offset:Vector2 = raw.world.position + Vector2i(node.x, node.z)
-	var grass_texture:Texture2D = grass_mesh.material.get_shader_parameter("grass_color")
-	var texure_size:Vector2 = grass_texture.get_size()
-	var resolution:Vector2 = texure_size / Vector2(raw.world.size)
+	var offset:Vector2 = project.world.position + Vector2i(node.x, node.z)
+	var texure_size:Vector2 = project.gc_texture.get_size()
+	var resolution:Vector2 = texure_size / Vector2(project.world.size)
 	
 	var world_position = -resolution * offset / texure_size
 	grass_mesh.material.set_shader_parameter( "world_position", world_position )

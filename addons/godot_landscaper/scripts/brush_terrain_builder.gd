@@ -1,9 +1,11 @@
 @tool
 extends Brush
 class_name TerrainBuilder
-# Brush that generates new mesh when you paint over the terrain
-# Paints white or black over the "texture" depending if is built or not
+## Brush that generates new mesh when you paint_brushing over the terrain
+## Paints white or black over the "texture" depending if is built or not
 
+
+const DESCRIPTION := "Left click to build, right click to erase terrain"
 const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), #top-left triangle
 	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #bottom-right triangle
@@ -11,7 +13,6 @@ const SQUARE_SHAPE:Array[Vector2i] = [
 
 @onready var canvas_size:CustomNumberInput = $CustomNumberInput
 var _mesh_arrays:Array = []
-
 
 func _ready():
 	_mesh_arrays.resize(Mesh.ARRAY_MAX)
@@ -23,46 +24,54 @@ func _on_canvas_size_changed(new_size:float):
 		return
 	
 	var size_vector := Vector2i(new_size, new_size)
-	var image_pos:Vector2i = (size_vector*0.5 - _raw.canvas.size*0.5).round()
+	var image_pos:Vector2i = (size_vector*0.5 - _project.canvas.size*0.5).round()
 	_scene.overlay.resize( new_size, new_size )
 	resize_texture( Rect2(image_pos, size_vector), Color.TRANSPARENT )
-	_raw.canvas.size = size_vector
-	_raw.canvas.position = -size_vector/2
+	_project.canvas.size = size_vector
+	_project.canvas.position = -size_vector/2
 
 
-func save_ui():
-	_raw.tb_texture = texture
-	_raw.tb_resolution = _resolution
-	_raw.tb_canvas_size = canvas_size.value
+func _on_save_ui():
+	_project.tb_texture = texture
+	_project.tb_resolution = _resolution
+	_project.tb_canvas_size = canvas_size.value
 
-func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_format_texture( raw.tb_texture )
-	super (ui, scene, raw )
-	_resolution = raw.tb_resolution
-	canvas_size.value = _raw.tb_canvas_size
+func _on_load_ui(scene:SceneLandscaper):
+	_input_texture( _project.tb_texture )
+	_resolution = _project.tb_resolution
+	canvas_size.value = _project.tb_canvas_size
 
-func paint(pos:Vector3, primary_action:bool):
-	out_color = Color.WHITE if primary_action else Color(0,0,0,0)
+func paint_primary(pos:Vector3):
+	# Build terrain
+	# Builder uses the canvas size instead of the minimum size given by '_project.world'
+	var world_offset:Vector2 = -_project.canvas.size*0.5
+	_update_overlay_shader("brush_color", Color.WHITE)
+	_bake_color_into_texture( Color.WHITE, pos, false, world_offset )
+	rebuild()
+
+func paint_secondary(pos:Vector3):
+	# Debuild terrain
+	var world_offset:Vector2 = -_project.canvas.size*0.5
+	_update_overlay_shader( "brush_color", Color(0,0,0,0) )
+	_bake_color_into_texture( Color(0,0,0,0), pos, false, world_offset )
 	
-	# Builder uses the canvas size instead of the minimum size given by '_raw.world'
-	var world_offset:Vector2 = -_raw.canvas.size*0.5
-	_bake_out_color_into_texture( pos, false, world_offset )
-	
-	# 
+	# Paint back the same point and return to avoid nulling
 	if img.get_used_rect().size <= Vector2i.ZERO:
 		push_warning("Terrain Builder: Terrain cannot be fully debuilt")
-		out_color = Color.WHITE
-		_bake_out_color_into_texture( pos, false, world_offset )
+		_bake_color_into_texture( Color.WHITE, pos, false, world_offset )
 		return
-	
-	rebuild_terrain()
+	rebuild()
 
-# Respawning grass is a heavy process, it is better to do so at the end of the stroke
+
 func paint_end():
-	_ui.grass_spawn.rebuild_terrain()
+	# Cleanup base mesh overlay, then reupdate terrain overlay
+	_scene.overlay.generate_mesh_base_overlay( _project.canvas.size )
+	rebuild()
+	# Respawning grass is a heavy process, it is better to do so at the end of the stroke
+	ui.grass_spawn.rebuild()
 
 
-func rebuild_terrain():
+func _on_rebuild():
 	# Caches
 	var build_rect:Rect2i = img.get_used_rect()
 	var build_map:Image = img.get_region( build_rect )
@@ -72,22 +81,23 @@ func rebuild_terrain():
 	var overlay_vertices:PackedVector3Array = overlay_mesh_array[Mesh.ARRAY_VERTEX]
 	var vertices := PackedVector3Array()
 	var uv := PackedVector2Array()
-	var max_height:float = _ui.terrain_height.max_height.value
+	var max_height:float = ui.terrain_height.max_height.value
 	var max_size:Vector2i = img.get_size()
 	var shape_size:int = SQUARE_SHAPE.size()
 	
-	if build_rect.size != _raw.world.size:
-		var new_position:Vector2i = build_rect.position - _raw.canvas.size/2
-		var resize_rect := Rect2i( _raw.world.position - new_position, build_rect.size )
-		_raw.world.position = new_position
-		_raw.world.size = build_rect.size
-		for brush in _ui.brushes:
+	if build_rect.size != _project.world.size:
+		var new_position:Vector2i = build_rect.position - _project.canvas.size/2
+		var resize_rect := Rect2i( _project.world.position - new_position, build_rect.size )
+		_project.world.position = new_position
+		_project.world.size = build_rect.size
+		for brush in ui.brushes:
 			if brush != self:
 				brush.resize_texture( resize_rect, Color.BLACK )
+		ui.assets_manager.set_unsaved_changes( true ) # Notify unsaved internal textures
 	
-	var world_position:Vector2i = _raw.world.position
-	var world_size:Vector2 = _raw.world.size
-	var height_map:Image = _ui.terrain_height.img
+	var world_position:Vector2i = _project.world.position
+	var world_size:Vector2 = _project.world.size
+	var height_map:Image = ui.terrain_height.img
 	var world_position_inv:Vector2i = max_size/2 + world_position
 	
 	# Generate vertex and UV data
@@ -122,5 +132,4 @@ func rebuild_terrain():
 	overlay_mesh_array[Mesh.ARRAY_VERTEX] = overlay_vertices
 	overlay_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, overlay_mesh_array )
 	
-	_ui.terrain_height.update_collider()
-	
+	ui.terrain_height.update_collider()

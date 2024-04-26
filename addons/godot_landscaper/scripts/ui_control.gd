@@ -1,22 +1,12 @@
 @tool
 extends Control
-class_name UILandscaper
-# * Opens/closes UI.
-# * Receives control from PluginLandscaper.
-# * Routes control values to active brush.
+class_name UIControl
+## Manages the Landscaper Dock elements:
+## * Opens/closes UI.
+## * Receives control from PluginLandscaper.
+## * Routes control to active brush and terrain overlay.
 
-
-
-const _COMMON_DESCRIPTION := ", and mouse wheel + Shift to change brush size."
-const _DESCRIPTIONS:PackedStringArray = [
-	"Left click to build, right click to erase terrain",
-	"Paint with left click, smooth color with right click",
-	"Create mountains with left click, valleys with right click",
-	"Paint with left click, smooth color with right click",
-	"Spawn selected grass with left click, erase any grass with right click",
-	"Spawn your custom scenes like a rock or a tree with left click, erase with right click",
-]
-
+const COMMON_DESCRIPTION := ", and mouse wheel + Shift to change brush size."
 
 @onready var _blocker_full:Panel = $BlockerFull
 @onready var _blocker_dock:Panel = $BlockerDock
@@ -51,6 +41,7 @@ func _ready():
 	_tabs.on_change.connect( _brush_changed )
 	brush_size.on_change.connect( _on_brush_size_changed )
 	brush_size.value = 0.05
+	Brush.ui = self
 	
 	# For a type safe array
 	for brush in _brushes_holder.get_children():
@@ -59,20 +50,24 @@ func _ready():
 	
 
 func _on_brush_size_changed(value):
-	_scene.overlay.material_override.set_shader_parameter("brush_scale", value)
+	_scene.overlay.set_brush_scale( value )
 
 func _brush_changed(index:int):
 	# Change to active brush properties
 	_active_brush = brushes[index]
 	_active_brush.show()
+	_active_brush.selected_brush()
+	
+	if _scene:
+		_scene.overlay.set_brush_index( index )
 	
 	if _prev_brush:
 		_prev_brush.hide()
+		_active_brush.deselected_brush()
 	_prev_brush = _active_brush
 	
 	# Show description
-	_description_label.text = _DESCRIPTIONS[index] + _COMMON_DESCRIPTION
-
+	_description_label.text = _active_brush.DESCRIPTION + COMMON_DESCRIPTION
 
 
 # Blockers
@@ -96,7 +91,6 @@ func fade(blocker:Control, fade_out:bool):
 		tween.tween_property( blocker, "modulate", Color.WHITE, 0.2 )
 
 
-
 # Control routing
 func selected_scene(scene:SceneLandscaper):
 	_scene = scene
@@ -112,33 +106,24 @@ func save_ui():
 	assets_manager.save_ui()
 
 func over_terrain(pos:Vector3):
-	if not _scene:
-		return
-	
-	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
-	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
-	_scene.overlay.material_override.set_shader_parameter("brush_color", color)
-	
-	var node:Vector3 = _scene.terrain.global_position
-	var brush_position:Vector2 = Vector2( pos.x - node.x, pos.z - node.z ) / Vector2( _scene.raw.canvas.size )
-	_scene.overlay.material_override.set_shader_parameter("brush_position", brush_position)
-	
-	pos.y += 1
-	_scene.overlay.brush_sprite.global_position = pos
-	_scene.overlay.brush_sprite.frame = _tabs.selected_tab
+	_scene.overlay.hover_terrain( pos )
 
-func paint(pos:Vector3, main_action:bool):
-	_active_brush.paint( pos, main_action )
-	_scene.overlay.paint()
+func paint_start(pos:Vector3):
+	_active_brush.paint_start( pos )
+	_scene.overlay.paint_start()
+
+func paint_primary(pos:Vector3):
+	_active_brush.paint_primary( pos )
+
+func paint_secondary(pos:Vector3):
+	_active_brush.paint_secondary( pos )
 
 func paint_end():
 	_active_brush.paint_end()
 	_scene.overlay.paint_end()
-	var is_color_brush:bool = (_active_brush == terrain_color or _active_brush == grass_color)
-	if is_color_brush:
-		assets_manager.set_unsaved_changes( true )
 
 func scale_by(sca:float):
 	brush_size.value += sca
-	_scene.overlay.material_override.set_shader_parameter("brush_scale", brush_size.value)
+	_scene.overlay.set_brush_scale( brush_size.value )
+	
 

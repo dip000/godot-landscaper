@@ -1,8 +1,8 @@
 @tool
 extends PropertyUI
 class_name CustomToggleContent
-# Shows content nodes if you press a button. Hides them if you press it again
-# Usefull to preview large content without polluting the UI
+## Shows content nodes if you press a button. Hides them if you press it again
+## Usefull to preview large content without polluting the UI
 
 
 @export var property_name_pressed:String = ""

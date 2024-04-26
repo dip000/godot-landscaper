@@ -1,8 +1,8 @@
 @tool
 extends PropertyUI
 class_name CustomTabs
-# A toggle buttons group. Like the TabBar class but with a FlowContainer.
-# Shows every tab without clipping or collapsing so we can have all content in view.
+## A toggle buttons group. Like the TabBar class but with a FlowContainer.
+## Shows every tab without clipping or collapsing so we can have all content in view.
 
 @export var tab_size := Vector2i(30, 30)
 @onready var _tabs_holder:FlowContainer = $PanelContainer/VBoxContainer/Tabs

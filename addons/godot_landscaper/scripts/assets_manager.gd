@@ -1,24 +1,23 @@
 @tool
 extends VBoxContainer
 class_name AssetsManager
-# Due some acctions taking a bit of time to perform, the following table was implemented:
-#
-#                | Save UI    | Load UI    | Rebuild  | Create   | Save External | Load External |
-#                | Properties | Properties | Terrain  | Template | Resources     | Resources     |
-# ---------------|------------|------------|----------|----------|---------------|---------------|
-# NEW SCENE      |      F     |      T     |     T    |     T    |       F       |       F       |
-# CHANGE SCENE   |      T     |      T     |     F    |     F    |       F       |       F       |
-# LOAD BUTTON    |      F     |      T     |     T    |     F    |       F       |       T       |
-# SAVE BUTTON    |      T     |      F     |     F    |     F    |       T       |       F       |
+## Hosts resources, saves/loads UI properties, saves/loads files
+## There are two kind of textures:
+##  1. Internal textures: like 'gc_texture' or 'th_texture', they are processed while being saved in the project file 'ProjectLandscaper'
+##  2. External textures: 'grass_texture' and 'terrain_texture', and they only get updated by saving/loading the project file 'ProjectLandscaper'
+## [TODO] Fix bug where you press [Save Project], extend the terrain, then press [Load Project]. It will try to extend the previous image, looks awfull and creates errors down the line
 
+#[TODO] Add this property to global settings
 const DEBUGS := true
+
+#[TODO] Add this property to global settings
+const DEFAULT_BRUSH:GradientTexture2D = preload("res://addons/godot_landscaper/textures/default_brush.tres")
 
 # File System Resources
 const ICONS_MEDIUM:Texture2D = preload("res://addons/godot_landscaper/textures/icons_medium.svg")
 const ICONS:Texture2D = preload("res://addons/godot_landscaper/textures/icons.svg")
 const GRASS_SHADER:Shader = preload("res://addons/godot_landscaper/shaders/grass_shader.gdshader")
 const TERRAIN_OVERLAY_SHADER:Shader = preload("res://addons/godot_landscaper/shaders/terrain_overlay_shader.gdshader")
-const DEFAULT_BRUSH:GradientTexture2D = preload("res://addons/godot_landscaper/textures/default_brush.tres")
 const DEFAULT_GRASS_GRADIENT:Texture2D = preload("res://addons/godot_landscaper/textures/default_grass_gradient.tres")
 const DEFAULT_GRASS_0:Texture2D = preload("res://addons/godot_landscaper/textures/default_grass_v0.svg")
 const DEFAULT_GRASS_1:Texture2D = preload("res://addons/godot_landscaper/textures/default_grass_v1.svg")
@@ -33,7 +32,7 @@ const SHADER_BILLBOARD_Y := "#define BILLBOARD_Y"
 
 # Content child indexes and extensions for external resources
 enum { FILE_PROJECT, FILE_TERRAIN_MESH, FILE_TERRAIN_MATERIAL, FILE_TERRAIN_TEXTURE, FILE_GRASS_MESH, FILE_GRASS_MATERIAL, FILE_GRASS_SHADER, FILE_GRASS_TEXTURE}
-const _EXTENSIONS:PackedStringArray = ["res", "res", "res", "png", "res", "res", "gdshader", "png"]
+const EXTENSIONS:PackedStringArray = ["res", "res", "res", "png", "res", "res", "gdshader", "png"]
 
 @onready var _toggle_files:CustomToggleContent = $ToggleContent
 @onready var _save_all:Button = $All/Save
@@ -41,10 +40,10 @@ const _EXTENSIONS:PackedStringArray = ["res", "res", "res", "png", "res", "res",
 @onready var _accept_dialog:AcceptDialog = $AcceptDialog
 @onready var _confirm_save:ConfirmationDialog = $ConfirmationSaveDialog
 @onready var _confirm_load:ConfirmationDialog = $ConfirmationLoadDialog
-@onready var _ui:UILandscaper = owner
+@onready var _ui:UIControl = owner
 
 var _scene:SceneLandscaper
-var _raw:RawLandscaper
+var _project:ProjectLandscaper
 var has_vulkan:bool
 
 
@@ -54,7 +53,6 @@ func _ready():
 	_load_all.pressed.connect( _on_load_all_pressed )
 	_confirm_save.confirmed.connect( _save_confirmed )
 	_confirm_load.confirmed.connect( _load_confirmed )
-	
 	has_vulkan = true if RenderingServer.get_rendering_device() else false
 
 func set_unsaved_changes(unsaved:bool):
@@ -66,7 +64,7 @@ func _on_toggle_files(button_pressed:bool):
 func _load_ui():
 	debug("Loading UI properties of '%s'.." %_scene.name)
 	for brush in _ui.brushes:
-		brush.load_ui( _ui, _scene, _raw )
+		brush.load_ui( _scene )
 
 func save_ui():
 	# UI input paths are saved inside the external resources
@@ -77,22 +75,21 @@ func save_ui():
 func _rebuild_terrain():
 	debug("Rebuilding terrain of '%s'.." %_scene.name)
 	for brush in _ui.brushes:
-		brush.rebuild_terrain()
+		brush.rebuild()
 
 
 func _update_paths():
-	if _raw.saved_external:
-		var files:Array = _toggle_files.value
-		files[FILE_PROJECT].value = _raw.resource_path
-		files[FILE_TERRAIN_MESH].value = _raw.terrain_mesh.resource_path
-		files[FILE_TERRAIN_MATERIAL].value = _raw.terrain_material.resource_path
-		files[FILE_TERRAIN_TEXTURE].value = _raw.terrain_texture.resource_path
-		files[FILE_GRASS_MESH].value = _raw.grass_mesh.resource_path
-		files[FILE_GRASS_MATERIAL].value = _raw.grass_material.resource_path
-		files[FILE_GRASS_SHADER].value = _raw.grass_shader.resource_path
-		files[FILE_GRASS_TEXTURE].value = _raw.grass_texture.resource_path
+	var files:Array = _toggle_files.value
+	if _project.saved_external:
+		files[FILE_PROJECT].value = _project.resource_path
+		files[FILE_TERRAIN_MESH].value = _project.terrain_mesh.resource_path
+		files[FILE_TERRAIN_MATERIAL].value = _project.terrain_material.resource_path
+		files[FILE_TERRAIN_TEXTURE].value = _project.terrain_texture.resource_path
+		files[FILE_GRASS_MESH].value = _project.grass_mesh.resource_path
+		files[FILE_GRASS_MATERIAL].value = _project.grass_material.resource_path
+		files[FILE_GRASS_SHADER].value = _project.grass_shader.resource_path
+		files[FILE_GRASS_TEXTURE].value = _project.grass_texture.resource_path
 	else:
-		var files:Array = _toggle_files.value
 		for i in files.size():
 			files[i].value = files[i].default_file_path
 
@@ -104,7 +101,7 @@ func _on_load_all_pressed():
 	
 	for file_index in files.size():
 		var file:CustomFileInput = files[file_index]
-		var extension:String = _EXTENSIONS[file_index]
+		var extension:String = EXTENSIONS[file_index]
 		
 		if not FileAccess.file_exists( file.value ):
 			errors += "File '%s' does not exist. Must be an absolute path like res://my_file.%s\n" %[file.value, extension]
@@ -120,7 +117,7 @@ func _on_load_all_pressed():
 			continue
 	
 	# Warn override
-	if _raw.saved_external:
+	if _project.saved_external:
 		warnings += "Override current project?"
 	
 	# Don't load if errors. Ask to load if warnings. Or just load
@@ -143,25 +140,25 @@ func _load_confirmed():
 	await get_tree().process_frame
 	
 	# Load project resource
-	_raw = load(project.value)
-	_scene.raw = _raw
+	_project = load(project.value)
+	_scene.project = _project
 	await get_tree().process_frame
 	
 	# Load the specific files selected by the user
 	var files:Array = _toggle_files.value
-	_raw.terrain_mesh = _load_resource( files[FILE_TERRAIN_MESH], _raw.terrain_mesh )
-	_raw.terrain_material = _load_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
-	_raw.terrain_texture = _load_resource( files[FILE_TERRAIN_TEXTURE], _raw.terrain_texture )
+	_project.terrain_mesh = _load_resource( files[FILE_TERRAIN_MESH], _project.terrain_mesh )
+	_project.terrain_material = _load_resource( files[FILE_TERRAIN_MATERIAL], _project.terrain_material )
+	_project.terrain_texture = _load_resource( files[FILE_TERRAIN_TEXTURE], _project.terrain_texture )
 	await get_tree().process_frame
 	
-	_raw.grass_mesh = _load_resource( files[FILE_GRASS_MESH], _raw.grass_mesh )
-	_raw.grass_material = _load_resource( files[FILE_GRASS_MATERIAL], _raw.grass_material )
-	_raw.grass_texture = _load_resource( files[FILE_GRASS_TEXTURE], _raw.grass_texture )
+	_project.grass_mesh = _load_resource( files[FILE_GRASS_MESH], _project.grass_mesh )
+	_project.grass_material = _load_resource( files[FILE_GRASS_MATERIAL], _project.grass_material )
+	_project.grass_texture = _load_resource( files[FILE_GRASS_TEXTURE], _project.grass_texture )
 	await get_tree().process_frame
 	
 	# Update interal textures from the external ones
-	_raw.gc_texture = format_texture( _raw.grass_texture )
-	_raw.tc_texture = format_texture( _raw.terrain_texture )
+	_project.gc_texture = format_texture( _project.grass_texture )
+	_project.tc_texture = format_texture( _project.terrain_texture )
 	
 	# Update UI properties and rebuild terrain
 	_load_ui()
@@ -169,9 +166,9 @@ func _load_confirmed():
 	await get_tree().create_timer(0.2).timeout
 	
 	# Update shader references
-	_raw.terrain_material.albedo_texture = _raw.terrain_texture
-	_raw.grass_material.set_shader_parameter("grass_color", _raw.grass_texture)
-	_raw.grass_material.set_shader_parameter("terrain_color", _raw.terrain_texture)
+	_project.terrain_material.albedo_texture = _project.terrain_texture
+	_project.grass_material.set_shader_parameter("grass_color", _project.grass_texture)
+	_project.grass_material.set_shader_parameter("terrain_color", _project.terrain_texture)
 	set_unsaved_changes( false )
 	
 	_ui.set_foot_enable( true )
@@ -189,7 +186,7 @@ func _on_save_all_pressed():
 			errors += "File path to '%s' is empty. Please provide a valid path\n" %file.property_name
 			continue
 		
-		var extension:String = _EXTENSIONS[file_index]
+		var extension:String = EXTENSIONS[file_index]
 		if not file.value.is_absolute_path():
 			errors += "File path to '%s' is invalid. Must be an absolute path like res://my_file.%s\n" %[file.property_name, extension]
 			continue
@@ -227,39 +224,40 @@ func _save_confirmed():
 	save_ui()
 	await get_tree().process_frame
 	
-	_raw.terrain_mesh = _scene.terrain_mesh
-	await _save_resource( files[FILE_TERRAIN_MESH], _raw.terrain_mesh )
+	_project.terrain_mesh = _scene.terrain_mesh
+	await _save_resource( files[FILE_TERRAIN_MESH], _project.terrain_mesh )
 	
-	_raw.terrain_material = _scene.terrain.material_override
-	await _save_resource( files[FILE_TERRAIN_MATERIAL], _raw.terrain_material )
+	_project.terrain_material = _scene.terrain.material_override
+	await _save_resource( files[FILE_TERRAIN_MATERIAL], _project.terrain_material )
 	
-	_raw.terrain_texture = _raw.tc_texture
-	await _save_resource( files[FILE_TERRAIN_TEXTURE], _raw.terrain_texture )
+	_project.terrain_texture = _project.tc_texture
+	await _save_resource( files[FILE_TERRAIN_TEXTURE], _project.terrain_texture )
 	
-	_raw.grass_mesh = _scene.grass_mesh
-	await _save_resource( files[FILE_GRASS_MESH], _raw.grass_mesh )
+	_project.grass_mesh = _scene.grass_mesh
+	await _save_resource( files[FILE_GRASS_MESH], _project.grass_mesh )
 	
-	_raw.grass_material = _scene.grass_mesh.material
-	await _save_resource( files[FILE_GRASS_MATERIAL], _raw.grass_material )
+	_project.grass_material = _scene.grass_mesh.material
+	await _save_resource( files[FILE_GRASS_MATERIAL], _project.grass_material )
 	
-	_raw.grass_shader = _scene.grass_mesh.material.shader
-	await _save_resource( files[FILE_GRASS_SHADER], _raw.grass_shader )
+	_project.grass_shader = _scene.grass_mesh.material.shader
+	await _save_resource( files[FILE_GRASS_SHADER], _project.grass_shader )
 	
-	_raw.grass_texture = _raw.gc_texture
-	await _save_resource( files[FILE_GRASS_TEXTURE], _raw.grass_texture )
+	_project.grass_texture = _project.gc_texture
+	await _save_resource( files[FILE_GRASS_TEXTURE], _project.grass_texture )
 
-	await _save_resource( files[FILE_PROJECT], _raw )
+	await _save_resource( files[FILE_PROJECT], _project )
 	
 	# This will independize the internal textures from the saved ones
-	_raw.gc_texture = format_texture( _raw.grass_texture )
-	_ui.grass_color.texture = _raw.gc_texture
-	_raw.tc_texture = format_texture( _raw.terrain_texture )
-	_ui.terrain_color.texture = _raw.tc_texture
+	_project.gc_texture = format_texture( _project.grass_texture )
+	_ui.grass_color.texture = _project.gc_texture
+	_project.tc_texture = format_texture( _project.terrain_texture )
+	_ui.terrain_color.texture = _project.tc_texture
 	
 	EditorInterface.get_resource_filesystem().scan()
+	await get_tree().create_timer(0.2).timeout
 	set_unsaved_changes( false )
 	_ui.set_foot_enable( true )
-	_raw.saved_external = true
+	_project.saved_external = true
 
 
 # Just saving the resource will not let us with the saved references unless 'take_over_path()' is called
@@ -279,17 +277,21 @@ func _load_resource(file:CustomFileInput, res:Resource) -> Resource:
 func selected_scene(scene:SceneLandscaper):
 	debug("Selected '%s'" %scene.name)
 	
+	# If initialized but not updated (like opening the scene or the editor for the first time)
+	if scene.project and not scene.updated:
+		debug("Scene '%s' is initialized. Updating.." %scene.name)
+		scene.update_terrain()
+	
 	# Save previous
 	if _scene:
 		save_ui()
 	
 	# Update references
 	_scene = scene
-	_raw = scene.raw
-	set_unsaved_changes( true )
+	_project = scene.project
 	
 	# Load new UI properties
-	if scene.raw:
+	if scene.project:
 		_load_ui()
 		_update_paths()
 		scene.overlay.enable()
@@ -297,15 +299,16 @@ func selected_scene(scene:SceneLandscaper):
 		return
 	
 	# Build and setup new scene
-	debug("Generating '%s' Raw for the first time.." %scene.name)
-	_raw = RawLandscaper.new()
-	scene.raw = _raw
+	debug("Initializing and updating '%s' for the first time.." %scene.name)
+	_project = ProjectLandscaper.new()
+	scene.project = _project
 	scene.update_terrain()
 	scene.body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, true )
-	scene.overlay.resize(_raw.canvas.size.x, _raw.canvas.size.y)
+	scene.overlay.resize(_project.canvas.size.x, _project.canvas.size.y)
 	scene.overlay.enable()
+	scene.overlay.set_brush_scale( _ui.brush_size.value )
+	set_unsaved_changes( true ) # Project was just been created and is not saved on file system yet
 	
-	_scene.overlay.material_override.set_shader_parameter( "brush_scale", _ui.brush_size.value )
 	_load_ui()
 	_rebuild_terrain()
 	_update_paths()
@@ -316,6 +319,8 @@ func deselected_scene(scene:SceneLandscaper):
 	scene.overlay.disable()
 	scene.body.set_collision_layer_value( PluginLandscaper.COLLISION_LAYER_TERRAIN, false )
 	save_ui()
+	for brush in _ui.brushes:
+		brush.deselected_scene()
 	_scene = null
 
 func popup_accept(msg:String):
@@ -360,5 +365,5 @@ static func format_texture(texture:Texture2D, resize:=Vector2i.ZERO) -> ImageTex
 
 func debug(msg:String):
 	if DEBUGS:
-		print("AssetsManager --> ", msg)
+		print("GodotLandscaper --> ", msg)
 

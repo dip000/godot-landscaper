@@ -1,9 +1,10 @@
 @tool
 extends Brush
 class_name Instancer
-# Brush that spawns instances of a scene when you paint over the terrain
-# Paints different shades of gray over the "texture" depending on the instance index, black for erase
+## Brush that spawns instances of a scene when you paint_brushing over the terrain
+## Paints different shades of gray over the "texture" depending on the instance index, black for erase
 
+const DESCRIPTION := "Spawn your custom scenes like a rock or a tree with left click, erase with right click"
 const INSTANCE_TOTAL:int = 8
 @onready var instances:CustomTabs = $Instances
 
@@ -14,66 +15,68 @@ var _rng_state:int
 
 func _ready():
 	for instance in instances.tabs:
-		instance.on_change.connect( rebuild_terrain )
+		instance.on_change.connect( rebuild )
 	
 	# Setup RNG as documentation suggests
 	_rng.set_seed( hash("GodotLandscaper") )
 	_rng_state = _rng.get_state()
 
-func save_ui():
-	_raw.i_texture = texture
-	_raw.i_resolution = _resolution
-	_raw.i_selected_instance = instances.selected_tab
+
+func selected_brush():
+	_update_overlay_shader("brush_color",  Color.GRAY)
+
+func _on_save_ui():
+	_project.i_texture = texture
+	_project.i_resolution = _resolution
+	_project.i_selected_instance = instances.selected_tab
 	
-	# Idk who's clearing '_raw.i_etc' in some other place or what in tarnation is happening
-	# but when assigned directly to raw throws "index out of range"
+	# Idk who's clearing '_project.i_etc' in some other place or what in tarnation is happening
+	# but when assigned directly to project throws "index out of range"
 	var tabs:Array[Node] = instances.tabs
-	var randomnesses := _raw.i_randomnesses.duplicate()
+	var randomnesses := _project.i_randomnesses.duplicate()
 	var scenes:Array[PackedScene]
 	for i in tabs.size():
-		scenes.append( _raw.i_scenes[i] )
+		scenes.append( _project.i_scenes[i] )
 	for i in tabs.size():
 		scenes[i] = tabs[i].scene
 		randomnesses[i] = tabs[i].randomness.value
-	_raw.i_randomnesses = randomnesses
-	_raw.i_scenes = scenes
+	_project.i_randomnesses = randomnesses
+	_project.i_scenes = scenes
 	
-func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_format_texture( raw.i_texture )
-	super(ui, scene, raw)
-	_resolution = _raw.i_resolution
+func _on_load_ui(scene:SceneLandscaper):
+	_input_texture( _project.i_texture )
+	_resolution = _project.i_resolution
 	
 	var tabs:Array[Node] = instances.tabs
 	for i in tabs.size():
-		tabs[i].scene = _raw.i_scenes[i]
-		tabs[i].randomness.value = _raw.i_randomnesses[i]
+		tabs[i].scene = _project.i_scenes[i]
+		tabs[i].randomness.value = _project.i_randomnesses[i]
 		instances.selected_tab = i
-	instances.selected_tab = _raw.i_selected_instance
+	instances.selected_tab = _project.i_selected_instance
 
-func paint(pos:Vector3, primary_action:bool):
-	# Spawn with primary key, erase with secondary
-	if primary_action:
-		var v:float = float(instances.selected_tab)/INSTANCE_TOTAL + 0.5/INSTANCE_TOTAL
-		out_color = Color(v,v,v, 1.0)
-	else:
-		out_color = Color.BLACK
-	
-	# Update textures and grass positions
-	_bake_out_color_into_texture( pos )
-	rebuild_terrain()
+func paint_primary(pos:Vector3):
+	var v:float = float(instances.selected_tab)/INSTANCE_TOTAL + 0.5/INSTANCE_TOTAL
+	var color:Color = Color(v,v,v, 1.0)
+	_update_overlay_shader("brush_color",  Color.WHITE)
+	_bake_color_into_texture( color, pos )
+	rebuild()
 
+func paint_secondary(pos:Vector3):
+	_update_overlay_shader("brush_color",  Color.BLACK)
+	_bake_color_into_texture( Color.BLACK, pos )
+	rebuild()
 
-func rebuild_terrain():
-	if not _raw:
+func _on_rebuild():
+	if not _project:
 		return
 	
 	# Caches
 	var tabs:Array[Node] = instances.tabs
-	var world_size:Vector2 = _raw.world.size
-	var world_position:Vector2 = _raw.world.position
+	var world_size:Vector2 = _project.world.size
+	var world_position:Vector2 = _project.world.position
 	var size_px:Vector2 = img.get_size()
 	var max_index:int = INSTANCE_TOTAL - 1
-	var max_height:float = _ui.terrain_height.max_height.value
+	var max_height:float = ui.terrain_height.max_height.value
 	var terrain_pos:Vector3 = _scene.terrain.global_position
 	var terrain_pos_2d := Vector2(terrain_pos.x, terrain_pos.z)
 	

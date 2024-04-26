@@ -1,13 +1,13 @@
 @tool
 extends PropertyUI
 class_name CustomInstance
-# Loads a scene and a range property only for Instancer brush.
-# The following tree shows the UI hierarchy:
-# ┖╴CustomTabs
-#    ┠╴CustomInstance
-#    ┃  ┠╴CustomFileInput
-#    ┃  ┖╴CustomRange
-#    ┖╴CustomInstance..
+## Loads a scene and a range property only for Instancer brush.
+## The following tree shows the UI hierarchy:
+## ┖╴CustomTabs
+##    ┠╴CustomInstance
+##    ┃  ┠╴CustomFileInput
+##    ┃  ┖╴CustomRange
+##    ┖╴CustomInstance..
 
 @onready var randomness:CustomSliderUI = $Content/MarginBody/VBoxContainer/CustomSlider
 @onready var _file:CustomFileInput = $Content/MarginBody/VBoxContainer/FileInput

@@ -1,9 +1,10 @@
 @tool
 extends Brush
 class_name TerrainHeight
-# Brush that creates mountains or valleys when you paint over the terrain
-# Paints shades of gray colors over the "texture" depending on the height
+## Brush that creates mountains or valleys when you paint_brushing over the terrain
+## Paints shades of gray colors over the "texture" depending on the height
 
+const DESCRIPTION := "Create mountains with left click, valleys with right click"
 @onready var strength:CustomSliderUI = $Strenght
 @onready var max_height:CustomNumberInput = $MaxHeight
 @onready var aplly_all_height:CustomDoubleButtons = $ApplyAll
@@ -14,8 +15,8 @@ func _ready():
 	aplly_all_height.on_change.connect( _on_apply_all_changed )
 
 func _on_max_height(height:float):
-	rebuild_terrain()
-	_ui.instancer.rebuild_terrain()
+	rebuild()
+	ui.instancer.rebuild()
 	update_collider()
 	_update_grass()
 
@@ -26,48 +27,55 @@ func _on_apply_all_changed(heighten:bool):
 	var src:Image = _create_img( color, src_size, img.get_format() )
 	img.blend_rect( src, full_rect, Vector2i.ZERO )
 	texture.update( img )
-	rebuild_terrain()
-	_ui.instancer.rebuild_terrain()
+	rebuild()
+	ui.instancer.rebuild()
 	update_collider()
 	_update_grass()
 
-func save_ui():
-	_raw.th_texture = texture
-	_raw.th_resolution = _resolution
-	_raw.th_strength = strength.value
-	_raw.th_max_height = max_height.value
+func selected_brush():
+	_update_overlay_shader("brush_color", Color.GRAY)
 
-func load_ui(ui:UILandscaper, scene:SceneLandscaper, raw:RawLandscaper):
-	_format_texture( raw.th_texture )
-	super(ui, scene, raw)
-	_resolution = raw.th_resolution
-	strength.value = raw.th_strength
-	max_height.value = raw.th_max_height
+func _on_save_ui():
+	_project.th_texture = texture
+	_project.th_resolution = _resolution
+	_project.th_strength = strength.value
+	_project.th_max_height = max_height.value
+
+func _on_load_ui(scene:SceneLandscaper):
+	_input_texture( _project.th_texture )
+	_resolution = _project.th_resolution
+	strength.value = _project.th_strength
+	max_height.value = _project.th_max_height
 
 
-func paint(pos:Vector3, primary_action:bool):
-	var alpha:float = strength.value
-	out_color = Color(1,1,1,alpha) if primary_action else Color(0,0,0,alpha)
+func paint_primary(pos:Vector3):
+	var color:Color = Color(1,1,1,strength.value)
+	var world_offset:Vector2 = Vector2(_project.world.position) - Vector2(0.5, 0.5)
+	_update_overlay_shader("brush_color", color)
+	_bake_color_into_texture( color, pos, true, world_offset )
+	rebuild()
 
-	# Compenzate half pixel for the extra vertex
-	var world_offset:Vector2 = Vector2(_raw.world.position) - Vector2(0.5, 0.5)
-	_bake_out_color_into_texture( pos, true, world_offset )
-	rebuild_terrain()
+func paint_secondary(pos:Vector3):
+	var color:Color = Color(0,0,0,strength.value)
+	var world_offset:Vector2 = Vector2(_project.world.position) - Vector2(0.5, 0.5)
+	_update_overlay_shader("brush_color", color)
+	_bake_color_into_texture( color, pos, true, world_offset )
+	rebuild()
 
 func paint_end():
-	_ui.instancer.rebuild_terrain()
+	ui.instancer.rebuild()
 	update_collider()
 	_update_grass()
 
-func rebuild_terrain():
-	_ui.terrain_builder.rebuild_terrain()
+func _on_rebuild():
+	ui.terrain_builder.rebuild()
 
 
 func update_collider():
 	# Caches
 	var height_collider:CollisionShape3D = _scene.collider
 	var height_shape:HeightMapShape3D = height_collider.shape
-	var world:Rect2i = _raw.world
+	var world:Rect2i = _project.world
 	var node:Vector3 = _scene.terrain.global_position
 	var position_offset:Vector2 = Vector2(world.position) + (world.size * 0.5) + Vector2(node.x, node.z)
 	
