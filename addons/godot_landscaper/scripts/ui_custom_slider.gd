@@ -1,9 +1,9 @@
 @tool
 extends PropertyUI
 class_name CustomSliderUI
-# Custom slider UI
-# Sets percentage label and value on value_changed
-# Call "property" or "value" externally from code
+## Custom slider UI
+## Sets percentage label and value on value_changed
+## Call "property" or "value" externally from code
 
 @export var _min_value:float
 @export var _max_value:float

@@ -1,7 +1,7 @@
 @tool
 extends PropertyUI
 class_name CustomDoubleButtons
-
+## Selector using two buttons
 
 func _ready():
 	$PropertyName.text = property_name

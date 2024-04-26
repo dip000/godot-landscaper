@@ -24,8 +24,8 @@ const int TOTAL_GRASS_VARIANTS = 4;
 
 uniform bool enable_details = true;
 uniform vec3 detail_color:source_color = vec3(0.2);
-uniform vec2 world_size = vec2(10.0);
-uniform vec2 world_position = vec2(0);
+uniform vec2 world_size;
+uniform vec2 world_position;
 
 // Colors of all of the grass instanced from a MultiMesh as seen from the top
 uniform sampler2D grass_color:source_color,filter_linear_mipmap,repeat_disable;

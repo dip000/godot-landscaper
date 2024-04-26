@@ -1,21 +1,12 @@
 @tool
 extends Control
-class_name UILandscaper
-# * Opens/closes UI.
-# * Receives control from PluginLandscaper.
-# * Routes control values to active brush.
+class_name UIControl
+## Manages the Landscaper Dock elements:
+## * Opens/closes UI.
+## * Receives control from PluginLandscaper.
+## * Routes control to active brush and terrain overlay.
 
-
-
-const _COMMON_DESCRIPTION := ", and mouse wheel + Shift to change brush size."
-const _DESCRIPTIONS:PackedStringArray = [
-	"Left click to build, right click to erase terrain",
-	"Paint with left click, smooth color with right click",
-	"Create mountains with left click, valleys with right click",
-	"Paint with left click, smooth color with right click",
-	"Spawn selected grass with left click, erase any grass with right click",
-]
-
+const COMMON_DESCRIPTION := ", and mouse wheel + Shift to change brush size."
 
 @onready var _blocker_full:Panel = $BlockerFull
 @onready var _blocker_dock:Panel = $BlockerDock
@@ -29,10 +20,11 @@ const _DESCRIPTIONS:PackedStringArray = [
 
 # For easier public acces
 @onready var terrain_builder:TerrainBuilder = _brushes_holder.get_node( "TerrainBuilder" )
-@onready var terrain_clor:TerrainColor = _brushes_holder.get_node( "TerrainColor" )
+@onready var terrain_color:TerrainColor = _brushes_holder.get_node( "TerrainColor" )
 @onready var terrain_height:TerrainHeight = _brushes_holder.get_node( "TerrainHeight" )
 @onready var grass_color:GrassColor = _brushes_holder.get_node( "GrassColor" )
 @onready var grass_spawn:GrassSpawn = _brushes_holder.get_node( "GrassSpawner" )
+@onready var instancer:Instancer = _brushes_holder.get_node( "Instancer" )
 @onready var assets_manager:AssetsManager = $Foot/AssetsManager
 
 var brushes:Array[Brush]
@@ -48,27 +40,34 @@ func _ready():
 	
 	_tabs.on_change.connect( _brush_changed )
 	brush_size.on_change.connect( _on_brush_size_changed )
-	brush_size.value = 0.01
+	brush_size.value = 0.05
+	Brush.ui = self
 	
 	# For a type safe array
 	for brush in _brushes_holder.get_children():
 		brushes.append( brush )
 	_brush_changed(0)
+	
 
 func _on_brush_size_changed(value):
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_scale", value)
+	_scene.overlay.set_brush_scale( value )
 
 func _brush_changed(index:int):
 	# Change to active brush properties
 	_active_brush = brushes[index]
 	_active_brush.show()
+	_active_brush.selected_brush()
+	
+	if _scene:
+		_scene.overlay.set_brush_index( index )
 	
 	if _prev_brush:
 		_prev_brush.hide()
+		_active_brush.deselected_brush()
 	_prev_brush = _active_brush
 	
 	# Show description
-	_description_label.text = _DESCRIPTIONS[index] + _COMMON_DESCRIPTION
+	_description_label.text = _active_brush.DESCRIPTION + COMMON_DESCRIPTION
 
 
 # Blockers
@@ -92,36 +91,39 @@ func fade(blocker:Control, fade_out:bool):
 		tween.tween_property( blocker, "modulate", Color.WHITE, 0.2 )
 
 
-
-# Brush control routing
-func change_scene(scene:SceneLandscaper):
+# Control routing
+func selected_scene(scene:SceneLandscaper):
 	_scene = scene
 	set_enable( true )
-	assets_manager.change_scene( self, _scene, brushes )
-	
+	assets_manager.selected_scene( scene )
+
+func deselected_scene(scene:SceneLandscaper):
+	_scene = null
+	set_enable( false )
+	assets_manager.deselected_scene( scene )
+
 func save_ui():
 	assets_manager.save_ui()
 
 func over_terrain(pos:Vector3):
-	var is_color_brush:bool = (_active_brush == terrain_clor or _active_brush == grass_color)
-	var color:Color = _active_brush.color.value if is_color_brush else _active_brush.out_color
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_color", color)
-	
-	var brush_position:Vector2 = Vector2( pos.x, pos.z ) / Vector2( RawLandscaper.MAX_BUILD_REACH )
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_position", brush_position)
-	
-	pos.y += 1
-	_scene.brush_sprite.global_position = pos
-	_scene.brush_sprite.frame = _tabs.selected_tab
+	_scene.overlay.hover_terrain( pos )
 
-func paint(pos:Vector3, main_action:bool):
-	_active_brush.paint( pos, main_action )
-	_scene.terrain_overlay.position.y = 0.02
+func paint_start(pos:Vector3):
+	_active_brush.paint_start( pos )
+	_scene.overlay.paint_start()
+
+func paint_primary(pos:Vector3):
+	_active_brush.paint_primary( pos )
+
+func paint_secondary(pos:Vector3):
+	_active_brush.paint_secondary( pos )
 
 func paint_end():
 	_active_brush.paint_end()
-	_scene.terrain_overlay.position.y = 0.07
+	_scene.overlay.paint_end()
 
 func scale_by(sca:float):
 	brush_size.value += sca
-	_scene.terrain_overlay.material_override.set_shader_parameter("brush_scale", brush_size.value)
+	_scene.overlay.set_brush_scale( brush_size.value )
+	
+

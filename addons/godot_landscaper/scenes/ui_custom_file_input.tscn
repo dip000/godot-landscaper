@@ -9,14 +9,10 @@ region = Rect2(0, 0, 22, 22)
 
 [node name="FileInput" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
-anchors_preset = 14
-anchor_top = 0.5
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = -15.5
-offset_bottom = 15.5
+offset_bottom = 31.0
 grow_horizontal = 2
-grow_vertical = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_omvyv")
 
@@ -26,7 +22,7 @@ initial_position = 2
 size = Vector2i(640, 320)
 ok_button_text = "Open"
 file_mode = 1
-filters = PackedStringArray("*.svg, *.png, *.jpg ; Supported Images", "*.tres, *.res ; Supported resources", "*.gdshader ; Shader")
+filters = PackedStringArray("*.svg, *.png, *.jpg ; Supported Images", "*.tres, *.res ; Supported resources", "*.gdshader ; Shader", "*.tscn, *.glb ; Scenes")
 
 [node name="Name" type="Label" parent="."]
 layout_mode = 2

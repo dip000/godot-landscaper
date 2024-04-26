@@ -1,6 +1,8 @@
 @tool
 extends PropertyUI
 class_name CustomVector2Input
+## Same as a @export Vector2 on the inspector
+## Set step=1 to act like a Vector2i
 
 @export var step:float = 1
 @onready var _input_x:SpinBox = $HBoxContainer/X

@@ -1,6 +1,8 @@
 @tool
 extends PropertyUI
 class_name CustomNumberInput
+## Same as a @export float on the inspector
+## Set step=1 to act like an int
 
 @export var suffix:String = ""
 @export var step:float = 1

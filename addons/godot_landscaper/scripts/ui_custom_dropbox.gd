@@ -1,6 +1,7 @@
 @tool
 extends PropertyUI
 class_name CustomDropbox
+## Dropper of texture resources, usefull for previewing a texture input
 
 @export var preview_size:Vector2i = Vector2i(40, 40)
 @onready var _property:Label = $Label

@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="Landscaper"
+config/tags=PackedStringArray("hot", "plugin")
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
+
+[editor]
+
+movie_writer/movie_file="C:/Users/ab-cb/Documents/GitHub/terra-brush-scatterer/record.avi"
 
 [editor_plugins]
 
