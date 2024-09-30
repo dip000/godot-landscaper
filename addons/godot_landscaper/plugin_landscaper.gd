@@ -8,7 +8,8 @@ class_name PluginLandscaper
 ##  * ProjectLandscaper: Project data for each individual landscaping project. It's the saved project.tres file
 ##[TODO] Add a global "Settings" panel somewhere
 
-#[TODO] Add this property to global settings
+# Internal collisions for spawning instances
+#[TODO] Add these properties to global settings
 const COLLISION_LAYER_TERRAIN:int = 32
 const COLLISION_LAYER_OVERLAY:int = 31
 
@@ -78,13 +79,10 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	# Scale with any special key + Mouse Wheel
 	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
-		var up:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP )
-		var down:bool = Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN )
-		
-		if up:
+		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
 			_ui_control.scale_by( 0.005 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
-		elif down:
+		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
 			_ui_control.scale_by( -0.005 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif not event is InputEventMouseMotion: # Pass Panning and Zoom with special keys
@@ -98,6 +96,12 @@ func _save_external_data():
 	if _scene_landscaper:
 		_ui_control.save_ui()
 
+# Clean up on disable
+func _disable_plugin():
+	if _scene_landscaper:
+		_ui_control.save_ui()
+		_ui_control.deselected_scene( _scene_landscaper )
+		_scene_landscaper = null
 
 func _handles(object):
 	return object is SceneLandscaper
@@ -116,4 +120,3 @@ func _edit(new_scene_landscaper:Variant):
 	else:
 		_ui_control.deselected_scene( _scene_landscaper )
 		_scene_landscaper = null
-

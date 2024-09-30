@@ -10,4 +10,3 @@ func _ready():
 
 func _on_button_pressed(is_height:bool):
 	on_change.emit( is_height )
-

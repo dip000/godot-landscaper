@@ -99,7 +99,6 @@ func _on_load_ui(scene:SceneLandscaper):
 	_on_quality_changed( quality.value )
 	_on_size_changed( grass_size.value )
 	_update_grass_shader("variants", variants.value)
-	ui.assets_manager.fix_shader_compatibility( variants.value )
 
 func paint_primary(pos:Vector3):
 	var v:float = float(variants.selected_tab)/VARIANT_TOTAL + 0.5/VARIANT_TOTAL
@@ -209,4 +208,3 @@ func _on_rebuild():
 			if is_cross_billboard:
 				transform = transform.rotated_local( Vector3.UP, PI*0.5 )
 				multimesh_inst.multimesh.set_instance_transform( transforms_size+transform_index, transform )
-		

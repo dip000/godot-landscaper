@@ -3,9 +3,9 @@
 [ext_resource type="Shader" path="res://addons/godot_landscaper/shaders/terrain_overlay_shader.gdshader" id="1_gmebd"]
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/terrain_overlay.gd" id="1_n6nc7"]
 [ext_resource type="Texture2D" uid="uid://bc03njqi82w58" path="res://addons/godot_landscaper/textures/default_brush.tres" id="2_dbjae"]
-[ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/godot_landscaper/textures/icons.svg" id="4_sl4n0"]
+[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/textures/icons.svg" id="4_sl4n0"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_t5fh8"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lsfjt"]
 render_priority = 0
 shader = ExtResource("1_gmebd")
 shader_parameter/brush_position = Vector2(2, 2)
@@ -14,10 +14,10 @@ shader_parameter/brush_color = null
 shader_parameter/brush_texture = ExtResource("2_dbjae")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_td8jb"]
-size = Vector3(14, 0.1, 14)
+size = Vector3(32, 0.1, 32)
 
 [node name="Overlay" type="MeshInstance3D"]
-material_override = SubResource("ShaderMaterial_t5fh8")
+material_override = SubResource("ShaderMaterial_lsfjt")
 script = ExtResource("1_n6nc7")
 
 [node name="Body" type="StaticBody3D" parent="."]

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_control.gd" id="1_ihtkw"]
 [ext_resource type="PackedScene" uid="uid://b5cbncjt0oya0" path="res://addons/godot_landscaper/scenes/ui_custom_tabs.tscn" id="2_vth1l"]
-[ext_resource type="Texture2D" uid="uid://dj3rl52ydlm4s" path="res://addons/godot_landscaper/textures/icons.svg" id="3_36jfa"]
+[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/textures/icons.svg" id="3_36jfa"]
 [ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/godot_landscaper/scenes/ui_custom_slider.tscn" id="4_d0wrk"]
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/brush_terrain_builder.gd" id="5_7mk5v"]
 [ext_resource type="PackedScene" uid="uid://bdfmi4jds2j42" path="res://addons/godot_landscaper/scenes/ui_custom_toggle_content.tscn" id="6_cwr50"]
@@ -15,12 +15,12 @@
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/brush_grass_spawn.gd" id="12_osa4l"]
 [ext_resource type="PackedScene" uid="uid://cf4qb7d6noqq1" path="res://addons/godot_landscaper/scenes/ui_custom_vector2_input.tscn" id="13_ldph7"]
 [ext_resource type="PackedScene" uid="uid://dpqsi2h5lwv4j" path="res://addons/godot_landscaper/scenes/ui_custom_dropbox.tscn" id="15_veelq"]
-[ext_resource type="Texture2D" uid="uid://tmivf4lwnx1p" path="res://addons/godot_landscaper/textures/icons_medium.svg" id="15_xivst"]
+[ext_resource type="Texture2D" uid="uid://b6e4qfd858agt" path="res://addons/godot_landscaper/textures/icons_medium.svg" id="15_xivst"]
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/brush_instancer.gd" id="17_6uq1r"]
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/assets_manager.gd" id="17_xgvx6"]
 [ext_resource type="PackedScene" uid="uid://b6dp6o7trv5ru" path="res://addons/godot_landscaper/scenes/ui_custom_file_input.tscn" id="18_n0bpv"]
 [ext_resource type="PackedScene" uid="uid://dop1ullwx5cmr" path="res://addons/godot_landscaper/scenes/ui_custom_instance.tscn" id="18_otugd"]
-[ext_resource type="Texture2D" uid="uid://br3wu01x4bnpe" path="res://addons/godot_landscaper/textures/icons_small.svg" id="19_jftko"]
+[ext_resource type="Texture2D" uid="uid://bi70eyrxkuhfy" path="res://addons/godot_landscaper/textures/icons_small.svg" id="19_jftko"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fg34q"]
 bg_color = Color(0.211765, 0.239216, 0.290196, 1)
@@ -28,7 +28,7 @@ bg_color = Color(0.211765, 0.239216, 0.290196, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
 bg_color = Color(0.145098, 0.168627, 0.203922, 1)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_effs7"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_to5kf"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ksya5"]
 atlas = ExtResource("3_36jfa")
@@ -54,13 +54,13 @@ region = Rect2(256, 0, 64, 64)
 atlas = ExtResource("3_36jfa")
 region = Rect2(320, 0, 64, 64)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_70rsk"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_lfcy4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_epkdy"]
 atlas = ExtResource("15_xivst")
 region = Rect2(0, 0, 40, 40)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_1s8pi"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_aqhh1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3lbna"]
 atlas = ExtResource("15_xivst")
@@ -74,7 +74,7 @@ region = Rect2(80, 0, 40, 40)
 atlas = ExtResource("15_xivst")
 region = Rect2(120, 0, 40, 40)
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_2ypan"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_ycg2l"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r5508"]
 bg_color = Color(0.211765, 0.239216, 0.290196, 0.756863)
@@ -124,7 +124,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
 button_pressed = true
-button_group = SubResource("ButtonGroup_effs7")
+button_group = SubResource("ButtonGroup_to5kf")
 icon = SubResource("AtlasTexture_ksya5")
 
 [node name="TerrainColor" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="1"]
@@ -132,7 +132,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_effs7")
+button_group = SubResource("ButtonGroup_to5kf")
 icon = SubResource("AtlasTexture_ieiv0")
 
 [node name="TerrainHeight" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="2"]
@@ -140,7 +140,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_effs7")
+button_group = SubResource("ButtonGroup_to5kf")
 icon = SubResource("AtlasTexture_rrt18")
 
 [node name="GrassColor" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="3"]
@@ -148,7 +148,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_effs7")
+button_group = SubResource("ButtonGroup_to5kf")
 icon = SubResource("AtlasTexture_2yokp")
 
 [node name="GrassSpawn" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="4"]
@@ -156,7 +156,7 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_effs7")
+button_group = SubResource("ButtonGroup_to5kf")
 icon = SubResource("AtlasTexture_t3o2m")
 
 [node name="Instancer" type="Button" parent="Dock/Tabs/PanelContainer/VBoxContainer/Tabs" index="5"]
@@ -164,17 +164,12 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_fixda")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_effs7")
+button_group = SubResource("ButtonGroup_to5kf")
 icon = SubResource("AtlasTexture_h4r7w")
 
 [node name="Description" type="Label" parent="Dock"]
 layout_mode = 2
 text = "Left click to build, right click to erase terrain, and mouse wheel + Shift to change brush size."
-autowrap_mode = 3
-
-[node name="Tip" type="Label" parent="Dock"]
-layout_mode = 2
-text = "Tip: Hover over any property to see usefull tooltips"
 autowrap_mode = 3
 
 [node name="BrushSize" parent="Dock" instance=ExtResource("4_d0wrk")]
@@ -374,28 +369,28 @@ text = "Select Grass:"
 [node name="Variant0" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="0" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_70rsk")
+button_group = SubResource("ButtonGroup_lfcy4")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 0"
 
 [node name="Variant1" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="1" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_70rsk")
+button_group = SubResource("ButtonGroup_lfcy4")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 1"
 
 [node name="Variant2" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="2" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_70rsk")
+button_group = SubResource("ButtonGroup_lfcy4")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 2"
 
 [node name="Variant3" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Variants/PanelContainer/VBoxContainer/Tabs" index="3" instance=ExtResource("15_veelq")]
 layout_mode = 2
 disabled = true
-button_group = SubResource("ButtonGroup_70rsk")
+button_group = SubResource("ButtonGroup_lfcy4")
 icon = SubResource("AtlasTexture_epkdy")
 property_name = "Variant 3"
 
@@ -414,21 +409,21 @@ text = "Billboarding"
 [node name="Scatter" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="0"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_1s8pi")
+button_group = SubResource("ButtonGroup_aqhh1")
 text = "Scatter"
 icon = SubResource("AtlasTexture_3lbna")
 
 [node name="CrossBillboard" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="1"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_1s8pi")
+button_group = SubResource("ButtonGroup_aqhh1")
 text = "Cross"
 icon = SubResource("AtlasTexture_p30kj")
 
 [node name="BillboardY" type="Button" parent="Dock/Body/ScrollContainer/MarginContainer/GrassSpawner/Billboard/PanelContainer/VBoxContainer/Tabs" index="2"]
 layout_mode = 2
 toggle_mode = true
-button_group = SubResource("ButtonGroup_1s8pi")
+button_group = SubResource("ButtonGroup_aqhh1")
 text = "Y"
 icon = SubResource("AtlasTexture_xpq74")
 
@@ -453,35 +448,35 @@ visible = false
 
 [node name="CustomInstance" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="0" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance1" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="1" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance2" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="2" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance3" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="3" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance4" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="4" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance5" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="5" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance6" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="6" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="CustomInstance7" parent="Dock/Body/ScrollContainer/MarginContainer/Instancer/Instances/PanelContainer/VBoxContainer/Tabs" index="7" instance=ExtResource("18_otugd")]
 layout_mode = 2
-button_group = SubResource("ButtonGroup_2ypan")
+button_group = SubResource("ButtonGroup_ycg2l")
 
 [node name="BlockerDock" type="Panel" parent="."]
 visible = false
@@ -589,17 +584,23 @@ tooltip_text = "Saves the files under \"Show Files\" box.
 Saving a different file than the one it 
 had on the project file will set it as the 
 default from now on."
-text = "Save Project"
+text = "Save Project *"
 icon = SubResource("AtlasTexture_pbtfv")
 
 [node name="AcceptDialog" type="AcceptDialog" parent="Foot/AssetsManager"]
 initial_position = 2
+size = Vector2i(607, 106)
+content_scale_mode = 1
+dialog_text = "Upgrade to Mobile or Forward+ renderer to add more than one grass variant
+Delete extra grass variants to stop seeing this message"
 
 [node name="ConfirmationSaveDialog" type="ConfirmationDialog" parent="Foot/AssetsManager"]
 initial_position = 2
+content_scale_mode = 1
 
 [node name="ConfirmationLoadDialog" type="ConfirmationDialog" parent="Foot/AssetsManager"]
 initial_position = 2
+content_scale_mode = 1
 
 [node name="BlockerFoot" type="Panel" parent="Foot"]
 visible = false

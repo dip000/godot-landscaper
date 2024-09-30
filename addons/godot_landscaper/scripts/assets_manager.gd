@@ -8,7 +8,7 @@ class_name AssetsManager
 ## [TODO] Fix bug where you press [Save Project], extend the terrain, then press [Load Project]. It will try to extend the previous image, looks awfull and creates errors down the line
 
 #[TODO] Add this property to global settings
-const DEBUGS := true
+const DEBUGS := false
 
 #[TODO] Add this property to global settings
 const DEFAULT_BRUSH:GradientTexture2D = preload("res://addons/godot_landscaper/textures/default_brush.tres")
@@ -335,7 +335,7 @@ func fix_shader_compatibility(variants:Array):
 	if needs_vulkan and has_vulkan:
 		set_shader_directive( SHADER_COMPATIBILITY , false )
 	elif needs_vulkan and not has_vulkan:
-		popup_accept("Upgrade to Mobile or Forward+ renderer to add more than one grass variant")
+		popup_accept("Upgrade to Mobile or Forward+ renderer to add more than one grass variant\nDelete extra grass variants to stop seeing this message")
 		set_shader_directive( SHADER_COMPATIBILITY , true )
 	else:
 		set_shader_directive( SHADER_COMPATIBILITY , true )
@@ -366,4 +366,3 @@ static func format_texture(texture:Texture2D, resize:=Vector2i.ZERO) -> ImageTex
 func debug(msg:String):
 	if DEBUGS:
 		print("GodotLandscaper --> ", msg)
-

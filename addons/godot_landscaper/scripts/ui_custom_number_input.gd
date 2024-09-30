@@ -24,4 +24,3 @@ func set_value(value):
 
 func get_value():
 	return _input.value
-

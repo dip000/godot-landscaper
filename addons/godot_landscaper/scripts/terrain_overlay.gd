@@ -93,5 +93,3 @@ func generate_mesh_base_overlay(size:Vector2):
 	mesh_arrays[Mesh.ARRAY_TEX_UV] = uv
 	overlay_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, mesh_arrays )
 	mesh = overlay_mesh
-
-

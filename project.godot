@@ -12,8 +12,10 @@ config_version=5
 
 config/name="Landscaper"
 config/tags=PackedStringArray("hot", "plugin")
-config/features=PackedStringArray("4.2", "Mobile")
-config/icon="res://icon.svg"
+run/main_scene="res://example.tscn"
+config/features=PackedStringArray("4.3", "Mobile")
+boot_splash/image="res://icon.png"
+boot_splash/fullsize=false
 
 [editor]
 

@@ -61,4 +61,3 @@ func get_value():
 func set_value(value):
 	_input.text = value
 	_on_text_changed( value )
-

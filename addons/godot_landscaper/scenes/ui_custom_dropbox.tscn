@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://dpqsi2h5lwv4j"]
 
-[ext_resource type="Texture2D" uid="uid://tmivf4lwnx1p" path="res://addons/godot_landscaper/textures/icons_medium.svg" id="1_kxnfy"]
+[ext_resource type="Texture2D" uid="uid://b6e4qfd858agt" path="res://addons/godot_landscaper/textures/icons_medium.svg" id="1_kxnfy"]
 [ext_resource type="Script" path="res://addons/godot_landscaper/scripts/ui_custom_dropbox.gd" id="2_p7pka"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_juga1"]
@@ -67,7 +67,7 @@ offset_left = -19.0
 offset_top = -8.0
 offset_bottom = 24.0
 grow_horizontal = 0
-theme_override_colors/font_color = Color(1, 0.372549, 0.372549, 0.384314)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 17
 text = "x"
 flat = true

@@ -121,4 +121,3 @@ func _on_rebuild():
 			instance.global_position = Vector3( pos_2d.x, result.position.y, pos_2d.y )
 			instance.global_rotation = rand_rotation * randomness
 			instance.scale = (rand_scale - Vector3.ONE) * randomness + Vector3.ONE
-

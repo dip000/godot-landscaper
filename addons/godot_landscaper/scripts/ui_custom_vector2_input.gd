@@ -29,4 +29,3 @@ func set_value(value):
 
 func get_value():
 	return Vector2(_input_x.value, _input_y.value)
-

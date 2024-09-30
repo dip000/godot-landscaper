@@ -120,8 +120,8 @@ About Grass:
 
 
 # Addressing Current Caveats
-About Spaggeti Code:
-* It takes just a quick look at the code to figure that things are poorly patched, this is mostly due to this plugin being "designed to be a dog house but ending up as mansion". The very first iteration was just a tool script to scatter grass... Needless to say, the dog house builder (a.k.a DIP) had to learn how to build a mansion and things ended up barely holding together. This may or may not be fixed in the future, depending on if it catches up in the community and if it is worth the struggle, after all, Godot has no real market to make a profit out of this.
+About Spaghetti Code:
+* It's not a secret that some things are just poorly patched, this is mostly due to this plugin being "designed to be a dog house but ending up as mansion". The very first iteration was just a tool script to scatter grass... Needless to say, the dog house builder (a.k.a DIP) had to learn how to build a mansion and things ended up barely holding together. This may or may not be fixed in the future, depending on if it catches up in the community and if it is worth the struggle, after all, Godot has no real market to make a profit out of this.
 
 About Bugs That I Couldn't Fix:
 * **Click-trough:** When you click over any UI window in front of the 3D scene, the scene will also receive the click and you might end up painting a big ugly spot on your terrain. Same as before, I lack the information to know how to fix this

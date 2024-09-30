@@ -68,7 +68,7 @@ func update_terrain():
 	if not overlay:
 		overlay = AssetsManager.TERRAIN_OVERLAY.instantiate()
 		add_child( overlay )
-		overlay.owner = self
+		overlay.owner = self # hides it from scene tree
 		overlay.resize(project.canvas.size.x, project.canvas.size.y)
 		overlay.snap( terrain.global_position )
 	
@@ -90,7 +90,7 @@ func _create_or_find_node(new_node_type, parent:Node, node_name:String) -> Node:
 
 var _prev_snap:Vector3
 func _process(delta):
-	if Engine.is_editor_hint() and updated:
+	if updated:
 		var terrain:MeshInstance3D = get_child(0)
 		var snap:Vector3 = terrain.global_position.round()
 		terrain.global_position = snap

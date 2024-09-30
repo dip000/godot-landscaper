@@ -30,6 +30,8 @@ func _on_canvas_size_changed(new_size:float):
 	_project.canvas.size = size_vector
 	_project.canvas.position = -size_vector/2
 
+func selected_brush():
+	_update_overlay_shader("brush_color",  Color.GRAY)
 
 func _on_save_ui():
 	_project.tb_texture = texture

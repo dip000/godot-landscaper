@@ -95,4 +95,3 @@ func _builder_texture() -> Texture2D:
 	img.fill(Color.TRANSPARENT)
 	img.fill_rect( build_rect, Color.WHITE )
 	return ImageTexture.create_from_image( img )
-

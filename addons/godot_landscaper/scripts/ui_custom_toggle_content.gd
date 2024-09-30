@@ -54,4 +54,3 @@ func get_value():
 	return _content.get_children()
 func add_value(value):
 	_content.add_child(value)
-

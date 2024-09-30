@@ -65,4 +65,3 @@ func _set_enable(value:bool):
 	if not scene:
 		_label.text = "Open A Scene"
 		_file.value = "res://"
-

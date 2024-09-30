@@ -30,7 +30,6 @@ const COMMON_DESCRIPTION := ", and mouse wheel + Shift to change brush size."
 var brushes:Array[Brush]
 var _scene:SceneLandscaper
 var _active_brush:Brush
-var _prev_brush:Brush
 
 
 func _ready():
@@ -46,7 +45,12 @@ func _ready():
 	# For a type safe array
 	for brush in _brushes_holder.get_children():
 		brushes.append( brush )
-	_brush_changed(0)
+		brush.hide()
+	
+	# Start with builder brush
+	_active_brush = terrain_builder
+	terrain_builder.show()
+	_description_label.text = terrain_builder.DESCRIPTION + COMMON_DESCRIPTION
 	
 
 func _on_brush_size_changed(value):
@@ -54,20 +58,17 @@ func _on_brush_size_changed(value):
 
 func _brush_changed(index:int):
 	# Change to active brush properties
+	if _active_brush:
+		_active_brush.hide()
+		_active_brush.deselected_brush()
+	
 	_active_brush = brushes[index]
 	_active_brush.show()
 	_active_brush.selected_brush()
 	
-	if _scene:
-		_scene.overlay.set_brush_index( index )
-	
-	if _prev_brush:
-		_prev_brush.hide()
-		_active_brush.deselected_brush()
-	_prev_brush = _active_brush
-	
 	# Show description
 	_description_label.text = _active_brush.DESCRIPTION + COMMON_DESCRIPTION
+	_scene.overlay.set_brush_index( index )
 
 
 # Blockers
@@ -126,4 +127,3 @@ func scale_by(sca:float):
 	brush_size.value += sca
 	_scene.overlay.set_brush_scale( brush_size.value )
 	
-

@@ -87,7 +87,6 @@ text = "Randomness"
 [node name="Slider" parent="Content/MarginBody/VBoxContainer/CustomSlider/HBoxContainer" index="0"]
 max_value = 1.0
 step = 0.01
-scrollable = false
 
 [node name="Percentage" parent="Content/MarginBody/VBoxContainer/CustomSlider/HBoxContainer" index="1"]
 text = "0%"

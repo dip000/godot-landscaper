@@ -37,4 +37,3 @@ func set_value(val):
 
 func get_value():
 	return _slider.value
-

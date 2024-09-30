@@ -55,4 +55,3 @@ func set_value(btn_icon):
 
 func get_value():
 	return _icon
-
