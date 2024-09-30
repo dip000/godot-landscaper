@@ -6,121 +6,87 @@
    height="135.46666mm"
    viewBox="0 0 135.46666 135.46666"
    version="1.1"
-   id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    sodipodi:docname="default_grass_v2.svg"
-   inkscape:export-filename="C:\Users\ab-cb\Desktop\grass.png"
-   inkscape:export-xdpi="125.50024"
-   inkscape:export-ydpi="125.50024"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
-     id="namedview7"
-     pagecolor="#f1f1f1"
-     bordercolor="#000000"
-     borderopacity="0.35294118"
-     inkscape:pageshadow="0"
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     showgrid="false"
-     inkscape:zoom="0.76599266"
-     inkscape:cx="278.7233"
-     inkscape:cy="242.16942"
-     inkscape:window-width="1350"
+     inkscape:zoom="0.71055899"
+     inkscape:cx="456.68271"
+     inkscape:cy="302.57868"
+     inkscape:window-width="1366"
      inkscape:window-height="705"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1"
-     inkscape:snap-bbox="true"
-     inkscape:snap-bbox-midpoints="true"
-     inkscape:bbox-paths="true"
-     inkscape:bbox-nodes="true"
-     inkscape:snap-bbox-edge-midpoints="true"
-     inkscape:snap-smooth-nodes="true"
-     inkscape:snap-intersection-paths="true"
-     inkscape:object-paths="true"
-     inkscape:snap-midpoints="true"
-     inkscape:snap-object-midpoints="true"
-     inkscape:snap-global="false" />
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
   <defs
-     id="defs2" />
+     id="defs1" />
   <g
      inkscape:label="Capa 1"
      inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(109.03817,-362.6687)">
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="464.92505"
-       y="558.8772"
-       id="text1825"><tspan
-         sodipodi:role="line"
-         id="tspan1823"
-         style="stroke-width:0.264583"
-         x="464.92505"
-         y="558.8772" /></text>
-    <g
-       id="g8441"
-       inkscape:export-filename="C:\Users\ab-cb\Documents\GitHub\my-godotshaders\GrassPainter\addons\terra_grass\icon.png"
-       inkscape:export-xdpi="125.50024"
-       inkscape:export-ydpi="125.50024">
-      <g
-         id="g8254" />
-    </g>
+     id="layer1">
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.558;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect883"
        width="9.2445927"
        height="66.88604"
-       x="-44.316288"
-       y="432.94174"
+       x="64.015709"
+       y="70.477745"
        ry="1.9412131" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path1383"
-       cx="-57.571732"
-       cy="396.86453"
+       cx="50.760269"
+       cy="34.400532"
        r="17.961441" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle1465"
-       cx="-36.156166"
-       cy="387.53839"
+       cx="72.175835"
+       cy="25.07439"
        r="17.961441" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle1467"
-       cx="-15.776837"
-       cy="408.95395"
+       cx="92.555161"
+       cy="46.489948"
        r="17.961441" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle1469"
-       cx="-27.175447"
-       cy="430.71494"
+       cx="81.156555"
+       cy="68.250938"
        r="17.961441" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle1471"
-       cx="-47.209362"
-       cy="433.47824"
+       cx="61.122643"
+       cy="71.014244"
        r="17.961441" />
     <circle
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle1473"
-       cx="-62.407505"
-       cy="418.28009"
+       cx="45.924492"
+       cy="55.81609"
        r="17.961441" />
     <circle
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3.55801;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle1475"
-       cx="-39.264877"
-       cy="412.40808"
+       cx="69.067108"
+       cy="49.94408"
        r="17.961441" />
   </g>
 </svg>
