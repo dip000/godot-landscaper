@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://dorhi8iuig3ie"]
+
+[ext_resource type="Script" uid="uid://fwtoq7rflkf6" path="res://addons/godot_landscaper/ui_manager/ui_property/text_input.gd" id="1_uxno5"]
+
+[node name="TextInput" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+script = ExtResource("1_uxno5")
+
+[node name="Property" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.6
+
+[node name="Input" type="TextEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3

@@ -1,0 +1,76 @@
+[gd_scene load_steps=5 format=3 uid="uid://bdfmi4jds2j42"]
+
+[ext_resource type="Script" uid="uid://bfcwnsegvrp1u" path="res://addons/godot_landscaper/ui_manager/ui_property/toggle_content.gd" id="1_isc4s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vubk"]
+bg_color = Color(0.2701, 0.305065, 0.37, 1)
+border_width_bottom = 3
+border_color = Color(0.439216, 0.729412, 0.980392, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fyww6"]
+bg_color = Color(0.211765, 0.239216, 0.290196, 0.0509804)
+border_width_bottom = 3
+border_color = Color(0.439216, 0.729412, 0.980392, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ljuw7"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 1)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.270588, 0.435294, 0.580392, 1)
+border_blend = true
+
+[node name="VBoxContainer" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 28.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 0
+script = ExtResource("1_isc4s")
+_property_name_pressed = "Hide"
+property_name = "Show"
+
+[node name="ToggleButton" type="Button" parent="."]
+layout_mode = 2
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.950119, 0.950119, 0.950119, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/hover = SubResource("StyleBoxFlat_1vubk")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_1vubk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fyww6")
+toggle_mode = true
+text = "Show"
+
+[node name="Arrow" type="Label" parent="ToggleButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 0
+text = "⇩  "
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_ljuw7")
+
+[node name="ContentClip" type="ScrollContainer" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 3

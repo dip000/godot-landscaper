@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://cdq3k5ic13sgd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rbm48"]
+bg_color = Color(0.441, 0.728467, 0.98, 0.705882)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v6rs2"]
+bg_color = Color(0.439216, 0.729412, 0.980392, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xh3wj"]
+bg_color = Color(0.439216, 0.729412, 0.980392, 0.607843)
+
+[node name="LayerButton" type="Button"]
+custom_minimum_size = Vector2(24, 24)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/hover = SubResource("StyleBoxFlat_rbm48")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_v6rs2")
+theme_override_styles/normal = SubResource("StyleBoxFlat_xh3wj")
+text = "1"
