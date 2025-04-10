@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomRange
+class_name UIRange
 ## Custom slider UI
 ## Sets percentage label and value on value_changed
 ## Call "property" or "value" externally from code
@@ -33,4 +33,4 @@ func _on_slider_changed(val:float):
 	change()
 
 func update_percentage(val:float):
-	_suffix_label.text = String.num( 100*val/(_max_value), 1 ) + "%"
+	_suffix_label.text = String.num( 100*val/(_max_value), 0 ) + "%"

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="InstanceData" load_steps=8 format=3 uid="uid://ctj2mmsuupir0"]
+
+[ext_resource type="Script" uid="uid://bybx5kwns7014" path="res://addons/godot_landscaper/ui_manager/action/action_mmi_color.gd" id="1_wj5ui"]
+[ext_resource type="QuadMesh" uid="uid://e1ffvgm01whf" path="res://addons/godot_landscaper/assets_manager/quad_mesh.tres" id="2_cejsn"]
+[ext_resource type="Script" uid="uid://rde4cb86m060" path="res://addons/godot_landscaper/ui_manager/instance/instance_data.gd" id="3_hr25q"]
+[ext_resource type="Script" uid="uid://cvllccg3dq404" path="res://addons/godot_landscaper/ui_manager/action/action_mmi_spawn.gd" id="4_eu58f"]
+[ext_resource type="Texture2D" uid="uid://8j4j4msv1dn5" path="res://addons/godot_landscaper/assets_manager/tall.svg" id="5_u7n60"]
+
+[sub_resource type="Resource" id="Resource_63w88"]
+script = ExtResource("1_wj5ui")
+metadata/_custom_type_script = "uid://bybx5kwns7014"
+
+[sub_resource type="Resource" id="Resource_3bnh6"]
+script = ExtResource("4_eu58f")
+metadata/_custom_type_script = "uid://cvllccg3dq404"
+
+[resource]
+script = ExtResource("3_hr25q")
+name = "GrassQuadTall"
+spawn = SubResource("Resource_3bnh6")
+color = SubResource("Resource_63w88")
+multimesh_mesh = ExtResource("2_cejsn")
+texture = ExtResource("5_u7n60")
+size_base = Vector3(1, 1, 1)
+size_randomize = Vector3(0, 0, 0)
+rotation_base = Vector3(0, 0, 0)
+rotation_randomize = Vector3(0, 0, 0)
+metadata/_custom_type_script = "uid://rde4cb86m060"

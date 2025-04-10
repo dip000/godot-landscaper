@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomTabs
+class_name UITabs
 ## A toggle buttons group. Like the TabBar class but with a FlowContainer.
 ## Shows every tab without clipping or collapsing so we can have all content in view.
 
@@ -45,3 +45,13 @@ func _on_toggled_tab(button_pressed:bool, tab_index:int):
 	if button_pressed and selected_index != tab_index:
 		selected_index = tab_index
 		change()
+
+
+func add_tab(tab:Node, index:int):
+	_tabs_holder.add_child(tab)
+	tab.owner = owner
+	_tabs_holder.move_child( tab, index )
+
+func remove_tab(tab_name:String):
+	var tab:Node = _tabs_holder.get_node( tab_name )
+	tab.queue_free()

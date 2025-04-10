@@ -1,3 +1,4 @@
+@tool
 extends Control
 class_name UIProperty
 ## Interface for custom dock properties.
@@ -5,9 +6,7 @@ class_name UIProperty
 
 @export var property_name:String = ""
 signal on_change(value)
-static var disable_events:bool = false
 
 
 func change():
-	if not disable_events:
-		on_change.emit()
+	on_change.emit()

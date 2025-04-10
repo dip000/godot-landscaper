@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://dkv66uttcirw3"]
 
 [ext_resource type="Script" uid="uid://cgiqs3qbj0pfj" path="res://addons/godot_landscaper/scene_manager/scene_manager.gd" id="1_mmp5c"]
-[ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/raycaster.gd" id="2_spad5"]
+[ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/scene_raycaster.gd" id="2_spad5"]
 [ext_resource type="Script" uid="uid://htun6icbhcvw" path="res://addons/godot_landscaper/scene_manager/scene_brush.gd" id="3_ak6rc"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_da0fj"]

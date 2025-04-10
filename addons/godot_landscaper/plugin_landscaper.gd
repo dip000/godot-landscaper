@@ -3,8 +3,8 @@ extends EditorPlugin
 class_name                Landscaper
 ##          ┌─────────────────┼──────────────────┐         
 ##     ┌UIManager┐      AssetsManager      ┌SceneManager┐   
-##  UIBrush  UIProperty               SceneBrush   SceneLandscaper
-##                                                ProjectLandscaper
+##  UIAction  UIInstance              SceneBrush   SceneRaycaster
+##   Stroke  InstanceData                       
 
 static var ui:UIManager
 static var assets:AssetsManager
@@ -12,15 +12,17 @@ static var scene:SceneManager
 
 
 func _enter_tree():
-	ui = load(AssetsManager.UI_MANAGER).instantiate()
-	assets = load(AssetsManager.ASSETS_MANAGER).instantiate()
-	scene = load(AssetsManager.SCENE_MANAGER).instantiate()
+	ui = AssetsManager.UI_MANAGER.instantiate()
+	assets = AssetsManager.ASSETS_MANAGER.instantiate()
+	scene = AssetsManager.SCENE_MANAGER.instantiate()
 	add_control_to_dock.call_deferred( EditorPlugin.DOCK_SLOT_RIGHT_UL, ui )
 	set_input_event_forwarding_always_enabled()
+	
 	await get_tree().process_frame
-	var viewport:SubViewport = get_editor_interface().get_editor_viewport_3d()
+	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
 	viewport.add_child( assets )
 	viewport.add_child( scene )
+	
 
 func _exit_tree():
 	remove_control_from_docks( ui )
@@ -42,14 +44,12 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
 	# Raycast
-	var result:Dictionary = scene.raycaster.feed( cam, event.get_position() ).cam_to_cursor()
-	if not result:
-		ui.not_over_surface()
+	var hit_info:Dictionary = scene.raycaster.feed( cam, event.get_position() ).cam_to_cursor()
+	if not hit_info:
 		scene.not_over_surface()
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	ui.over_surface( result )
-	scene.over_surface( result )
+	scene.over_surface( hit_info.position )
 	
 	# Paint
 	var mbl:bool = is_button and event.button_index == MOUSE_BUTTON_LEFT
@@ -58,21 +58,18 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			ui.paint_start( result )
-			scene.paint_start( result )
-		ui.paint_primary( result )
-		scene.paint_primary( result )
+			ui.action_start( hit_info )
+		ui.action_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			ui.paint_start( result )
-			scene.paint_start( result )
-		ui.paint_secondary( result )
-		scene.paint_secondary( result )
+			ui.action_start( hit_info )
+		ui.action_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	
 	elif (mbl or mbr) and not pressed:
-		ui.paint_end()
-		scene.paint_end()
+		ui.action_end()
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
@@ -89,8 +86,3 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
-
-
-# Quick-saves UI properties with "Ctrl+S"
-func _save_external_data():
-	assets.save_ui()

@@ -5,64 +5,37 @@ class_name UIManager
 ##  * Opens/closes UI using StateMachine resource
 ##  * Routes control calls from Landscaper class
 
-@onready var brush_size:CustomRange = %BrushSize
-@onready var settings:Settings = %Settings
-@onready var grass_scatter:GrassScatter = %GrassScatter
-@onready var grass_color:GrassColor = %GrassColor
-@onready var undo:Button = %Undo
-@onready var redo:Button = %Redo
+@onready var brush_diameter:UIRange = %BrushDiameter
 @onready var active:CheckButton = %Active
-@onready var save:Button = %Save
-@onready var load:Button = %Load
+@onready var action_tabs:UITabs = %ActionTabs
 
-@onready var _tabs:CustomTabs = %Tabs
-@onready var _brushes_holder:Control = %BrushesHolder
-@onready var _sm:StateMachine = StateMachine.new( grass_scatter )
-
-var brushes:Array:
-	get: return _brushes_holder.get_children()
+@onready var _actions_holder:Control = %ActionsHolder
+@onready var _sm := StateMachine.new( %Spawner )
 
 
 func _ready():
-	UIProperty.disable_events = false
-	Debug.debug_level = settings.debug_level
-	
-	_tabs.on_change.connect( _brush_changed )
-	brush_size.on_change.connect( _on_brush_size_changed )
-	brush_size.value = 1.0
+	Debug.debug_level = %DebugLevel
+	action_tabs.on_change.connect( _on_action_changed )
 
 
-func _brush_changed():
-	var brush:UIBrush = _brushes_holder.get_node( NodePath(_tabs.selected_tab.name) )
-	_sm.switch( brush )
-
-func _on_brush_size_changed():
-	pass
+func _on_action_changed():
+	var tab_name:String = action_tabs.selected_tab.name
+	var action:UIAction = _actions_holder.get_node( tab_name )
+	_sm.switch( action )
 
 
-func over_surface(info:Dictionary):
-	pass
+func action_start(hit_info:Dictionary):
+	(_sm.current as UIAction).action_start( hit_info )
 
-func not_over_surface():
-	pass
+func action_primary(hit_info:Dictionary):
+	(_sm.current as UIAction).action_primary( hit_info )
 
-func paint_start(info:Dictionary):
-	Debug.other("Painting started")
-	_sm.current._paint_start( info )
+func action_secondary(hit_info:Dictionary):
+	(_sm.current as UIAction).action_secondary( hit_info )
 
-func paint_primary(info:Dictionary):
-	Debug.spam("Painting with primary..")
-	_sm.current._paint_primary( info )
+func action_end():
+	(_sm.current as UIAction).action_end()
 
-func paint_secondary(info:Dictionary):
-	Debug.spam("Painting with secondary..")
-	_sm.current._paint_secondary( info )
 
-func paint_end():
-	Debug.other("Painting ended")
-	_sm.current._paint_end()
-
-func scale_by(sca:float):
-	Debug.other("Scaled by %s" %sca)
-	brush_size.value += sca
-	
+func scale_by(value:float):
+	brush_diameter.value += value

@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://te85jcyncn45"]
+
+[ext_resource type="Shader" uid="uid://cgdv4gupo08xt" path="res://addons/godot_landscaper/assets_manager/simplex.gdshader" id="1_jemls"]
+[ext_resource type="Texture2D" uid="uid://chthhvarrp1o3" path="res://addons/godot_landscaper/assets_manager/grass_gradient.tres" id="2_qjkrj"]
+[ext_resource type="Texture2D" uid="uid://8j4j4msv1dn5" path="res://addons/godot_landscaper/assets_manager/tall.svg" id="3_k356l"]
+[ext_resource type="Texture2D" uid="uid://fwug450f6hnc" path="res://addons/godot_landscaper/assets_manager/short.svg" id="4_nqvj5"]
+[ext_resource type="Texture2D" uid="uid://dr3fxgus560u8" path="res://addons/godot_landscaper/assets_manager/sunflower.svg" id="5_w3ui8"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_jemls")
+shader_parameter/wind_vector = Vector3(0, 0, 0)
+shader_parameter/gradient_mask = ExtResource("2_qjkrj")
+shader_parameter/variants = [ExtResource("3_k356l"), ExtResource("4_nqvj5"), ExtResource("5_w3ui8")]
+shader_parameter/enable_details = PackedInt32Array(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/detail_color = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)

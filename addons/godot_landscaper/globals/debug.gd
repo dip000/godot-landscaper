@@ -7,7 +7,7 @@ class_name Debug
 
 
 enum {NONE, STATE, OTHER, SPAM}
-static var debug_level:CustomRange
+static var debug_level:UIRange
 
 
 static func state(msg:Variant):

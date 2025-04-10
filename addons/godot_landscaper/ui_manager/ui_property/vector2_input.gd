@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomVector2Input
+class_name UIVector2Input
 ## Same as a @export Vector2 on the inspector
 ## Set step=1 to act like a Vector2i
 
@@ -17,8 +17,8 @@ var y:float:
 	get: return _input_y.value
 	set(v): _input_y.set_value_no_signal(v)
 
-var value:Vector2:
-	get: return Vector2(x, y)
+var value:Vector3:
+	get: return Vector3(x, y, x)
 	set(v): x=v.x; y=v.y
 
 

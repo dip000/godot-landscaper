@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="InstanceData" load_steps=8 format=3 uid="uid://ca402v7om4ww3"]
+
+[ext_resource type="Script" uid="uid://dfd4lui0x8wkq" path="res://addons/godot_landscaper/ui_manager/action/action_scene_color.gd" id="1_vn6s2"]
+[ext_resource type="PackedScene" uid="uid://dfxeu88j6l6mf" path="res://addons/godot_landscaper/assets_manager/stone.glb" id="2_vn6s2"]
+[ext_resource type="Script" uid="uid://rde4cb86m060" path="res://addons/godot_landscaper/ui_manager/instance/instance_data.gd" id="3_tgolg"]
+[ext_resource type="Script" uid="uid://cn8roql0greok" path="res://addons/godot_landscaper/ui_manager/action/action_scene_spawn.gd" id="4_sedvt"]
+[ext_resource type="Texture2D" uid="uid://8j4j4msv1dn5" path="res://addons/godot_landscaper/assets_manager/tall.svg" id="5_queph"]
+
+[sub_resource type="Resource" id="Resource_mus7e"]
+script = ExtResource("1_vn6s2")
+metadata/_custom_type_script = "uid://dfd4lui0x8wkq"
+
+[sub_resource type="Resource" id="Resource_jxxt2"]
+script = ExtResource("4_sedvt")
+metadata/_custom_type_script = "uid://cn8roql0greok"
+
+[resource]
+script = ExtResource("3_tgolg")
+name = "StoneScene"
+spawn = SubResource("Resource_jxxt2")
+color = SubResource("Resource_mus7e")
+packed_scene = ExtResource("2_vn6s2")
+texture = ExtResource("5_queph")
+size_base = Vector3(1, 1, 1)
+size_randomize = Vector3(0, 0, 0)
+rotation_base = Vector3(0, 0, 0)
+rotation_randomize = Vector3(0, 0, 0)
+metadata/_custom_type_script = "uid://rde4cb86m060"

@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomNumberInput
+class_name UINumberInput
 ## Same as a @export float on the inspector
 ## Set step=1 to act like an int
 

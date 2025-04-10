@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomColorPicker
+class_name UIColorPicker
 ## Same as an inspector color property with enable.
 ## Use as 'my_color_picker.value'
 

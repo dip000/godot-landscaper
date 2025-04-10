@@ -1,6 +1,6 @@
 @tool
 extends Node3D
-class_name Raycaster
+class_name SceneRaycaster
 
 const BRUSH_LAYER:int = 0xFFFFFFFF
 
@@ -23,7 +23,7 @@ func _safe_intersect(ray:PhysicsRayQueryParameters3D) -> Dictionary:
 	return {}
 
 
-func feed(cam:Camera3D, mouse_pos:Vector2) -> Raycaster:
+func feed(cam:Camera3D, mouse_pos:Vector2) -> SceneRaycaster:
 	_cam = cam
 	_mouse_pos = mouse_pos
 	return self
@@ -32,12 +32,12 @@ func feed(cam:Camera3D, mouse_pos:Vector2) -> Raycaster:
 func cam_to_cursor() -> Dictionary:
 	_ray_surfaces.from = _cam.project_ray_origin( _mouse_pos )
 	_ray_surfaces.to = _ray_surfaces.from + (_cam.project_ray_normal( _mouse_pos ) * _cam.far)
-	_ray_surfaces.collision_mask = Landscaper.ui.settings.scan_layers.layer_mask
+	_ray_surfaces.collision_mask = 0xFFFFFFFF
 	return _safe_intersect( _ray_surfaces )
 	
 
 func point_to_point(from:Vector3, to:Vector3) -> Dictionary:
 	_ray_surfaces.from = from
 	_ray_surfaces.to = to
-	_ray_surfaces.collision_mask = Landscaper.ui.settings.scan_layers.layer_mask
+	_ray_surfaces.collision_mask = 0xFFFFFFFF
 	return _safe_intersect( _ray_surfaces )

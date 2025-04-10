@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomToggleContent
+class_name UIToggleContent
 ## Shows content nodes if you press a button. Hides them if you press it again
 ## Usefull to preview large content without polluting the UI
 

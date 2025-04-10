@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomFileInput
+class_name UIFileInput
 ## This custom property only stores a path to a file.
 ## To actually save or load a resource, refer to AssetsManager
 

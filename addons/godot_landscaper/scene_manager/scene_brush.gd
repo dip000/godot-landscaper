@@ -7,12 +7,19 @@ class_name SceneBrush
 
 
 func _ready():
-	Landscaper.ui.brush_size.on_change.connect( _brush_size_changed )
+	await Landscaper.ui.tree_entered
+	Landscaper.ui.brush_diameter.on_change.connect( _brush_size_changed )
 	
-func _brush_size_changed():
-	scale = Vector3.ONE * Landscaper.ui.brush_size.value
 
-func preview(multimesh:MultiMesh):
-	_preview_mmi.multimesh = multimesh.duplicate()
-	_preview_mmi.multimesh.mesh = _preview_mesh
-	
+func _brush_size_changed():
+	scale = Vector3.ONE * Landscaper.ui.brush_diameter.value
+
+func over_surface(pos:Vector3):
+	show()
+	global_position = pos
+
+func not_over_surface():
+	hide()
+
+func scale_by(_value:float):
+	_brush_size_changed()

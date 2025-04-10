@@ -1,6 +1,6 @@
 @tool
 extends UIProperty
-class_name CustomDropbox
+class_name UIDropbox
 ## Dropper of texture resources, usefull for previewing a texture input
 
 @onready var _confirmation_dialog:ConfirmationDialog = $ConfirmationDialog

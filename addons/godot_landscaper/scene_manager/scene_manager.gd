@@ -2,7 +2,7 @@
 extends Node3D
 class_name SceneManager
 
-@onready var raycaster:Raycaster = $Raycaster
+@onready var raycaster:SceneRaycaster = $Raycaster
 @onready var brush:SceneBrush = $SceneBrush
 
 
@@ -18,25 +18,11 @@ static func find_or_create_node(type, parent:Node, child_name:String):
 	Debug.other("Created node %s" %child_name)
 	return child
 
-
-func over_surface(info:Dictionary):
-	brush.show()
-	brush.global_position = info.position
+func over_surface(pos:Vector3):
+	brush.over_surface( pos )
 
 func not_over_surface():
-	brush.hide()
-
-func paint_start(info:Dictionary):
-	pass
-
-func paint_primary(info:Dictionary):
-	pass
-
-func paint_secondary(info:Dictionary):
-	pass
-
-func paint_end():
-	pass
+	brush.not_over_surface()
 
 func scale_by(sca:float):
-	brush.scale += Vector3.ONE * sca
+	brush.scale_by( sca )
