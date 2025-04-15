@@ -4,14 +4,24 @@ class_name UIActionColor
 
 @onready var primary_color:UIColorPicker = $PrimaryColor
 @onready var secondary_color:UIColorPicker = $SecondaryColor
+@onready var ground_gradient:UIRange = $GroundGradient
 
+
+func _ready():
+	ground_gradient.on_change.connect( _on_ground_gradient_changed )
+
+func _on_ground_gradient_changed():
+	for stroke in _strokes:
+		if stroke.mm:
+			var mat:ShaderMaterial = stroke.mm.mesh.surface_get_material(0)
+			mat.set_shader_parameter("ground_gradient", ground_gradient.value)
 
 
 func action_start(hit_info:Dictionary):
 	# Fill base properties
 	super( hit_info )
 	
-	# Add Action-specific properties to the stroke
+	# Add ActionColor-specific properties to the stroke
 	for stroke in _strokes:
 		stroke.primary_color = primary_color.color
 		stroke.secondary_color = secondary_color.color

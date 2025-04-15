@@ -18,6 +18,9 @@ func end():
 
 # Not really evenly distributed but whatever
 func _get_surface_point(radius:float) -> Vector3:
-	var point := Vector3( randf_range(-1,1), randf_range(-1,1), randf_range(-1,1) )
-	point = point.normalized()
+	var point:Vector3 = _randv(-1, +1).normalized()
 	return point * radius
+
+# Not really evenly distributed but whatever
+func _randv(min:float, max:float) -> Vector3:
+	return Vector3( randf_range(min,max), randf_range(min,max), randf_range(min,max) )

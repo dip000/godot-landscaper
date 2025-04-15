@@ -49,7 +49,7 @@ func _get_remove_radial(stroke:Stroke):
 		var transform:Transform3D = stroke.mm.get_instance_transform(i)
 		var instance_pos:Vector3 = transform.origin + stroke.surface_position
 		var dist:float = instance_pos.distance_to( stroke.cursor_position )
-		if dist > stroke.radius:
+		if dist > stroke.radius or stroke.remove_ratio < randf():
 			transforms.append( transform )
 			bottom_colors.append( stroke.mm.get_instance_color(i) )
 			top_colors.append( stroke.mm.get_instance_custom_data(i) )
@@ -72,10 +72,12 @@ func _add_radial(stroke:Stroke):
 		# Add transforms for every surface found
 		var result:Dictionary = Landscaper.scene.raycaster.point_to_point(sphere_surface1, sphere_surface2)
 		if result:
-			var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
+			var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)#.from_euler( stroke.instance.rotation_base )
 			var transf := Transform3D( basis, result.position - stroke.surface_position )
-			transf = transf.rotated_local( Vector3.FORWARD, randf()*PI )
-			transf = transf.scaled_local( stroke.instance.size_base + randf_range(-1,1)*stroke.instance.size_randomize)
+			var size_offset:Vector3 = stroke.instance.size_randomize * _randv(0, 1)
+			
+			transf = transf.scaled_local( stroke.instance.size_base + size_offset)
+			transf = transf.rotated_local(Vector3.FORWARD, randf()*stroke.instance.rotation_randomize.x )
 			transforms.append( transf )
 			
 			var mesh:Mesh = result.collider.get_parent().mesh

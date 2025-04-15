@@ -6,7 +6,7 @@ const int TOTAL_GRASS_VARIANTS = 16;
 uniform vec3 wind_vector = vec3(0.0);
 
 // This must be in gray scale. Usually a GradientTexture2D but can be anything you want, even empty for plain color
-uniform sampler2D gradient_mask:source_color,filter_linear_mipmap,repeat_disable,hint_default_black;
+uniform float ground_gradient:hint_range(0.0, 1.0, 0.05);
 uniform sampler2D variants[TOTAL_GRASS_VARIANTS];
 
 uniform bool enable_details[TOTAL_GRASS_VARIANTS];
@@ -33,11 +33,11 @@ void vertex(){
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
 	vec3 recolor_root = gamma_corrected(COLOR.rgb); // Comes from MultiMesh.set_instance_color()
 	vec3 recolor_top = INSTANCE_CUSTOM.rgb; // Comes from MultiMesh.set_instance_custom_data()
-	float mask = texture(gradient_mask, UV).r;
+	float mask = clamp(UV.y + ground_gradient, 0.0, 1.0);
 	
 	// Mask the top of the grass with one color, mask the root with another, and add them
-	COLOR.rgb = recolor_top * mask;
-	COLOR.rgb += recolor_root * (1.0-mask);
+	COLOR.rgb = recolor_root * mask;
+	COLOR.rgb += recolor_top * (1.0-mask);
 }
 
 void fragment() {

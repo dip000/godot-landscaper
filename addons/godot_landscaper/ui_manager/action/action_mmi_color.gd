@@ -2,53 +2,28 @@
 extends Action
 class_name ActionMMIColor
 
-var transforms:Array[Transform3D]
-var top_colors:Array[Color]
-
 
 func start(stroke:Stroke):
-	# Add Multimesh if needed
-	var mmi:MultiMeshInstance3D = SceneManager.find_or_create_node( MultiMeshInstance3D, stroke.root_node, stroke.instance.name )
-	if not mmi.multimesh:
-		mmi.multimesh = MultiMesh.new()
-		mmi.multimesh.mesh = AssetsManager.QUAD_GRASS
-		mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-		mmi.multimesh.use_colors = true
-		mmi.multimesh.use_custom_data = true
-	stroke.mm = mmi.multimesh
+	# Find Multimesh
+	var mmi:MultiMeshInstance3D = stroke.root_node.get_node_or_null( stroke.instance.name )
+	if mmi:
+		stroke.mm = mmi.multimesh
 	
-	# Initialize
-	transforms.clear()
-	top_colors.clear()
-	_get_all( stroke )
-
 
 func primary(stroke:Stroke):
-	_paint_radial( stroke, stroke.primary_color )
-	_spawn( stroke )
+	if stroke.mm:
+		_spawn( stroke, stroke.primary_color )
 
 func secondary(stroke:Stroke):
-	_paint_radial( stroke, stroke.secondary_color )
-	_spawn( stroke )
+	if stroke.mm:
+		_spawn( stroke, stroke.secondary_color )
 
 
-# Gets every MultiMesh transform and color
-func _get_all(stroke:Stroke):
-	for i in stroke.mm.instance_count:
-		transforms.append( stroke.mm.get_instance_transform(i) )
-		top_colors.append( stroke.mm.get_instance_custom_data(i) )
-
-
-# Gets every MultiMesh transform and color
-func _paint_radial(stroke:Stroke, color:Color):
-	for i in stroke.mm.instance_count:
-		var pos:Vector3 = transforms[i].origin
-		var dist:float = stroke.cursor_position.distance_to(pos)
-		if dist < stroke.radius:
-			top_colors[i] = color
-	
-
-# Re-Spawns the grass from the transforms given
-func _spawn(stroke:Stroke):
+# Re-Colors the grass from the current transforms
+func _spawn(stroke:Stroke, color:Color):
 	for i in range(stroke.mm.instance_count):
-		stroke.mm.set_instance_custom_data( i, top_colors[i] )
+		var transf:Transform3D = stroke.mm.get_instance_transform( i )
+		var world_pos:Vector3 = transf.origin + stroke.surface_position
+		var dist:float = stroke.cursor_position.distance_to( world_pos )
+		if dist < stroke.radius:
+			stroke.mm.set_instance_custom_data( i, color )

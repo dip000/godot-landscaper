@@ -1,5 +1,7 @@
 extends Resource
 class_name Stroke
+## Packed parameters that are sent to the specific action implementation
+## Gets created on UIAction.action_start() and lives throughout the stroke
 
 ## Stroke-constant references
 var instance:InstanceData
