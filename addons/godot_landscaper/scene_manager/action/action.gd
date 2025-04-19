@@ -3,16 +3,19 @@ extends Resource
 class_name Action
 
 
-func start(stroke:Stroke):
+func start(instance:InstanceData):
 	pass
 
-func primary(stroke:Stroke):
+func primary(instance:InstanceData):
 	pass
 
-func secondary(stroke:Stroke):
+func secondary(instance:InstanceData):
 	pass
 
-func end():
+func end(instance:InstanceData):
+	pass
+
+func redo(instance:InstanceData):
 	pass
 
 

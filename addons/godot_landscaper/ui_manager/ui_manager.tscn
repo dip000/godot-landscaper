@@ -1,48 +1,10 @@
-[gd_scene load_steps=27 format=3 uid="uid://b5tpsl64nk1gq"]
+[gd_scene load_steps=7 format=3 uid="uid://b5tpsl64nk1gq"]
 
 [ext_resource type="Script" uid="uid://cqx1wk2qe0xbf" path="res://addons/godot_landscaper/ui_manager/ui_manager.gd" id="1_iiceg"]
-[ext_resource type="Script" uid="uid://dnb8xcgt55ckv" path="res://addons/godot_landscaper/ui_manager/undo_redo/undo_redo.gd" id="2_yxnql"]
-[ext_resource type="PackedScene" uid="uid://7l6ujrx1sram" path="res://addons/godot_landscaper/ui_manager/ui_property/range.tscn" id="4_2k356"]
-[ext_resource type="PackedScene" uid="uid://b5cbncjt0oya0" path="res://addons/godot_landscaper/ui_manager/ui_property/tabs.tscn" id="5_uvhee"]
-[ext_resource type="PackedScene" uid="uid://bsvwmgjvbh8c1" path="res://addons/godot_landscaper/ui_manager/instance/instance.tscn" id="7_ho2ki"]
 [ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/assets_manager/icons.svg" id="8_8hhu4"]
-[ext_resource type="Texture2D" uid="uid://8j4j4msv1dn5" path="res://addons/godot_landscaper/assets_manager/tall.svg" id="8_q6da6"]
-[ext_resource type="Resource" uid="uid://ctj2mmsuupir0" path="res://addons/godot_landscaper/ui_manager/instance_database/grass_quad_tall.tres" id="9_63w88"]
 [ext_resource type="Script" uid="uid://onpvyjpb5186" path="res://addons/godot_landscaper/globals/atlas_icon.gd" id="9_na5kg"]
-[ext_resource type="Resource" uid="uid://t2g43f1d1ryo" path="res://addons/godot_landscaper/ui_manager/instance_database/grass_quad_sunflower.tres" id="11_jq830"]
-[ext_resource type="Texture2D" uid="uid://dr3fxgus560u8" path="res://addons/godot_landscaper/assets_manager/sunflower.svg" id="12_1n2hj"]
-[ext_resource type="Resource" uid="uid://ca402v7om4ww3" path="res://addons/godot_landscaper/ui_manager/instance_database/grass_3d_tall.tres" id="12_q6da6"]
-[ext_resource type="PackedScene" uid="uid://4dosb4l6idb6" path="res://addons/godot_landscaper/ui_manager/ui_info_box.tscn" id="13_3wpwt"]
-[ext_resource type="Script" uid="uid://ccjruailxsxfg" path="res://addons/godot_landscaper/ui_manager/action/ui_action_spawn.gd" id="15_1n2hj"]
-[ext_resource type="PackedScene" uid="uid://cj3gnsv4q1ip2" path="res://addons/godot_landscaper/ui_manager/instance/instance_add.tscn" id="15_8mcor"]
-[ext_resource type="Script" uid="uid://bgqcgx2hnwdpo" path="res://addons/godot_landscaper/ui_manager/action/ui_action_color.gd" id="17_jq830"]
-[ext_resource type="Script" uid="uid://ys84888rv1rl" path="res://addons/godot_landscaper/globals/debug.gd" id="23_u7poo"]
-[ext_resource type="PackedScene" uid="uid://dm7ycgrpmdj5t" path="res://addons/godot_landscaper/ui_manager/ui_property/color_picker_ui.tscn" id="23_yxnql"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_5arkg"]
-atlas = ExtResource("8_8hhu4")
-region = Rect2(448, 0, 64, 64)
-script = ExtResource("9_na5kg")
-icon = 7
-metadata/_custom_type_script = "uid://onpvyjpb5186"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_b4xgb"]
-atlas = ExtResource("8_8hhu4")
-region = Rect2(512, 0, 64, 64)
-script = ExtResource("9_na5kg")
-icon = 8
-metadata/_custom_type_script = "uid://onpvyjpb5186"
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k884q"]
-bg_color = Color(0.145098, 0.168627, 0.203922, 1)
-border_width_top = 3
-border_color = Color(0.439216, 0.729412, 0.980392, 1)
-border_blend = true
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fg34q"]
-bg_color = Color(0.211765, 0.239216, 0.290196, 1)
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_q6da6"]
+[sub_resource type="ButtonGroup" id="ButtonGroup_s50q0"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0nx7m"]
 atlas = ExtResource("8_8hhu4")
@@ -58,303 +20,33 @@ script = ExtResource("9_na5kg")
 icon = 10
 metadata/_custom_type_script = "uid://onpvyjpb5186"
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fixda"]
-bg_color = Color(0.145098, 0.168627, 0.203922, 1)
-expand_margin_top = 3.0
-expand_margin_bottom = 1.0
-
-[node name="Landscaper" type="VBoxContainer"]
+[node name="Landscaper" type="HBoxContainer"]
 custom_minimum_size = Vector2(250, 0)
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_bottom = 35.0
 grow_horizontal = 2
-grow_vertical = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_iiceg")
 
-[node name="Options" parent="." instance=ExtResource("5_uvhee")]
-unique_name_in_owner = true
-layout_mode = 2
-property_name = "Options:"
-
-[node name="Label" parent="Options/PanelContainer/VBoxContainer" index="0"]
-text = "Options:"
-
-[node name="UndoRedo" type="HBoxContainer" parent="Options/PanelContainer/VBoxContainer/Tabs" index="0"]
-layout_mode = 2
-size_flags_vertical = 0
-script = ExtResource("2_yxnql")
-
-[node name="Undo" type="Button" parent="Options/PanelContainer/VBoxContainer/Tabs/UndoRedo"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 2
-tooltip_text = "Undo"
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 1
-theme_override_font_sizes/font_size = 11
-icon = SubResource("AtlasTexture_5arkg")
-expand_icon = true
-
-[node name="Redo" type="Button" parent="Options/PanelContainer/VBoxContainer/Tabs/UndoRedo"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 2
-tooltip_text = "Redo"
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 1
-theme_override_font_sizes/font_size = 11
-icon = SubResource("AtlasTexture_b4xgb")
-expand_icon = true
-
-[node name="Active" type="CheckButton" parent="Options/PanelContainer/VBoxContainer/Tabs/UndoRedo"]
-unique_name_in_owner = true
+[node name="Spawner" type="Button" parent="."]
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
 size_flags_horizontal = 3
-button_pressed = true
-text = "Eco Landscaper 0.3.0 Enabled"
-alignment = 2
-
-[node name="BrushDiameter" parent="Options/PanelContainer/VBoxContainer/Tabs" index="1" instance=ExtResource("4_2k356")]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-_min_value = 0.1
-_max_value = 10.0
-property_name = "Brush Size"
-
-[node name="Name" parent="Options/PanelContainer/VBoxContainer/Tabs/BrushDiameter" index="0"]
-text = "Brush Size"
-
-[node name="Slider" parent="Options/PanelContainer/VBoxContainer/Tabs/BrushDiameter/HBoxContainer" index="0"]
-min_value = 0.1
-max_value = 10.0
-step = 0.099
-value = 0.991
-
-[node name="Percentage" parent="Options/PanelContainer/VBoxContainer/Tabs/BrushDiameter/HBoxContainer" index="1"]
-text = "10%"
-
-[node name="DebugLevel" parent="Options/PanelContainer/VBoxContainer/Tabs" index="2" instance=ExtResource("4_2k356")]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-_max_value = 3.0
-property_name = "Debug Level"
-
-[node name="Name" parent="Options/PanelContainer/VBoxContainer/Tabs/DebugLevel" index="0"]
-text = "Debug Level"
-
-[node name="Slider" parent="Options/PanelContainer/VBoxContainer/Tabs/DebugLevel/HBoxContainer" index="0"]
-max_value = 3.0
-step = 0.03
-value = 0.6
-
-[node name="Percentage" parent="Options/PanelContainer/VBoxContainer/Tabs/DebugLevel/HBoxContainer" index="1"]
-text = "20%"
-
-[node name="Instances" parent="." instance=ExtResource("5_uvhee")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 4
-_toggle_group = false
-property_name = "Select Instance(s):"
-
-[node name="Label" parent="Instances/PanelContainer/VBoxContainer" index="0"]
-text = "Select Instance(s):"
-
-[node name="GrassQuadTall" parent="Instances/PanelContainer/VBoxContainer/Tabs" index="0" instance=ExtResource("7_ho2ki")]
-layout_mode = 2
-button_pressed = true
-icon = ExtResource("8_q6da6")
-data = ExtResource("9_63w88")
-
-[node name="GrassQuadSunflower" parent="Instances/PanelContainer/VBoxContainer/Tabs" index="1" instance=ExtResource("7_ho2ki")]
-layout_mode = 2
-icon = ExtResource("12_1n2hj")
-data = ExtResource("11_jq830")
-
-[node name="StoneScene" parent="Instances/PanelContainer/VBoxContainer/Tabs" index="2" instance=ExtResource("7_ho2ki")]
-layout_mode = 2
-icon = ExtResource("8_q6da6")
-data = ExtResource("12_q6da6")
-
-[node name="AddInstance" parent="Instances/PanelContainer/VBoxContainer/Tabs" index="3" instance=ExtResource("15_8mcor")]
-layout_mode = 2
-property_name = "Add Instance"
-
-[node name="ActionTabs" parent="." instance=ExtResource("5_uvhee")]
-unique_name_in_owner = true
-layout_mode = 2
-property_name = "Select Action:"
-
-[node name="PanelContainer" parent="ActionTabs" index="0"]
-size_flags_vertical = 1
-
-[node name="VBoxContainer" parent="ActionTabs/PanelContainer" index="0"]
-size_flags_vertical = 1
-
-[node name="Label" parent="ActionTabs/PanelContainer/VBoxContainer" index="0"]
-text = "Select Action:"
-
-[node name="Tabs" parent="ActionTabs/PanelContainer/VBoxContainer" index="1"]
-size_flags_vertical = 3
-theme_override_constants/h_separation = 0
-alignment = 0
-
-[node name="Spawner" type="Button" parent="ActionTabs/PanelContainer/VBoxContainer/Tabs" index="0"]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
 tooltip_text = "Spawner"
-theme_override_styles/pressed = SubResource("StyleBoxFlat_k884q")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 toggle_mode = true
-button_pressed = true
-button_group = SubResource("ButtonGroup_q6da6")
+button_group = SubResource("ButtonGroup_s50q0")
+text = "Spawn"
 icon = SubResource("AtlasTexture_0nx7m")
-icon_alignment = 1
-vertical_icon_alignment = 0
 expand_icon = true
 
-[node name="Color" type="Button" parent="ActionTabs/PanelContainer/VBoxContainer/Tabs" index="1"]
-custom_minimum_size = Vector2(40, 40)
+[node name="Color" type="Button" parent="."]
+custom_minimum_size = Vector2(35, 35)
 layout_mode = 2
+size_flags_horizontal = 3
 tooltip_text = "Color"
-theme_override_styles/pressed = SubResource("StyleBoxFlat_k884q")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fg34q")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_q6da6")
+button_group = SubResource("ButtonGroup_s50q0")
+text = "Color"
 icon = SubResource("AtlasTexture_3bnh6")
-icon_alignment = 1
-vertical_icon_alignment = 0
 expand_icon = true
-
-[node name="Actions" type="Panel" parent="."]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_fixda")
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Actions"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-vertical_scroll_mode = 2
-
-[node name="ActionsHolder" type="MarginContainer" parent="Actions/ScrollContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
-
-[node name="Spawner" type="VBoxContainer" parent="Actions/ScrollContainer/ActionsHolder"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 10
-script = ExtResource("15_1n2hj")
-
-[node name="InfoBox" parent="Actions/ScrollContainer/ActionsHolder/Spawner" instance=ExtResource("13_3wpwt")]
-layout_mode = 2
-
-[node name="Label" parent="Actions/ScrollContainer/ActionsHolder/Spawner/InfoBox" index="0"]
-text = "[b]Spawner[/b]
-Brush over a surface with left-click to add instances, right-click to erase."
-
-[node name="AddRatio" parent="Actions/ScrollContainer/ActionsHolder/Spawner" instance=ExtResource("4_2k356")]
-layout_mode = 2
-_min_value = 1.0
-_max_value = 10.0
-property_name = "Add Ratio"
-
-[node name="Name" parent="Actions/ScrollContainer/ActionsHolder/Spawner/AddRatio" index="0"]
-text = "Add Ratio"
-
-[node name="Slider" parent="Actions/ScrollContainer/ActionsHolder/Spawner/AddRatio/HBoxContainer" index="0"]
-min_value = 1.0
-max_value = 10.0
-step = 0.09
-value = 1.99
-
-[node name="Percentage" parent="Actions/ScrollContainer/ActionsHolder/Spawner/AddRatio/HBoxContainer" index="1"]
-text = "20%"
-
-[node name="RemoveRatio" parent="Actions/ScrollContainer/ActionsHolder/Spawner" instance=ExtResource("4_2k356")]
-layout_mode = 2
-_min_value = 0.01
-_max_value = 1.0
-property_name = "Remove Ratio"
-
-[node name="Name" parent="Actions/ScrollContainer/ActionsHolder/Spawner/RemoveRatio" index="0"]
-text = "Remove Ratio"
-
-[node name="Slider" parent="Actions/ScrollContainer/ActionsHolder/Spawner/RemoveRatio/HBoxContainer" index="0"]
-min_value = 0.01
-max_value = 1.0
-step = 0.0099
-value = 0.703
-
-[node name="Percentage" parent="Actions/ScrollContainer/ActionsHolder/Spawner/RemoveRatio/HBoxContainer" index="1"]
-text = "70%"
-
-[node name="Color" type="VBoxContainer" parent="Actions/ScrollContainer/ActionsHolder"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 10
-script = ExtResource("17_jq830")
-
-[node name="InfoBox" parent="Actions/ScrollContainer/ActionsHolder/Color" instance=ExtResource("13_3wpwt")]
-layout_mode = 2
-
-[node name="Label" parent="Actions/ScrollContainer/ActionsHolder/Color/InfoBox" index="0"]
-text = "[b]Color[/b]
-Paint over instances with left-click for primary color, right-click for secondary color."
-
-[node name="PrimaryColor" parent="Actions/ScrollContainer/ActionsHolder/Color" instance=ExtResource("23_yxnql")]
-layout_mode = 2
-property_name = "Primary Color"
-
-[node name="PropertyName" parent="Actions/ScrollContainer/ActionsHolder/Color/PrimaryColor/HBoxContainer" index="1"]
-text = "Primary Color"
-
-[node name="ColorPickerButton" parent="Actions/ScrollContainer/ActionsHolder/Color/PrimaryColor" index="1"]
-color = Color(0.410647, 0.53864, 0, 1)
-
-[node name="SecondaryColor" parent="Actions/ScrollContainer/ActionsHolder/Color" instance=ExtResource("23_yxnql")]
-layout_mode = 2
-property_name = "Secondary Color"
-
-[node name="PropertyName" parent="Actions/ScrollContainer/ActionsHolder/Color/SecondaryColor/HBoxContainer" index="1"]
-text = "Secondary Color"
-
-[node name="ColorPickerButton" parent="Actions/ScrollContainer/ActionsHolder/Color/SecondaryColor" index="1"]
-color = Color(0.976476, 1, 0.741556, 1)
-
-[node name="GroundGradient" parent="Actions/ScrollContainer/ActionsHolder/Color" instance=ExtResource("4_2k356")]
-layout_mode = 2
-tooltip_text = "Color gradient between ground color and top color"
-_max_value = 1.0
-property_name = "Ground Gradient"
-
-[node name="Debugger" type="Node" parent="."]
-script = ExtResource("23_u7poo")
-
-[editable path="Options"]
-[editable path="Options/PanelContainer/VBoxContainer/Tabs/BrushDiameter"]
-[editable path="Options/PanelContainer/VBoxContainer/Tabs/DebugLevel"]
-[editable path="Instances"]
-[editable path="ActionTabs"]
-[editable path="Actions/ScrollContainer/ActionsHolder/Spawner/InfoBox"]
-[editable path="Actions/ScrollContainer/ActionsHolder/Spawner/AddRatio"]
-[editable path="Actions/ScrollContainer/ActionsHolder/Spawner/RemoveRatio"]
-[editable path="Actions/ScrollContainer/ActionsHolder/Color/InfoBox"]
-[editable path="Actions/ScrollContainer/ActionsHolder/Color/PrimaryColor"]
-[editable path="Actions/ScrollContainer/ActionsHolder/Color/SecondaryColor"]

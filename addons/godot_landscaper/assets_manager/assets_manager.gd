@@ -8,7 +8,6 @@ class_name AssetsManager
 const UI_MANAGER:PackedScene = preload("res://addons/godot_landscaper/ui_manager/ui_manager.tscn")
 const SCENE_MANAGER:PackedScene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn")
 const ASSETS_MANAGER:PackedScene = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn")
-const INSTANCE_PREVIEW:PackedScene = preload("res://addons/godot_landscaper/ui_manager/instance/instance.tscn")
 
 # File System Resources
 const ASSETS_FOLDER:StringName = "res://addons/godot_landscaper/assets_manager/"

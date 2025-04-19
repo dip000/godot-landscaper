@@ -15,7 +15,7 @@ uniform vec3 detail_color[TOTAL_GRASS_VARIANTS]:source_color;
 instance uniform int variant_index;
 
 vec3 gamma_corrected(vec3 srgb) {
-	if(OUTPUT_IS_SRGB) return srgb; //Compatibility uses sRGB by default 
+	if(OUTPUT_IS_SRGB) return srgb; //Compatibility uses sRGB by default
 	else return pow(srgb, vec3(2.2)); //Converts to lineal-space
 }
 
@@ -29,12 +29,12 @@ void vertex(){
 	sway.z *= cos(dir.z);
 	sway = (sway + wind_vector) * root;
 	VERTEX += (vec4(sway, 1.0) * MODEL_MATRIX).xyz;
-	
+
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
 	vec3 recolor_root = gamma_corrected(COLOR.rgb); // Comes from MultiMesh.set_instance_color()
 	vec3 recolor_top = INSTANCE_CUSTOM.rgb; // Comes from MultiMesh.set_instance_custom_data()
 	float mask = clamp(UV.y + ground_gradient, 0.0, 1.0);
-	
+
 	// Mask the top of the grass with one color, mask the root with another, and add them
 	COLOR.rgb = recolor_root * mask;
 	COLOR.rgb += recolor_top * (1.0-mask);
@@ -45,11 +45,11 @@ void fragment() {
 	ALBEDO = COLOR.rgb;
 	// The margin will look awfull if you try to vertex-color it, so is better to process it here
 	vec4 detail_mask = texture(variants[variant_index], UV);
-	
+
 	if(enable_details[variant_index]){
 		ALBEDO = mix(detail_color[variant_index], ALBEDO, detail_mask.r);
 	}
-	
+
 	// Enables alpha scissor
 	ALPHA = detail_mask.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.8;

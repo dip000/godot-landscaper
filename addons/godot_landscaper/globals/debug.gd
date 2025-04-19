@@ -7,17 +7,16 @@ class_name Debug
 
 
 enum {NONE, STATE, OTHER, SPAM}
-static var debug_level:UIRange
-
+static var debug_level:int = STATE
 
 static func state(msg:Variant):
-	if ceili(debug_level.value) >= STATE:
+	if debug_level >= STATE:
 		print_rich("[color=#00FFBBAA][b]Landscaper: [/b]%s[/color]" %msg)
 
 static func other(msg:Variant):
-	if ceili(debug_level.value) >= OTHER:
+	if debug_level >= OTHER:
 		print_rich("[color=#AAFFBB88][b]Landscaper: [/b]%s[/color]" %msg)
 
 static func spam(msg:Variant):
-	if ceili(debug_level.value) >= SPAM:
+	if debug_level >= SPAM:
 		print_rich("[color=#FFFFBB44][b]Landscaper: [/b]%s[/color]" %msg)
