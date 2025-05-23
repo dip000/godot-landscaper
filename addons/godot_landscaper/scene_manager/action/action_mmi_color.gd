@@ -5,28 +5,28 @@ class_name ActionMMIColor
 var mmi:MultiMeshInstance3D
 
 
-func start(instance:InstanceData):
+func start(instance:Instancer):
 	mmi = instance.root_node.get_node_or_null( instance.resource_name )
 
 
-func primary(instance:InstanceData):
+func primary(instance:Instancer):
 	if mmi:
 		_spawn( instance, instance.primary_color )
 
 
-func secondary(instance:InstanceData):
+func secondary(instance:Instancer):
 	if mmi:
 		_spawn( instance, instance.secondary_color )
 
 
-func redo(instance:InstanceData):
+func redo(instance:Instancer):
 	if mmi:
 		for i in range(mmi.multimesh.instance_count):
 			mmi.mm.set_instance_custom_data( i, instance.top_colors[i] )
 
 
 # Re-Colors the grass from the current transforms
-func _spawn(instance:InstanceData, color:Color):
+func _spawn(instance:Instancer, color:Color):
 	if mmi:
 		for i in range(mmi.multimesh.instance_count):
 			var transf:Transform3D = mmi.multimesh.get_instance_transform( i )

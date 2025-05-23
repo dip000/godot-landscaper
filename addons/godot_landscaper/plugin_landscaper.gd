@@ -4,26 +4,20 @@ class_name                Landscaper
 ##          ┌─────────────────┼──────────────────┐         
 ##     ┌UIManager┐      AssetsManager      ┌SceneManager┐   
 ##  UIAction  UIInstance              SceneBrush   SceneRaycaster
-##   Stroke  InstanceData                       
+##   Stroke  Instancer                       
 
 #static var ui:UIManager
 static var assets:AssetsManager
 static var scene:SceneManager
 static var inspector:InspectorLandscaper
-
 static var instancer:EcoInstancer
 
 
 func _enter_tree():
-	#ui = AssetsManager.UI_MANAGER.instantiate()
 	assets = AssetsManager.ASSETS_MANAGER.instantiate()
 	scene = AssetsManager.SCENE_MANAGER.instantiate()
-	#add_control_to_dock.call_deferred( EditorPlugin.DOCK_SLOT_RIGHT_UL, ui )
-	#set_input_event_forwarding_always_enabled()
-	
 	inspector = InspectorLandscaper.new()
 	add_inspector_plugin( inspector )
-	
 	await get_tree().process_frame
 	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
 	viewport.add_child( assets )
@@ -31,11 +25,9 @@ func _enter_tree():
 	
 
 func _exit_tree():
-	#remove_control_from_docks( ui )
-	#ui.queue_free()
+	remove_inspector_plugin( inspector )
 	assets.queue_free()
 	scene.queue_free()
-	remove_inspector_plugin( inspector )
 
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
@@ -95,8 +87,8 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
-func _edit(object):
+func _edit(object:Object):
 	instancer = object
 
-func _handles(object):
+func _handles(object:Object):
 	return object is EcoInstancer

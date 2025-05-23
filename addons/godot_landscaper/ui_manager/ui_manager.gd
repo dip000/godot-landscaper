@@ -2,21 +2,25 @@
 extends Control
 class_name UIManager
 
-@onready var spawner:Button = $Spawner
-@onready var color:Button = $Color
-
-static var action:String
+static var spawn:bool = true
+static var color:bool = false
 
 
 func _ready():
-	spawner.pressed.connect( _on_spawner_pressed )
-	color.pressed.connect( _on_color_pressed )
+	$Spawner.pressed.connect( _on_spawner_pressed )
+	$Color.pressed.connect( _on_colorer_pressed )
+	if spawn:
+		$Spawner.set_pressed_no_signal(true)
+	if color:
+		$Color.set_pressed_no_signal(true)
 
 func _on_spawner_pressed():
-	action = "Spawn"
+	spawn = true
+	color = false
 	Landscaper.instancer.notify_property_list_changed()
-	
 
-func _on_color_pressed():
-	action = "Color"
+
+func _on_colorer_pressed():
+	spawn = false
+	color = true
 	Landscaper.instancer.notify_property_list_changed()

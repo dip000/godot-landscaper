@@ -9,8 +9,8 @@ uniform vec3 wind_vector = vec3(0.0);
 uniform float ground_gradient:hint_range(0.0, 1.0, 0.05);
 uniform sampler2D variants[TOTAL_GRASS_VARIANTS];
 
-uniform bool enable_details[TOTAL_GRASS_VARIANTS];
-uniform vec3 detail_color[TOTAL_GRASS_VARIANTS]:source_color;
+uniform bool details_enable;
+uniform vec3 detail_color:source_color;
 
 instance uniform int variant_index;
 
@@ -46,8 +46,8 @@ void fragment() {
 	// The margin will look awfull if you try to vertex-color it, so is better to process it here
 	vec4 detail_mask = texture(variants[variant_index], UV);
 
-	if(enable_details[variant_index]){
-		ALBEDO = mix(detail_color[variant_index], ALBEDO, detail_mask.r);
+	if(details_enable){
+		ALBEDO = mix(detail_color, ALBEDO, detail_mask.r);
 	}
 
 	// Enables alpha scissor

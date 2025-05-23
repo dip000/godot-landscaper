@@ -5,19 +5,24 @@ class_name EcoInstancer
 @export_category("Options")
 @export_range(0.1, 10, 0.1, "or_greater") var brush_size:float = 1.0:
 	set(v):
-		brush_size = v
 		Landscaper.scene.brush.scale = v * Vector3.ONE
+	get: return Landscaper.scene.brush.scale.x
 
-@export_category("Actions")
+
+@export_category("Select Action:")
+## Left-Button-Mouse Action. Only available on Multi Mesh Instances
 @export var primary_color:Color = Color.SEA_GREEN
+## Right-Button-Mouse Action. Only available on Multi Mesh Instances
 @export var secondary_color:Color = Color.PALE_GREEN
-@export_range(0.0, 1.0, 0.01) var ground_gradient:float = 0.5
+## Space between the ground color and the instance color. Only available on Multi Mesh Instances
 
-@export_range(0.0, 10.0, 0.1, "or_greater") var add_ratio:float = 2.0
-@export_range(0.0, 1.0, 0.1) var remove_ratio:float = 0.7
+## How many instances to spawn per input tick
+@export_range(1, 10, 1, "or_greater") var add_ratio:float = 2.0
+## How many instances to de-spawn per input tick
+@export_range(0.1, 1, 0.01) var remove_ratio:float = 0.7
 
-@export_category("Instances")
-@export_storage var _instances:Array[InstanceData]
+@export_category("Enable Instances:")
+@export_storage var _instances:Array[Instancer]
 
 
 func _get(property:StringName):
@@ -27,15 +32,14 @@ func _get(property:StringName):
 
 func _set(property:StringName, value:Variant):
 	if property.left(-1) == "instance_":
-		#if not value or value is MultiMeshInstanceData or value is SceneInstanceData:
-			var index:int = property.right(-1).to_int()
-			_instances[index] = value
-			notify_property_list_changed()
-			return true
+		var index:int = property.right(-1).to_int()
+		_instances[index] = value
+		notify_property_list_changed()
+		return true
 	return false
 
 func _get_property_list():
-	var props:Array = []
+	var props:Array[Dictionary]
 	_instances = _instances.filter(func(v): return v)
 	_instances.resize( _instances.size()+1 )
 	
@@ -44,7 +48,7 @@ func _get_property_list():
 			"name": "instance_%d" % i,
 			"type": TYPE_OBJECT,
 			"hint": PROPERTY_HINT_RESOURCE_TYPE,
-			"hint_string": "InstanceData",
+			"hint_string": "Instancer",
 		})
 	return props
 
@@ -58,7 +62,7 @@ func _for_each_instance(method:Callable):
 
 
 func action_start(hit_info:Dictionary):
-	_for_each_instance(func(i:int, instance:InstanceData):
+	_for_each_instance(func(i:int, instance:Instancer):
 		instance.transforms.clear()
 		instance.top_colors.clear()
 		instance.bottom_colors.clear()
@@ -74,38 +78,38 @@ func action_start(hit_info:Dictionary):
 		instance.secondary_color = secondary_color
 		instance.face_index = hit_info.face_index
 		instance.cursor_position = hit_info.position
-		if UIManager.action == "Spawn":
+		if UIManager.spawn:
 			instance.spawn.start( instance )
-		if UIManager.action == "Color":
+		if UIManager.color:
 			instance.color.start( instance )
 	)
 	
 
 func action_primary(hit_info:Dictionary):
-	_for_each_instance(func(_i:int, instance:InstanceData):
+	_for_each_instance(func(_i:int, instance:Instancer):
 		instance.face_index = hit_info.face_index
 		instance.cursor_position = hit_info.position
-		if UIManager.action == "Spawn":
+		if UIManager.spawn:
 			instance.spawn.primary( instance )
-		if UIManager.action == "Color":
+		if UIManager.color:
 			instance.color.primary( instance )
 	)
 
 func action_secondary(hit_info:Dictionary):
-	_for_each_instance(func(_i:int, instance:InstanceData):
+	_for_each_instance(func(_i:int, instance:Instancer):
 		instance.face_index = hit_info.face_index
 		instance.cursor_position = hit_info.position
-		if UIManager.action == "Spawn":
+		if UIManager.spawn:
 			instance.spawn.secondary( instance )
-		if UIManager.action == "Color":
+		if UIManager.color:
 			instance.color.secondary( instance )
 	)
 
 func action_end():
-	_for_each_instance(func(_i:int, instance:InstanceData):
-		if UIManager.action == "Spawn":
+	_for_each_instance(func(_i:int, instance:Instancer):
+		if UIManager.spawn:
 			instance.spawn.end( instance )
-		if UIManager.action == "Color":
+		if UIManager.color:
 			instance.color.end( instance )
 	)
 

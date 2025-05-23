@@ -5,21 +5,21 @@ class_name ActionSceneSpawn
 var holder:Node3D
 
 
-func start(instance:InstanceData):
+func start(instance:Instancer):
 	holder = SceneManager.find_or_create_node( Node3D, instance.root_node, instance.resource_name )
 	holder.global_position = instance.surface_position
 
-func primary(instance:InstanceData):
+func primary(instance:Instancer):
 	_add_radial( instance )
 
-func secondary(instance:InstanceData):
+func secondary(instance:Instancer):
 	_get_remove_radial( instance )
 
-func end(instance:InstanceData):
+func end(instance:Instancer):
 	for child in holder.get_children():
 		instance.transforms.append( child.transform )
 
-func redo(instance:InstanceData):
+func redo(instance:Instancer):
 	for child in holder.get_children():
 		child.queue_free()
 	
@@ -29,7 +29,7 @@ func redo(instance:InstanceData):
 		scene.owner = holder.owner
 		scene.transform = transform
 
-func _add_radial(instance:InstanceData):
+func _add_radial(instance:Instancer):
 	for i in range(instance.add_ratio):
 		# Two random points over the brush sphere to make a ray
 		var sphere_surface1:Vector3 = _get_surface_point(instance.radius) + instance.cursor_position
@@ -49,7 +49,7 @@ func _add_radial(instance:InstanceData):
 			scene.transform = transf
 
 
-func _get_remove_radial(instance:InstanceData):
+func _get_remove_radial(instance:Instancer):
 	for child in holder.get_children():
 		var instance_pos:Vector3 = child.global_position
 		var dist:float = instance_pos.distance_to( instance.cursor_position )

@@ -17,15 +17,9 @@ const SOFT:GradientTexture2D = preload( ASSETS_FOLDER + "/soft.tres" )
 const SMOOTH:GradientTexture2D = preload( ASSETS_FOLDER + "/smooth.tres" )
 const ICONS:Texture2D = preload( ASSETS_FOLDER + "/icons.svg" )
 
-const GRASS_GRADIENT:Texture2D = preload( ASSETS_FOLDER + "/grass_gradient.tres" )
-const GRASS_SHADER:Shader = preload( ASSETS_FOLDER + "/grass_shader.gdshader" )
-const GRASS_TALL:Texture2D = preload( ASSETS_FOLDER + "/tall.svg" )
-const GRASS_SHORT:Texture2D = preload( ASSETS_FOLDER + "/short.svg" )
-const GRASS_SUNFLOWER:Texture2D = preload( ASSETS_FOLDER + "/sunflower.svg" )
-
+const MATERIAL:ShaderMaterial = preload( ASSETS_FOLDER + "/material.tres" )
 const STONE:PackedScene = preload( ASSETS_FOLDER + "/stone.glb" )
-const TREE:PackedScene = preload( ASSETS_FOLDER + "/tree.glb" )
-const QUAD_GRASS:Mesh = preload( ASSETS_FOLDER + "/quad_grass.res" )
+const GRASS_3D:Mesh = preload( ASSETS_FOLDER + "/grass_3d.res" )
 
 # Dialogs
 @onready var _accept_dialog:AcceptDialog = $AcceptDialog

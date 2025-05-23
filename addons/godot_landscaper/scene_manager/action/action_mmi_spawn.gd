@@ -5,15 +5,17 @@ class_name ActionMMISpawn
 var mmi:MultiMeshInstance3D
 
 
-func start(instance:InstanceData):
+func start(instance:Instancer):
 	# Add Multimesh if needed
 	mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, instance.root_node, instance.resource_name )
 	if not mmi.multimesh:
+		instance.mesh.surface_set_material( 0, AssetsManager.MATERIAL )
 		mmi.multimesh = MultiMesh.new()
-		mmi.multimesh.mesh = AssetsManager.QUAD_GRASS
+		mmi.multimesh.mesh = instance.mesh
 		mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
 		mmi.multimesh.use_colors = true
 		mmi.multimesh.use_custom_data = true
+	
 	mmi.global_position = instance.surface_position
 	mmi.set_instance_shader_parameter("variant_index", instance.instance_index)
 	
@@ -22,23 +24,23 @@ func start(instance:InstanceData):
 
 
 # Spawn
-func primary(instance:InstanceData):
+func primary(instance:Instancer):
 	_add_radial( instance )
 	_spawn( instance )
 
 
 # Despawn
-func secondary(instance:InstanceData):
+func secondary(instance:Instancer):
 	_get_remove_radial( instance )
 	_spawn( instance )
 
 
-func redo(instance:InstanceData):
+func redo(instance:Instancer):
 	_spawn( instance )
 
 
 # Gets every MultiMesh transform except the ones inside the brush
-func _get_remove_radial(instance:InstanceData):
+func _get_remove_radial(instance:Instancer):
 	instance.transforms.clear()
 	instance.bottom_colors.clear()
 	instance.top_colors.clear()
@@ -53,14 +55,14 @@ func _get_remove_radial(instance:InstanceData):
 
 
 # Gets every MultiMesh transform and color
-func _get_all(instance:InstanceData):
+func _get_all(instance:Instancer):
 	for i in mmi.multimesh.instance_count:
 		instance.transforms.append( mmi.multimesh.get_instance_transform(i) )
 		instance.bottom_colors.append( mmi.multimesh.get_instance_color(i) )
 		instance.top_colors.append( mmi.multimesh.get_instance_custom_data(i) )
 
 
-func _add_radial(instance:InstanceData):
+func _add_radial(instance:Instancer):
 	for i in range(instance.add_ratio):
 		# Two random points over the brush sphere to make a ray
 		var sphere_surface1:Vector3 = _get_surface_point(instance.radius) + instance.cursor_position
@@ -74,7 +76,7 @@ func _add_radial(instance:InstanceData):
 			var size_offset:Vector3 = instance.size_randomize * _randv(0, 1)
 			
 			transf = transf.scaled_local( instance.size_base + size_offset)
-			transf = transf.rotated_local(Vector3.FORWARD, randf()*instance.rotation_randomize.x )
+			#transf = transf.rotated_local(Vector3.FORWARD, randf()*instance.rotation_randomize.x )
 			instance.transforms.append( transf )
 			
 			var mesh:Mesh = result.collider.get_parent().mesh
@@ -84,7 +86,7 @@ func _add_radial(instance:InstanceData):
 
 
 # Re-Spawns the grass from the transforms given
-func _spawn(instance:InstanceData):
+func _spawn(instance:Instancer):
 	mmi.multimesh.instance_count = instance.transforms.size()
 	for i in range(mmi.multimesh.instance_count):
 		mmi.multimesh.set_instance_transform( i, instance.transforms[i] )
