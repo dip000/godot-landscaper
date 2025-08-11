@@ -6,9 +6,10 @@ Terrain builder, terrain texturizer, instance scatterer, grass scatterer, grass 
 <p/>
 
 
+**🌟 Update**: Ending this version's support. Migrating to V0.3, see [THIS BRANCH](https://github.com/dip000/godot-landscaper/tree/v0.3) Getting lots of cool features<br/>
+**🌟 Update**: You can move your terrain wherever you want, and the canvas will follow it (finally yay!) <br/>
+**🌟 Update**: ~~Critical fixes are open before launch. Please propose them by joining the conversation in [THIS THREAD](https://github.com/dip000/godot-landscaper/discussions/4). Thanks!~~ <br/>
 **🌟 Update**: Added scene instancer brush. Paint-spawn rocks, trees, particles, people, and anything you want! <br/>
-**🌟 Update**: You can move your terrain wherever you please and the canvas will follow it (finally yay!) <br/>
-**🌟 Update**: Critical fixes are open before launch. Please propose them by joining the conversation in [THIS THREAD](https://github.com/dip000/godot-landscaper/discussions/4). Thanks!
 <br/>
 <br/>
 
