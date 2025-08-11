@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdpkwy3lagls0"]
+
+[ext_resource type="Script" uid="uid://dywhmafci8bk5" path="res://addons/godot_landscaper/editor_only/assets_manager/assets_manager.gd" id="1_amgvo"]
+
+[node name="AssetsManager" type="Node"]
+script = ExtResource("1_amgvo")
+
+[node name="AcceptDialog" type="AcceptDialog" parent="."]
+auto_translate_mode = 1
+initial_position = 2
+size = Vector2i(607, 106)
+content_scale_mode = 1

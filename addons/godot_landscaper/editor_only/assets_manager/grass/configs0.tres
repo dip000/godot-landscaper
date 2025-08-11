@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ConfigsBakedQuadGrass" load_steps=3 format=3 uid="uid://6bur3lmgk8wj"]
+
+[ext_resource type="Script" uid="uid://cdi7pdfbi0pp6" path="res://addons/godot_landscaper/core/configs_baked_quad_grass.gd" id="1_pi356"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_k5uon"]
+load_path = "res://.godot/imported/tall.svg-14b564b2f934e85cd31270fffb4d5d45.s3tc.ctex"
+
+[resource]
+resource_name = "GrassTall"
+script = ExtResource("1_pi356")
+grass_texture = SubResource("CompressedTexture2D_k5uon")
+detail_enable = true
+detail_color = Color(0.184314, 0.309804, 0.309804, 1)
+enable = true
+size_base = Vector3(1, 1, 1)
+size_randomize = Vector3(0, 0, 0)
+rotation_base = Vector3(1, 1, 1)
+rotation_randomize = Vector3(0, 0, 0)
+metadata/_custom_type_script = "uid://cdi7pdfbi0pp6"

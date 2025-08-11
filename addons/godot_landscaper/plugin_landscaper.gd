@@ -1,16 +1,17 @@
 @tool
 extends EditorPlugin
-class_name                Landscaper
-##          ┌─────────────────┼──────────────────┐         
-##     ┌UIManager┐      AssetsManager      ┌SceneManager┐   
-##  UIAction  UIInstance              SceneBrush   SceneRaycaster
-##   Stroke  Instancer                       
+class_name                             Landscaper
+##           ┌──────────────────────────────┼────────────────────┐
+##    ┌ SceneManager ┐              ┌ BaseInstancer ┐        AssetsManager 
+##  SceneBrush  SceneRaycaster   Action     ProjectSaveData
+##                                                                 
 
-#static var ui:UIManager
-static var assets:AssetsManager
 static var scene:SceneManager
+static var instancer:BaseInstancer
+static var assets:AssetsManager
 static var inspector:InspectorLandscaper
-static var instancer:EcoInstancer
+static var undo_redo:EditorUndoRedoManager
+static var is_enabled:bool
 
 
 func _enter_tree():
@@ -18,6 +19,9 @@ func _enter_tree():
 	scene = AssetsManager.SCENE_MANAGER.instantiate()
 	inspector = InspectorLandscaper.new()
 	add_inspector_plugin( inspector )
+	undo_redo = get_undo_redo()
+	is_enabled = true
+	
 	await get_tree().process_frame
 	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
 	viewport.add_child( assets )
@@ -28,6 +32,7 @@ func _exit_tree():
 	remove_inspector_plugin( inspector )
 	assets.queue_free()
 	scene.queue_free()
+	is_enabled = false
 
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
@@ -57,13 +62,13 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			instancer.action_start( hit_info )
+			instancer.action_start()
 		instancer.action_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			instancer.action_start( hit_info )
+			instancer.action_start()
 		instancer.action_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
@@ -89,6 +94,9 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 func _edit(object:Object):
 	instancer = object
+	if instancer:
+		inspector.selected( instancer )
+	
 
 func _handles(object:Object):
-	return object is EcoInstancer
+	return object is BaseInstancer

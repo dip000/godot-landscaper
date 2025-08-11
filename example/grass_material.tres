@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://dalpf0w7q0h6y"]
+
+[ext_resource type="Shader" uid="uid://bj5275tf8c10" path="res://example/grass_shader.gdshader" id="1_6scux"]
+[ext_resource type="Texture2D" uid="uid://drhfy3ykgmsox" path="res://example/grass_tall.tres" id="2_2n0h1"]
+[ext_resource type="Texture2D" uid="uid://cw0grahcf1vr6" path="res://example/grass_small.tres" id="3_jkcq8"]
+[ext_resource type="Texture2D" uid="uid://cr8cb81njfq4c" path="res://example/grass_sunflower.tres" id="4_vreju"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_6scux")
+shader_parameter/wind_vector = Vector3(0, 0, 0)
+shader_parameter/splash_height = 0.0
+shader_parameter/grass_textures = Array[Texture2D]([ExtResource("2_2n0h1"), ExtResource("3_jkcq8"), ExtResource("4_vreju"), null])
+shader_parameter/details_enable = PackedInt32Array(1, 1, 1, 0)
+shader_parameter/detail_colors = Array[Color]([Color(0.184314, 0.309804, 0.309804, 1), Color(0.184314, 0.309804, 0.309804, 1), Color(0.184314, 0.309804, 0.309804, 1), Color(0, 0, 0, 1)])

@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="ProjectSaveData" load_steps=12 format=3 uid="uid://x4oqxmfv1cd"]
+
+[ext_resource type="Script" uid="uid://cdi7pdfbi0pp6" path="res://addons/godot_landscaper/core/configs_baked_quad_grass.gd" id="1_rb7i7"]
+[ext_resource type="Material" uid="uid://dalpf0w7q0h6y" path="res://example/grass_material.tres" id="2_0jv40"]
+[ext_resource type="Texture2D" uid="uid://drhfy3ykgmsox" path="res://example/grass_tall.tres" id="2_576ae"]
+[ext_resource type="QuadMesh" uid="uid://hy6locqcypk1" path="res://example/grass_mesh.tres" id="3_jbl3m"]
+[ext_resource type="Texture2D" uid="uid://cw0grahcf1vr6" path="res://example/grass_small.tres" id="3_siiyl"]
+[ext_resource type="Script" uid="uid://chvthoqin57u2" path="res://addons/godot_landscaper/core/project_save_data.gd" id="4_576ae"]
+[ext_resource type="Texture2D" uid="uid://cr8cb81njfq4c" path="res://example/grass_sunflower.tres" id="4_t6e83"]
+[ext_resource type="Shader" uid="uid://bj5275tf8c10" path="res://example/grass_shader.gdshader" id="5_siiyl"]
+
+[sub_resource type="Resource" id="Resource_ei00m"]
+resource_name = "GrassTall"
+script = ExtResource("1_rb7i7")
+grass_texture = ExtResource("2_576ae")
+detail_enable = true
+detail_color = Color(0.184314, 0.309804, 0.309804, 1)
+enable = true
+size_base = Vector3(2, 2, 2)
+size_randomize = Vector3(0.5, 0.5, 0.5)
+rotation_base = Vector3(0, 0, 0)
+rotation_randomize = Vector3(6.28319, 6.28319, 6.28319)
+metadata/_custom_type_script = "uid://cdi7pdfbi0pp6"
+
+[sub_resource type="Resource" id="Resource_ugfer"]
+resource_name = "GrassSmall"
+script = ExtResource("1_rb7i7")
+grass_texture = ExtResource("3_siiyl")
+detail_enable = true
+detail_color = Color(0.184314, 0.309804, 0.309804, 1)
+enable = false
+size_base = Vector3(1, 1, 1)
+size_randomize = Vector3(0, 0, 0)
+rotation_base = Vector3(0, 0, 0)
+rotation_randomize = Vector3(6.28319, 6.28319, 6.28319)
+metadata/_custom_type_script = "uid://cdi7pdfbi0pp6"
+
+[sub_resource type="Resource" id="Resource_rujmf"]
+resource_name = "Sunflower"
+script = ExtResource("1_rb7i7")
+grass_texture = ExtResource("4_t6e83")
+detail_enable = true
+detail_color = Color(0.184314, 0.309804, 0.309804, 1)
+enable = false
+size_base = Vector3(1, 1, 1)
+size_randomize = Vector3(0, 0, 0)
+rotation_base = Vector3(0, 0, 0)
+rotation_randomize = Vector3(6.28319, 6.28319, 6.28319)
+metadata/_custom_type_script = "uid://cdi7pdfbi0pp6"
+
+[resource]
+resource_name = "ForestGrass"
+script = ExtResource("4_576ae")
+mesh = ExtResource("3_jbl3m")
+material = ExtResource("2_0jv40")
+shader = ExtResource("5_siiyl")
+grass_instances = Array[ExtResource("1_rb7i7")]([SubResource("Resource_ei00m"), SubResource("Resource_ugfer"), SubResource("Resource_rujmf"), null])
+top_colors = Array[Color]([Color(1, 1, 1, 1), Color(1, 1, 1, 1)])
+bottom_colors = Array[Color]([Color(0.388184, 0.560547, 0.317627, 1), Color(0.388184, 0.560547, 0.317627, 1)])
+transforms = Array[Transform3D]([Transform3D(-0.999403, 0.0344227, -0.00288693, 0, -0.0835737, -0.996502, -0.0345435, -0.995907, 0.083524, -0.0354856, 3.55083, 3.51336), Transform3D(-0.973927, 0.226776, 0.00627713, 0, 0.0276693, -0.999617, -0.226863, -0.973554, -0.0269478, -0.763109, 3.46675, 3.51071)])

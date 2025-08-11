@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://te85jcyncn45"]
+
+[ext_resource type="Shader" uid="uid://cgdv4gupo08xt" path="res://addons/godot_landscaper/editor_only/assets_manager/grass/color_baked.gdshader" id="1_wpikf"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_wpikf")
+shader_parameter/wind_vector = Vector3(0, 0, 0)
+shader_parameter/splash_height = 0.0
+shader_parameter/grass_textures = null
+shader_parameter/details_enable = PackedInt32Array(0, 1, 0, 0)
+shader_parameter/detail_colors = PackedColorArray(0.660439, 0.807008, 0.388481, 1, 0.594152, 0.418048, 0.211862, 1, 0, 0, 0, 1, 0, 0, 0, 1)
