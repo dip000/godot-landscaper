@@ -39,6 +39,7 @@ rotation_base = Vector3(0, 0, 0)
 rotation_randomize = Vector3(0, 6.28319, 0)
 
 [resource]
+resource_name = "ForestGrass"
 script = ExtResource("6_e55fq")
 grass_configs = Array[ExtResource("1_jbl3m")]([SubResource("Resource_ei00m"), SubResource("Resource_rujmf"), null, null])
 mesh = ExtResource("5_pk7xj")

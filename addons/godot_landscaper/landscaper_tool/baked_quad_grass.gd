@@ -82,6 +82,7 @@ func _set_instance(index:int, inst:ConfigsBakedQuadGrass):
 	project.grass_configs[index] = inst
 	project.notify_property_list_changed()
 	if inst and CURRENT_TAB: # Update the currently selected action
+		GLDebug.state("Loaded new instance: %s" %inst)
 		inst.current_action = inst.color_action if "Paint"==CURRENT_TAB else inst.spawn_action
 
 
@@ -102,7 +103,13 @@ func _set_instance(index:int, inst:ConfigsBakedQuadGrass):
 @export_category("Please, Save Files Externally")
 ## Where the spawned instances be hosted.
 ## Please save them in your file system.
-@export var project:SaveBakedQuadGrass
+@export var project:SaveBakedQuadGrass:
+	set(v):
+		project = v
+		# Update every ConfigsBakedQuadGrass.current_action to the currently selected tab
+		if project and CURRENT_TAB:
+			GLDebug.internal("Loaded new project: '%s'" %project.resource_path)
+			TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
 
 
 
@@ -232,6 +239,6 @@ func _create_project_template():
 	project.notify_property_list_changed()
 	
 	# Update every ConfigsBakedQuadGrass.current_action to the currently selected tab
-	if TABS_CONFIG and CURRENT_TAB:
+	if CURRENT_TAB:
 		TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
 	GLDebug.state("Created a new template project. Please save your resources manually")

@@ -10,3 +10,10 @@ auto_translate_mode = 1
 initial_position = 2
 size = Vector2i(607, 106)
 content_scale_mode = 1
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+visible = true
+ok_button_text = "Option 1"
+dialog_text = "asdasd"
+dialog_close_on_escape = false
+cancel_button_text = "Option 2"

@@ -27,19 +27,23 @@ func start(tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
 	project.material["shader_parameter/details_enable"][index] = int(configs.detail_enable)
 	project.material["shader_parameter/detail_colors"][index] = configs.detail_color
 	project.material["shader_parameter/grass_textures"][index] = configs.grass_texture
-	
+
 	if not configs.grass_texture:
 		GLDebug.warning("No Grass Texture is selected for '%s'" %configs.resource_name)
+		
+	if _configs.transforms.size() != _mmi.multimesh.instance_count:
+		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
+		_rebuild()
 	
 	Landscaper.undo_redo.add_undo_method( self, "restore", _configs.top_colors.duplicate() )
 
 
 func primary(hit_info:Dictionary):
-	_spawn( hit_info, _instancer.primary_color )
+	_spawn( hit_info, _tool.primary_color )
 
 
 func secondary(hit_info:Dictionary):
-	_spawn( hit_info, _instancer.secondary_color )
+	_spawn( hit_info, _tool.secondary_color )
 
 
 func end():
@@ -66,4 +70,11 @@ func _spawn(hit_info:Dictionary, color:Color):
 		if dist_sqr < brush_size_sqr:
 			_mmi.multimesh.set_instance_custom_data( i, color )
 			_configs.top_colors[i] = color
-		
+
+func _rebuild():
+	_mmi.multimesh.instance_count = _configs.transforms.size()
+	for i in range(_mmi.multimesh.instance_count):
+		_mmi.multimesh.set_instance_transform( i, _configs.transforms[i] )
+		_mmi.multimesh.set_instance_color( i, _configs.bottom_colors[i] )
+		_mmi.multimesh.set_instance_custom_data( i, _configs.top_colors[i] )
+	

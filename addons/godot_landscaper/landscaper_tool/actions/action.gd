@@ -7,14 +7,14 @@
 extends Resource
 class_name Action
 
-var _instancer:LandscaperTool
+var _tool:LandscaperTool
 var _configs:ConfigsInstance
 var _project:SaveData
 
 
 # Unpack source action and action configs
 func start(tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
-	_instancer = tool
+	_tool = tool
 	_configs = configs
 	_project = project
 
@@ -26,7 +26,7 @@ func secondary(hit_info:Dictionary):
 
 func end():
 	_configs = null
-	_instancer = null
+	_tool = null
 	_project = null
 
 # Not really evenly distributed but whatever

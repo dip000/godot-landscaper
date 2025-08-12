@@ -16,6 +16,18 @@ static var brush:Dictionary[String,Variant]
 static var grass:Dictionary[String,Variant]
 static var models:Dictionary[String,Variant]
 static var ui:Dictionary[String,Variant]
+static var _options_dialog:ConfirmationDialog
+
+
+func _ready():
+	_options_dialog = $ConfirmationDialog
+
+static func popup_options_dialog(msg:String, option1:String, option2:String, callback1:Callable, callback2:Callable):
+	_options_dialog.dialog_text = msg
+	_options_dialog.ok_button_text = option1
+	_options_dialog.cancel_button_text = option2
+	_options_dialog.canceled.connect( callback1 )
+	_options_dialog.confirmed.connect( callback2 )
 
 
 func _enter_tree():

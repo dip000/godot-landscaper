@@ -34,6 +34,10 @@ func start(tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
 	if is_zero_approx( configs.size_base.x*configs.size_base.y*configs.size_base.z ):
 		GLDebug.warning("Grass volume is zero. Used Vector3.ONE")
 		configs.size_base = Vector3.ONE
+		
+	if _configs.transforms.size() != _mmi.multimesh.instance_count:
+		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
+		_spawn()
 	
 	Landscaper.undo_redo.add_undo_method( self, "restore",
 		_configs.top_colors.duplicate(),
@@ -83,7 +87,7 @@ func _get_remove_radial(hit_info:Dictionary):
 		var instance_world_pos:Vector3 = instance_transform.origin + object_world_position
 		var dist_sqr:float = instance_world_pos.distance_squared_to( mouse_world_pos )
 		
-		if dist_sqr > brush_radius_sqr or _instancer.erase_ratio < randf():
+		if dist_sqr > brush_radius_sqr or _tool.erase_ratio < randf():
 			_configs.transforms.append( instance_transform )
 			_configs.bottom_colors.append(  _mmi.multimesh.get_instance_color(i) )
 			_configs.top_colors.append(  _mmi.multimesh.get_instance_custom_data(i) )
@@ -95,7 +99,7 @@ func _add_radial(hit_info:Dictionary):
 	var mouse_world_pos:Vector3 = hit_info.position
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
 	
-	for i in range(_instancer.spawn_ratio):
+	for i in range(_tool.spawn_ratio):
 		# Two random points over the brush sphere to make a ray
 		var sphere_surface1:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
 		var sphere_surface2:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
