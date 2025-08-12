@@ -1,15 +1,27 @@
 @tool
 extends EditorPlugin
-class_name                             Landscaper
-##           ┌──────────────────────────────┼────────────────────┐
-##    ┌ SceneManager ┐              ┌ BaseInstancer ┐        AssetsManager 
-##  SceneBrush  SceneRaycaster   Action     ProjectSaveData
-##                                                                 
+class_name                         Landscaper
+##           ↑─────────────────────────┼─────────↓────────────────┐
+##    ↑ SceneManager ↑                 │   InspectorTools    AssetsManager  
+##  SceneBrush  SceneRaycaster         │         │
+##                                     ↓         ↓
+##           ┌── LandscaperTool ───────┼─────────┼────────────┐
+##           │  (Executes Action classes)   (Sets Actions)    │
+##           │  ┌ SaveData ────────────────────────────────┐  │
+##           │  │ (External Resources)                     │  │
+##           │  │ ┌ ConfigsInstance ┐  ┌ ConfigsInstance ┐ │  │
+##           │  │ │ Action (Spawn)  │  │ Action (Spawn)  │ │  │
+##           │  │ │ Action (Color)  │  │ Action (Color)  │ │  │        
+##           │  │ │ (Rebuild Data)  │  │ (Rebuild Data)  │ │  │        
+##           │  │ └─────────────────┘  └─────────────────┘ │  │          
+##           │  └──────────────────────────────────────────┘  │                                   
+##           └────────────────────────────────────────────────┘
+
 
 static var scene:SceneManager
-static var instancer:BaseInstancer
+static var tool:LandscaperTool
 static var assets:AssetsManager
-static var inspector:InspectorLandscaper
+static var inspector:InspectorTools
 static var undo_redo:EditorUndoRedoManager
 static var is_enabled:bool
 
@@ -17,10 +29,12 @@ static var is_enabled:bool
 func _enter_tree():
 	assets = AssetsManager.ASSETS_MANAGER.instantiate()
 	scene = AssetsManager.SCENE_MANAGER.instantiate()
-	inspector = InspectorLandscaper.new()
+	inspector = InspectorTools.new()
 	add_inspector_plugin( inspector )
 	undo_redo = get_undo_redo()
 	is_enabled = true
+	var icon:Texture2D = preload("res://addons/godot_landscaper/icon.svg")
+	add_custom_type("BakedQuadGrass", "Node", BakedQuadGrass, icon )
 	
 	await get_tree().process_frame
 	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
@@ -33,11 +47,13 @@ func _exit_tree():
 	assets.queue_free()
 	scene.queue_free()
 	is_enabled = false
+	undo_redo.clear_history()
+	remove_custom_type("BakedQuadGrass")
 
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
-	if not instancer:
+	if not tool:
 		return
 	
 	# Accepted inputs
@@ -62,28 +78,28 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			instancer.action_start()
-		instancer.action_primary( hit_info )
+			tool.action_start()
+		tool.action_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			instancer.action_start()
-		instancer.action_secondary( hit_info )
+			tool.action_start()
+		tool.action_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
-		instancer.action_end()
+		tool.action_end()
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
 	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
 		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
-			instancer.scale_by( 0.1 ) #[TODO] add to global settings
+			tool.scale_by( 0.1 ) #[TODO] add to global settings
 			scene.scale_by( 0.1 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
-			instancer.scale_by( -0.1 )
+			tool.scale_by( -0.1 )
 			scene.scale_by( -0.1 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif not event is InputEventMouseMotion: # Pass Panning and Zoom with special keys
@@ -93,10 +109,8 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 
 func _edit(object:Object):
-	instancer = object
-	if instancer:
-		inspector.selected( instancer )
+	tool = object
 	
 
 func _handles(object:Object):
-	return object is BaseInstancer
+	return object is LandscaperTool
