@@ -46,11 +46,11 @@ void fragment() {
 	ALBEDO = COLOR.rgb;
 
 	vec4 detail_mask = texture(grass_textures[variant_index], UV);
-	
+
 	if(details_enable[variant_index]){
 		ALBEDO = mix(detail_colors[variant_index], ALBEDO, detail_mask.r);
 	}
-	
+
 	// Enables alpha scissor
 	ALPHA = detail_mask.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.8;

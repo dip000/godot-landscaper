@@ -5,16 +5,16 @@ class_name ActionMMIColor
 var _mmi:MultiMeshInstance3D
 
 
-func start(tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
-	super(tool, project, configs)
+func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
+	super(hit_info, tool, project, configs)
 	var index:int = project.grass_configs.find(configs)
 	
 	if configs.resource_name.is_empty():
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
 		configs.resource_name = "Grass %s" %index
 	
-	var parent:Node = tool.get_node( tool.parent_node )
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, parent, configs.resource_name)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, tool.surface_mesh, configs.resource_name)
+	_mmi.global_position = tool.surface_mesh.global_position
 	
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()

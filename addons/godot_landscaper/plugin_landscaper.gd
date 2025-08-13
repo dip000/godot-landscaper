@@ -78,13 +78,13 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			tool.action_start()
+			tool.action_start( hit_info )
 		tool.action_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			tool.action_start()
+			tool.action_start( hit_info )
 		tool.action_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	

@@ -13,7 +13,7 @@ var _project:SaveData
 
 
 # Unpack source action and action configs
-func start(tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
+func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
 	_tool = tool
 	_configs = configs
 	_project = project

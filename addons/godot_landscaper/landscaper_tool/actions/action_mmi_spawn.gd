@@ -3,18 +3,19 @@ extends Action
 class_name ActionMMISpawn
 
 var _mmi:MultiMeshInstance3D
+var _scan_texture:Texture2D
 
 
-func start(tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
-	super(tool, project, configs)
+func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
+	super(hit_info, tool, project, configs)
 	var index:int = project.grass_configs.find(configs)
 	
 	if configs.resource_name.is_empty():
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
 		configs.resource_name = "Grass %s" %index
 	
-	var parent:Node = tool.get_node( tool.parent_node )
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, parent, configs.resource_name)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, tool.surface_mesh, configs.resource_name)
+	_mmi.global_position = tool.surface_mesh.global_position
 	
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
@@ -117,8 +118,7 @@ func _add_radial(hit_info:Dictionary):
 			transf = transf.rotated_local(Vector3.UP, randf()*_configs.rotation_randomize.z )
 			_configs.transforms.append( transf )
 			
-			var mesh:Mesh = result.collider.get_parent().mesh
-			var color:Color = _scan_color( mesh, result.face_index, result.position, object_world_position )
+			var color:Color = _scan_color( result.face_index, result.position, object_world_position )
 			_configs.bottom_colors.append( color )
 			_configs.top_colors.append( Color.WHITE )
 
@@ -132,8 +132,8 @@ func _spawn():
 		_mmi.multimesh.set_instance_custom_data( i, _configs.top_colors[i] )
 
 
-func _scan_color(mesh:Mesh, face_index:int, cursor:Vector3, surface_position:Vector3) -> Color:
-	var mesh_arrays:Array = mesh.surface_get_arrays(0)
+func _scan_color(face_index:int, cursor:Vector3, surface_position:Vector3) -> Color:
+	var mesh_arrays:Array = _tool.surface_mesh.mesh.surface_get_arrays(0)
 	var arr_mesh := ArrayMesh.new()
 	var mdt := MeshDataTool.new()
 	
@@ -155,9 +155,15 @@ func _scan_color(mesh:Mesh, face_index:int, cursor:Vector3, surface_position:Vec
 	var cursor_texture:Vector2 = relative.x*uv[0] + relative.y*uv[1] + relative.z*uv[2]
 	
 	# Find color from that coordinate
-	var texture:Texture2D = mesh.surface_get_material(0).albedo_texture
+	var texture:Texture2D = _tool.surface_texture
+	if not texture:
+		GLDebug.error("Could not scan surface texture")
+		return Color.GRAY
 	var size:Vector2 = texture.get_size()-Vector2.ONE
 	var img:Image = texture.get_image()
+	if not img:
+		GLDebug.error("Could not scan surface texture")
+		return Color.GRAY
 	var px:Color = img.get_pixelv( cursor_texture*size )
 	
 	GLDebug.spam("Scanned color: [color=%s]#%s[/color]" %[px.to_html(), px.to_html()])

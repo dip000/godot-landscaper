@@ -25,7 +25,7 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 			"info": "left cick to paint with primary color, right click for secondary",
 			"icon": AtlasIcon.Icon.COLOR,
 			"method": color_select,
-			"hide_properties": ["spawn_ratio", "erase_ratio", "parent_node", "quality"],
+			"hide_properties": ["spawn_ratio", "erase_ratio", "surface_mesh", "quality", "surface_texture"],
 		}
 	}
 }
@@ -33,7 +33,9 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 
 @export_category("Actions")
 ## The holder of MultiMeshInstances generated from this tool
-@export var parent_node:NodePath = "."
+@export var surface_mesh:MeshInstance3D
+## The texture path to find the ground color. Like "albedo_texture" or "shader_parameter/my_texture"
+@export var surface_texture:Texture2D
 ## How many grass instances coincides to hit over the surface per frame
 @export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
 ## How many grass instances attempt to erase per frame
@@ -44,9 +46,9 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 ## The transition between the terrain color and the top hand-painted color.
 @export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0
 ## Grass color with left button mouse
-@export var primary_color:Color = Color.MEDIUM_SEA_GREEN
+@export var primary_color:Color = Color.YELLOW_GREEN
 ## Grass color with right button mouse
-@export var secondary_color:Color = Color.SADDLE_BROWN
+@export var secondary_color:Color = Color.ORANGE
 
 
 # Cleanly link them to the project, just so the array doesn't clutter the inspector
@@ -87,17 +89,8 @@ func _set_instance(index:int, inst:ConfigsBakedQuadGrass):
 
 
 
-@export_category("Optimizations - Not Implemented")
-@export_group("Chunkify Grass")
-@export var chunk_size:Vector2i = Vector2i(32,32)
-@export_tool_button("     Chunkify     ", "Grid") var chunkify:Callable = OptimizationTools.chunkify_mmi
-@export_tool_button("        Reset        ", "Object") var reset_chunks:Callable = OptimizationTools.reset_chunks
-
-@export_group("Visibility And Level Of Detail")
-@export_range(0.0, 1.0, 0.01) var visible_instances:float = 1.0
-@export_range(0.0, 100.0, 0.1, "or_greater") var custom_lod_meters:float = 32
-@export_tool_button("      Update      ", "UndoRedo") var change_visible:Callable = OptimizationTools.update_visiblity
-
+@export_category("Optimizations")
+@export var chunk_size := OptimizationTools.new()
 
 
 @export_category("Please, Save Files Externally")
@@ -112,6 +105,8 @@ func _set_instance(index:int, inst:ConfigsBakedQuadGrass):
 			TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
 
 
+func _exit_tree():
+	Landscaper.undo_redo.clear_history()
 
 # Called from InspectorTools every time the tabs are pressed
 # Every grass config resource stores two actions, switched on tab selection
@@ -131,14 +126,14 @@ func color_select():
 
 
 # Called on stroke start from the main Landscaper class on 3D world inputs
-func action_start():
+func action_start(hit_info:Dictionary):
 	if not _validate_action():
 		return
 	
 	Landscaper.undo_redo.create_action("godot_landscaper/baked_quad_grass", UndoRedo.MERGE_DISABLE)
 	for config in project.grass_configs:
 		if config and config.enable:
-			config.current_action.start( self, project, config )
+			config.current_action.start( hit_info, self, project, config )
 
 
 # Called every frame after the start of the stroke. LMB action
@@ -174,15 +169,10 @@ func action_end():
 
 
 func _validate_action() -> bool:
-	# Parenting checks
-	if parent_node.is_empty():
-		GLDebug.warning("Parent Holder was empty. Using this node instead")
-		parent_node = "."
+	if not surface_mesh:
+		GLDebug.warning("No Mesh Assigned")
+		return false
 	
-	if not get_node_or_null( parent_node ):
-		GLDebug.warning("Parent Node '%s' is invalid. Using this node instead" %parent_node)
-		parent_node = "."
-		
 	_force_fill_missing_dependencies()
 	return true
 

@@ -37,7 +37,7 @@ func selected():
 func deselected():
 	pass
 
-func action_start():
+func action_start(hit_info:Dictionary):
 	pass
 
 func action_primary(hit_info:Dictionary):
