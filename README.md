@@ -8,27 +8,26 @@ https://dip000.itch.io/chromalchemy
 </p>
 <br>
 
+**🌟 Update**: Added Chunkifyier, Auto LODs and visibility ranges<br/>
 **🌟 Update**: Added BakedQuadGrass. A color-baked grass instancer for Quad meshes<br/>
 <br/>
 <br/>
 
 ## Content
-2. ☑️ [BakedQuadGrass](#bakedquadgrass). A color-baked grass instancer for Quad MultiMeshes</br>
-	2.1	☑️ Integrated with inspector</br>
-   	2.2	☑️ Spawn-Paint grass individually</br>
-   	2.3 ☑️ Per-instance configurations</br>
-   	2.4 ☑️ Custom random size and random rotation on each axis</br>
-   	2.5 ☑️ Save-Load individual resources</br>
-   	2.6 ☑️ Undo-Redo on every action</br>
-   	2.7 ❌ Chunkify in custom-sized parts</br>
-   	2.8 ❌ Auto LOD chunks</br>
-    2.9 ☑️ Total Compatibility render friendly</br>
-    2.10☑️ Up to 4 grass variants per material</br>
-3. ❌ TexturedQuadGrass. A textured grass instancer for Quad MultiMeshes
-4. ❌ Baked3DInstancer. A color-baked instancer for 3D model MultiMeshes
-5. ❌ Textured3DInstancer. A textured instancer for 3D model MultiMeshes
-6. ❌ GroundBuilder. A terrain builder with height maps and vertex-baking 
-7. ❌ GroundPainter. A hand-paintable terrain with basic texture mixing
+1. ☑️ [**QuadGrassInstancer**](#quadgrassinstancer). A hand-paintable color-baked grass instancer for Quad MultiMeshes</br>
+	1.1	☑️ Integrated with inspector</br>
+   	1.2	☑️ Spawn-Paint grass individually</br>
+   	1.3 ☑️ Per-instance configurations</br>
+   	1.4 ☑️ Custom random size and random rotation on each axis</br>
+   	1.5 ☑️ Save-Load individual resources</br>
+   	1.6 ☑️ Undo-Redo on every action</br>
+   	1.7 ☑️ Chunkify in custom-sized parts</br>
+   	1.8 ☑️ Auto LOD chunks and Visible Instances</br>
+    1.9 ☑️ Total Compatibility render friendly</br>
+    1.10☑️ Up to 4 grass variants per material</br>
+2. ❌ **SceneInstancer**. A PackedScene instancer
+3. ❌ **MultiInstancer3D**. A hand-paintable color-baked instancer for 3D model MultiMeshes
+4. ❌ **GroundBuilder**. A hand-paintable terrain builder with height maps and vertex-baking 
 
 # Trying This Add-On
 Follow the next steps:
@@ -37,7 +36,7 @@ Follow the next steps:
 3. In the inspector, select "Spawn" or "Paint"
 4. Drag over your terrain to start landscaping!
 
-# BakedQuadGrass
+# QuadGrassInstancer
 ![demo](https://github.com/user-attachments/assets/f68840e9-5aa8-452a-ad65-9259c7cd97dd)
 
 Brush that spawns and paints grass over any terrain when you brush over it.<br />
@@ -60,14 +59,8 @@ Properties:
 
 
 # Addressing Current Caveats
-About Spaghetti Code:
-* Well, it has gotten a lot better than the previous version. Still working on cleaning up, but that'll have to wait a bit until the rest of the landscaping tools are made
-
-About Properties Not Updating Correctly:
+About Properties Not Updating Immediately:
 * Ugh, don't get me started on export setter vars, I'll do it later
-
-About Backward Compatibility:
-* As compatible as water and oil with the previous version. Don't even think about it
 
 About Shading or Un-cartooning The Meshes:
 * I think this project will stay cartoonish-looking for some time 
