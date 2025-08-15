@@ -23,10 +23,10 @@ class_name LandscaperTool
 @export var brush_color:Color = Color(1.0, 0.4, 0.4, 0.3):
 	set(v):
 		brush_color = v
-		if Landscaper.is_enabled:
+		if Landscaper.running():
 			Landscaper.scene.brush.set_color(v)
 	get:
-		if Landscaper.is_enabled:
+		if Landscaper.running():
 			return Landscaper.scene.brush.get_color()
 		return brush_color
 

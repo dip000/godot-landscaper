@@ -9,14 +9,13 @@ class_name                         Landscaper
 ##           │  (Executes Action classes)   (Sets Actions)    │
 ##           │  ┌ SaveData ────────────────────────────────┐  │
 ##           │  │ (External Resources)                     │  │
-##           │  │ ┌ ConfigsInstance ┐  ┌ ConfigsInstance ┐ │  │
+##           │  │ ┌ InstanceConfigs ┐  ┌ InstanceConfigs ┐ │  │
 ##           │  │ │ Action (Spawn)  │  │ Action (Spawn)  │ │  │
 ##           │  │ │ Action (Color)  │  │ Action (Color)  │ │  │        
 ##           │  │ │ (Rebuild Data)  │  │ (Rebuild Data)  │ │  │        
 ##           │  │ └─────────────────┘  └─────────────────┘ │  │          
 ##           │  └──────────────────────────────────────────┘  │                                   
 ##           └────────────────────────────────────────────────┘
-
 
 static var scene:SceneManager
 static var tool:LandscaperTool
@@ -25,6 +24,28 @@ static var inspector:InspectorTools
 static var undo_redo:EditorUndoRedoManager
 static var is_enabled:bool
 
+var REGISTERED_TOOLS:Array[Dictionary] = [
+	{
+		"name": "QuadGrassTool",
+		"type": QuadGrassTool,
+		"icon": preload("res://addons/godot_landscaper/landscaper_tools/quad_grass/icon.svg")
+	},
+	#{
+		#"name": "PackedSceneTool",
+		#"type": PackedSceneTool,
+		#"icon": preload("res://addons/godot_landscaper/landscaper_tools/packed_scene/icon.svg")
+	#},
+	#{
+		#"name": "GroundTool",
+		#"type": GroundTool,
+		#"icon": preload("res://addons/godot_landscaper/landscaper_tools/ground/icon.svg")
+	#}
+]
+
+
+static func running() -> bool:
+	return Engine.is_editor_hint() and is_enabled
+
 
 func _enter_tree():
 	assets = AssetsManager.ASSETS_MANAGER.instantiate()
@@ -32,24 +53,27 @@ func _enter_tree():
 	inspector = InspectorTools.new()
 	add_inspector_plugin( inspector )
 	undo_redo = get_undo_redo()
-	is_enabled = true
-	var icon:Texture2D = preload("res://addons/godot_landscaper/icon.svg")
-	add_custom_type("BakedQuadGrass", "Node", BakedQuadGrass, icon )
+	
+	for reg_tool in REGISTERED_TOOLS:
+		add_custom_type( reg_tool.name, "Node", reg_tool.type, reg_tool.icon )
 	
 	await get_tree().process_frame
 	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
 	viewport.add_child( assets )
 	viewport.add_child( scene )
+	is_enabled = true
 	
 
 func _exit_tree():
+	is_enabled = false
 	remove_inspector_plugin( inspector )
 	assets.queue_free()
 	scene.queue_free()
-	is_enabled = false
 	undo_redo.clear_history()
-	remove_custom_type("BakedQuadGrass")
-
+	
+	for reg_tool in REGISTERED_TOOLS:
+		remove_custom_type( reg_tool.name )
+	
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):

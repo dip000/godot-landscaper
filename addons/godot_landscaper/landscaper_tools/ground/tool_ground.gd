@@ -1,0 +1,2 @@
+extends LandscaperTool
+class_name GroundTool

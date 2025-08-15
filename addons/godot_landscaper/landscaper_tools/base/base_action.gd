@@ -8,12 +8,12 @@ extends Resource
 class_name Action
 
 var _tool:LandscaperTool
-var _configs:ConfigsInstance
+var _configs:InstanceConfigs
 var _project:SaveData
 
 
 # Unpack source action and action configs
-func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
+func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	_tool = tool
 	_configs = configs
 	_project = project

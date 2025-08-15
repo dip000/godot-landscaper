@@ -3,10 +3,9 @@ extends Action
 class_name ActionMMISpawn
 
 var _mmi:MultiMeshInstance3D
-var _scan_texture:Texture2D
 
 
-func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:ConfigsInstance):
+func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(hit_info, tool, project, configs)
 	var index:int = project.grass_configs.find(configs)
 	
@@ -14,8 +13,7 @@ func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:C
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
 		configs.resource_name = "Grass %s" %index
 	
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, tool.surface_mesh, configs.resource_name)
-	_mmi.global_position = tool.surface_mesh.global_position
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, tool.parent_node, configs.resource_name)
 	
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
@@ -40,11 +38,54 @@ func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:C
 		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
 		_spawn()
 	
+	match _tool.ground_coloring:
+		QuadGrassTool.GroundColoring.SCAN_FROM_SELECTTION:
+			if not _tool.ground_texture or not _tool.ground_mesh:
+				GLDebug.error("No Mesh or Texture Assigned. Assign your ground references or change ground coloring")
+				return
+			_mmi.global_position = _tool.ground_mesh.global_position
+		QuadGrassTool.GroundColoring.SCAN_FROM_AUTO_DETECT:
+			if not try_scan_for_mesh(hit_info):
+				GLDebug.error("Auto detect mesh did not found any mesh. Select your references manually from 'Ground Coloring' section")
+				return
+			if not try_scan_for_texture():
+				GLDebug.error("Auto detect texture did not found texture in Mesh. Select your references manually from 'Ground Coloring' section")
+				return
+			_mmi.global_position = hit_info.collider.global_position
+	
 	Landscaper.undo_redo.add_undo_method( self, "restore",
 		_configs.top_colors.duplicate(),
 		_configs.bottom_colors.duplicate(),
 		_configs.transforms.duplicate(),
 	)
+
+
+func try_scan_for_mesh(hit_info:Dictionary) -> bool:
+	var collider:CollisionObject3D = hit_info.collider
+	var hit_parent:Node = collider.get_parent()
+	if hit_parent is MeshInstance3D:
+		_tool.ground_mesh = hit_parent
+	else:
+		for node in collider.get_children():
+			if node is MeshInstance3D:
+				_tool.ground_mesh = node
+				break
+	if not _tool.ground_mesh:
+		return false
+	return true
+
+func try_scan_for_texture() -> bool:
+	var mesh:MeshInstance3D = _tool.ground_mesh
+	var material:Material = mesh.get_active_material(0)
+	if not material:
+		return false
+	if material is StandardMaterial3D and material.albedo_texture:
+		_tool.ground_texture = material.albedo_texture
+		return true
+	if material is ShaderMaterial and material.get_shader_parameter("texture"):
+		_tool.ground_texture = material.albedo_texture
+		return true
+	return false
 
 
 # Spawn
@@ -133,7 +174,16 @@ func _spawn():
 
 
 func _scan_color(face_index:int, cursor:Vector3, surface_position:Vector3) -> Color:
-	var mesh_arrays:Array = _tool.surface_mesh.mesh.surface_get_arrays(0)
+	match _tool.ground_coloring:
+		QuadGrassTool.GroundColoring.CONSTANT_COLOR:
+			return _tool.ground_color
+		QuadGrassTool.GroundColoring.PAINT_WITH_SECONDARY:
+			return _tool.secondary_color
+		_:
+			if not _tool.ground_mesh or not _tool.ground_texture:
+				return Color.GRAY
+	
+	var mesh_arrays:Array = _tool.ground_mesh.mesh.surface_get_arrays(0)
 	var arr_mesh := ArrayMesh.new()
 	var mdt := MeshDataTool.new()
 	
@@ -155,15 +205,9 @@ func _scan_color(face_index:int, cursor:Vector3, surface_position:Vector3) -> Co
 	var cursor_texture:Vector2 = relative.x*uv[0] + relative.y*uv[1] + relative.z*uv[2]
 	
 	# Find color from that coordinate
-	var texture:Texture2D = _tool.surface_texture
-	if not texture:
-		GLDebug.error("Could not scan surface texture")
-		return Color.GRAY
+	var texture:Texture2D = _tool.ground_texture
 	var size:Vector2 = texture.get_size()-Vector2.ONE
 	var img:Image = texture.get_image()
-	if not img:
-		GLDebug.error("Could not scan surface texture")
-		return Color.GRAY
 	var px:Color = img.get_pixelv( cursor_texture*size )
 	
 	GLDebug.spam("Scanned color: [color=%s]#%s[/color]" %[px.to_html(), px.to_html()])

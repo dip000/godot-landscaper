@@ -2,7 +2,7 @@
 ## Managed by LandscaperTool classes
 @tool
 extends Resource
-class_name ConfigsInstance
+class_name InstanceConfigs
 
 ## Landscaping tools will only apply enabled configs
 @export var enable:bool = true

@@ -1,8 +1,8 @@
 ## Per-instance configuration file for Action classes
 ## Managed by LandscaperTool classes
 @tool
-extends ConfigsInstance
-class_name ConfigsBakedQuadGrass
+extends InstanceConfigs
+class_name QuadGrassConfigs
 
 @export var grass_texture:Texture2D
 

@@ -4,14 +4,20 @@ class_name SceneBrush
 
 @export var _preview_mesh:QuadMesh
 @onready var _core:MeshInstance3D = $Core
+@onready var _icon:Sprite3D = %Icon
 
 
 func over_surface(pos:Vector3):
 	show()
 	global_position = pos
+	_icon.global_position.y = pos.y + get_scale_ratio()
 
 func not_over_surface():
 	hide()
+
+
+func select_action(action_icon:AtlasIcon.Icon):
+	_icon.texture.icon = action_icon
 
 
 func scale_by(value:float):

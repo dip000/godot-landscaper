@@ -1,89 +1,97 @@
 @tool
 extends Resource
-class_name OptimizationTools
+class_name OptimizationQuadGrass
 
-@export_group("Chunkify Grass")
-@export var parent_node:NodePath = "."
-@export var chunk_size:int = 32
-@export_tool_button("     Chunkify     ", "Grid") var chunkify:Callable = _chunkify
-@export_tool_button("        Reset        ", "Object") var reset_chunks:Callable = _reset_chunks
-
-@export_group("Visibility And Level Of Detail")
-@export_range(0.0, 1.0, 0.01) var visible_instances:float = 1.0
-@export_range(0.0, 100.0, 0.1, "or_greater") var custom_lod_meters:float = 32
-@export_tool_button("      Update      ", "UndoRedo") var change_visible:Callable = _update_visiblity
+static var chunkified:bool
 
 
-
-func _chunkify():
-	if not Engine.is_editor_hint() or not Landscaper.is_enabled:
+static func chunkify():
+	if not Landscaper.running():
 		return
 	
-	if chunk_size < 4:
+	var tool:QuadGrassTool = Landscaper.tool
+	var parent:Node = tool.chunks_parent
+	if not parent:
+		tool.chunks_parent = tool
+		parent = tool
+	
+	if tool.chunk_size < 4:
 		GLDebug.error("Cannot chunkify below 4 meters!")
 		return
 	
-	var tool:BakedQuadGrass = Landscaper.tool
-	var parent:Node = tool.get_node(parent_node)
-	
-	for instance in tool.surface_mesh.get_children():
+	for instance in tool.parent_node.get_children():
 		if instance is MultiMeshInstance3D:
 			instance.hide()
 			_apply_to_instance( parent, instance )
+	
+	chunkified = true
+	GLDebug.state("Chunkified MultiMeshInstance3D")
 
 
-func _reset_chunks():
-	if not Engine.is_editor_hint() or not Landscaper.is_enabled:
+static func reset_chunks():
+	if not Landscaper.running():
 		return
 	
-	var tool:BakedQuadGrass = Landscaper.tool
-	var root:Node = tool.get_node(parent_node)
+	var tool:QuadGrassTool = Landscaper.tool
+	var parent:Node = tool.chunks_parent
+	if not parent:
+		tool.chunks_parent = tool
+		parent = tool
 	
 	# Show original instances
-	for node in tool.surface_mesh.get_children():
+	for node in tool.parent_node.get_children():
 		if node is MultiMeshInstance3D:
 			node.show()
 			node.visibility_range_end = 0
 			node.visibility_range_end_margin = 0
 	
-	# Chunkified instances
-	for grass_type in root.get_children():
-		if grass_type is Node3D:
+	# Delete chunkified instances
+	for grass_type in parent.get_children():
+		if grass_type is Node3D and grass_type.name.ends_with("Chunks"):
 			grass_type.queue_free()
 	
+	chunkified = false
+	GLDebug.state("Chunks Reseted")
 
-func _update_visiblity():
-	if not Engine.is_editor_hint() or not Landscaper.is_enabled:
+
+static func update_visiblity():
+	if not Landscaper.running():
 		return
 	
-	var tool:BakedQuadGrass = Landscaper.tool
-	var holder:Node = tool.get_node(parent_node)
+	var tool:QuadGrassTool = Landscaper.tool
+	var holder:Node = tool.chunks_parent
+	if not holder:
+		tool.chunks_parent = tool
+		holder = tool
 	
 	# Original instances
-	for node in tool.surface_mesh.get_children():
+	for node in tool.parent_node.get_children():
 		if node is MultiMeshInstance3D:
-			node.multimesh.visible_instance_count = node.multimesh.instance_count*visible_instances
-			node.visibility_range_end = custom_lod_meters
-			node.visibility_range_end_margin = 2.0 if custom_lod_meters > 0 else 0
+			node.multimesh.visible_instance_count = node.multimesh.instance_count*tool.visible_instances
+			node.visibility_range_end = tool.custom_lod_meters
+			node.visibility_range_end_margin = 2.0 if tool.custom_lod_meters > 0 else 0
 	
 	# Chunkified instances
 	for grass_type in holder.get_children():
 		for row in grass_type.get_children():
 			for col in row.get_children():
 				if col is MultiMeshInstance3D:
-					col.multimesh.visible_instance_count = col.multimesh.instance_count*visible_instances
-					col.visibility_range_end = custom_lod_meters
-					col.visibility_range_end_margin = 2.0 if custom_lod_meters > 0 else 0
+					col.multimesh.visible_instance_count = col.multimesh.instance_count*tool.visible_instances
+					col.visibility_range_end = tool.custom_lod_meters
+					col.visibility_range_end_margin = 2.0 if tool.custom_lod_meters > 0 else 0
+
+	GLDebug.state("Visibility Updated")
 
 
-func _apply_to_instance(root_parent:Node, original_mmi:MultiMeshInstance3D):
+static func _apply_to_instance(root_parent:Node, original_mmi:MultiMeshInstance3D):
+	var tool:QuadGrassTool = Landscaper.tool
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size
 	var pos:Vector3 = aabb.position
 	var lower_bound:Vector3 = pos + original_mmi.global_position
 	var upper_bound:Vector3 = pos + size + original_mmi.global_position
-	var lower_chunk:Vector2i = (Vector2(lower_bound.x, lower_bound.z) / float(chunk_size)).floor()
-	var upper_chunk:Vector2i = (Vector2(upper_bound.x, upper_bound.z) / float(chunk_size)).floor()
+	var lower_chunk:Vector2i = (Vector2(lower_bound.x, lower_bound.z) / float(tool.chunk_size)).floor()
+	var upper_chunk:Vector2i = (Vector2(upper_bound.x, upper_bound.z) / float(tool.chunk_size)).floor()
 	var total_chunks:Vector2i = upper_chunk - lower_chunk + Vector2i.ONE
 	
 	GLDebug.internal("LowerBound: %s, UpperBound: %s" %[lower_bound, upper_bound])
@@ -104,7 +112,7 @@ func _apply_to_instance(root_parent:Node, original_mmi:MultiMeshInstance3D):
 	for original_index in original_mm.instance_count:
 		var transf:Transform3D = original_mm.get_instance_transform( original_index )
 		var h_pos:Vector2 = Vector2(transf.origin.x, transf.origin.z)
-		var chunk_coords:Vector2i = ( h_pos / float(chunk_size)).floor()
+		var chunk_coords:Vector2i = ( h_pos / float(tool.chunk_size)).floor()
 		
 		# Get or create the X/Y collections
 		var chunk_x_map: Dictionary = chunked_index_map.get(chunk_coords.x, {})
@@ -122,7 +130,7 @@ func _apply_to_instance(root_parent:Node, original_mmi:MultiMeshInstance3D):
 		for col in chunked_index_map[row]:
 			var original_indexes:Array = chunked_index_map[row][col]
 			var instance_mmi:MultiMeshInstance3D = SceneManager.find_or_create_node(MultiMeshInstance3D, row_parent, "Col%s" %col)
-			fill_mmi(instance_mmi, original_mmi)
+			_fill_mmi(instance_mmi, original_mmi)
 			
 			var instance_mm:MultiMesh = instance_mmi.multimesh
 			instance_mm.instance_count = original_indexes.size()
@@ -142,7 +150,7 @@ func _apply_to_instance(root_parent:Node, original_mmi:MultiMeshInstance3D):
 	
 
 
-func fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
+static func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
 	new_mmi["instance_shader_parameters/variant_index"] = original_mmi["instance_shader_parameters/variant_index"]
 	new_mmi.multimesh = MultiMesh.new()
 	new_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
