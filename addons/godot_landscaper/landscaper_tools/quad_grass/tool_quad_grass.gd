@@ -126,7 +126,7 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 		inst.current_action = inst.color_action if "Paint"==CURRENT_TAB else inst.spawn_action
 
 
-@export_category("Please, Save Files Externally")
+@export_category("Save Or Load Files")
 ## Where the spawned instances be hosted.
 ## Please save them in your file system.
 @export var project:QuadGrassSave:
@@ -149,6 +149,7 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 @export_range(0.0, 1.0, 0.01) var visible_instances:float = 1.0
 @export_range(0.0, 100.0, 0.1, "or_greater") var custom_lod_meters:float = 32
 @export_tool_button("      Update      ", "UndoRedo") var change_visible:Callable = OptimizationQuadGrass.update_visiblity
+@export_tool_button("        Reset        ", "Object") var reset_visible:Callable = OptimizationQuadGrass.reset_visible
 
 
 
@@ -185,7 +186,7 @@ func paint_select():
 
 # Called on stroke start from the main Landscaper class on 3D world inputs
 func action_start(hit_info:Dictionary):
-	if not _validate_action(hit_info):
+	if not _validate_action():
 		return
 	
 	if OptimizationQuadGrass.chunkified:
@@ -231,7 +232,7 @@ func action_end():
 	Landscaper.undo_redo.commit_action(false)
 
 
-func _validate_action(hit_info:Dictionary) -> bool:
+func _validate_action() -> bool:
 	if not parent_node:
 		parent_node = self
 		GLDebug.warning("Used '%s' for the parent_node" %parent_node.name)
