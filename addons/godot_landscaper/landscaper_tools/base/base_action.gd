@@ -12,11 +12,14 @@ var _configs:InstanceConfigs
 var _project:SaveData
 
 
-# Unpack source action and action configs
-func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
+# Unpack references. Usefull for rebuilding with new refs
+func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	_tool = tool
 	_configs = configs
 	_project = project
+
+func start(hit_info:Dictionary):
+	pass
 
 func primary(hit_info:Dictionary):
 	pass
@@ -25,9 +28,10 @@ func secondary(hit_info:Dictionary):
 	pass
 
 func end():
-	_configs = null
-	_tool = null
-	_project = null
+	pass
+
+func rebuild():
+	pass
 
 # Not really evenly distributed but whatever
 func _get_surface_point(radius:float) -> Vector3:

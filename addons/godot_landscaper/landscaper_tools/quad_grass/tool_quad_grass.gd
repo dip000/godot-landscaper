@@ -37,14 +37,29 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 ## How many grass instances attempt to erase per frame
 @export_range(0.1, 1.0, 0.1) var erase_ratio:float = 0.7
 ## Horizontal subdivisions of every grass. This affects its animation and the quality of gradient
-@export_range(0.0, 5.0, 1.0, "or_greater") var quality:float = 0
+@export_range(0.0, 5.0, 1.0, "or_greater") var quality:float = 0:
+	set(v):
+		if project and project.mesh:
+			project.mesh.subdivide_depth = v
+	get:
+		if project and project.mesh:
+			return project.mesh.subdivide_depth
+		return 0.0
 ## The holder of MultiMeshInstances generated from this tool
 @export var parent_node:Node = self
 
 
 
 ## The transition between the terrain color and the top hand-painted color.
-@export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0
+@export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:
+	set(v):
+		if project and project.material:
+			project.material.set_shader_parameter("splash_height", v)
+	get:
+		if project and project.material:
+			return project.material.get_shader_parameter("splash_height")
+		return 0.0
+
 ## Grass color with left button mouse
 @export var primary_color:Color = Color.YELLOW_GREEN
 ## Grass color with right button mouse
@@ -110,14 +125,15 @@ func _validate_property(property: Dictionary):
 	set(v): _set_instance(3, v)
 
 func _get_instance(index:int) -> QuadGrassConfigs:
+	if not is_inside_tree(): return
 	if not project: return
 	if index >= project.grass_configs.size(): return null
 	return project.grass_configs[index]
 
 func _set_instance(index:int, inst:QuadGrassConfigs):
+	if not is_inside_tree(): return
 	if not project:
 		_create_project_template()
-		_force_fill_missing_dependencies()
 	project.grass_configs.resize(INSTANCES_CAP)
 	project.grass_configs[index] = inst
 	project.notify_property_list_changed()
@@ -132,10 +148,16 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 @export var project:QuadGrassSave:
 	set(v):
 		project = v
+		if not is_inside_tree(): return
 		# Update every QuadGrassConfigs.current_action to the currently selected tab
 		if project and CURRENT_TAB:
-			GLDebug.internal("Loaded new project: '%s'" %project.resource_path)
+			GLDebug.state("Loaded new project: '%s'" %project.resource_path)
 			TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
+			# Rebuild loaded project
+			for config in project.grass_configs:
+				if config:
+					config.current_action.unpack( self, project, config )
+					config.current_action.rebuild()
 
 
 @export_category("Optimization Tools")
@@ -193,10 +215,19 @@ func action_start(hit_info:Dictionary):
 		OptimizationQuadGrass.reset_chunks()
 		GLDebug.warning("Chunks were reseted to be modified")
 	
-	Landscaper.undo_redo.create_action("godot_landscaper/baked_quad_grass", UndoRedo.MERGE_DISABLE)
+	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
+	undo_redo.create_action("godot_landscaper/quad_grass_tool", UndoRedo.MERGE_DISABLE)
+	
 	for config in project.grass_configs:
 		if config and config.enable:
-			config.current_action.start( hit_info, self, project, config )
+			config.current_action.unpack( self, project, config )
+			config.current_action.start( hit_info )
+			
+			# Restore mmi values and rebuild on undo
+			undo_redo.add_undo_property( config, "top_colors", config.top_colors.duplicate() )
+			undo_redo.add_undo_property( config, "bottom_colors", config.bottom_colors.duplicate() )
+			undo_redo.add_undo_property( config, "transforms", config.transforms.duplicate() )
+			undo_redo.add_undo_method( config.current_action, "rebuild" )
 
 
 # Called every frame after the start of the stroke. LMB action
@@ -205,9 +236,9 @@ func action_primary(hit_info:Dictionary):
 		return
 	
 	GLDebug.spam("Painting with primary at: %s" %hit_info.position)
-	for instance in project.grass_configs:
-		if instance and instance.enable:
-			instance.current_action.primary( hit_info )
+	for config in project.grass_configs:
+		if config and config.enable:
+			config.current_action.primary( hit_info )
 
 
 # Called every frame after the start of the stroke.  RMB action
@@ -216,35 +247,42 @@ func action_secondary(hit_info:Dictionary):
 		return
 	
 	GLDebug.spam("Painting with secondary at: %s" %hit_info.position)
-	for instance in project.grass_configs:
-		if instance and instance.enable:
-			instance.current_action.secondary( hit_info )
+	for config in project.grass_configs:
+		if config and config.enable:
+			config.current_action.secondary( hit_info )
 
 # Called on stroke end
 func action_end():
 	if not project:
 		return
 	
-	for instance in project.grass_configs:
-		if instance and instance.enable:
-			instance.current_action.end()
-	
-	Landscaper.undo_redo.commit_action(false)
+	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
+	for config in project.grass_configs:
+		if config and config.enable:
+			config.current_action.end()
+			
+			# Restore mmi values and rebuild on do
+			undo_redo.add_do_property( config, "top_colors", config.top_colors.duplicate() )
+			undo_redo.add_do_property( config, "bottom_colors", config.bottom_colors.duplicate() )
+			undo_redo.add_do_property( config, "transforms", config.transforms.duplicate() )
+			undo_redo.add_do_method( config.current_action, "rebuild" )
+
+	undo_redo.commit_action(false)
 
 
 func _validate_action() -> bool:
 	if not parent_node:
 		parent_node = self
 		GLDebug.warning("Used '%s' for the parent_node" %parent_node.name)
-
-	_force_fill_missing_dependencies()
+	
+	if project:
+		_force_fill_dependencies()
+	else:
+		_create_project_template()
 	return true
 
 
-func _force_fill_missing_dependencies():
-	if not project:
-		_create_project_template()
-	
+func _force_fill_dependencies():
 	var resources_added:String
 	if not project.shader:
 		project.shader = AssetsManager.grass.color_baked.duplicate()
@@ -252,7 +290,7 @@ func _force_fill_missing_dependencies():
 	
 	if not project.material:
 		project.material = AssetsManager.grass.material.duplicate()
-		resources_added += "Grass Material, "	
+		resources_added += "Grass Material, "
 	project.material.shader = project.shader
 	
 	if not project.mesh:
@@ -272,7 +310,6 @@ func _force_fill_missing_dependencies():
 	project.material.set_shader_parameter("splash_height", splash_height)
 	project.material.notify_property_list_changed()
 	
-	#[TODO] apply inmmediate on setters as well
 	project.mesh.subdivide_depth = quality
 	project.mesh.notify_property_list_changed()
 
@@ -280,6 +317,8 @@ func _force_fill_missing_dependencies():
 # Resource.duplicate() cannot fully duplicate a stored template so..
 func _create_project_template():
 	project = QuadGrassSave.new()
+	_force_fill_dependencies()
+	
 	project.grass_configs.resize(INSTANCES_CAP)
 	project.grass_configs[0] = QuadGrassConfigs.new()
 	project.grass_configs[0].grass_texture = AssetsManager.grass.tall.duplicate()
@@ -290,6 +329,7 @@ func _create_project_template():
 	project.grass_configs[1].resource_name = "Sunflower"
 	project.grass_configs[1].rotation_randomize.y = TAU
 	project.grass_configs[1].detail_enable = true
+	project.grass_configs[1].detail_color = Color(0.184, 0.31, 0.31)
 	project.notify_property_list_changed()
 	
 	# Update every QuadGrassConfigs.current_action to the currently selected tab

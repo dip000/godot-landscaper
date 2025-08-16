@@ -5,44 +5,43 @@ class_name ActionMMIColor
 var _mmi:MultiMeshInstance3D
 
 
-func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
-	super(hit_info, tool, project, configs)
-	
+func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
+	super(tool, project, configs)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.parent_node, _configs.resource_name)
+
+
+func start(hit_info:Dictionary):
 	# What variant instance is this config
-	var index:int = project.grass_configs.find(configs)
+	var index:int = _project.grass_configs.find(_configs)
 	
 	# Rename resource
-	if configs.resource_name.is_empty():
+	if _configs.resource_name.is_empty():
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
-		configs.resource_name = "Grass %s" %index
+		_configs.resource_name = "Grass %s" %index
 	
-	# Get MultiMeshInstance3D from the world and set it up
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, tool.parent_node, configs.resource_name)
-	
+	# Set up null multimesh
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
 		_mmi.multimesh.use_colors = true
 		_mmi.multimesh.use_custom_data = true
 		_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-
-	_mmi.multimesh.mesh = project.mesh
+	
+	# Force assign refs just in case
+	_mmi.multimesh.mesh = _project.mesh
 	_mmi.set_instance_shader_parameter("variant_index", index)
+	_project.material["shader_parameter/details_enable"][index] = int(_configs.detail_enable)
+	_project.material["shader_parameter/detail_colors"][index] = _configs.detail_color
+	_project.material["shader_parameter/grass_textures"][index] = _configs.grass_texture
 	
-	# Update shader values
-	project.material["shader_parameter/details_enable"][index] = int(configs.detail_enable)
-	project.material["shader_parameter/detail_colors"][index] = configs.detail_color
-	project.material["shader_parameter/grass_textures"][index] = configs.grass_texture
-	
-	if not configs.grass_texture:
-		GLDebug.warning("No Grass Texture is selected for '%s'" %configs.resource_name)
+	if not _configs.grass_texture:
+		GLDebug.warning("No Grass Texture is selected for '%s'" %_configs.resource_name)
 	
 	# Rebuild with the stored data
 	if _configs.transforms.size() != _mmi.multimesh.instance_count:
 		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
-		_rebuild()
+		rebuild()
 	
-	# Stack this action's Undo Redo
-	Landscaper.undo_redo.add_undo_method( self, "restore", _configs.top_colors.duplicate() )
+
 
 
 func primary(hit_info:Dictionary):
@@ -80,18 +79,8 @@ func secondary(hit_info:Dictionary):
 				_mmi.multimesh.set_instance_custom_data( i, color )
 				_configs.top_colors[i] = color
 
-func end():
-	Landscaper.undo_redo.add_do_method( self, "restore", _configs.top_colors.duplicate() )
-	super()
 
-
-func restore(colors:Array[Color]):
-	for i in _mmi.multimesh.instance_count:
-		_mmi.multimesh.set_instance_custom_data( i, colors[i] )
-		
-
-
-func _rebuild():
+func rebuild():
 	_mmi.multimesh.instance_count = _configs.transforms.size()
 	for i in range(_mmi.multimesh.instance_count):
 		_mmi.multimesh.set_instance_transform( i, _configs.transforms[i] )

@@ -5,39 +5,46 @@ class_name ActionMMISpawn
 var _mmi:MultiMeshInstance3D
 
 
-func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
-	super(hit_info, tool, project, configs)
-	var index:int = project.grass_configs.find(configs)
+func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
+	super(tool, project, configs)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.parent_node, _configs.resource_name)
+
+func start(hit_info:Dictionary):
+	# What variant instance is this config
+	var index:int = _project.grass_configs.find(_configs)
 	
-	if configs.resource_name.is_empty():
+	# Rename resource
+	if _configs.resource_name.is_empty():
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
-		configs.resource_name = "Grass %s" %index
+		_configs.resource_name = "Grass %s" %index
 	
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, tool.parent_node, configs.resource_name)
-	
+	# Set up null multimesh
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
 		_mmi.multimesh.use_colors = true
 		_mmi.multimesh.use_custom_data = true
 		_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-
-	_mmi.multimesh.mesh = project.mesh
+	
+	# Force assign refs just in case
+	_mmi.multimesh.mesh = _project.mesh
 	_mmi.set_instance_shader_parameter("variant_index", index)
-	project.material["shader_parameter/details_enable"][index] = int(configs.detail_enable)
-	project.material["shader_parameter/detail_colors"][index] = configs.detail_color
-	project.material["shader_parameter/grass_textures"][index] = configs.grass_texture
+	_project.material["shader_parameter/details_enable"][index] = int(_configs.detail_enable)
+	_project.material["shader_parameter/detail_colors"][index] = _configs.detail_color
+	_project.material["shader_parameter/grass_textures"][index] = _configs.grass_texture
 	
-	if not configs.grass_texture:
-		GLDebug.warning("No Grass Texture is selected for '%s'" %configs.resource_name)
+	# More safety checks
+	if not _configs.grass_texture:
+		GLDebug.warning("No Grass Texture is selected for '%s'" %_configs.resource_name)
 	
-	if is_zero_approx( configs.size_base.x*configs.size_base.y*configs.size_base.z ):
+	if is_zero_approx( _configs.size_base.x*_configs.size_base.y*_configs.size_base.z ):
 		GLDebug.warning("Grass volume is zero. Used Vector3.ONE")
-		configs.size_base = Vector3.ONE
+		_configs.size_base = Vector3.ONE
 		
 	if _configs.transforms.size() != _mmi.multimesh.instance_count:
 		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
-		_spawn()
+		rebuild()
 	
+	# Setup ground_coloring configs
 	match _tool.ground_coloring:
 		QuadGrassTool.GroundColoring.SCAN_FROM_SELECTTION:
 			if not _tool.ground_texture or not _tool.ground_mesh:
@@ -52,12 +59,6 @@ func start(hit_info:Dictionary, tool:LandscaperTool, project:SaveData, configs:I
 				GLDebug.error("Auto detect texture did not found texture in Mesh. Select your references manually from 'Ground Coloring' section")
 				return
 			_mmi.global_position = hit_info.collider.global_position
-	
-	Landscaper.undo_redo.add_undo_method( self, "restore",
-		_configs.top_colors.duplicate(),
-		_configs.bottom_colors.duplicate(),
-		_configs.transforms.duplicate(),
-	)
 
 
 func try_scan_for_mesh(hit_info:Dictionary) -> bool:
@@ -91,28 +92,24 @@ func try_scan_for_texture() -> bool:
 # Spawn
 func primary(hit_info:Dictionary):
 	_add_radial( hit_info )
-	_spawn()
+	rebuild()
 
 
 # Despawn
 func secondary(hit_info:Dictionary):
 	_get_remove_radial( hit_info )
-	_spawn()
+	rebuild()
 
 
-func end():
-	Landscaper.undo_redo.add_do_method( self, "restore",
-		 _configs.top_colors.duplicate(),
-		_configs.bottom_colors.duplicate(),
-		_configs.transforms.duplicate(),
-	)
 
-
-func restore(top_colors:Array[Color], bottom_colors:Array[Color], transforms:Array[Transform3D]):
-	_configs.top_colors = top_colors
-	_configs.bottom_colors = bottom_colors
-	_configs.transforms = transforms
-	_spawn()
+# Re-Spawns the grass from the transforms given
+func rebuild():
+	_mmi.multimesh.instance_count = _configs.transforms.size()
+	for i in range(_mmi.multimesh.instance_count):
+		_mmi.multimesh.set_instance_transform( i, _configs.transforms[i] )
+		_mmi.multimesh.set_instance_color( i, _configs.bottom_colors[i] )
+		_mmi.multimesh.set_instance_custom_data( i, _configs.top_colors[i] )
+	
 
 
 # Gets every MultiMesh transform except the ones inside the brush
@@ -163,14 +160,6 @@ func _add_radial(hit_info:Dictionary):
 			_configs.bottom_colors.append( color )
 			_configs.top_colors.append( Color.WHITE )
 
-
-# Re-Spawns the grass from the transforms given
-func _spawn():
-	_mmi.multimesh.instance_count = _configs.transforms.size()
-	for i in range(_mmi.multimesh.instance_count):
-		_mmi.multimesh.set_instance_transform( i, _configs.transforms[i] )
-		_mmi.multimesh.set_instance_color( i, _configs.bottom_colors[i] )
-		_mmi.multimesh.set_instance_custom_data( i, _configs.top_colors[i] )
 
 
 func _scan_color(face_index:int, cursor:Vector3, surface_position:Vector3) -> Color:
