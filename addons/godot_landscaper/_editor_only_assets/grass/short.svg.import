@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8j4j4msv1dn5"
-path.s3tc="res://.godot/imported/tall.svg-032f99629da65e728298b9d4d22216b3.s3tc.ctex"
+uid="uid://fwug450f6hnc"
+path.s3tc="res://.godot/imported/short.svg-d03597a4069c67c657beeb0eee531ba4.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/godot_landscaper/assets_manager/grass/tall.svg"
-dest_files=["res://.godot/imported/tall.svg-032f99629da65e728298b9d4d22216b3.s3tc.ctex"]
+source_file="res://addons/godot_landscaper/_editor_only_assets/grass/short.svg"
+dest_files=["res://.godot/imported/short.svg-d03597a4069c67c657beeb0eee531ba4.s3tc.ctex"]
 
 [params]
 

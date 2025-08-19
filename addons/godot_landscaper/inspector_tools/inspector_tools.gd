@@ -18,7 +18,7 @@ func _parse_category(tool:Object, category:String):
 	var tabs:Control = _create_tabs( tool )
 	add_custom_control( tabs )
 	
-	var info_box:InfoBox = AssetsManager.ui.info_box.instantiate()
+	var info_box:InfoBox = AssetsManager.INFO_BOX.instantiate()
 	var info:String = _get_safe_property( configs, category, tool.CURRENT_TAB, "info" )
 	info_box.set_info( info )
 	add_custom_control( info_box )
@@ -49,7 +49,7 @@ func _create_tabs(tool:LandscaperTool) -> Control:
 	var configs:Dictionary[String, Dictionary] = _get_safe_config( tool )
 	for category in configs:
 		for tab_name in configs[category]:
-			var tab:Button = AssetsManager.ui.inspector_tab.instantiate()
+			var tab:Button = AssetsManager.INSPECTOR_TAB.instantiate()
 			tabs.add_child( tab )
 			tab.text = tab_name
 			tab.icon.icon = _get_safe_property( configs, category, tab_name, "icon", 0 )

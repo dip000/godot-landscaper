@@ -30,6 +30,11 @@ var REGISTERED_TOOLS:Array[Dictionary] = [
 		"type": QuadGrassTool,
 		"icon": preload("res://addons/godot_landscaper/landscaper_tools/quad_grass/icon.svg")
 	},
+	{
+		"name": "Grass3DTool",
+		"type": Grass3DTool,
+		"icon": preload("res://addons/godot_landscaper/landscaper_tools/grass_3d/icon.svg")
+	},
 	#{
 		#"name": "PackedSceneTool",
 		#"type": PackedSceneTool,

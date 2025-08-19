@@ -29,12 +29,6 @@ func start(hit_info:Dictionary):
 	# Force assign refs just in case
 	_mmi.multimesh.mesh = _project.mesh
 	_mmi.set_instance_shader_parameter("variant_index", index)
-	_project.material["shader_parameter/details_enable"][index] = int(_configs.detail_enable)
-	_project.material["shader_parameter/detail_colors"][index] = _configs.detail_color
-	_project.material["shader_parameter/grass_textures"][index] = _configs.grass_texture
-	
-	if not _configs.grass_texture:
-		GLDebug.warning("No Grass Texture is selected for '%s'" %_configs.resource_name)
 	
 	# Rebuild with the stored data
 	if _configs.transforms.size() != _mmi.multimesh.instance_count:

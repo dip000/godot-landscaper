@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cgiqs3qbj0pfj" path="res://addons/godot_landscaper/scene_manager/scene_manager.gd" id="1_mmp5c"]
 [ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/scene_raycaster.gd" id="2_spad5"]
 [ext_resource type="Script" uid="uid://htun6icbhcvw" path="res://addons/godot_landscaper/scene_manager/scene_brush.gd" id="3_ak6rc"]
-[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/assets_manager/ui/icons.svg" id="4_teeap"]
+[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/inspector_tools/icons.svg" id="4_teeap"]
 [ext_resource type="Script" uid="uid://onpvyjpb5186" path="res://addons/godot_landscaper/globals/atlas_icon.gd" id="5_kfnpr"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_da0fj"]

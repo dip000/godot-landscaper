@@ -1,6 +1,7 @@
 ## Per-instance configuration file for Action classes
 ## Managed by LandscaperTool classes
 @tool
+@icon("res://addons/godot_landscaper/config_icon.svg")
 extends InstanceConfigs
 class_name QuadGrassConfigs
 

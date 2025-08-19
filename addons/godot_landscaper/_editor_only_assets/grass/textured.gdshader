@@ -1,15 +1,3 @@
-//#define BILLBOARD_Y
-#define GL_COMPATIBILITY
-
-/* Ok i know directives are annoying but is absolutely needed to change render mode.
- * And most importantly, for OpenGL compatibility! Otherwise this plugin won't even open
- * if your potato PC doesn't have vulkan drivers, like mine :D
-
- [IMPORTANT]
-	DO NOT KEEP THIS SHADER OPEN! While landscaping, the internal logic will
- 	comment and uncomment the definitions and if you have this file open it wont work
- */
-
 shader_type spatial;
 render_mode unshaded, shadows_disabled, fog_disabled, ambient_light_disabled, specular_disabled, cull_disabled;
 
@@ -29,12 +17,7 @@ uniform sampler2D terrain_color:source_color,filter_linear_mipmap,repeat_disable
 uniform sampler2D gradient_mask:source_color,filter_linear_mipmap,repeat_disable,hint_default_black;
 uniform sampler2D variants[INSTANCES_CAP];
 
-// "instance" keyword is only for Vulkan rendering drivers. This avoids compilation errors
-#if defined GL_COMPATIBILITY
-uniform int variant_index = 0;
-#else
 instance uniform int variant_index;
-#endif
 
 
 void vertex(){
@@ -45,21 +28,15 @@ void vertex(){
 	sway.y = sin(NODE_POSITION_WORLD.x + TIME * 0.6 + UV.y) * root * 0.08;
 	sway.z = cos(NODE_POSITION_WORLD.z + TIME * 0.45 + UV.y) * root * 0.15;
 
-#if defined BILLBOARD_Y
-	VERTEX += sway;
-	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(normalize(cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz)), 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(normalize(cross(INV_VIEW_MATRIX[0].xyz, vec3(0.0, 1.0, 0.0))), 0.0), MODEL_MATRIX[3]);
-#else
 	VERTEX += (vec4(sway, 1.0) * MODEL_MATRIX).xyz;
-#endif
-
 	// Vertex to world space (from center of texture). See [NOTES 1]
 	vec2 world_space = world_position + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / world_size;
-
+	
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
 	vec3 recolor_top = texture(grass_color, world_space).rgb;
 	vec3 recolor_root = texture(terrain_color, world_space).rgb;
 	float mask = texture(gradient_mask, UV).r;
-
+	
 	// Mask the top of the grass with one color, mask the root with another, and add them
 	COLOR.rgb = recolor_top * mask;
 	COLOR.rgb += recolor_root * (1.0-mask);

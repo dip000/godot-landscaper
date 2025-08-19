@@ -1,4 +1,6 @@
 ## Saved data for QuadGrassTool Tool.
+@tool
+@icon("res://addons/godot_landscaper/save_icon.svg")
 extends SaveData
 class_name QuadGrassSave
 

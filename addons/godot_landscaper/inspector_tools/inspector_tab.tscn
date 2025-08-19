@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bjulr1lyuv2wc"]
 
-[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/assets_manager/ui/icons.svg" id="1_7id3m"]
+[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/inspector_tools/icons.svg" id="1_7id3m"]
 [ext_resource type="Script" uid="uid://onpvyjpb5186" path="res://addons/godot_landscaper/globals/atlas_icon.gd" id="1_lql50"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_pt6me"]

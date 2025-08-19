@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cc22twy7o43pp"]
 
-[ext_resource type="Script" uid="uid://d1oewt82sdi8x" path="res://addons/godot_landscaper/assets_manager/ui/info_box.gd" id="1_hmcpr"]
-[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/assets_manager/ui/icons.svg" id="2_vdd05"]
+[ext_resource type="Script" uid="uid://d1oewt82sdi8x" path="res://addons/godot_landscaper/inspector_tools/info_box.gd" id="1_hmcpr"]
+[ext_resource type="Texture2D" uid="uid://b0vixk6g6mb0o" path="res://addons/godot_landscaper/inspector_tools/icons.svg" id="2_vdd05"]
 [ext_resource type="Script" uid="uid://onpvyjpb5186" path="res://addons/godot_landscaper/globals/atlas_icon.gd" id="3_g0ugl"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v70gc"]

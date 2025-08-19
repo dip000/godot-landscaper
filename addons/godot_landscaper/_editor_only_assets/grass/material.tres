@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://te85jcyncn45"]
 
-[ext_resource type="Shader" uid="uid://cgdv4gupo08xt" path="res://addons/godot_landscaper/assets_manager/grass/color_baked.gdshader" id="1_wpikf"]
+[ext_resource type="Shader" uid="uid://cgdv4gupo08xt" path="res://addons/godot_landscaper/_editor_only_assets/grass/color_baked.gdshader" id="1_wpikf"]
 
 [resource]
 render_priority = 0

@@ -1,29 +1,31 @@
+## Hosts static resources
 @tool
 extends Node
 class_name AssetsManager
-## Hosts static resources
-## Saves/loads
+
+const ASSETS_ROOT:String = "res://addons/godot_landscaper/_editor_only_assets/"
+
+# Resources
+const ICONS:Texture2D = preload("res://addons/godot_landscaper/inspector_tools/icons.svg")
 
 # Scenes
+const INFO_BOX:PackedScene = preload("res://addons/godot_landscaper/inspector_tools/info_box.tscn")
+const INSPECTOR_TAB:PackedScene = preload("res://addons/godot_landscaper/inspector_tools/inspector_tab.tscn")
 const SCENE_MANAGER:PackedScene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn")
 const ASSETS_MANAGER:PackedScene = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn")
-
-const ASSETS_ROOT:String = "res://addons/godot_landscaper/assets_manager/"
-const ICONS:Texture2D = preload(ASSETS_ROOT + "ui/icons.svg")
 
 # Databases
 static var brush:Dictionary[String,Variant]
 static var grass:Dictionary[String,Variant]
 static var models:Dictionary[String,Variant]
-static var ui:Dictionary[String,Variant]
-
 
 
 func _enter_tree():
-	brush = filename_as_key(ASSETS_ROOT+"brush")
-	grass = filename_as_key(ASSETS_ROOT+"grass")
-	models = filename_as_key(ASSETS_ROOT+"models")
-	ui = filename_as_key(ASSETS_ROOT+"ui")
+	# These teamplate assets should not be exported
+	if Engine.is_editor_hint():
+		brush = filename_as_key(ASSETS_ROOT+"brush")
+		grass = filename_as_key(ASSETS_ROOT+"grass")
+		models = filename_as_key(ASSETS_ROOT+"models")
 
 
 # Resources with the dictionary key equal to their filenames

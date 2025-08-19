@@ -51,7 +51,7 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 
 
 ## The transition between the terrain color and the top hand-painted color.
-@export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:
+@export_range(0.0, 2.0, 0.01) var splash_height:float = 1.0:
 	set(v):
 		if project and project.material:
 			project.material.set_shader_parameter("splash_height", v)
@@ -61,9 +61,9 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 		return 0.0
 
 ## Grass color with left button mouse
-@export var primary_color:Color = Color.YELLOW_GREEN
+@export var primary_color:Color = Color.PALE_GREEN
 ## Grass color with right button mouse
-@export var secondary_color:Color = Color.DARK_ORANGE
+@export var secondary_color:Color = Color.PALE_VIOLET_RED
 
 
 @export_group("Ground Coloring")
@@ -149,15 +149,18 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 	set(v):
 		project = v
 		if not is_inside_tree(): return
+		if not (project and CURRENT_TAB): return
+		
 		# Update every QuadGrassConfigs.current_action to the currently selected tab
-		if project and CURRENT_TAB:
-			GLDebug.state("Loaded new project: '%s'" %project.resource_path)
-			TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
-			# Rebuild loaded project
-			for config in project.grass_configs:
-				if config:
-					config.current_action.unpack( self, project, config )
-					config.current_action.rebuild()
+		GLDebug.state("Loaded new project: '%s'" %project.resource_path)
+		_force_fill_dependencies()
+		TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
+		
+		# Rebuild loaded project
+		for config in project.grass_configs:
+			if config:
+				config.current_action.unpack( self, project, config )
+				config.current_action.rebuild()
 
 
 @export_category("Optimization Tools")
@@ -174,16 +177,52 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 @export_tool_button("        Reset        ", "Object") var reset_visible:Callable = OptimizationQuadGrass.reset_visible
 
 
+@export_category("Rebuild And Fix Tools")
+@export_group("Rescan Terrain Level")
+## Range in meters on Y axis that the grass will try to scan for a surface to sit on
+@export var rescan_range_y:float = 10
+@export_tool_button(" Rescan Terrain Level ", "UndoRedo") var _rescan_position_y:Callable = rescan_position_y
+
+@export_group("Rescan Bottom Colors")
+@export_tool_button("Rescan Bottom Colors", "UndoRedo") var _rescan_colors:Callable = rescan_colors
+
+
 
 
 func _exit_tree():
-	if Landscaper.is_enabled and Engine.is_editor_hint():
-		Landscaper.undo_redo.clear_history( EditorUndoRedoManager.GLOBAL_HISTORY )
+	if Landscaper.running():
+		_clear_undo_redo()
 
 
-# Called from InspectorTools every time the tabs are pressed. See TABS_CONFIG
-func settings_select():
-	pass
+func rescan_position_y():
+	if not project:
+		return
+	
+	_create_undo_redo("rescan_position_y")
+	for config in project.grass_configs:
+		if config and config.enable:
+			_add_undo( config )
+			config.spawn_action.unpack( self, project, config )
+			config.spawn_action.rescan_position_y( rescan_range_y )
+			config.spawn_action.rebuild()
+			_add_redo( config )
+	_commit_undo_redo()
+
+
+func rescan_colors():
+	if not project:
+		return
+	
+	_create_undo_redo("rescan_colors")
+	for config in project.grass_configs:
+		if config and config.enable:
+			_add_undo( config )
+			config.spawn_action.unpack( self, project, config )
+			config.spawn_action.rescan_bottom_colors( rescan_range_y )
+			config.spawn_action.rebuild()
+			_add_redo( config )
+	_commit_undo_redo()
+
 
 # Selects the "Spawn" config resource
 func spawn_select():
@@ -194,6 +233,7 @@ func spawn_select():
 	for config in project.grass_configs:
 		if config:
 			config.current_action = config.spawn_action
+
 
 # Selects the "Paint" config resource
 func paint_select():
@@ -215,19 +255,12 @@ func action_start(hit_info:Dictionary):
 		OptimizationQuadGrass.reset_chunks()
 		GLDebug.warning("Chunks were reseted to be modified")
 	
-	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
-	undo_redo.create_action("godot_landscaper/quad_grass_tool", UndoRedo.MERGE_DISABLE)
-	
+	_create_undo_redo( CURRENT_TAB )
 	for config in project.grass_configs:
 		if config and config.enable:
 			config.current_action.unpack( self, project, config )
 			config.current_action.start( hit_info )
-			
-			# Restore mmi values and rebuild on undo
-			undo_redo.add_undo_property( config, "top_colors", config.top_colors.duplicate() )
-			undo_redo.add_undo_property( config, "bottom_colors", config.bottom_colors.duplicate() )
-			undo_redo.add_undo_property( config, "transforms", config.transforms.duplicate() )
-			undo_redo.add_undo_method( config.current_action, "rebuild" )
+			_add_undo( config )
 
 
 # Called every frame after the start of the stroke. LMB action
@@ -251,23 +284,17 @@ func action_secondary(hit_info:Dictionary):
 		if config and config.enable:
 			config.current_action.secondary( hit_info )
 
+
 # Called on stroke end
 func action_end():
 	if not project:
 		return
 	
-	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
 	for config in project.grass_configs:
 		if config and config.enable:
 			config.current_action.end()
-			
-			# Restore mmi values and rebuild on do
-			undo_redo.add_do_property( config, "top_colors", config.top_colors.duplicate() )
-			undo_redo.add_do_property( config, "bottom_colors", config.bottom_colors.duplicate() )
-			undo_redo.add_do_property( config, "transforms", config.transforms.duplicate() )
-			undo_redo.add_do_method( config.current_action, "rebuild" )
-
-	undo_redo.commit_action(false)
+			_add_redo(config)
+	_commit_undo_redo()
 
 
 func _validate_action() -> bool:
@@ -336,3 +363,27 @@ func _create_project_template():
 	if CURRENT_TAB:
 		TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
 	GLDebug.state("Created a new template project. Please save your resources manually")
+
+
+func _create_undo_redo(action:String):
+	Landscaper.undo_redo.create_action("godot_landscaper/quad_grass_tool/"+action.to_snake_case(), UndoRedo.MERGE_DISABLE)
+
+func _commit_undo_redo():
+	Landscaper.undo_redo.commit_action(false)
+
+func _clear_undo_redo():
+	Landscaper.undo_redo.clear_history( EditorUndoRedoManager.GLOBAL_HISTORY )
+
+func _add_redo(config:QuadGrassConfigs):
+	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
+	undo_redo.add_do_property( config, "top_colors", config.top_colors.duplicate() )
+	undo_redo.add_do_property( config, "bottom_colors", config.bottom_colors.duplicate() )
+	undo_redo.add_do_property( config, "transforms", config.transforms.duplicate() )
+	undo_redo.add_do_method( config.current_action, "rebuild" )
+
+func _add_undo(config:QuadGrassConfigs):
+	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
+	undo_redo.add_undo_property( config, "top_colors", config.top_colors.duplicate() )
+	undo_redo.add_undo_property( config, "bottom_colors", config.bottom_colors.duplicate() )
+	undo_redo.add_undo_property( config, "transforms", config.transforms.duplicate() )
+	undo_redo.add_undo_method( config.current_action, "rebuild" )

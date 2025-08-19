@@ -28,14 +28,8 @@ func start(hit_info:Dictionary):
 	# Force assign refs just in case
 	_mmi.multimesh.mesh = _project.mesh
 	_mmi.set_instance_shader_parameter("variant_index", index)
-	_project.material["shader_parameter/details_enable"][index] = int(_configs.detail_enable)
-	_project.material["shader_parameter/detail_colors"][index] = _configs.detail_color
-	_project.material["shader_parameter/grass_textures"][index] = _configs.grass_texture
 	
 	# More safety checks
-	if not _configs.grass_texture:
-		GLDebug.warning("No Grass Texture is selected for '%s'" %_configs.resource_name)
-	
 	if is_zero_approx( _configs.size_base.x*_configs.size_base.y*_configs.size_base.z ):
 		GLDebug.warning("Grass volume is zero. Used Vector3.ONE")
 		_configs.size_base = Vector3.ONE
@@ -143,26 +137,94 @@ func _add_radial(hit_info:Dictionary):
 		var sphere_surface1:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
 		var sphere_surface2:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
 		
-		# Add transforms for every surface found
 		var result:Dictionary = raycaster.point_to_point(sphere_surface1, sphere_surface2)
-		if result:
-			var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
-			var transf := Transform3D( basis, result.position - object_world_position )
-			var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
-			
-			transf = transf.scaled_local( _configs.size_base + size_offset)
-			transf = transf.rotated_local(Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
-			transf = transf.rotated_local(Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
-			transf = transf.rotated_local(Vector3.UP, randf()*_configs.rotation_randomize.z )
-			_configs.transforms.append( transf )
-			
-			var color:Color = _scan_color( result.face_index, result.position, object_world_position )
-			_configs.bottom_colors.append( color )
-			_configs.top_colors.append( Color.WHITE )
+		if not result:
+			continue
+		
+		# Add transforms and colors for every surface found
+		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
+		var transf := Transform3D( basis, result.position - object_world_position )
+		var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
+		
+		transf = transf.scaled_local( _configs.size_base + size_offset)
+		transf = transf.rotated_local(Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
+		transf = transf.rotated_local(Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
+		transf = transf.rotated_local(Vector3.UP, randf()*_configs.rotation_randomize.z )
+		_configs.transforms.append( transf )
+		
+		var cursor_world_local:Vector3 = result.position + object_world_position
+		var color:Color = _scan_color( result.face_index, cursor_world_local )
+		_configs.bottom_colors.append( color )
+		_configs.top_colors.append( Color.WHITE )
 
 
+func rescan_position_y(scan_range:float):
+	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
+	var original_size:int = _configs.transforms.size()
+	var original_top_colors:Array[Color] = _configs.top_colors
+	var original_bottom_colors:Array[Color] = _configs.bottom_colors
+	var new_transforms:Array[Transform3D]
+	var new_bottom_colors:Array[Color]
+	var new_top_colors:Array[Color]
+	var object_world_position:Vector3
+	
+	for i in original_size:
+		var original_transf:Transform3D = _configs.transforms[i]
+		var scan_upper:Vector3 = original_transf.origin
+		var scan_lower:Vector3 = original_transf.origin
+		scan_upper.y += scan_range
+		scan_lower.y -= scan_range
+		
+		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
+		if not result:
+			continue
+		
+		object_world_position = result.collider.global_position
+		var original_basis := original_transf.basis
+		var transf_local := Transform3D( original_basis, result.position - object_world_position )
+		
+		new_transforms.append( transf_local )
+		new_bottom_colors.append( original_bottom_colors[i] )
+		new_top_colors.append( original_top_colors[i] )
+	
+	_configs.top_colors = new_top_colors
+	_configs.bottom_colors = new_bottom_colors
+	_configs.transforms = new_transforms
+	
+	_mmi.global_position = _tool.ground_mesh.global_position if _tool.ground_mesh else object_world_position
+	
+	var new_size:int = _configs.transforms.size()
+	var lost_instances:int = original_size - new_size
+	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost" %lost_instances)
 
-func _scan_color(face_index:int, cursor:Vector3, surface_position:Vector3) -> Color:
+
+func rescan_bottom_colors(scan_range:float):
+	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
+	
+	for i in _configs.transforms.size():
+		var original_transf:Transform3D = _configs.transforms[i]
+		var scan_upper:Vector3 = original_transf.origin
+		var scan_lower:Vector3 = original_transf.origin
+		scan_upper.y += scan_range
+		scan_lower.y -= scan_range
+		
+		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
+		if not result:
+			continue
+		
+		var object_world_position:Vector3 = result.collider.global_position
+		var original_basis := original_transf.basis
+		var transf_local := Transform3D( original_basis, result.position - object_world_position )
+		
+		var cursor_world_local:Vector3 = result.position + object_world_position
+		var new_bottom_color:Color = _scan_color( result.face_index, cursor_world_local )
+		
+		_configs.bottom_colors[i] = new_bottom_color
+	
+	GLDebug.state("Bottom grass was recolored from ground_coloring settings")
+
+
+func _scan_color(face_index:int, cursor_world_local:Vector3) -> Color:
 	match _tool.ground_coloring:
 		QuadGrassTool.GroundColoring.CONSTANT_COLOR:
 			return _tool.ground_color
@@ -189,7 +251,6 @@ func _scan_color(face_index:int, cursor:Vector3, surface_position:Vector3) -> Co
 		uv.append( mdt.get_vertex_uv(idx) )
 	
 	# Find the cursor point coordinates of the texture-space using the triangle points
-	var cursor_world_local:Vector3 = cursor - surface_position
 	var relative:Vector3 = Geometry3D.get_triangle_barycentric_coords(cursor_world_local, xy[0], xy[1], xy[2])
 	var cursor_texture:Vector2 = relative.x*uv[0] + relative.y*uv[1] + relative.z*uv[2]
 	

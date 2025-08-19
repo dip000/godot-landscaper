@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b0vixk6g6mb0o"
-path.s3tc="res://.godot/imported/icons.svg-32a72336ae8fb039c58dd52ce570053a.s3tc.ctex"
+path.s3tc="res://.godot/imported/icons.svg-1228dc597eb0ba1ac1264b194badfa3d.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/godot_landscaper/assets_manager/ui/icons.svg"
-dest_files=["res://.godot/imported/icons.svg-32a72336ae8fb039c58dd52ce570053a.s3tc.ctex"]
+source_file="res://addons/godot_landscaper/inspector_tools/icons.svg"
+dest_files=["res://.godot/imported/icons.svg-1228dc597eb0ba1ac1264b194badfa3d.s3tc.ctex"]
 
 [params]
 
