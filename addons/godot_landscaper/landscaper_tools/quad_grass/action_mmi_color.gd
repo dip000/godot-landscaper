@@ -7,7 +7,7 @@ var _mmi:MultiMeshInstance3D
 
 func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.parent_node, _configs.resource_name)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.ground_mesh, _configs.resource_name)
 
 
 func start(hit_info:Dictionary):
@@ -39,26 +39,17 @@ func start(hit_info:Dictionary):
 
 
 func primary(hit_info:Dictionary):
-	var brush_size_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
-	var mouse_world_pos:Vector3 = hit_info.position
-	var object_world_position:Vector3 = hit_info.collider.global_position
-	var color:Color = _tool.primary_color
-	
-	# Re-Colors the grass from the current transforms
-	for i in _mmi.multimesh.instance_count:
-		var transf:Transform3D = _mmi.multimesh.get_instance_transform( i )
-		var instance_world_pos:Vector3 = transf.origin + object_world_position
-		var dist_sqr:float = mouse_world_pos.distance_squared_to( instance_world_pos )
-		if dist_sqr < brush_size_sqr:
-			_mmi.multimesh.set_instance_custom_data( i, color )
-			_configs.top_colors[i] = color
+	_paint( hit_info, _tool.primary_color, false )
 
 
 func secondary(hit_info:Dictionary):
+	_paint( hit_info, _tool.secondary_color, true )
+
+
+func _paint(hit_info:Dictionary, color:Color, secondary:bool):
 	var brush_size_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
 	var mouse_world_pos:Vector3 = hit_info.position
 	var object_world_position:Vector3 = hit_info.collider.global_position
-	var color:Color = _tool.secondary_color
 	
 	# Re-Colors the grass from the current transforms
 	for i in _mmi.multimesh.instance_count:
@@ -66,12 +57,13 @@ func secondary(hit_info:Dictionary):
 		var instance_world_pos:Vector3 = transf.origin + object_world_position
 		var dist_sqr:float = mouse_world_pos.distance_squared_to( instance_world_pos )
 		if dist_sqr < brush_size_sqr:
-			if _tool.ground_coloring == QuadGrassTool.GroundColoring.PAINT_WITH_SECONDARY:
+			if secondary and _tool.paint_with_sencondary_color:
 				_mmi.multimesh.set_instance_color( i, color )
 				_configs.bottom_colors[i] = color
 			else:
 				_mmi.multimesh.set_instance_custom_data( i, color )
 				_configs.top_colors[i] = color
+
 
 
 func rebuild():

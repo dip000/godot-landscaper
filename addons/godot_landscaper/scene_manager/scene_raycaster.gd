@@ -3,12 +3,12 @@ extends Node3D
 class_name SceneRaycaster
 
 const BRUSH_LAYER:int = 0xFFFFFFFF
+static var hit_info:Dictionary
 
 @onready var scene_brush:SceneBrush = %SceneBrush
 
 var _ray_surfaces := PhysicsRayQueryParameters3D.new()
-var _cam:Camera3D
-var _mouse_position:Vector2
+
 
 
 func _ready():
@@ -23,18 +23,16 @@ func _safe_intersect(ray:PhysicsRayQueryParameters3D) -> Dictionary:
 	return {}
 
 
-func feed(cam:Camera3D, mouse_pos:Vector2) -> SceneRaycaster:
-	_cam = cam
-	_mouse_position = mouse_pos
-	return self
+func update_hit_info(cam:Camera3D, mouse_pos:Vector2) -> Dictionary:
+	_ray_surfaces.from = cam.project_ray_origin( mouse_pos )
+	_ray_surfaces.to = _ray_surfaces.from + (cam.project_ray_normal( mouse_pos ) * cam.far)
+	hit_info = _safe_intersect( _ray_surfaces )
+	return hit_info
+
+func set_collision_mask(collision_mask:int):
+	_ray_surfaces.collision_mask = collision_mask
 
 
-func cam_to_cursor() -> Dictionary:
-	_ray_surfaces.from = _cam.project_ray_origin( _mouse_position )
-	_ray_surfaces.to = _ray_surfaces.from + (_cam.project_ray_normal( _mouse_position ) * _cam.far)
-	_ray_surfaces.collision_mask = 0xFFFFFFFF
-	return _safe_intersect( _ray_surfaces )
-	
 
 func point_to_point(from:Vector3, to:Vector3) -> Dictionary:
 	_ray_surfaces.from = from

@@ -6,7 +6,7 @@ const int INSTANCES_CAP = 4;
 
 group_uniforms Color;
 // This must be in gray scale. Usually a GradientTexture2D but can be anything you want, even empty for plain color
-uniform float splash_height:hint_range(-1.0, 1.0, 0.05) = 0.0;
+uniform float splash_height:hint_range(0.0, 2.0, 0.05) = 1.0;
 // Instance variables. Set the index from the MeshInstance3D node
 uniform sampler2D grass_textures[INSTANCES_CAP];
 uniform bool details_enable[INSTANCES_CAP];

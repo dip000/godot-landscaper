@@ -3,31 +3,32 @@ extends Action
 class_name ActionMMISpawn
 
 var _mmi:MultiMeshInstance3D
+var _scanned_colliders:Dictionary[CollisionObject3D, Dictionary]
+var _index:int
 
 
 func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.parent_node, _configs.resource_name)
-
-func start(hit_info:Dictionary):
-	# What variant instance is this config
-	var index:int = _project.grass_configs.find(_configs)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.ground_mesh, _configs.resource_name)
 	
-	# Rename resource
-	if _configs.resource_name.is_empty():
-		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
-		_configs.resource_name = "Grass %s" %index
-	
-	# Set up null multimesh
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
 		_mmi.multimesh.use_colors = true
 		_mmi.multimesh.use_custom_data = true
 		_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	
+	# What variant instance is this config
+	_index = _project.grass_configs.find(_configs)
 	# Force assign refs just in case
 	_mmi.multimesh.mesh = _project.mesh
-	_mmi.set_instance_shader_parameter("variant_index", index)
+	_mmi.set_instance_shader_parameter("variant_index", _index)
+
+
+func start(hit_info:Dictionary):
+	# Rename resource
+	if _configs.resource_name.is_empty():
+		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
+		_configs.resource_name = "Grass %s" %_index
 	
 	# More safety checks
 	if is_zero_approx( _configs.size_base.x*_configs.size_base.y*_configs.size_base.z ):
@@ -38,50 +39,6 @@ func start(hit_info:Dictionary):
 		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
 		rebuild()
 	
-	# Setup ground_coloring configs
-	match _tool.ground_coloring:
-		QuadGrassTool.GroundColoring.SCAN_FROM_SELECTTION:
-			if not _tool.ground_texture or not _tool.ground_mesh:
-				GLDebug.error("No Mesh or Texture Assigned. Assign your ground references or change ground coloring")
-				return
-			_mmi.global_position = _tool.ground_mesh.global_position
-		QuadGrassTool.GroundColoring.SCAN_FROM_AUTO_DETECT:
-			if not try_scan_for_mesh(hit_info):
-				GLDebug.error("Auto detect mesh did not found any mesh. Select your references manually from 'Ground Coloring' section")
-				return
-			if not try_scan_for_texture():
-				GLDebug.error("Auto detect texture did not found texture in Mesh. Select your references manually from 'Ground Coloring' section")
-				return
-			_mmi.global_position = hit_info.collider.global_position
-
-
-func try_scan_for_mesh(hit_info:Dictionary) -> bool:
-	var collider:CollisionObject3D = hit_info.collider
-	var hit_parent:Node = collider.get_parent()
-	if hit_parent is MeshInstance3D:
-		_tool.ground_mesh = hit_parent
-	else:
-		for node in collider.get_children():
-			if node is MeshInstance3D:
-				_tool.ground_mesh = node
-				break
-	if not _tool.ground_mesh:
-		return false
-	return true
-
-func try_scan_for_texture() -> bool:
-	var mesh:MeshInstance3D = _tool.ground_mesh
-	var material:Material = mesh.get_active_material(0)
-	if not material:
-		return false
-	if material is StandardMaterial3D and material.albedo_texture:
-		_tool.ground_texture = material.albedo_texture
-		return true
-	if material is ShaderMaterial and material.get_shader_parameter("texture"):
-		_tool.ground_texture = material.albedo_texture
-		return true
-	return false
-
 
 # Spawn
 func primary(hit_info:Dictionary):
@@ -108,7 +65,6 @@ func rebuild():
 
 # Gets every MultiMesh transform except the ones inside the brush
 func _get_remove_radial(hit_info:Dictionary):
-	var object_world_position:Vector3 = hit_info.collider.global_position
 	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
 	var mouse_world_pos:Vector3 = hit_info.position
 	_configs.transforms.clear()
@@ -116,8 +72,8 @@ func _get_remove_radial(hit_info:Dictionary):
 	_configs.top_colors.clear()
 	
 	for i in _mmi.multimesh.instance_count:
-		var instance_transform:Transform3D =  _mmi.multimesh.get_instance_transform(i)
-		var instance_world_pos:Vector3 = instance_transform.origin + object_world_position
+		var instance_transform:Transform3D = _mmi.multimesh.get_instance_transform(i)
+		var instance_world_pos:Vector3 = _mmi.to_global( instance_transform.origin )
 		var dist_sqr:float = instance_world_pos.distance_squared_to( mouse_world_pos )
 		
 		if dist_sqr > brush_radius_sqr or _tool.erase_ratio < randf():
@@ -128,113 +84,63 @@ func _get_remove_radial(hit_info:Dictionary):
 
 func _add_radial(hit_info:Dictionary):
 	var brush_radius:float = Landscaper.scene.brush.get_scale_ratio()*0.5
-	var object_world_position:Vector3 = hit_info.collider.global_position
 	var mouse_world_pos:Vector3 = hit_info.position
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
 	
 	for i in range(_tool.spawn_ratio):
 		# Two random points over the brush sphere to make a ray
-		var sphere_surface1:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
-		var sphere_surface2:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
+		var sphere_global_point1:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
+		var sphere_global_point2:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
 		
-		var result:Dictionary = raycaster.point_to_point(sphere_surface1, sphere_surface2)
+		var result:Dictionary = raycaster.point_to_point(sphere_global_point1, sphere_global_point2)
 		if not result:
 			continue
 		
-		# Add transforms and colors for every surface found
+		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
 		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
-		var transf := Transform3D( basis, result.position - object_world_position )
+		
+		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
+		var local_pos:Vector3 = _mmi.to_local( result.position )
+		result.position = local_pos + _tool.ground_mesh.global_position
+		
+		# Save base and random values
+		var local_transf := Transform3D( basis, local_pos )
 		var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
 		
-		transf = transf.scaled_local( _configs.size_base + size_offset)
-		transf = transf.rotated_local(Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
-		transf = transf.rotated_local(Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
-		transf = transf.rotated_local(Vector3.UP, randf()*_configs.rotation_randomize.z )
-		_configs.transforms.append( transf )
+		local_transf = local_transf.scaled_local( _configs.size_base + size_offset )
+		local_transf = local_transf.rotated_local( Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
+		local_transf = local_transf.rotated_local( Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
+		local_transf = local_transf.rotated_local( Vector3.UP, randf()*_configs.rotation_randomize.z )
+		_configs.transforms.append( local_transf )
 		
-		var cursor_world_local:Vector3 = result.position + object_world_position
-		var color:Color = _scan_color( result.face_index, cursor_world_local )
+		# Scan color. Color source is either a constant or a texture
+		var color:Color = _tool.fallback_color
+		if _tool.paint_with_sencondary_color:
+			color = _tool.secondary_color
+		
+		else:
+			var collider:CollisionObject3D = result.collider
+			var instance:MeshInstance3D = SceneManager.scan_mesh( collider, _tool.parent_of_physics_body, _tool.children_of_physics_body, _tool.relative_path_from_physics_body )
+			var material:Material = SceneManager.scan_material( instance, _tool.active_material_indexes )
+			var color_source:Variant = SceneManager.scan_color_source( material, _tool.paths_in_standar_materials, _tool.paths_in_shader_materials )
+			
+			if color_source is Color:
+				color = color_source
+			elif color_source is Texture2D:
+				color = _scan_color( result, color_source, instance.mesh )
+		
+		# Save colors
 		_configs.bottom_colors.append( color )
 		_configs.top_colors.append( Color.WHITE )
 
 
-func rescan_position_y(scan_range:float):
-	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	var original_size:int = _configs.transforms.size()
-	var original_top_colors:Array[Color] = _configs.top_colors
-	var original_bottom_colors:Array[Color] = _configs.bottom_colors
-	var new_transforms:Array[Transform3D]
-	var new_bottom_colors:Array[Color]
-	var new_top_colors:Array[Color]
-	var object_world_position:Vector3
+func _scan_color(hit_info:Dictionary, texture:Texture2D, mesh:Mesh) -> Color:
+	var face_index:int = hit_info.face_index
+	var mouse_world_position:Vector3 = hit_info.position
+	var collider_world_position:Vector3 = hit_info.collider.global_position
+	var mouse_local_position:Vector3 = mouse_world_position - collider_world_position
 	
-	for i in original_size:
-		var original_transf:Transform3D = _configs.transforms[i]
-		var scan_upper:Vector3 = original_transf.origin
-		var scan_lower:Vector3 = original_transf.origin
-		scan_upper.y += scan_range
-		scan_lower.y -= scan_range
-		
-		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result:
-			continue
-		
-		object_world_position = result.collider.global_position
-		var original_basis := original_transf.basis
-		var transf_local := Transform3D( original_basis, result.position - object_world_position )
-		
-		new_transforms.append( transf_local )
-		new_bottom_colors.append( original_bottom_colors[i] )
-		new_top_colors.append( original_top_colors[i] )
-	
-	_configs.top_colors = new_top_colors
-	_configs.bottom_colors = new_bottom_colors
-	_configs.transforms = new_transforms
-	
-	_mmi.global_position = _tool.ground_mesh.global_position if _tool.ground_mesh else object_world_position
-	
-	var new_size:int = _configs.transforms.size()
-	var lost_instances:int = original_size - new_size
-	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost" %lost_instances)
-
-
-func rescan_bottom_colors(scan_range:float):
-	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	
-	for i in _configs.transforms.size():
-		var original_transf:Transform3D = _configs.transforms[i]
-		var scan_upper:Vector3 = original_transf.origin
-		var scan_lower:Vector3 = original_transf.origin
-		scan_upper.y += scan_range
-		scan_lower.y -= scan_range
-		
-		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result:
-			continue
-		
-		var object_world_position:Vector3 = result.collider.global_position
-		var original_basis := original_transf.basis
-		var transf_local := Transform3D( original_basis, result.position - object_world_position )
-		
-		var cursor_world_local:Vector3 = result.position + object_world_position
-		var new_bottom_color:Color = _scan_color( result.face_index, cursor_world_local )
-		
-		_configs.bottom_colors[i] = new_bottom_color
-	
-	GLDebug.state("Bottom grass was recolored from ground_coloring settings")
-
-
-func _scan_color(face_index:int, cursor_world_local:Vector3) -> Color:
-	match _tool.ground_coloring:
-		QuadGrassTool.GroundColoring.CONSTANT_COLOR:
-			return _tool.ground_color
-		QuadGrassTool.GroundColoring.PAINT_WITH_SECONDARY:
-			return _tool.secondary_color
-		_:
-			if not _tool.ground_mesh or not _tool.ground_texture:
-				return Color.GRAY
-	
-	var mesh_arrays:Array = _tool.ground_mesh.mesh.surface_get_arrays(0)
+	var mesh_arrays:Array = mesh.surface_get_arrays(0)
 	var arr_mesh := ArrayMesh.new()
 	var mdt := MeshDataTool.new()
 	
@@ -251,15 +157,97 @@ func _scan_color(face_index:int, cursor_world_local:Vector3) -> Color:
 		uv.append( mdt.get_vertex_uv(idx) )
 	
 	# Find the cursor point coordinates of the texture-space using the triangle points
-	var relative:Vector3 = Geometry3D.get_triangle_barycentric_coords(cursor_world_local, xy[0], xy[1], xy[2])
+	var relative:Vector3 = Geometry3D.get_triangle_barycentric_coords(mouse_local_position, xy[0], xy[1], xy[2])
 	var cursor_texture:Vector2 = relative.x*uv[0] + relative.y*uv[1] + relative.z*uv[2]
 	
 	# Find color from that coordinate
-	var texture:Texture2D = _tool.ground_texture
 	var size:Vector2 = texture.get_size()-Vector2.ONE
-	var img:Image = texture.get_image()
+	var img:Image = texture.get_image() #this might lag a bit, a lot maybe hehe
+	if img.is_compressed():
+		img.decompress()
+	if img.has_mipmaps():
+		img.clear_mipmaps()
 	var px:Color = img.get_pixelv( cursor_texture*size )
-	
 	GLDebug.spam("Scanned color: [color=%s]#%s[/color]" %[px.to_html(), px.to_html()])
 	return px
 	
+
+func rescan_position_y(scan_range:float):
+	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
+	var original_size:int = _configs.transforms.size()
+	var original_top_colors:Array[Color] = _configs.top_colors
+	var original_bottom_colors:Array[Color] = _configs.bottom_colors
+	var new_transforms:Array[Transform3D]
+	var new_bottom_colors:Array[Color]
+	var new_top_colors:Array[Color]
+	
+	for i in original_size:
+		var original_transf:Transform3D = _configs.transforms[i]
+		var scan_upper:Vector3 = _mmi.to_global( original_transf.origin )
+		var scan_lower:Vector3 = scan_upper
+		scan_upper.y += scan_range
+		scan_lower.y -= scan_range
+		
+		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
+		if not result:
+			continue
+		
+		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
+		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
+		
+		# Save base and random values
+		var local_pos:Vector3 = _mmi.to_local( result.position )
+		var local_transf := Transform3D( basis, local_pos )
+		var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
+		
+		local_transf = local_transf.scaled_local( _configs.size_base + size_offset )
+		local_transf = local_transf.rotated_local( Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
+		local_transf = local_transf.rotated_local( Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
+		local_transf = local_transf.rotated_local( Vector3.UP, randf()*_configs.rotation_randomize.z )
+		
+		new_transforms.append( local_transf )
+		new_bottom_colors.append( original_bottom_colors[i] )
+		new_top_colors.append( original_top_colors[i] )
+	
+	_configs.top_colors = new_top_colors
+	_configs.bottom_colors = new_bottom_colors
+	_configs.transforms = new_transforms
+	_mmi.global_position = _tool.ground_mesh.global_position
+	
+	var new_size:int = _configs.transforms.size()
+	var lost_instances:int = original_size - new_size
+	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost" %lost_instances)
+
+
+func rescan_bottom_colors(scan_range:float):
+	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
+	
+	for i in _configs.transforms.size():
+		var original_transf:Transform3D = _configs.transforms[i]
+		var scan_upper:Vector3 = _mmi.to_global( original_transf.origin )
+		var scan_lower:Vector3 = scan_upper
+		scan_upper.y += scan_range
+		scan_lower.y -= scan_range
+		
+		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
+		if not result:
+			continue
+		
+		# Scan color. Color source is either a constant or a texture
+		var color:Color = _tool.fallback_color
+		if _tool.paint_with_sencondary_color:
+			color = _tool.secondary_color
+		
+		else:
+			var collider:CollisionObject3D = result.collider
+			var instance:MeshInstance3D = SceneManager.scan_mesh( collider, _tool.parent_of_physics_body, _tool.children_of_physics_body, _tool.relative_path_from_physics_body )
+			var material:Material = SceneManager.scan_material( instance, _tool.active_material_indexes )
+			var color_source:Variant = SceneManager.scan_color_source( material, _tool.paths_in_standar_materials, _tool.paths_in_shader_materials )
+			
+			if color_source is Color:
+				color = color_source
+			elif color_source is Texture2D:
+				color = _scan_color( result, color_source, instance.mesh )
+		
+		_configs.bottom_colors[i] = color
+	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")

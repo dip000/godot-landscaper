@@ -25,7 +25,7 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 			"info": "left cick to paint with primary color, right click for secondary",
 			"icon": AtlasIcon.Icon.COLOR,
 			"method": paint_select,
-			"hide_properties": ["spawn_ratio", "erase_ratio", "quality", "parent_node"],
+			"hide_properties": ["spawn_ratio", "erase_ratio", "ground_mesh"],
 		}
 	}
 }
@@ -36,18 +36,8 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 @export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
 ## How many grass instances attempt to erase per frame
 @export_range(0.1, 1.0, 0.1) var erase_ratio:float = 0.7
-## Horizontal subdivisions of every grass. This affects its animation and the quality of gradient
-@export_range(0.0, 5.0, 1.0, "or_greater") var quality:float = 0:
-	set(v):
-		if project and project.mesh:
-			project.mesh.subdivide_depth = v
-	get:
-		if project and project.mesh:
-			return project.mesh.subdivide_depth
-		return 0.0
-## The holder of MultiMeshInstances generated from this tool
-@export var parent_node:Node = self
-
+## The parent for the generated MultiMeshInstance3D grass. Grass be anchored to this node's position
+@export var ground_mesh:MeshInstance3D
 
 
 ## The transition between the terrain color and the top hand-painted color.
@@ -67,40 +57,44 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 
 
 @export_group("Ground Coloring")
-enum GroundColoring {
-	SCAN_FROM_AUTO_DETECT, ## Attempts to find the texture and mesh of the collision target and scans the ground pixels to paint the ground
-	SCAN_FROM_SELECTTION, ## Scans the pixel color of the selected mesh and texture to paint the ground
-	CONSTANT_COLOR, ## Uses a constant color to paint the ground
-	PAINT_WITH_SECONDARY ## Uses the secondary color of the paint action to manually paint the ground
-}
-@export var ground_coloring:GroundColoring = GroundColoring.SCAN_FROM_AUTO_DETECT:
-	set(v):
-		ground_coloring = v
+@export var paint_with_sencondary_color:bool = false:
+	set(v): 
+		paint_with_sencondary_color = v
 		notify_property_list_changed()
-## The constant color to paint the ground with (Will override ground_texture)
-@export var ground_color:Color
-## The texture to paint the ground with.
-## Uses Geometry3D.get_triangle_barycentric_coords() to scan the pixels based on the vertex triangle being hit
-@export var ground_texture:Texture2D
-## Spawner will need the mesh data to scan for the ground color
-@export var ground_mesh:MeshInstance3D
 
+@export_subgroup("Scan Physics Bodies:")
+## The collision_layer to scan for any PhysicsBody3D 
+@export_flags_3d_physics var scan_layer:int = 0xFFFFFFFF
+## [NOT-IMPLEMENTED] Creates a temporal Trimesh collision to perfectly place the grass over the actual mesh surface
+@export var create_temporal_perfect_colliders:bool = false
+@export_subgroup("Scan Meshes:")
+## Attempts to find the mesh of the scanned PhysicsBody3D in its parent
+@export var parent_of_physics_body:bool = true
+## Attempts to find the mesh of the scanned PhysicsBody3D from any MeshInstance3D children
+@export var children_of_physics_body:bool = true
+## NodePath from the scanned PhysicsBody3D to its mesh
+@export var relative_path_from_physics_body:StringName = ""
+@export_subgroup("Scan Materials:")
+## Index order to find a material in a scanned mesh. See MeshInstance3D.get_active_material(index)
+@export var active_material_indexes:Array[int] = [0, 1]
+@export_subgroup("Scan Color Sources:")
+## Property path from the scanned standar material to the source of color, can be a texture, vec3, or a vec4 
+@export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
+## Property path from the scanned shader material to the source of color, can be a texture, vec3, or a vec4 
+@export var paths_in_shader_materials:Array[String] = ["texture", "color"]
+## Color when the scanner couldn't find any color source
+@export var fallback_color:Color = Color.MAGENTA
 
-func _validate_property(property: Dictionary):
-	var is_scan_auto:bool = (ground_coloring == GroundColoring.SCAN_FROM_AUTO_DETECT)
-	var is_scan_selct:bool = (ground_coloring == GroundColoring.SCAN_FROM_SELECTTION)
-	var is_const_color:bool = (ground_coloring == GroundColoring.CONSTANT_COLOR)
-	var is_paintable:bool = (ground_coloring == GroundColoring.PAINT_WITH_SECONDARY)
-	var tex_or_mesh:bool = (property.name == "ground_texture" or property.name == "ground_mesh")
-	var const_color:bool = (property.name == "ground_color")
-	if is_scan_auto and (tex_or_mesh or const_color):
-		property.usage = PROPERTY_USAGE_NONE
-	if is_scan_selct and const_color:
-		property.usage = PROPERTY_USAGE_NONE
-	if is_const_color and tex_or_mesh:
-		property.usage = PROPERTY_USAGE_NONE
-	if is_paintable and (tex_or_mesh or const_color):
-		property.usage = PROPERTY_USAGE_NONE
+func _validate_property(property:Dictionary):
+	if paint_with_sencondary_color:
+		var hide_properties:Array[String] = [
+			"parent_of_physics_body", "children_of_physics_body", "relative_path_from_physics_body",
+			"active_material_indexes",
+			"paths_in_standar_materials", "paths_in_shader_materials", "fallback_color",
+		]
+		if property.name in hide_properties:
+			property.usage = PROPERTY_USAGE_NONE
+
 
 
 
@@ -165,7 +159,6 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 
 @export_category("Optimization Tools")
 @export_group("Chunkify Grass")
-@export var chunks_parent:Node = self
 @export var chunk_size:int = 32
 @export_tool_button("     Chunkify     ", "Grid") var chunkify:Callable = OptimizationQuadGrass.chunkify
 @export_tool_button("        Reset        ", "Object") var reset_chunks:Callable = OptimizationQuadGrass.reset_chunks
@@ -228,7 +221,8 @@ func rescan_colors():
 func spawn_select():
 	if not project:
 		return
-	
+		
+	Landscaper.scene.raycaster.set_collision_mask( scan_layer )
 	Landscaper.scene.brush.select_action( AtlasIcon.Icon.GRASS_SCATTER )
 	for config in project.grass_configs:
 		if config:
@@ -298,9 +292,11 @@ func action_end():
 
 
 func _validate_action() -> bool:
-	if not parent_node:
-		parent_node = self
-		GLDebug.warning("Used '%s' for the parent_node" %parent_node.name)
+	if not ground_mesh:
+		ground_mesh = SceneManager.scan_mesh_from_hit_info(parent_of_physics_body, children_of_physics_body, relative_path_from_physics_body)
+		if not ground_mesh:
+			GLDebug.error("No ground mesh was selected")
+			return false
 	
 	if project:
 		_force_fill_dependencies()
@@ -336,9 +332,6 @@ func _force_fill_dependencies():
 	project.material["shader_parameter/grass_textures"].resize(INSTANCES_CAP)
 	project.material.set_shader_parameter("splash_height", splash_height)
 	project.material.notify_property_list_changed()
-	
-	project.mesh.subdivide_depth = quality
-	project.mesh.notify_property_list_changed()
 
 
 # Resource.duplicate() cannot fully duplicate a stored template so..
