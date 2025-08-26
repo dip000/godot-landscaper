@@ -3,7 +3,6 @@ extends Action
 class_name ActionMMISpawn
 
 var _mmi:MultiMeshInstance3D
-var _scanned_colliders:Dictionary[CollisionObject3D, Dictionary]
 var _index:int
 
 
@@ -25,6 +24,10 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 
 
 func start(hit_info:Dictionary):
+	# Start with clean scanner cache in case resources were updated
+	Scanner.clear_cache()
+	#Scanner.create_shapes( hit_info, _tool )
+	
 	# Rename resource
 	if _configs.resource_name.is_empty():
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
@@ -60,7 +63,11 @@ func rebuild():
 		_mmi.multimesh.set_instance_transform( i, _configs.transforms[i] )
 		_mmi.multimesh.set_instance_color( i, _configs.bottom_colors[i] )
 		_mmi.multimesh.set_instance_custom_data( i, _configs.top_colors[i] )
-	
+
+
+# Clear cache in case references were updated
+func end():
+	Scanner.clear_cache()
 
 
 # Gets every MultiMesh transform except the ones inside the brush
@@ -113,64 +120,11 @@ func _add_radial(hit_info:Dictionary):
 		local_transf = local_transf.rotated_local( Vector3.UP, randf()*_configs.rotation_randomize.z )
 		_configs.transforms.append( local_transf )
 		
-		# Scan color. Color source is either a constant or a texture
-		var color:Color = _tool.fallback_color
-		if _tool.paint_with_sencondary_color:
-			color = _tool.secondary_color
-		
-		else:
-			var collider:CollisionObject3D = result.collider
-			var instance:MeshInstance3D = SceneManager.scan_mesh( collider, _tool.parent_of_physics_body, _tool.children_of_physics_body, _tool.relative_path_from_physics_body )
-			var material:Material = SceneManager.scan_material( instance, _tool.active_material_indexes )
-			var color_source:Variant = SceneManager.scan_color_source( material, _tool.paths_in_standar_materials, _tool.paths_in_shader_materials )
-			
-			if color_source is Color:
-				color = color_source
-			elif color_source is Texture2D:
-				color = _scan_color( result, color_source, instance.mesh )
-		
 		# Save colors
+		var color:Color = Scanner.get_cached_color( hit_info, _tool )
 		_configs.bottom_colors.append( color )
 		_configs.top_colors.append( Color.WHITE )
 
-
-func _scan_color(hit_info:Dictionary, texture:Texture2D, mesh:Mesh) -> Color:
-	var face_index:int = hit_info.face_index
-	var mouse_world_position:Vector3 = hit_info.position
-	var collider_world_position:Vector3 = hit_info.collider.global_position
-	var mouse_local_position:Vector3 = mouse_world_position - collider_world_position
-	
-	var mesh_arrays:Array = mesh.surface_get_arrays(0)
-	var arr_mesh := ArrayMesh.new()
-	var mdt := MeshDataTool.new()
-	
-	# Setup MeshDataTool from the current mesh
-	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays)
-	mdt.create_from_surface( arr_mesh, 0 )
-	
-	# Get vertex coordinates of raycasted trangled-face using MeshDataTool magic
-	var xy:Array[Vector3] #World-space
-	var uv:Array[Vector2] #Texture-space
-	for i in range(3):
-		var idx:int = mdt.get_face_vertex( face_index, i )
-		xy.append( mdt.get_vertex(idx) )
-		uv.append( mdt.get_vertex_uv(idx) )
-	
-	# Find the cursor point coordinates of the texture-space using the triangle points
-	var relative:Vector3 = Geometry3D.get_triangle_barycentric_coords(mouse_local_position, xy[0], xy[1], xy[2])
-	var cursor_texture:Vector2 = relative.x*uv[0] + relative.y*uv[1] + relative.z*uv[2]
-	
-	# Find color from that coordinate
-	var size:Vector2 = texture.get_size()-Vector2.ONE
-	var img:Image = texture.get_image() #this might lag a bit, a lot maybe hehe
-	if img.is_compressed():
-		img.decompress()
-	if img.has_mipmaps():
-		img.clear_mipmaps()
-	var px:Color = img.get_pixelv( cursor_texture*size )
-	GLDebug.spam("Scanned color: [color=%s]#%s[/color]" %[px.to_html(), px.to_html()])
-	return px
-	
 
 func rescan_position_y(scan_range:float):
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
@@ -230,24 +184,5 @@ func rescan_bottom_colors(scan_range:float):
 		scan_lower.y -= scan_range
 		
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result:
-			continue
-		
-		# Scan color. Color source is either a constant or a texture
-		var color:Color = _tool.fallback_color
-		if _tool.paint_with_sencondary_color:
-			color = _tool.secondary_color
-		
-		else:
-			var collider:CollisionObject3D = result.collider
-			var instance:MeshInstance3D = SceneManager.scan_mesh( collider, _tool.parent_of_physics_body, _tool.children_of_physics_body, _tool.relative_path_from_physics_body )
-			var material:Material = SceneManager.scan_material( instance, _tool.active_material_indexes )
-			var color_source:Variant = SceneManager.scan_color_source( material, _tool.paths_in_standar_materials, _tool.paths_in_shader_materials )
-			
-			if color_source is Color:
-				color = color_source
-			elif color_source is Texture2D:
-				color = _scan_color( result, color_source, instance.mesh )
-		
-		_configs.bottom_colors[i] = color
+		_configs.bottom_colors[i] = Scanner.get_cached_color( result, _tool )
 	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")

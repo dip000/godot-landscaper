@@ -21,7 +21,7 @@ func select_action(action_icon:AtlasIcon.Icon):
 
 
 func scale_by(value:float):
-	scale = Vector3.ONE * clamp(scale.x+value, 0.01, 100)
+	scale = Vector3.ONE * clamp(scale.x+value, 0.1, 100)
 
 func set_scale_ratio(value:float):
 	scale = Vector3.ONE * clamp(value, 0.1, 100)

@@ -2,127 +2,139 @@
 extends Resource
 class_name OptimizationQuadGrass
 
-static var chunkified:bool
-
-
-static func chunkify():
-	if not Landscaper.running():
-		return
-	
-	var tool:QuadGrassTool = Landscaper.tool
-	var ground_mesh:Node = tool.ground_mesh
-	if not ground_mesh:
-		GLDebug.error("Gruond mesh is null")
-		return
-	
-	if tool.chunk_size < 4:
-		GLDebug.error("Cannot chunkify below 4 meters!")
-		return
-	
-	for instance in ground_mesh.get_children():
-		if instance is MultiMeshInstance3D:
-			instance.hide()
-			_apply_to_instance( ground_mesh, instance )
-	
-	chunkified = true
-	GLDebug.state("Chunkified MultiMeshInstance3D")
-
-
-static func reset_chunks():
-	if not Landscaper.running():
-		return
-	
-	var tool:QuadGrassTool = Landscaper.tool
-	var ground_mesh:Node = tool.ground_mesh
-	if not ground_mesh:
-		GLDebug.error("Gruond mesh is null")
-		return
-	
-	# Show original instances
-	for node in ground_mesh.get_children():
-		if node is MultiMeshInstance3D:
-			node.show()
-	
-	# Delete chunkified instances
-	for grass_type in ground_mesh.get_children():
-		if grass_type is MultiMeshInstance3D:
-			continue
-		if grass_type.name.contains("Chunk"):
-			grass_type.queue_free()
-	
-	chunkified = false
-	GLDebug.state("Chunks Reseted")
-
-
-static func update_visiblity():
-	if not Landscaper.running():
-		return
-	
-	var tool:QuadGrassTool = Landscaper.tool
-	var ground_mesh:Node = tool.ground_mesh
-	if not ground_mesh:
-		GLDebug.error("Gruond mesh is null")
-		return
-	
-	# Original instances
-	for node in ground_mesh.get_children():
-		if node is MultiMeshInstance3D:
-			node.multimesh.visible_instance_count = node.multimesh.instance_count*tool.visible_instances
-			node.visibility_range_end = tool.custom_lod_meters
-			node.visibility_range_end_margin = 2.0
-	
-	# Chunkified instances
-	for row in ground_mesh.get_children():
-		for col in row.get_children():
-			for variant in col.get_children():
-				if variant is MultiMeshInstance3D:
-					variant.multimesh.visible_instance_count = variant.multimesh.instance_count*tool.visible_instances
-					variant.visibility_range_end = tool.custom_lod_meters
-					variant.visibility_range_end_margin = 2.0
-
-	GLDebug.state("Visibility Updated")
-
-
-static func reset_visible():
-	if not Landscaper.running():
-		return
-	
-	var tool:QuadGrassTool = Landscaper.tool
-	var ground_mesh:Node = tool.ground_mesh
-	if not ground_mesh:
-		GLDebug.error("Gruond mesh is null")
-		return
-	
-	# Original instances
-	for node in ground_mesh.get_children():
-		if node is MultiMeshInstance3D:
-			node.multimesh.visible_instance_count = -1
-			node.visibility_range_end = 0
-			node.visibility_range_end_margin = 0
-	
-	# Chunkified instances
-	for row in ground_mesh.get_children():
-		for col in row.get_children():
-			for variant in col.get_children():
-				if variant is MultiMeshInstance3D:
-					variant.multimesh.visible_instance_count = -1
-					variant.visibility_range_end = 0
-					variant.visibility_range_end_margin = 0
-
-	GLDebug.state("Visibility Reseted")
-
-
-
-
 const META_MIN_INDEX:int = 0
 const META_MAX_INDEX:int = 1
 const META_COUNT:int = 2
 
+static var _tool:QuadGrassTool
+static var _chunks_parent:Node
+static var _ground_mesh:MeshInstance3D
+
+
+static func _check_refs() -> bool:
+	if not Landscaper.running():
+		return false
+	
+	_tool = Landscaper.tool
+	if not _tool:
+		return false
+	
+	_ground_mesh = _tool.ground_mesh
+	if not _ground_mesh:
+		GLDebug.error("Gruond mesh is null")
+		return false
+	
+	return true
+	
+
+static func _for_each_base_mmi(callback:Callable):
+	for instance in _ground_mesh.get_children():
+		if instance is MultiMeshInstance3D:
+			callback.call( instance )
+
+
+static func _for_each_chunk_mmi(callback:Callable):
+	var chunks_parent:Node = _ground_mesh.get_node_or_null( _tool.chunk_parent_name )
+	
+	if not chunks_parent:
+		return
+	
+	for chunk in chunks_parent.get_children():
+		for instance in chunk.get_children():
+			if instance is MultiMeshInstance3D:
+				callback.call( instance )
+
+
+static func is_chunkified() -> bool:
+	if not _check_refs():
+		return false
+	
+	var chunks_parent:Node = _tool.ground_mesh.get_node_or_null( _tool.chunk_parent_name )
+	if not chunks_parent:
+		return false
+	
+	return (chunks_parent.get_child_count() > 0)
+
+
+static func chunkify():
+	if not _check_refs():
+		return
+	
+	if _tool.chunk_size < 4:
+		GLDebug.error("Cannot chunkify below 4 meters!")
+		return
+	
+	# Find or create chunks' parent
+	SceneManager.find_or_create_node( Node3D, _tool.ground_mesh, _tool.chunk_parent_name )
+	
+	_for_each_base_mmi(
+		func(instance):
+			# According to very trustfull sources (ChatGPT), hiding visuals will stop shaders and rendering loads
+			instance.hide()
+			_chunkify_variant( instance )
+	)
+	
+	GLDebug.state("Chunkified MultiMeshInstance3D")
+
+
+static func reset_chunks():
+	if not _check_refs():
+		return
+	
+	# Show original instances.
+	_for_each_base_mmi( func(instance):
+		instance.show()
+	)
+	
+	# Delete chunkified instances
+	var chunks_parent:Node = _ground_mesh.get_node_or_null( _tool.chunk_parent_name )
+	if chunks_parent:
+		chunks_parent.queue_free()
+	
+	GLDebug.state("Chunks Reseted")
+
+
+static func update_visiblity():
+	if not _check_refs():
+		return
+	
+	_for_each_base_mmi( func(instance):
+		instance.multimesh.visible_instance_count = instance.multimesh.instance_count*_tool.visible_instances
+		instance.visibility_range_end = _tool.custom_lod_meters
+		instance.visibility_range_end_margin = 2.0
+	)
+	_for_each_chunk_mmi(func(instance):
+		instance.multimesh.visible_instance_count = instance.multimesh.instance_count*_tool.visible_instances
+		instance.visibility_range_end = _tool.custom_lod_meters
+		instance.visibility_range_end_margin = 2.0
+	)
+	
+	GLDebug.state("Visibility Updated")
+
+
+static func reset_visible():
+	if not _check_refs():
+		return
+	
+	_for_each_base_mmi( func(instance):
+		instance.multimesh.visible_instance_count = -1
+		instance.visibility_range_end = 0
+		instance.visibility_range_end_margin = 0
+	)
+	_for_each_chunk_mmi(func(instance):
+		instance.multimesh.visible_instance_count = -1
+		instance.visibility_range_end = 0
+		instance.visibility_range_end_margin = 0
+	)
+	
+	GLDebug.state("Visibility Reseted")
+
+
 ## Welp, this function took a toll on me ngl
-static func _apply_to_instance(root_parent:Node3D, original_mmi:MultiMeshInstance3D):
-	var tool:QuadGrassTool = Landscaper.tool
+static func _chunkify_variant(original_mmi:MultiMeshInstance3D):
 	var original_mm:MultiMesh = original_mmi.multimesh
-	var chunk_size:int = tool.chunk_size
+	var chunk_size:int = _tool.chunk_size
+	var root_parent:Node = _tool.ground_mesh.get_node( _tool.chunk_parent_name )
 	
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size
@@ -133,6 +145,7 @@ static func _apply_to_instance(root_parent:Node3D, original_mmi:MultiMeshInstanc
 	var upper_chunk:Vector2i = (Vector2(upper_bound.x, upper_bound.z) / float(chunk_size)).floor()
 	var total_chunks:Vector2i = upper_chunk - lower_chunk + Vector2i.ONE
 	
+	GLDebug.internal("------------------------------")
 	GLDebug.internal("LowerBound: %s, UpperBound: %s" %[lower_bound, upper_bound])
 	GLDebug.internal("LowerChunk: %s, UpperChunk: %s" %[lower_chunk, upper_chunk])
 	GLDebug.internal("TotalChunks: %s" %total_chunks)
@@ -173,7 +186,6 @@ static func _apply_to_instance(root_parent:Node3D, original_mmi:MultiMeshInstanc
 		raw.append( original_index )
 		
 	
-	
 	# Rebuilds MultiMeshInstance3D knowing the chunked indexes
 	for row_index in chunked_index_map.size():
 		var row:Array = chunked_index_map[row_index]
@@ -181,13 +193,13 @@ static func _apply_to_instance(root_parent:Node3D, original_mmi:MultiMeshInstanc
 		for col_index in row.size():
 			# Separate Raw with indexes
 			var raw:Array = row[col_index]
-			var original_indexes:Array = raw.slice(META_COUNT)
+			var original_indexes:Array = raw.slice( META_COUNT )
 			
 			if original_indexes.size() <= 0:
 				continue
 			
 			# Return to global (possible) negative chunks
-			var global_chunk:Vector2i = Vector2i(row_index, col_index) + lower_chunk
+			var global_chunk:Vector2i = Vector2i( row_index, col_index ) + lower_chunk
 			
 			# Find center of the chunk instances (not to confuse with center of chunk)
 			var global_min:Vector3 = raw[META_MIN_INDEX]

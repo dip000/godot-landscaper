@@ -139,7 +139,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 func _edit(object:Object):
 	tool = object
-	
+
 
 func _handles(object:Object):
 	return object is LandscaperTool

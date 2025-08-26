@@ -31,12 +31,12 @@ void vertex(){
 	VERTEX += (vec4(sway, 1.0) * MODEL_MATRIX).xyz;
 	// Vertex to world space (from center of texture). See [NOTES 1]
 	vec2 world_space = world_position + (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz / world_size;
-	
+
 	// Coloring the mesh vertices will look exactly the same as coloring the pixels but more performant (asuming there are enough subdivisions along z-axis)
 	vec3 recolor_top = texture(grass_color, world_space).rgb;
 	vec3 recolor_root = texture(terrain_color, world_space).rgb;
 	float mask = texture(gradient_mask, UV).r;
-	
+
 	// Mask the top of the grass with one color, mask the root with another, and add them
 	COLOR.rgb = recolor_top * mask;
 	COLOR.rgb += recolor_root * (1.0-mask);

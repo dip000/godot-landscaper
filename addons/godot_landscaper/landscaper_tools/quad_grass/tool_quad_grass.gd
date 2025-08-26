@@ -14,7 +14,6 @@ const INSTANCES_CAP:int = 4
 # Category Name > Tab Name > Tab Property Name > Tab Property Value
 var CURRENT_TAB:String
 var TABS_CONFIG:Dictionary[String,Dictionary] = {
-	"Actions":{
 		"Spawn":{
 			"info": "Left click to spawn, right click to erase",
 			"icon": AtlasIcon.Icon.GRASS_SCATTER,
@@ -27,7 +26,6 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 			"method": paint_select,
 			"hide_properties": ["spawn_ratio", "erase_ratio", "ground_mesh"],
 		}
-	}
 }
 
 
@@ -35,7 +33,7 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 ## How many grass instances coincides to hit over the surface per frame
 @export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
 ## How many grass instances attempt to erase per frame
-@export_range(0.1, 1.0, 0.1) var erase_ratio:float = 0.7
+@export_range(0.1, 1.0, 0.1) var erase_ratio:float = 1.0
 ## The parent for the generated MultiMeshInstance3D grass. Grass be anchored to this node's position
 @export var ground_mesh:MeshInstance3D
 
@@ -51,7 +49,7 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 		return 0.0
 
 ## Grass color with left button mouse
-@export var primary_color:Color = Color.PALE_GREEN
+@export var primary_color:Color = Color.PALE_GOLDENROD
 ## Grass color with right button mouse
 @export var secondary_color:Color = Color.PALE_VIOLET_RED
 
@@ -160,6 +158,7 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 @export_category("Optimization Tools")
 @export_group("Chunkify Grass")
 @export var chunk_size:int = 32
+@export var chunk_parent_name:String = "Chunks"
 @export_tool_button("     Chunkify     ", "Grid") var chunkify:Callable = OptimizationQuadGrass.chunkify
 @export_tool_button("        Reset        ", "Object") var reset_chunks:Callable = OptimizationQuadGrass.reset_chunks
 
@@ -191,6 +190,7 @@ func rescan_position_y():
 	if not project:
 		return
 	
+	Scanner.clear_cache()
 	_create_undo_redo("rescan_position_y")
 	for config in project.grass_configs:
 		if config and config.enable:
@@ -206,6 +206,7 @@ func rescan_colors():
 	if not project:
 		return
 	
+	Scanner.clear_cache()
 	_create_undo_redo("rescan_colors")
 	for config in project.grass_configs:
 		if config and config.enable:
@@ -221,7 +222,7 @@ func rescan_colors():
 func spawn_select():
 	if not project:
 		return
-		
+	
 	Landscaper.scene.raycaster.set_collision_mask( scan_layer )
 	Landscaper.scene.brush.select_action( AtlasIcon.Icon.GRASS_SCATTER )
 	for config in project.grass_configs:
@@ -245,7 +246,7 @@ func action_start(hit_info:Dictionary):
 	if not _validate_action():
 		return
 	
-	if OptimizationQuadGrass.chunkified:
+	if OptimizationQuadGrass.is_chunkified():
 		OptimizationQuadGrass.reset_chunks()
 		GLDebug.warning("Chunks were reseted to be modified")
 	
@@ -262,7 +263,6 @@ func action_primary(hit_info:Dictionary):
 	if not project:
 		return
 	
-	GLDebug.spam("Painting with primary at: %s" %hit_info.position)
 	for config in project.grass_configs:
 		if config and config.enable:
 			config.current_action.primary( hit_info )
@@ -273,7 +273,6 @@ func action_secondary(hit_info:Dictionary):
 	if not project:
 		return
 	
-	GLDebug.spam("Painting with secondary at: %s" %hit_info.position)
 	for config in project.grass_configs:
 		if config and config.enable:
 			config.current_action.secondary( hit_info )
@@ -293,7 +292,7 @@ func action_end():
 
 func _validate_action() -> bool:
 	if not ground_mesh:
-		ground_mesh = SceneManager.scan_mesh_from_hit_info(parent_of_physics_body, children_of_physics_body, relative_path_from_physics_body)
+		ground_mesh = Scanner.scan_mesh_from_hit_info(parent_of_physics_body, children_of_physics_body, relative_path_from_physics_body)
 		if not ground_mesh:
 			GLDebug.error("No ground mesh was selected")
 			return false
@@ -359,6 +358,7 @@ func _create_project_template():
 
 
 func _create_undo_redo(action:String):
+	Landscaper.undo_redo.commit_action(false) # closes previous commits in case of errors
 	Landscaper.undo_redo.create_action("godot_landscaper/quad_grass_tool/"+action.to_snake_case(), UndoRedo.MERGE_DISABLE)
 
 func _commit_undo_redo():

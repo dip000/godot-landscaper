@@ -14,7 +14,7 @@ vec3 vertex_sway(vec3 vertex, vec2 uv, mat4 model_matrix, float time, vec3 node_
 	vec3 sway = wave * sway_strength; // even oscilations
 	vec3 wind = (wave*0.5 + 0.5) * wind_direction * local_wind_modifier; // 50% offseted oscilations in wind_direction
 	vec3 result = (sway + wind) * root;
-	
+
 	// Converts sway from global to local transforms
 	vertex += (vec4(result, 0.0) * model_matrix).xyz;
 	return vertex;
