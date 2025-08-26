@@ -4,9 +4,12 @@ extends Node
 class_name AssetsManager
 
 const ASSETS_ROOT:String = "res://addons/godot_landscaper/_editor_only_assets/"
+const INSPECTOR_TOOLS_ROOT:String = "res://addons/godot_landscaper/inspector_tools/"
 
 # Resources
-const ICONS:Texture2D = preload("res://addons/godot_landscaper/inspector_tools/icons.svg")
+const ICONS:Texture2D = preload(INSPECTOR_TOOLS_ROOT+"icons.svg")
+const PAINT_TAB:InspectorTab = preload(INSPECTOR_TOOLS_ROOT+"tabs/paint.tres")
+const SPAWN_TAB:InspectorTab = preload(INSPECTOR_TOOLS_ROOT+"tabs/spawn.tres")
 
 # Scenes
 const INFO_BOX:PackedScene = preload("res://addons/godot_landscaper/inspector_tools/info_box.tscn")

@@ -11,42 +11,40 @@ class_name LandscaperTool
 ## Diameter of the 3D brush sphere. Keybind is [Shift] + [MouseWheel]
 @export_range(0.1, 20, 0.1) var brush_size:float = 2.0:
 	set(v):
-		brush_size = v
-		if Landscaper.is_enabled:
+		if Landscaper.running():
 			Landscaper.scene.brush.set_scale_ratio(v)
 	get:
-		if Landscaper.is_enabled:
+		if Landscaper.running():
 			return Landscaper.scene.brush.get_scale_ratio()
-		return brush_size
+		return 0.1
 
 ## Color of the 3D brush shpere
 @export var brush_color:Color = Color(1.0, 0.4, 0.4, 0.3):
 	set(v):
-		brush_color = v
 		if Landscaper.running():
 			Landscaper.scene.brush.set_color(v)
 	get:
 		if Landscaper.running():
 			return Landscaper.scene.brush.get_color()
-		return brush_color
+		return Color.MAGENTA
 
 
-func selected():
+func selected() -> void:
 	pass
 
-func deselected():
+func deselected() -> void:
 	pass
 
-func action_start(hit_info:Dictionary):
+func action_start(hit_info:Dictionary) -> void:
 	pass
 
-func action_primary(hit_info:Dictionary):
+func action_primary(hit_info:Dictionary) -> void:
 	pass
 
-func action_secondary(hit_info:Dictionary):
+func action_secondary(hit_info:Dictionary) -> void:
 	pass
 
-func action_end():
+func action_end() -> void:
 	pass
 
 func scale_by(value:float):

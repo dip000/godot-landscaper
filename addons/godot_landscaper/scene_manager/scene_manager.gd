@@ -22,6 +22,12 @@ static func create_node(type, parent:Node, child_name:String) -> Node:
 	return child
 
 
+# Called from InspectorTools
+func select_action(tool:LandscaperTool, tab:InspectorTab):
+	brush.set_icon( tab.icon )
+	raycaster.set_collision_mask( tool.scan_layer )
+
+# Called from main plugin Landscaper
 func over_surface(pos:Vector3):
 	brush.over_surface( pos )
 

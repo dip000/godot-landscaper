@@ -24,10 +24,6 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 
 
 func start(hit_info:Dictionary):
-	# Start with clean scanner cache in case resources were updated
-	Scanner.clear_cache()
-	#Scanner.create_shapes( hit_info, _tool )
-	
 	# Rename resource
 	if _configs.resource_name.is_empty():
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
@@ -42,6 +38,9 @@ func start(hit_info:Dictionary):
 		GLDebug.warning("Stored project data values are different from multimesh values. Multimesh values will be replaced")
 		rebuild()
 	
+	# Start with new references in case they were updated
+	Scanner.clear_cache()
+
 
 # Spawn
 func primary(hit_info:Dictionary):
@@ -58,35 +57,32 @@ func secondary(hit_info:Dictionary):
 
 # Re-Spawns the grass from the transforms given
 func rebuild():
-	_mmi.multimesh.instance_count = _configs.transforms.size()
-	for i in range(_mmi.multimesh.instance_count):
-		_mmi.multimesh.set_instance_transform( i, _configs.transforms[i] )
-		_mmi.multimesh.set_instance_color( i, _configs.bottom_colors[i] )
-		_mmi.multimesh.set_instance_custom_data( i, _configs.top_colors[i] )
-
-
-# Clear cache in case references were updated
-func end():
-	Scanner.clear_cache()
-
+	var mm:MultiMesh = _mmi.multimesh
+	mm.instance_count = _configs.transforms.size()
+	for i in range(mm.instance_count):
+		mm.set_instance_transform( i, _configs.transforms[i] )
+		mm.set_instance_color( i, _configs.bottom_colors[i] )
+		mm.set_instance_custom_data( i, _configs.top_colors[i] )
+	
 
 # Gets every MultiMesh transform except the ones inside the brush
 func _get_remove_radial(hit_info:Dictionary):
 	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
 	var mouse_world_pos:Vector3 = hit_info.position
+	var mm:MultiMesh = _mmi.multimesh
 	_configs.transforms.clear()
 	_configs.bottom_colors.clear()
 	_configs.top_colors.clear()
 	
-	for i in _mmi.multimesh.instance_count:
-		var instance_transform:Transform3D = _mmi.multimesh.get_instance_transform(i)
+	for i in mm.instance_count:
+		var instance_transform:Transform3D = mm.get_instance_transform(i)
 		var instance_world_pos:Vector3 = _mmi.to_global( instance_transform.origin )
 		var dist_sqr:float = instance_world_pos.distance_squared_to( mouse_world_pos )
 		
 		if dist_sqr > brush_radius_sqr or _tool.erase_ratio < randf():
 			_configs.transforms.append( instance_transform )
-			_configs.bottom_colors.append(  _mmi.multimesh.get_instance_color(i) )
-			_configs.top_colors.append(  _mmi.multimesh.get_instance_custom_data(i) )
+			_configs.bottom_colors.append(  mm.get_instance_color(i) )
+			_configs.top_colors.append(  mm.get_instance_custom_data(i) )
 
 
 func _add_radial(hit_info:Dictionary):
@@ -175,6 +171,7 @@ func rescan_position_y(scan_range:float):
 
 func rescan_bottom_colors(scan_range:float):
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
+	Scanner.clear_cache()
 	
 	for i in _configs.transforms.size():
 		var original_transf:Transform3D = _configs.transforms[i]

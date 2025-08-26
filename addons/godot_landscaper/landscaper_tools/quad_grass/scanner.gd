@@ -66,7 +66,7 @@ static func create_shapes(hit_info:Dictionary, tool:QuadGrassTool):
 	var cache:Cache = Cache.new( hit_info, tool )
 	var instance:MeshInstance3D = cache.instance
 	cache.surface_collider = SceneManager.find_or_create_node( StaticBody3D, cache.collider.get_parent(), "GhostBody" )
-	cache.surface_collider.collision_layer = 1<<31
+	cache.surface_collider.collision_layer = tool.scan_layer_internal
 	
 	for surface in instance.get_surface_override_material_count():
 		var material:Material = instance.get_active_material( surface )
@@ -78,14 +78,7 @@ static func create_shapes(hit_info:Dictionary, tool:QuadGrassTool):
 		shape.shape = arary_mesh.create_trimesh_shape()
 		_cached_refs[cache.collider] = cache
 	
-	SceneRaycaster.set_collision_mask(1<<31)
-
-
-static func scan_mesh_from_hit_info(scan_parent:bool, scan_children:bool, ref_path:String) -> MeshInstance3D:
-	if SceneRaycaster.hit_info:
-		var collider:CollisionObject3D = SceneRaycaster.hit_info.collider
-		return scan_mesh( collider, scan_parent, scan_children, ref_path )
-	return null
+	SceneRaycaster.set_collision_mask( tool.scan_layer_internal )
 
 
 static func scan_mesh(collider:CollisionObject3D, scan_parent:bool, scan_children:bool, ref_path:String) -> MeshInstance3D:

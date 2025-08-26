@@ -6,35 +6,25 @@
 extends LandscaperTool
 class_name QuadGrassTool
 
-# Increase grass_n and set shaders capacity to this value as well
-# [TODO] make it dynamic, of course..
+#region Constants
+# Max amount of grass variants per material.
+# Based on MultiMeshInstance3D/instance_shader_parameters/variant_index
+# [TODO] Make it dynamic (including shader)
 const INSTANCES_CAP:int = 4
 
 # Managed by InspectorTools
-# Category Name > Tab Name > Tab Property Name > Tab Property Value
-var CURRENT_TAB:String
-var TABS_CONFIG:Dictionary[String,Dictionary] = {
-		"Spawn":{
-			"info": "Left click to spawn, right click to erase",
-			"icon": AtlasIcon.Icon.GRASS_SCATTER,
-			"method": spawn_select,
-			"hide_properties": ["primary_color", "secondary_color", "splash_height"],
-		},
-		"Paint":{
-			"info": "left cick to paint with primary color, right click for secondary",
-			"icon": AtlasIcon.Icon.COLOR,
-			"method": paint_select,
-			"hide_properties": ["spawn_ratio", "erase_ratio", "ground_mesh"],
-		}
-}
+var TABS_CONFIG:Array[InspectorTab] = [AssetsManager.SPAWN_TAB, AssetsManager.PAINT_TAB]
+var CURRENT_TAB:InspectorTab
+#endregion
 
 
+#region ExportActions
 @export_category("Actions")
 ## How many grass instances coincides to hit over the surface per frame
 @export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
 ## How many grass instances attempt to erase per frame
 @export_range(0.1, 1.0, 0.1) var erase_ratio:float = 1.0
-## The parent for the generated MultiMeshInstance3D grass. Grass be anchored to this node's position
+## The parent for the generated MultiMeshInstance3D grass. Grass will be anchored to this node's position
 @export var ground_mesh:MeshInstance3D
 
 
@@ -52,8 +42,10 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 @export var primary_color:Color = Color.PALE_GOLDENROD
 ## Grass color with right button mouse
 @export var secondary_color:Color = Color.PALE_VIOLET_RED
+#endregion
 
 
+#region ExportGroundColoring
 @export_group("Ground Coloring")
 @export var paint_with_sencondary_color:bool = false:
 	set(v): 
@@ -61,10 +53,10 @@ var TABS_CONFIG:Dictionary[String,Dictionary] = {
 		notify_property_list_changed()
 
 @export_subgroup("Scan Physics Bodies:")
-## The collision_layer to scan for any PhysicsBody3D 
+## The collision_layer to scan for any developer-made PhysicsBody3D 
 @export_flags_3d_physics var scan_layer:int = 0xFFFFFFFF
-## [NOT-IMPLEMENTED] Creates a temporal Trimesh collision to perfectly place the grass over the actual mesh surface
-@export var create_temporal_perfect_colliders:bool = false
+## The collision_layer for internal PhysicsBody3D. Set one that you're not using anywhere else
+@export_flags_3d_physics var scan_layer_internal:int = (1<<31)
 @export_subgroup("Scan Meshes:")
 ## Attempts to find the mesh of the scanned PhysicsBody3D in its parent
 @export var parent_of_physics_body:bool = true
@@ -92,10 +84,10 @@ func _validate_property(property:Dictionary):
 		]
 		if property.name in hide_properties:
 			property.usage = PROPERTY_USAGE_NONE
+#endregion
 
 
-
-
+#region ExportGroundColoring
 # Cleanly link them to the project, just so the array doesn't clutter the inspector
 # Capping them to four, for fear of saturating the GPU with texture variants
 @export_category("Grass Instances")
@@ -129,11 +121,13 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 	project.grass_configs.resize(INSTANCES_CAP)
 	project.grass_configs[index] = inst
 	project.notify_property_list_changed()
-	if inst and CURRENT_TAB: # Update the currently selected action
+	if inst: # Update the currently selected action
 		GLDebug.state("Loaded new instance: %s" %inst)
-		inst.current_action = inst.color_action if "Paint"==CURRENT_TAB else inst.spawn_action
+		inst.current_action = inst.color_action if CURRENT_TAB.name=="Paint" else inst.spawn_action
+#endregion
 
 
+#region ExportSaveLoad
 @export_category("Save Or Load Files")
 ## Where the spawned instances be hosted.
 ## Please save them in your file system.
@@ -146,15 +140,17 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 		# Update every QuadGrassConfigs.current_action to the currently selected tab
 		GLDebug.state("Loaded new project: '%s'" %project.resource_path)
 		_force_fill_dependencies()
-		TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
+		Callable(self, CURRENT_TAB.method).call()
 		
 		# Rebuild loaded project
-		for config in project.grass_configs:
-			if config:
-				config.current_action.unpack( self, project, config )
-				config.current_action.rebuild()
+		_for_each_config( func(config:QuadGrassConfigs):
+			config.current_action.unpack( self, project, config )
+			config.current_action.rebuild()
+		)
+#endregion
 
 
+#region Tools
 @export_category("Optimization Tools")
 @export_group("Chunkify Grass")
 @export var chunk_size:int = 32
@@ -177,7 +173,7 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 
 @export_group("Rescan Bottom Colors")
 @export_tool_button("Rescan Bottom Colors", "UndoRedo") var _rescan_colors:Callable = rescan_colors
-
+#endregion
 
 
 
@@ -186,63 +182,20 @@ func _exit_tree():
 		_clear_undo_redo()
 
 
-func rescan_position_y():
-	if not project:
-		return
-	
-	Scanner.clear_cache()
-	_create_undo_redo("rescan_position_y")
-	for config in project.grass_configs:
-		if config and config.enable:
-			_add_undo( config )
-			config.spawn_action.unpack( self, project, config )
-			config.spawn_action.rescan_position_y( rescan_range_y )
-			config.spawn_action.rebuild()
-			_add_redo( config )
-	_commit_undo_redo()
+# Selects the Spawn/Paint config resources
+func spawn_select() -> void:
+	_for_each_config( func(config:QuadGrassConfigs):
+		config.current_action = config.spawn_action
+	)
 
-
-func rescan_colors():
-	if not project:
-		return
-	
-	Scanner.clear_cache()
-	_create_undo_redo("rescan_colors")
-	for config in project.grass_configs:
-		if config and config.enable:
-			_add_undo( config )
-			config.spawn_action.unpack( self, project, config )
-			config.spawn_action.rescan_bottom_colors( rescan_range_y )
-			config.spawn_action.rebuild()
-			_add_redo( config )
-	_commit_undo_redo()
-
-
-# Selects the "Spawn" config resource
-func spawn_select():
-	if not project:
-		return
-	
-	Landscaper.scene.raycaster.set_collision_mask( scan_layer )
-	Landscaper.scene.brush.select_action( AtlasIcon.Icon.GRASS_SCATTER )
-	for config in project.grass_configs:
-		if config:
-			config.current_action = config.spawn_action
-
-
-# Selects the "Paint" config resource
-func paint_select():
-	if not project:
-		return
-	
-	Landscaper.scene.brush.select_action( AtlasIcon.Icon.COLOR )
-	for config in project.grass_configs:
-		if config:
-			config.current_action = config.color_action
+func paint_select() -> void:
+	_for_each_config( func(config:QuadGrassConfigs):
+		config.current_action = config.color_action
+	)
 
 
 # Called on stroke start from the main Landscaper class on 3D world inputs
-func action_start(hit_info:Dictionary):
+func action_start(hit_info:Dictionary) -> void:
 	if not _validate_action():
 		return
 	
@@ -250,52 +203,71 @@ func action_start(hit_info:Dictionary):
 		OptimizationQuadGrass.reset_chunks()
 		GLDebug.warning("Chunks were reseted to be modified")
 	
-	_create_undo_redo( CURRENT_TAB )
-	for config in project.grass_configs:
-		if config and config.enable:
-			config.current_action.unpack( self, project, config )
-			config.current_action.start( hit_info )
-			_add_undo( config )
+	_create_undo_redo( CURRENT_TAB.name )
+	_for_each_enabled_config( func(config:QuadGrassConfigs):
+		config.current_action.unpack( self, project, config )
+		config.current_action.start( hit_info )
+		_add_undo( config )
+	)
 
 
-# Called every frame after the start of the stroke. LMB action
-func action_primary(hit_info:Dictionary):
-	if not project:
-		return
-	
-	for config in project.grass_configs:
-		if config and config.enable:
-			config.current_action.primary( hit_info )
+# Called every frame after the start of the stroke. LMB/RMB actions
+func action_primary(hit_info:Dictionary) -> void:
+	_for_each_enabled_config( func(config:QuadGrassConfigs):
+		config.current_action.primary( hit_info )
+	)
 
-
-# Called every frame after the start of the stroke.  RMB action
-func action_secondary(hit_info:Dictionary):
-	if not project:
-		return
-	
-	for config in project.grass_configs:
-		if config and config.enable:
-			config.current_action.secondary( hit_info )
+func action_secondary(hit_info:Dictionary) -> void:
+	_for_each_enabled_config( func(config:QuadGrassConfigs):
+		config.current_action.secondary( hit_info )
+	)
 
 
 # Called on stroke end
-func action_end():
-	if not project:
-		return
-	
-	for config in project.grass_configs:
-		if config and config.enable:
-			config.current_action.end()
-			_add_redo(config)
+func action_end() -> void:
+	_for_each_enabled_config( func(config:QuadGrassConfigs):
+		config.current_action.end()
+		_add_redo(config)
+	)
 	_commit_undo_redo()
 
 
+# Rescan Tools
+func rescan_position_y() -> void:
+	_create_undo_redo("rescan_position_y")
+	_for_each_enabled_config( func(config:QuadGrassConfigs):
+		_add_undo( config )
+		config.spawn_action.unpack( self, project, config )
+		config.spawn_action.rescan_position_y( rescan_range_y )
+		config.spawn_action.rebuild()
+		_add_redo( config )
+	)
+	_commit_undo_redo()
+	
+
+func rescan_colors() -> void:
+	_create_undo_redo("rescan_colors")
+	_for_each_enabled_config( func(config:QuadGrassConfigs):
+		config.spawn_action.unpack( self, project, config )
+		config.spawn_action.rescan_bottom_colors( rescan_range_y )
+		config.spawn_action.rebuild()
+	)
+	_commit_undo_redo()
+
+
+#region Utilities
 func _validate_action() -> bool:
 	if not ground_mesh:
-		ground_mesh = Scanner.scan_mesh_from_hit_info(parent_of_physics_body, children_of_physics_body, relative_path_from_physics_body)
+		ground_mesh = Scanner.scan_mesh(
+			SceneRaycaster.hit_info.collider if SceneRaycaster.hit_info else null,
+			parent_of_physics_body,
+			children_of_physics_body,
+			relative_path_from_physics_body
+		)
 		if not ground_mesh:
 			GLDebug.error("No ground mesh was selected")
 			return false
+		GLDebug.warning("Auto selected '%s' as Ground Mesh. This reference will anchor every grass position" %ground_mesh.name)
 	
 	if project:
 		_force_fill_dependencies()
@@ -304,7 +276,7 @@ func _validate_action() -> bool:
 	return true
 
 
-func _force_fill_dependencies():
+func _force_fill_dependencies() -> void:
 	var resources_added:String
 	if not project.shader:
 		project.shader = AssetsManager.grass.color_baked.duplicate()
@@ -334,49 +306,65 @@ func _force_fill_dependencies():
 
 
 # Resource.duplicate() cannot fully duplicate a stored template so..
-func _create_project_template():
+func _create_project_template() -> void:
 	project = QuadGrassSave.new()
 	_force_fill_dependencies()
-	
 	project.grass_configs.resize(INSTANCES_CAP)
-	project.grass_configs[0] = QuadGrassConfigs.new()
-	project.grass_configs[0].grass_texture = AssetsManager.grass.tall.duplicate()
-	project.grass_configs[0].resource_name = "GrassTall"
-	project.grass_configs[0].rotation_randomize.y = TAU
-	project.grass_configs[1] = QuadGrassConfigs.new()
-	project.grass_configs[1].grass_texture = AssetsManager.grass.sunflower.duplicate()
-	project.grass_configs[1].resource_name = "Sunflower"
-	project.grass_configs[1].rotation_randomize.y = TAU
-	project.grass_configs[1].detail_enable = true
-	project.grass_configs[1].detail_color = Color(0.184, 0.31, 0.31)
-	project.notify_property_list_changed()
+	project.grass_configs[0] = _create_grass("GrassTall", AssetsManager.grass.tall, false)
+	project.grass_configs[1] = _create_grass("Sunflower", AssetsManager.grass.sunflower, true)
 	
 	# Update every QuadGrassConfigs.current_action to the currently selected tab
 	if CURRENT_TAB:
-		TABS_CONFIG["Actions"][CURRENT_TAB].method.call()
+		Callable(self, CURRENT_TAB.method).call()
 	GLDebug.state("Created a new template project. Please save your resources manually")
 
+func _create_grass(grass_name:String, texture:Texture2D, details:bool) -> QuadGrassConfigs:
+	var conf:QuadGrassConfigs = QuadGrassConfigs.new()
+	conf.grass_texture = texture.duplicate()
+	conf.resource_name = grass_name
+	conf.detail_enable = details
+	conf.rotation_randomize.y = TAU
+	conf.size_randomize.y = 0.1
+	return 
 
-func _create_undo_redo(action:String):
+
+
+func _for_each_enabled_config(callback:Callable):
+	if not project: return
+	for config in project.grass_configs:
+		if config and config.enable:
+			callback.call( config )
+
+
+func _for_each_config(callback:Callable):
+	if not project: return
+	for config in project.grass_configs:
+		if config:
+			callback.call( config )
+
+
+func _create_undo_redo(action:String) -> void:
 	Landscaper.undo_redo.commit_action(false) # closes previous commits in case of errors
 	Landscaper.undo_redo.create_action("godot_landscaper/quad_grass_tool/"+action.to_snake_case(), UndoRedo.MERGE_DISABLE)
 
-func _commit_undo_redo():
+func _commit_undo_redo() -> void:
 	Landscaper.undo_redo.commit_action(false)
 
-func _clear_undo_redo():
+func _clear_undo_redo() -> void:
+	Landscaper.undo_redo.commit_action(false)
 	Landscaper.undo_redo.clear_history( EditorUndoRedoManager.GLOBAL_HISTORY )
 
-func _add_redo(config:QuadGrassConfigs):
+func _add_redo(config:QuadGrassConfigs) -> void:
 	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
 	undo_redo.add_do_property( config, "top_colors", config.top_colors.duplicate() )
 	undo_redo.add_do_property( config, "bottom_colors", config.bottom_colors.duplicate() )
 	undo_redo.add_do_property( config, "transforms", config.transforms.duplicate() )
 	undo_redo.add_do_method( config.current_action, "rebuild" )
 
-func _add_undo(config:QuadGrassConfigs):
+func _add_undo(config:QuadGrassConfigs) -> void:
 	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
 	undo_redo.add_undo_property( config, "top_colors", config.top_colors.duplicate() )
 	undo_redo.add_undo_property( config, "bottom_colors", config.bottom_colors.duplicate() )
 	undo_redo.add_undo_property( config, "transforms", config.transforms.duplicate() )
 	undo_redo.add_undo_method( config.current_action, "rebuild" )
+#endregion

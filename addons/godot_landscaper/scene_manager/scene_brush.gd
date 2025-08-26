@@ -16,8 +16,8 @@ func not_over_surface():
 	hide()
 
 
-func select_action(action_icon:AtlasIcon.Icon):
-	_icon.texture.icon = action_icon
+func set_icon(icon:AtlasIcon.Icon):
+	_icon.texture.icon = icon
 
 
 func scale_by(value:float):
