@@ -19,7 +19,7 @@ class_name LandscaperTool
 		return 0.1
 
 ## Color of the 3D brush shpere
-@export var brush_color:Color = Color(1.0, 0.4, 0.4, 0.3):
+@export var brush_color:Color = Color(1.0, 0.0, 1.0, 0.3):
 	set(v):
 		if Landscaper.running():
 			Landscaper.scene.brush.set_color(v)

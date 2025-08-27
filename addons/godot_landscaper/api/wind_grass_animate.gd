@@ -100,7 +100,7 @@ static func animate_wind_breeze(material:ShaderMaterial, to_strength:Vector3, to
 	_reset_wind_animation( material )
 	var anim:PropertyTweener = _set_wind_animation( material, to_strength, to_frequency, start_time_transition )
 	anim.set_delay( hold_time )
-	return _set_wind_animation( material, to_strength, to_frequency, start_time_transition )
+	return _set_wind_animation( material, Vector3.ZERO, Vector3.ZERO, end_time_transition )
 
 
 

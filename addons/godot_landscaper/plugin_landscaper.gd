@@ -108,17 +108,20 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
 			tool.action_start( hit_info )
+			scene.action_start( tool, hit_info )
 		tool.action_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
 			tool.action_start( hit_info )
+			scene.action_start( tool, hit_info )
 		tool.action_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
 		tool.action_end()
+		scene.action_end( tool )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
@@ -137,8 +140,14 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
-func _edit(object:Object):
-	tool = object
+func _edit(new_tool:Object):
+	if new_tool:
+		new_tool.selected()
+		scene.selected( new_tool )
+	else:
+		tool.deselected()
+		scene.deselected( new_tool )
+	tool = new_tool
 
 
 func _handles(object:Object):

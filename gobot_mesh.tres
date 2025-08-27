@@ -8,8 +8,10 @@ shading_mode = 0
 albedo_texture = ExtResource("1_2usow")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sp1eu"]
+shading_mode = 0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hamcw"]
+shading_mode = 0
 
 [resource]
 resource_name = "gobot_GobotMesh"

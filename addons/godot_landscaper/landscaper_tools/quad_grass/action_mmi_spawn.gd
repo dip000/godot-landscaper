@@ -8,6 +8,15 @@ var _index:int
 
 func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
+	
+	# What variant instance is this config
+	_index = _project.grass_configs.find(_configs)
+	
+	# Rename resource
+	if _configs.resource_name.is_empty():
+		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
+		_configs.resource_name = "Grass %s" %_index
+	
 	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.ground_mesh, _configs.resource_name)
 	
 	if not _mmi.multimesh:
@@ -16,19 +25,12 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 		_mmi.multimesh.use_custom_data = true
 		_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	
-	# What variant instance is this config
-	_index = _project.grass_configs.find(_configs)
 	# Force assign refs just in case
 	_mmi.multimesh.mesh = _project.mesh
 	_mmi.set_instance_shader_parameter("variant_index", _index)
 
 
 func start(hit_info:Dictionary):
-	# Rename resource
-	if _configs.resource_name.is_empty():
-		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
-		_configs.resource_name = "Grass %s" %_index
-	
 	# More safety checks
 	if is_zero_approx( _configs.size_base.x*_configs.size_base.y*_configs.size_base.z ):
 		GLDebug.warning("Grass volume is zero. Used Vector3.ONE")
@@ -63,7 +65,11 @@ func rebuild():
 		mm.set_instance_transform( i, _configs.transforms[i] )
 		mm.set_instance_color( i, _configs.bottom_colors[i] )
 		mm.set_instance_custom_data( i, _configs.top_colors[i] )
-	
+
+
+func end():
+	Scanner.clear_cache()
+
 
 # Gets every MultiMesh transform except the ones inside the brush
 func _get_remove_radial(hit_info:Dictionary):
@@ -102,9 +108,8 @@ func _add_radial(hit_info:Dictionary):
 		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
 		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
 		
-		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
+		# to_local() takes rotation and scale in consideration
 		var local_pos:Vector3 = _mmi.to_local( result.position )
-		result.position = local_pos + _tool.ground_mesh.global_position
 		
 		# Save base and random values
 		var local_transf := Transform3D( basis, local_pos )
@@ -117,12 +122,14 @@ func _add_radial(hit_info:Dictionary):
 		_configs.transforms.append( local_transf )
 		
 		# Save colors
-		var color:Color = Scanner.get_cached_color( hit_info, _tool )
+		var color:Color = Scanner.get_cached_color( result, _tool )
 		_configs.bottom_colors.append( color )
 		_configs.top_colors.append( Color.WHITE )
 
 
 func rescan_position_y(scan_range:float):
+	GLDebug.state("Rescaning is disabled right now sorry :P")
+	return
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
 	var original_size:int = _configs.transforms.size()
 	var original_top_colors:Array[Color] = _configs.top_colors
@@ -142,11 +149,17 @@ func rescan_position_y(scan_range:float):
 		if not result:
 			continue
 		
+		# WORK DAMNIT!!
+		Scanner.cache_colliders( result, _tool )
+		
 		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
 		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
 		
-		# Save base and random values
+		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
 		var local_pos:Vector3 = _mmi.to_local( result.position )
+		result.position = local_pos + _tool.ground_mesh.global_position
+		
+		# Save base and random values
 		var local_transf := Transform3D( basis, local_pos )
 		var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
 		
@@ -170,16 +183,20 @@ func rescan_position_y(scan_range:float):
 
 
 func rescan_bottom_colors(scan_range:float):
+	GLDebug.state("Recoloring is disabled right now sorry :P")
+	return
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	Scanner.clear_cache()
 	
 	for i in _configs.transforms.size():
 		var original_transf:Transform3D = _configs.transforms[i]
-		var scan_upper:Vector3 = _mmi.to_global( original_transf.origin )
-		var scan_lower:Vector3 = scan_upper
+		var global_position:Vector3 = _mmi.to_global( original_transf.origin )
+		var scan_upper:Vector3 = global_position
+		var scan_lower:Vector3 = global_position
 		scan_upper.y += scan_range
 		scan_lower.y -= scan_range
 		
+		# WORK DAMNIT!!
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
 		_configs.bottom_colors[i] = Scanner.get_cached_color( result, _tool )
+	
 	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")

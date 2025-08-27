@@ -31,12 +31,12 @@ var CURRENT_TAB:InspectorTab
 ## The transition between the terrain color and the top hand-painted color.
 @export_range(0.0, 2.0, 0.01) var splash_height:float = 1.0:
 	set(v):
-		if project and project.material:
-			project.material.set_shader_parameter("splash_height", v)
+		if _project and _project.material:
+			_project.material.set_shader_parameter("splash_height", v)
 	get:
-		if project and project.material:
-			return project.material.get_shader_parameter("splash_height")
-		return 0.0
+		if _project and _project.material:
+			return _project.material.get_shader_parameter("splash_height")
+		return 1.0
 
 ## Grass color with left button mouse
 @export var primary_color:Color = Color.PALE_GOLDENROD
@@ -64,9 +64,7 @@ var CURRENT_TAB:InspectorTab
 @export var children_of_physics_body:bool = true
 ## NodePath from the scanned PhysicsBody3D to its mesh
 @export var relative_path_from_physics_body:StringName = ""
-@export_subgroup("Scan Materials:")
-## Index order to find a material in a scanned mesh. See MeshInstance3D.get_active_material(index)
-@export var active_material_indexes:Array[int] = [0, 1]
+
 @export_subgroup("Scan Color Sources:")
 ## Property path from the scanned standar material to the source of color, can be a texture, vec3, or a vec4 
 @export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
@@ -88,7 +86,7 @@ func _validate_property(property:Dictionary):
 
 
 #region ExportGroundColoring
-# Cleanly link them to the project, just so the array doesn't clutter the inspector
+# Cleanly link them to the _project, just so the array doesn't clutter the inspector
 # Capping them to four, for fear of saturating the GPU with texture variants
 @export_category("Grass Instances")
 ## Use 'Resource Name' as the MultimeshInstance3D scene node. Defaults to 'Grass 0'
@@ -110,17 +108,17 @@ func _validate_property(property:Dictionary):
 
 func _get_instance(index:int) -> QuadGrassConfigs:
 	if not is_inside_tree(): return
-	if not project: return
-	if index >= project.grass_configs.size(): return null
-	return project.grass_configs[index]
+	if not _project: return
+	if index >= _project.grass_configs.size(): return null
+	return _project.grass_configs[index]
 
 func _set_instance(index:int, inst:QuadGrassConfigs):
 	if not is_inside_tree(): return
-	if not project:
+	if not _project:
 		_create_project_template()
-	project.grass_configs.resize(INSTANCES_CAP)
-	project.grass_configs[index] = inst
-	project.notify_property_list_changed()
+	_project.grass_configs.resize(INSTANCES_CAP)
+	_project.grass_configs[index] = inst
+	_project.notify_property_list_changed()
 	if inst: # Update the currently selected action
 		GLDebug.state("Loaded new instance: %s" %inst)
 		inst.current_action = inst.color_action if CURRENT_TAB.name=="Paint" else inst.spawn_action
@@ -131,20 +129,22 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 @export_category("Save Or Load Files")
 ## Where the spawned instances be hosted.
 ## Please save them in your file system.
+var _project:QuadGrassSave
 @export var project:QuadGrassSave:
+	get: return _project
 	set(v):
-		project = v
+		_project = v
 		if not is_inside_tree(): return
-		if not (project and CURRENT_TAB): return
+		if not (_project and CURRENT_TAB): return
 		
 		# Update every QuadGrassConfigs.current_action to the currently selected tab
-		GLDebug.state("Loaded new project: '%s'" %project.resource_path)
+		GLDebug.state("Loaded new project: '%s'" %(_project.resource_path if _project.resource_path else "(empty)"))
 		_force_fill_dependencies()
 		Callable(self, CURRENT_TAB.method).call()
 		
 		# Rebuild loaded project
 		_for_each_config( func(config:QuadGrassConfigs):
-			config.current_action.unpack( self, project, config )
+			config.current_action.unpack( self, _project, config )
 			config.current_action.rebuild()
 		)
 #endregion
@@ -179,6 +179,7 @@ func _set_instance(index:int, inst:QuadGrassConfigs):
 
 func _exit_tree():
 	if Landscaper.running():
+		Scanner.clear_cache()
 		_clear_undo_redo()
 
 
@@ -203,9 +204,10 @@ func action_start(hit_info:Dictionary) -> void:
 		OptimizationQuadGrass.reset_chunks()
 		GLDebug.warning("Chunks were reseted to be modified")
 	
+	GLDebug.internal("Action started")
 	_create_undo_redo( CURRENT_TAB.name )
 	_for_each_enabled_config( func(config:QuadGrassConfigs):
-		config.current_action.unpack( self, project, config )
+		config.current_action.unpack( self, _project, config )
 		config.current_action.start( hit_info )
 		_add_undo( config )
 	)
@@ -225,6 +227,7 @@ func action_secondary(hit_info:Dictionary) -> void:
 
 # Called on stroke end
 func action_end() -> void:
+	GLDebug.internal("Action ended")
 	_for_each_enabled_config( func(config:QuadGrassConfigs):
 		config.current_action.end()
 		_add_redo(config)
@@ -237,7 +240,7 @@ func rescan_position_y() -> void:
 	_create_undo_redo("rescan_position_y")
 	_for_each_enabled_config( func(config:QuadGrassConfigs):
 		_add_undo( config )
-		config.spawn_action.unpack( self, project, config )
+		config.spawn_action.unpack( self, _project, config )
 		config.spawn_action.rescan_position_y( rescan_range_y )
 		config.spawn_action.rebuild()
 		_add_redo( config )
@@ -248,7 +251,7 @@ func rescan_position_y() -> void:
 func rescan_colors() -> void:
 	_create_undo_redo("rescan_colors")
 	_for_each_enabled_config( func(config:QuadGrassConfigs):
-		config.spawn_action.unpack( self, project, config )
+		config.spawn_action.unpack( self, _project, config )
 		config.spawn_action.rescan_bottom_colors( rescan_range_y )
 		config.spawn_action.rebuild()
 	)
@@ -269,7 +272,7 @@ func _validate_action() -> bool:
 			return false
 		GLDebug.warning("Auto selected '%s' as Ground Mesh. This reference will anchor every grass position" %ground_mesh.name)
 	
-	if project:
+	if _project:
 		_force_fill_dependencies()
 	else:
 		_create_project_template()
@@ -278,67 +281,67 @@ func _validate_action() -> bool:
 
 func _force_fill_dependencies() -> void:
 	var resources_added:String
-	if not project.shader:
-		project.shader = AssetsManager.grass.color_baked.duplicate()
+	if not _project.shader:
+		_project.shader = AssetsManager.grass.color_baked.duplicate()
 		resources_added += "Grass Shader, "
 	
-	if not project.material:
-		project.material = AssetsManager.grass.material.duplicate()
+	if not _project.material:
+		_project.material = AssetsManager.grass.material.duplicate()
 		resources_added += "Grass Material, "
-	project.material.shader = project.shader
+	_project.material.shader = _project.shader
 	
-	if not project.mesh:
-		project.mesh = QuadMesh.new()
-		project.mesh.orientation = PlaneMesh.FACE_Y
-		project.mesh.center_offset.z = -0.48 #pivot is on its bottom (minus a small margin)
+	if not _project.mesh:
+		_project.mesh = QuadMesh.new()
+		_project.mesh.orientation = PlaneMesh.FACE_Y
+		_project.mesh.center_offset.z = -0.48 #pivot is on its bottom (minus a small margin)
 		resources_added += "Grass Mesh, "
-	project.mesh.material = project.material
+	_project.mesh.material = _project.material
 	
 	if resources_added:
 		GLDebug.warning("The following resources were added: %s" %resources_added)
 	
 	# Force fill shader parameters
-	if not project.material["shader_parameter/grass_textures"]:
-		project.material["shader_parameter/grass_textures"] = []
-	project.material["shader_parameter/grass_textures"].resize(INSTANCES_CAP)
-	project.material.set_shader_parameter("splash_height", splash_height)
-	project.material.notify_property_list_changed()
+	if not _project.material["shader_parameter/grass_textures"]:
+		_project.material["shader_parameter/grass_textures"] = []
+	_project.material["shader_parameter/grass_textures"].resize(INSTANCES_CAP)
+	_project.material.set_shader_parameter("splash_height", splash_height)
+	_project.material.notify_property_list_changed()
 
 
 # Resource.duplicate() cannot fully duplicate a stored template so..
 func _create_project_template() -> void:
-	project = QuadGrassSave.new()
+	_project = QuadGrassSave.new()
 	_force_fill_dependencies()
-	project.grass_configs.resize(INSTANCES_CAP)
-	project.grass_configs[0] = _create_grass("GrassTall", AssetsManager.grass.tall, false)
-	project.grass_configs[1] = _create_grass("Sunflower", AssetsManager.grass.sunflower, true)
+	_project.grass_configs.resize(INSTANCES_CAP)
+	project.grass_configs[0] = QuadGrassConfigs.new()
+	project.grass_configs[1] = QuadGrassConfigs.new()
+	_fill_grass(project.grass_configs[0], "GrassTall", AssetsManager.grass.tall, false)
+	_fill_grass(project.grass_configs[1], "Sunflower", AssetsManager.grass.sunflower, true)
 	
 	# Update every QuadGrassConfigs.current_action to the currently selected tab
 	if CURRENT_TAB:
 		Callable(self, CURRENT_TAB.method).call()
-	GLDebug.state("Created a new template project. Please save your resources manually")
+	GLDebug.state("Created a new template _project. Please save your resources manually")
 
-func _create_grass(grass_name:String, texture:Texture2D, details:bool) -> QuadGrassConfigs:
-	var conf:QuadGrassConfigs = QuadGrassConfigs.new()
+func _fill_grass(conf:QuadGrassConfigs, grass_name:String, texture:Texture2D, details:bool) -> void:
 	conf.grass_texture = texture.duplicate()
 	conf.resource_name = grass_name
 	conf.detail_enable = details
-	conf.rotation_randomize.y = TAU
-	conf.size_randomize.y = 0.1
-	return 
+	conf.rotation_randomize.y = PI
+	conf.size_randomize.z = 0.3
 
 
 
 func _for_each_enabled_config(callback:Callable):
-	if not project: return
-	for config in project.grass_configs:
+	if not _project: return
+	for config in _project.grass_configs:
 		if config and config.enable:
 			callback.call( config )
 
 
 func _for_each_config(callback:Callable):
-	if not project: return
-	for config in project.grass_configs:
+	if not _project: return
+	for config in _project.grass_configs:
 		if config:
 			callback.call( config )
 

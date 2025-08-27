@@ -38,7 +38,7 @@ func _get_shader_param(param:String, default:Variant) -> Variant:
 	return default
 
 func _set_shader_param(param:String, value:Variant):
-	if Landscaper.running() and Landscaper.tool and Landscaper.tool.project:
+	if Landscaper.running() and Landscaper.tool:
 		var project:QuadGrassSave = Landscaper.tool.project
 		if project and project.material and project.material.shader:
 			var index:int = project.grass_configs.find( self )

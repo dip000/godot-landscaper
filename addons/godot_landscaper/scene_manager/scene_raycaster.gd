@@ -6,6 +6,7 @@ class_name SceneRaycaster
 
 static var hit_info:Dictionary
 var _ray_surfaces := PhysicsRayQueryParameters3D.new()
+var _ray_points := PhysicsRayQueryParameters3D.new()
 var _direct_space_state:PhysicsDirectSpaceState3D:
 	get:
 		if _direct_space_state:
@@ -33,7 +34,7 @@ func set_collision_mask(collision_mask:int):
 
 func point_to_point(from:Vector3, to:Vector3) -> Dictionary:
 	if _direct_space_state:
-		_ray_surfaces.from = from
-		_ray_surfaces.to = to
-		return _direct_space_state.intersect_ray( _ray_surfaces )
+		_ray_points.from = from
+		_ray_points.to = to
+		return _direct_space_state.intersect_ray( _ray_points )
 	return {}

@@ -3,21 +3,21 @@ extends Action
 class_name ActionMMIColor
 
 var _mmi:MultiMeshInstance3D
+var _index:int
 
 
 func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
+	# What variant instance is this config
+	_index = _project.grass_configs.find(_configs)
 	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.ground_mesh, _configs.resource_name)
 
 
 func start(hit_info:Dictionary):
-	# What variant instance is this config
-	var index:int = _project.grass_configs.find(_configs)
-	
 	# Rename resource
 	if _configs.resource_name.is_empty():
-		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[index,index])
-		_configs.resource_name = "Grass %s" %index
+		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
+		_configs.resource_name = "Grass %s" %_index
 	
 	# Set up null multimesh
 	if not _mmi.multimesh:
@@ -28,7 +28,7 @@ func start(hit_info:Dictionary):
 	
 	# Force assign refs just in case
 	_mmi.multimesh.mesh = _project.mesh
-	_mmi.set_instance_shader_parameter("variant_index", index)
+	_mmi.set_instance_shader_parameter("variant_index", _index)
 	
 	# Rebuild with the stored data
 	if _configs.transforms.size() != _mmi.multimesh.instance_count:

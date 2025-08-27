@@ -24,7 +24,7 @@ shading_mode = 0
 diffuse_mode = 3
 specular_mode = 1
 disable_ambient_light = true
-albedo_color = Color(1, 0.4, 0.4, 0.3)
+albedo_color = Color(1, 0, 1, 0.3)
 grow_amount = 0.674
 
 [sub_resource type="SphereMesh" id="SphereMesh_2sa2k"]
