@@ -3,9 +3,9 @@ extends Node
 class_name LandscaperTool
 
 ## The amount of messages printed from Godot Landscaper
-@export var debug_level:GLDebug.Level=GLDebug.Level.STATES:
-	set(v): GLDebug.debug_level = v
-	get: return GLDebug.debug_level
+@export var level:GLDebug.Level=GLDebug.Level.STATES:
+	set(v): GLDebug.level = v
+	get: return GLDebug.level
 
 
 ## Diameter of the 3D brush sphere. Keybind is [Shift] + [MouseWheel]
@@ -28,6 +28,13 @@ class_name LandscaperTool
 			return Landscaper.scene.brush.get_color()
 		return Color.MAGENTA
 
+
+# This avoids clicktrhough
+var is_ready:bool
+func _ready():
+	await get_tree().process_frame
+	await get_tree().process_frame
+	is_ready = true
 
 func selected() -> void:
 	pass

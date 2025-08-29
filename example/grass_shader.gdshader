@@ -62,7 +62,7 @@ void vertex(){
 void fragment() {
 	// Apply vertex color to albedo
 	ALBEDO = COLOR.rgb;
-
+	
 	// Web exports cannot index samplers with variables
 	vec4 detail_mask;
 	switch(variant_index){
@@ -79,11 +79,11 @@ void fragment() {
 			detail_mask = texture(grass_textures[3], UV);
 			break;
 	}
-
+	
 	if(details_enable[variant_index]){
 		ALBEDO = mix(detail_colors[variant_index], ALBEDO, detail_mask.r);
 	}
-
+	
 	// Enables alpha scissor
 	ALPHA = detail_mask.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.8;

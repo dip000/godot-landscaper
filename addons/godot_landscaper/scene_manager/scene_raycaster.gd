@@ -24,7 +24,8 @@ func update_hit_info(cam:Camera3D, mouse_pos:Vector2) -> Dictionary:
 	if _direct_space_state:
 		_ray_surfaces.from = cam.project_ray_origin( mouse_pos )
 		_ray_surfaces.to = _ray_surfaces.from + (cam.project_ray_normal( mouse_pos ) * cam.far)
-		return _direct_space_state.intersect_ray( _ray_surfaces )
+		hit_info = _direct_space_state.intersect_ray( _ray_surfaces )
+		return hit_info
 	return {}
 
 

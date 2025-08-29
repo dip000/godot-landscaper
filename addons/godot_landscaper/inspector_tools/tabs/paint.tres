@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="InspectorTab" load_steps=2 format=3 uid="uid://dxnv0eqtcihcg"]
+[gd_resource type="Resource" script_class="InspectorTab" load_steps=2 format=3 uid="uid://cqvyrjauf54o7"]
 
-[ext_resource type="Script" uid="uid://chkcx6ufmmqk6" path="res://addons/godot_landscaper/inspector_tools/inspector_tab.gd" id="1_2rqad"]
+[ext_resource type="Script" uid="uid://chkcx6ufmmqk6" path="res://addons/godot_landscaper/inspector_tools/inspector_tab.gd" id="1_fl6k4"]
 
 [resource]
-script = ExtResource("1_2rqad")
+script = ExtResource("1_fl6k4")
 name = "Paint"
 category = "Actions"
 current = false
 info = "left cick to paint with primary color, right click for secondary"
 icon = 10
 method = "paint_select"
-hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "ground_mesh")
+hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "anchor_mesh")
 metadata/_custom_type_script = "uid://chkcx6ufmmqk6"

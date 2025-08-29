@@ -19,4 +19,3 @@ vec3 vertex_sway(vec3 vertex, vec2 uv, mat4 model_matrix, float time, vec3 node_
 	vertex += (vec4(result, 0.0) * model_matrix).xyz;
 	return vertex;
 }
-

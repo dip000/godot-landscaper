@@ -3,76 +3,59 @@
 extends Object
 class_name Scanner
 
+const GROUP_CACHE_COLLIDERS:String = "landscaper_cache_colliders"
+const GROUP_COLLIDERS:String = "landscaper_colliders"
+
 # Otherwise found and calculated many times per frame
 static var _cached_refs:Dictionary[CollisionObject3D, Cache]
 class Cache:
+	var new:bool = true
 	var collider:CollisionObject3D
 	var instance:MeshInstance3D
-	var ghost_collider:CollisionObject3D
+	var cached_collider:CollisionObject3D
 	var mdts:Array[MeshDataTool]
 	var sources:Array[Variant]
 
 
-static func get_cached_color(hit_info:Dictionary, tool:QuadGrassTool) -> Color:
-	if not tool:
-		GLDebug.error("Tool was not assigned to Scanner")
-		return Color.MAGENTA
-	
-	if not hit_info:
-		return tool.fallback_color
-	
-	if tool.paint_with_sencondary_color:
-		return tool.secondary_color
+## Takes collider and scans its mesh, materials, etc..
+## Caches the scan results so they can be reused multiple times per frame
+static func cache_scan(collider:CollisionObject3D, tool:QuadGrassTool, cache_color_sources:bool) -> Cache:
+	if not collider or not tool or tool.paint_with_sencondary_color:
+		return null
 	
 	# Run scans if hit_info happened in a new surface
-	var cache:Cache = _cached_refs.get(hit_info.collider)
-	if not cache:
-		cache = Cache.new()
-		cache.collider = hit_info.collider
-		cache.instance = Scanner.scan_mesh( cache.collider, tool.parent_of_physics_body, tool.children_of_physics_body, tool.relative_path_from_physics_body )
-		var materials:Array[Material] = Scanner.scan_materials( cache.instance )
-		cache.sources = Scanner.scan_color_sources( materials, tool.paths_in_standar_materials, tool.paths_in_shader_materials )
-		cache.ghost_collider = Scanner.create_ghost_collider( cache.collider, tool.scan_layer_internal )
-		cache.mdts = Scanner.create_shapes( hit_info, tool, cache.collider, cache.ghost_collider, cache.instance )
-		_cached_refs[cache.ghost_collider] = cache
-		GLDebug.internal("New scanned surface '%s'" %cache.instance.name)
+	var cache:Cache = _cached_refs.get(collider)
+	if cache:
+		cache.new = false
+		return cache
 	
-	# Scan texture's pixel or solid color
-	return Scanner.scan_color( hit_info, cache, tool.fallback_color )
+	cache = Cache.new()
+	cache.collider = collider
+	cache.instance = Scanner.scan_mesh( cache.collider, tool.parent_of_physics_body, tool.children_of_physics_body, tool.relative_path_from_physics_body )
+	cache.cached_collider = Scanner.create_cached_collider( cache.collider, tool.scan_layer_internal )
+	cache.mdts = Scanner.create_shapes( cache.collider, cache.cached_collider, cache.instance )
+	
+	if cache_color_sources:
+		cache.sources = Scanner.scan_color_sources( cache.instance, tool.paths_in_standar_materials, tool.paths_in_shader_materials )
+	
+	# The first detected collider is user-made, the following hits will always be cached_collider
+	_cached_refs[cache.cached_collider] = cache
+	GLDebug.internal("New scanned surface '%s'" %cache.instance.name)
+	return cache
 
 
-static func cache_colliders(hit_info:Dictionary, tool:QuadGrassTool) -> bool:
-	if not tool:
-		GLDebug.error("Tool was not assigned to Scanner")
-		return false
-	
-	if not hit_info:
-		return false
-	
-	if tool.paint_with_sencondary_color:
-		return false
-	
-	var cache:Cache = _cached_refs.get(hit_info.collider)
-	if not cache:
-		cache = Cache.new()
-		cache.collider = hit_info.collider
-		cache.instance = Scanner.scan_mesh( cache.collider, tool.parent_of_physics_body, tool.children_of_physics_body, tool.relative_path_from_physics_body )
-		cache.ghost_collider = Scanner.create_ghost_collider( cache.collider, tool.scan_layer_internal )
-		cache.mdts = Scanner.create_shapes( hit_info, tool, cache.collider, cache.ghost_collider, cache.instance )
-		_cached_refs[cache.ghost_collider] = cache
-		GLDebug.internal("New scanned surface '%s'" %cache.instance.name)
-		return true
-	return false
-
-# Clears stored references in case they were updated from the user's inspector
+# Hard resets scanned references
 static func clear_cache():
-	for cache in _cached_refs.values():
-		if is_instance_valid(cache.collider):
-			cache.collider.process_mode = Node.PROCESS_MODE_INHERIT
-		if is_instance_valid(cache.ghost_collider):
-			cache.ghost_collider.queue_free()
-	print("Scanner.clear_cache")
-	GLDebug.internal("Cache cleared of '%s' references" %_cached_refs.size())
+	var cached_colliders:Array[Node] = Landscaper.scene.get_tree().get_nodes_in_group( GROUP_CACHE_COLLIDERS )
+	var colliders:Array[Node] = Landscaper.scene.get_tree().get_nodes_in_group( GROUP_COLLIDERS )
+	for cached_collider in cached_colliders:
+		if is_instance_valid(cached_collider): cached_collider.queue_free()
+	for collider in colliders:
+		if is_instance_valid(collider):
+			collider.process_mode = Node.PROCESS_MODE_INHERIT
+			collider.remove_from_group( GROUP_COLLIDERS )
+		
+	GLDebug.internal("Cache cleared of '%s' references" %colliders.size())
 	_cached_refs.clear()
 
 
@@ -80,87 +63,45 @@ static func scan_mesh(collider:CollisionObject3D, scan_parent:bool, scan_childre
 	if not collider:
 		return null
 	
+	if ref_path.is_relative_path():
+		var node:Node = collider.get_node_or_null( ref_path )
+		if node is MeshInstance3D and node.mesh:
+			return node
+	
 	if scan_parent:
-		var parent:Node = collider.get_parent()
-		return parent if parent is MeshInstance3D else null
+		var node:Node = collider.get_parent()
+		if node is MeshInstance3D and node.mesh:
+			return node
 	
 	if scan_children:
 		for node in collider.get_children():
-			if node is MeshInstance3D:
+			if node is MeshInstance3D and node.mesh:
 				return node
-	
-	if ref_path.is_relative_path():
-		var node:Node = collider.get_node_or_null( ref_path )
-		return node if node is MeshInstance3D else null
 	
 	return null
 
 
-static func scan_materials(instance:MeshInstance3D) -> Array[Material]:
-	var materials:Array[Material]
-	
-	if not instance:
-		return materials
-	
-	for index in instance.get_surface_override_material_count():
-		var material:Material = instance.get_active_material(index)
-		materials.append( material )
-	return materials
-
-
-static func scan_color_sources(materials:Array[Material], standar_material_paths:Array[String], shader_material_paths:Array[String]) -> Variant:
+static func scan_color_sources(instance:MeshInstance3D, standar_material_paths:Array[String], shader_material_paths:Array[String]) -> Variant:
 	var color_sources:Array[Variant]
-	color_sources.resize(materials.size())
+	var material_count:int = instance.get_surface_override_material_count()
+	color_sources.resize( material_count )
 	
-	for i in materials.size():
-		var material:Material = materials[i]
+	for i in material_count:
+		var material:Material = instance.get_active_material(i)
+		
 		if material is StandardMaterial3D:
 			for path in standar_material_paths:
 				var source:Variant = material.get(path)
 				color_sources[i] = format_source( source )
-				if color_sources[i]:
-					break
+				if color_sources[i]: break
 		
 		elif material is ShaderMaterial:
 			for path in standar_material_paths:
-				var source:Variant = material.get("shader_parameters/"+path)
+				var source:Variant = material.get( "shader_parameters".path_join(path) )
 				color_sources[i] = format_source( source )
-				if color_sources[i]:
-					break
+				if color_sources[i]: break
 	
 	return color_sources
-
-
-static func create_ghost_collider(collider:CollisionObject3D, layer:int) -> CollisionObject3D:
-	var ghost_collider:CollisionObject3D = SceneManager.find_or_create_node( StaticBody3D, collider.get_parent(), "GhostBody" )
-	ghost_collider.collision_layer = layer
-	ghost_collider.collision_mask = 0
-	# Clear original collider's collision layer so it doesn't get detected anymore. Resets on clear_cache()
-	collider.process_mode = Node.PROCESS_MODE_DISABLED
-	return ghost_collider
-
-
-static func create_shapes(hit_info:Dictionary, tool:QuadGrassTool, collider:CollisionObject3D, ghost_collider:CollisionObject3D, instance:MeshInstance3D) -> Array[MeshDataTool]:
-	var surfaces:int = instance.get_surface_override_material_count()
-	var mdts:Array[MeshDataTool]
-	mdts.resize( surfaces )
-	
-	for surface in surfaces:
-		var material:Material = instance.get_active_material( surface )
-		var arrays:Array = instance.mesh.surface_get_arrays( surface )
-		var arary_mesh:ArrayMesh = ArrayMesh.new()
-		arary_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, arrays )
-		
-		var shape:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, ghost_collider, "GhostShape%s"%surface )
-		shape.shape = arary_mesh.create_trimesh_shape()
-		
-		# I *think* MeshDataTool cannot store more than one surface, and MeshDataTool.get_vertex() is absolutely needed.
-		# So just store the first surface but inside a surface-indexed array
-		var mdt:MeshDataTool = MeshDataTool.new()
-		mdt.create_from_surface(arary_mesh, 0)
-		mdts[surface] = mdt
-	
-	return mdts
 
 
 static func format_source(source:Variant) -> Variant:
@@ -187,18 +128,60 @@ static func format_source(source:Variant) -> Variant:
 	return img
 
 
-static func scan_color(hit_info:Dictionary, cache:Cache, default:Color,) -> Color:
+static func create_cached_collider(collider:CollisionObject3D, layer:int) -> CollisionObject3D:
+	var cached_collider:CollisionObject3D = SceneManager.find_or_create_node( StaticBody3D, collider.get_parent(), "CachedBody", not GLDebug.debugging_internal() )
+	cached_collider.collision_layer = layer
+	cached_collider.collision_mask = 0
+	cached_collider.process_mode = Node.PROCESS_MODE_INHERIT
+	# Hard save them to hard clear them in case of errors
+	cached_collider.add_to_group(GROUP_CACHE_COLLIDERS, true)
+	collider.add_to_group(GROUP_COLLIDERS, true)
+	# Clear original collider's collision layer so it doesn't get detected anymore. Resets on rest/clear_cache()
+	collider.process_mode = Node.PROCESS_MODE_DISABLED
+	return cached_collider
+
+
+static func create_shapes(collider:CollisionObject3D, cached_collider:CollisionObject3D, instance:MeshInstance3D) -> Array[MeshDataTool]:
+	var surfaces:int = instance.get_surface_override_material_count()
+	var mdts:Array[MeshDataTool]
+	mdts.resize( surfaces )
+	
+	for surface in surfaces:
+		var material:Material = instance.get_active_material( surface )
+		var arrays:Array = instance.mesh.surface_get_arrays( surface )
+		var arary_mesh:ArrayMesh = ArrayMesh.new()
+		arary_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, arrays )
+		
+		var shape:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, cached_collider, "CachedShape%s"%surface, not GLDebug.debugging_internal() )
+		shape.shape = arary_mesh.create_trimesh_shape()
+		
+		# I *think* MeshDataTool cannot store more than one surface, and MeshDataTool.get_vertex() is absolutely needed.
+		# So just store on the first surface but inside a surface-indexed array
+		var mdt:MeshDataTool = MeshDataTool.new()
+		mdt.create_from_surface(arary_mesh, 0)
+		mdts[surface] = mdt
+	
+	return mdts
+
+
+## Takes hit_info from PhysicsDirectSpaceState3D.intersect_ray(), and cached data from cache_scan()
+## to find the color of cache.sources (either a solid color or the texture's barycentric coordinates)
+static func scan_color(hit_info:Dictionary, cache:Cache, default:Color=Color.MAGENTA) -> Color:
+	if not hit_info or not cache:
+		return default
+	
 	var face_index:int = hit_info.face_index
 	var surface:int = hit_info.shape
-	
 	var mdt:MeshDataTool = cache.mdts[surface]
 	var source:Variant = cache.sources[surface]
 	
 	if source is Color:
+		GLDebug.spam("Scanned color: [color=%s]#%s[/color] on surface: %s" %[source.to_html(), source.to_html(), surface])
 		return source
 	elif source is Image:
 		pass
 	else:
+		GLDebug.error("Source '%s' is invalid" %source)
 		return default
 	
 	# Considers scale, rotation, and translation of hit surface

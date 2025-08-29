@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e30e2a3hk2ih"
-path.s3tc="res://.godot/imported/tall.svg-2c59b2f2102ef4622e8060de804fbbfa.s3tc.ctex"
+uid="uid://dr3fxgus560u8"
+path.s3tc="res://.godot/imported/grass_sunflower.svg-70fb0eabc6e616d9a04b0bd1b8ca21d4.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/godot_landscaper/_editor_only_assets/grass/tall.svg"
-dest_files=["res://.godot/imported/tall.svg-2c59b2f2102ef4622e8060de804fbbfa.s3tc.ctex"]
+source_file="res://example/grass_sunflower.svg"
+dest_files=["res://.godot/imported/grass_sunflower.svg-70fb0eabc6e616d9a04b0bd1b8ca21d4.s3tc.ctex"]
 
 [params]
 

@@ -17,7 +17,7 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
 		_configs.resource_name = "Grass %s" %_index
 	
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.ground_mesh, _configs.resource_name)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_mesh, _configs.resource_name)
 	
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
@@ -105,6 +105,14 @@ func _add_radial(hit_info:Dictionary):
 		if not result:
 			continue
 		
+		# Await a frame if the cache was newly created so it can be re-scanned
+		var cache:Scanner.Cache = Scanner.cache_scan( result.collider, _tool, true )
+		if cache.new:
+			await Engine.get_main_loop().process_frame
+			result = raycaster.point_to_point(sphere_global_point1, sphere_global_point2)
+			if not result:
+				continue
+		
 		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
 		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
 		
@@ -121,15 +129,13 @@ func _add_radial(hit_info:Dictionary):
 		local_transf = local_transf.rotated_local( Vector3.UP, randf()*_configs.rotation_randomize.z )
 		_configs.transforms.append( local_transf )
 		
-		# Save colors
-		var color:Color = Scanner.get_cached_color( result, _tool )
+		# Save colors. Use cached colors for performance
+		var color:Color = Scanner.scan_color( result, cache, _tool.fallback_color )
 		_configs.bottom_colors.append( color )
 		_configs.top_colors.append( Color.WHITE )
 
 
 func rescan_position_y(scan_range:float):
-	GLDebug.state("Rescaning is disabled right now sorry :P")
-	return
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
 	var original_size:int = _configs.transforms.size()
 	var original_top_colors:Array[Color] = _configs.top_colors
@@ -146,18 +152,20 @@ func rescan_position_y(scan_range:float):
 		scan_lower.y -= scan_range
 		
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result:
-			continue
+		if not result: continue
 		
-		# WORK DAMNIT!!
-		Scanner.cache_colliders( result, _tool )
+		var cache:Scanner.Cache = Scanner.cache_scan( result.collider, _tool, false )
+		if cache.new:
+			await Engine.get_main_loop().process_frame
+			result = raycaster.point_to_point(scan_upper, scan_lower)
+			if not result: continue
 		
 		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
 		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
 		
 		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
 		var local_pos:Vector3 = _mmi.to_local( result.position )
-		result.position = local_pos + _tool.ground_mesh.global_position
+		result.position = local_pos + _tool.anchor_mesh.global_position
 		
 		# Save base and random values
 		var local_transf := Transform3D( basis, local_pos )
@@ -175,7 +183,7 @@ func rescan_position_y(scan_range:float):
 	_configs.top_colors = new_top_colors
 	_configs.bottom_colors = new_bottom_colors
 	_configs.transforms = new_transforms
-	_mmi.global_position = _tool.ground_mesh.global_position
+	_mmi.global_position = _tool.anchor_mesh.global_position
 	
 	var new_size:int = _configs.transforms.size()
 	var lost_instances:int = original_size - new_size
@@ -183,8 +191,6 @@ func rescan_position_y(scan_range:float):
 
 
 func rescan_bottom_colors(scan_range:float):
-	GLDebug.state("Recoloring is disabled right now sorry :P")
-	return
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
 	
 	for i in _configs.transforms.size():
@@ -195,8 +201,17 @@ func rescan_bottom_colors(scan_range:float):
 		scan_upper.y += scan_range
 		scan_lower.y -= scan_range
 		
-		# WORK DAMNIT!!
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		_configs.bottom_colors[i] = Scanner.get_cached_color( result, _tool )
+		if not result: continue
+		
+		var cache:Scanner.Cache = Scanner.cache_scan( result.collider, _tool, true )
+		if cache.new:
+			# PhysicsBody3D nodes require a frame after being created to detect raycasts
+			await Engine.get_main_loop().process_frame
+			result = raycaster.point_to_point(scan_upper, scan_lower)
+			if not result: continue
+		
+		var color:Color = Scanner.scan_color( result, cache, _tool.fallback_color )
+		_configs.bottom_colors[i] = color
 	
 	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")

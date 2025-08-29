@@ -6,32 +6,19 @@ class_name SceneManager
 @onready var brush:SceneBrush = $SceneBrush
 
 
-static func find_or_create_node(type, parent:Node, child_name:String):
+static func find_or_create_node(type, parent:Node, child_name:String, ghost:bool=false) -> Node:
 	if parent.has_node( child_name ):
 		GLDebug.internal("Found node %s" %child_name)
 		return parent.get_node( child_name )
-	return create_node( type, parent, child_name )
+	return create_node( type, parent, child_name, ghost )
 
 
-static func find_or_create_ownerless(type, parent:Node, child_name:String):
-	if parent.has_node( child_name ):
-		GLDebug.internal("Found node %s" %child_name)
-		return parent.get_node( child_name )
-	return create_ownerless( type, parent, child_name )
-
-
-static func create_node(type, parent:Node, child_name:String) -> Node:
+static func create_node(type, parent:Node, child_name:String, ghost:bool) -> Node:
 	var child:Node = type.new()
 	parent.add_child( child )
 	child.name = child_name
-	child.owner = parent.owner
-	GLDebug.internal("Created node %s" %child_name)
-	return child
-
-static func create_ownerless(type, parent:Node, child_name:String) -> Node:
-	var child:Node = type.new()
-	parent.add_child( child )
-	child.name = child_name
+	if not ghost:
+		child.owner = parent.owner
 	GLDebug.internal("Created node %s" %child_name)
 	return child
 
