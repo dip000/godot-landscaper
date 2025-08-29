@@ -379,15 +379,14 @@ func _for_each_config(callback:Callable):
 
 
 func _create_undo_redo(action:String) -> void:
-	#Landscaper.undo_redo.commit_action(false) # closes previous commits in case of errors
+	Landscaper.undo_redo.commit_action(false) # closes previous commits in case of errors
 	Landscaper.undo_redo.create_action("godot_landscaper/quad_grass_tool/"+action.to_snake_case())
 
 func _commit_undo_redo() -> void:
 	Landscaper.undo_redo.commit_action(false)
 
 func _clear_undo_redo() -> void:
-	pass
-	#Landscaper.undo_redo.commit_action(false)
+	Landscaper.undo_redo.commit_action(false)
 	Landscaper.undo_redo.clear_history( EditorUndoRedoManager.GLOBAL_HISTORY )
 
 func _add_redo(config:QuadGrassConfigs) -> void:
