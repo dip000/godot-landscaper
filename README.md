@@ -1,7 +1,9 @@
 
-<p align="center">
-	<img src="https://github.com/user-attachments/assets/5d146bd7-3ef8-48fd-9244-a2cfacf804f8"/>
-</p>
+
+
+https://github.com/user-attachments/assets/38ccb876-4720-4675-85c7-c3eaa982daeb
+
+
 <br>
 
 **🌟 Update**: Added Auto-scan multiple color sources and rescanning tools<br/>
@@ -33,8 +35,9 @@ Follow the next steps:
 4. Drag over your terrain to start landscaping!
 
 # QuadGrassTool
-![demo](https://github.com/user-attachments/assets/f68840e9-5aa8-452a-ad65-9259c7cd97dd)
-
+<p align="center">
+	<img src="https://github.com/user-attachments/assets/5d146bd7-3ef8-48fd-9244-a2cfacf804f8"/>
+</p><br />
 Brush that spawns and paints grass over any terrain when you brush over it.<br />
 The biggest advantage is that its colors will be "baked" into the instances, and the bottom of the grass will automatically take the color of the terrain. No need for textures or aligning to the terrain.
 <br /><br />
@@ -70,3 +73,9 @@ I'd be glad to hear what you have to say about this addon. Contact me at [ab-cb@
 See ya!<br />
 
 *And for those who sent their feedback, thank you very much!*
+
+# Self Promotions Here
+[Chroma Alchemy, by DIP](https://dip000.itch.io/chromalchemy)
+<br>
+<a href='https://ko-fi.com/O4O61JATV3' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
