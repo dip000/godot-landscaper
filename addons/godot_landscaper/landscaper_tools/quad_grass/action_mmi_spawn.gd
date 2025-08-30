@@ -17,7 +17,7 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
 		_configs.resource_name = "Grass %s" %_index
 	
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_mesh, _configs.resource_name)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_node, _configs.resource_name)
 	
 	if not _mmi.multimesh:
 		_mmi.multimesh = MultiMesh.new()
@@ -130,9 +130,9 @@ func _add_radial(hit_info:Dictionary):
 		_configs.transforms.append( local_transf )
 		
 		# Save colors. Use cached colors for performance
-		var color:Color = Scanner.scan_color( result, cache, _tool.fallback_color )
+		var color:Color = Scanner.scan_color( result, cache )
 		_configs.bottom_colors.append( color )
-		_configs.top_colors.append( Color.WHITE )
+		_configs.top_colors.append( _tool.primary_color )
 
 
 func rescan_position_y(scan_range:float):
@@ -165,7 +165,7 @@ func rescan_position_y(scan_range:float):
 		
 		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
 		var local_pos:Vector3 = _mmi.to_local( result.position )
-		result.position = local_pos + _tool.anchor_mesh.global_position
+		result.position = local_pos + _tool.anchor_node.global_position
 		
 		# Save base and random values
 		var local_transf := Transform3D( basis, local_pos )
@@ -183,7 +183,7 @@ func rescan_position_y(scan_range:float):
 	_configs.top_colors = new_top_colors
 	_configs.bottom_colors = new_bottom_colors
 	_configs.transforms = new_transforms
-	_mmi.global_position = _tool.anchor_mesh.global_position
+	_mmi.global_position = _tool.anchor_node.global_position
 	
 	var new_size:int = _configs.transforms.size()
 	var lost_instances:int = original_size - new_size
@@ -211,7 +211,7 @@ func rescan_bottom_colors(scan_range:float):
 			result = raycaster.point_to_point(scan_upper, scan_lower)
 			if not result: continue
 		
-		var color:Color = Scanner.scan_color( result, cache, _tool.fallback_color )
+		var color:Color = Scanner.scan_color( result, cache )
 		_configs.bottom_colors[i] = color
 	
 	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")

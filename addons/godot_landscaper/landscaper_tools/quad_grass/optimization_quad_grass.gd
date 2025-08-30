@@ -8,7 +8,7 @@ const META_COUNT:int = 2
 
 static var _tool:QuadGrassTool
 static var _chunks_parent:Node
-static var _ground_mesh:MeshInstance3D
+static var _anchor_node:Node3D
 
 
 static func _check_refs() -> bool:
@@ -19,8 +19,8 @@ static func _check_refs() -> bool:
 	if not _tool:
 		return false
 	
-	_ground_mesh = _tool.anchor_mesh
-	if not _ground_mesh:
+	_anchor_node = _tool.anchor_node
+	if not _anchor_node:
 		GLDebug.error("Gruond mesh is null")
 		return false
 	
@@ -28,13 +28,13 @@ static func _check_refs() -> bool:
 	
 
 static func _for_each_base_mmi(callback:Callable):
-	for instance in _ground_mesh.get_children():
+	for instance in _anchor_node.get_children():
 		if instance is MultiMeshInstance3D:
 			callback.call( instance )
 
 
 static func _for_each_chunk_mmi(callback:Callable):
-	var chunks_parent:Node = _ground_mesh.get_node_or_null( _tool.chunk_parent_name )
+	var chunks_parent:Node = _anchor_node.get_node_or_null( _tool.chunk_parent_name )
 	
 	if not chunks_parent:
 		return
@@ -49,7 +49,7 @@ static func is_chunkified() -> bool:
 	if not _check_refs():
 		return false
 	
-	var chunks_parent:Node = _tool.anchor_mesh.get_node_or_null( _tool.chunk_parent_name )
+	var chunks_parent:Node = _tool.anchor_node.get_node_or_null( _tool.chunk_parent_name )
 	if not chunks_parent:
 		return false
 	
@@ -65,7 +65,7 @@ static func chunkify():
 		return
 	
 	# Find or create chunks' parent
-	SceneManager.find_or_create_node( Node3D, _tool.anchor_mesh, _tool.chunk_parent_name )
+	SceneManager.find_or_create_node( Node3D, _tool.anchor_node, _tool.chunk_parent_name )
 	
 	_for_each_base_mmi(
 		func(instance):
@@ -87,7 +87,7 @@ static func reset_chunks():
 	)
 	
 	# Delete chunkified instances
-	var chunks_parent:Node = _ground_mesh.get_node_or_null( _tool.chunk_parent_name )
+	var chunks_parent:Node = _anchor_node.get_node_or_null( _tool.chunk_parent_name )
 	if chunks_parent:
 		chunks_parent.queue_free()
 	
@@ -134,7 +134,7 @@ static func reset_visible():
 static func _chunkify_variant(original_mmi:MultiMeshInstance3D):
 	var original_mm:MultiMesh = original_mmi.multimesh
 	var chunk_size:int = _tool.chunk_size
-	var root_parent:Node = _tool.anchor_mesh.get_node( _tool.chunk_parent_name )
+	var root_parent:Node = _tool.anchor_node.get_node( _tool.chunk_parent_name )
 	
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size

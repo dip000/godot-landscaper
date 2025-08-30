@@ -10,7 +10,7 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
 	# What variant instance is this config
 	_index = _project.grass_configs.find(_configs)
-	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_mesh, _configs.resource_name)
+	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_node, _configs.resource_name)
 
 
 func start(hit_info:Dictionary):

@@ -1,27 +1,36 @@
 ## Utility for scanning resources
-## Ultimately finds a color given a hit_info, image, and mesh
+## Ultimately finds a color given a hit_info, image, and mesh data
 extends Object
 class_name Scanner
 
 const GROUP_CACHE_COLLIDERS:String = "landscaper_cache_colliders"
 const GROUP_COLLIDERS:String = "landscaper_colliders"
+static var CACHE_DEFAULT:Cache
 
 # Otherwise found and calculated many times per frame
 static var _cached_refs:Dictionary[CollisionObject3D, Cache]
 class Cache:
-	var new:bool = true
+	var new:bool
 	var collider:CollisionObject3D
 	var instance:MeshInstance3D
 	var cached_collider:CollisionObject3D
 	var mdts:Array[MeshDataTool]
 	var sources:Array[Variant]
+	var default_color:Color = Color.MAGENTA
 
 
 ## Takes collider and scans its mesh, materials, etc..
 ## Caches the scan results so they can be reused multiple times per frame
 static func cache_scan(collider:CollisionObject3D, tool:QuadGrassTool, cache_color_sources:bool) -> Cache:
-	if not collider or not tool or tool.paint_with_sencondary_color:
-		return null
+	if not CACHE_DEFAULT:
+		CACHE_DEFAULT = Cache.new()
+	
+	if not collider or not tool:
+		return CACHE_DEFAULT
+	
+	if tool.paint_with_sencondary_color:
+		CACHE_DEFAULT.default_color = tool.secondary_color if tool.paint_with_sencondary_color else tool.fallback_color
+		return CACHE_DEFAULT
 	
 	# Run scans if hit_info happened in a new surface
 	var cache:Cache = _cached_refs.get(collider)
@@ -30,17 +39,24 @@ static func cache_scan(collider:CollisionObject3D, tool:QuadGrassTool, cache_col
 		return cache
 	
 	cache = Cache.new()
+	cache.default_color = tool.secondary_color if tool.paint_with_sencondary_color else tool.fallback_color
 	cache.collider = collider
 	cache.instance = Scanner.scan_mesh( cache.collider, tool.parent_of_physics_body, tool.children_of_physics_body, tool.relative_path_from_physics_body )
+	
+	if not cache.instance:
+		GLDebug.error("Couldn't scan a valid mesh from settings. Auto-coloring and perfect surface placement cannot be made")
+		return cache
+	
 	cache.cached_collider = Scanner.create_cached_collider( cache.collider, tool.scan_layer_internal )
 	cache.mdts = Scanner.create_shapes( cache.collider, cache.cached_collider, cache.instance )
 	
 	if cache_color_sources:
 		cache.sources = Scanner.scan_color_sources( cache.instance, tool.paths_in_standar_materials, tool.paths_in_shader_materials )
-	
+
 	# The first detected collider is user-made, the following hits will always be cached_collider
 	_cached_refs[cache.cached_collider] = cache
 	GLDebug.internal("New scanned surface '%s'" %cache.instance.name)
+	cache.new = true
 	return cache
 
 
@@ -166,12 +182,16 @@ static func create_shapes(collider:CollisionObject3D, cached_collider:CollisionO
 
 ## Takes hit_info from PhysicsDirectSpaceState3D.intersect_ray(), and cached data from cache_scan()
 ## to find the color of cache.sources (either a solid color or the texture's barycentric coordinates)
-static func scan_color(hit_info:Dictionary, cache:Cache, default:Color=Color.MAGENTA) -> Color:
+static func scan_color(hit_info:Dictionary, cache:Cache) -> Color:
 	if not hit_info or not cache:
-		return default
+		return cache.default_color
 	
 	var face_index:int = hit_info.face_index
 	var surface:int = hit_info.shape
+	
+	if surface >= cache.mdts.size():
+		return cache.default_color
+	
 	var mdt:MeshDataTool = cache.mdts[surface]
 	var source:Variant = cache.sources[surface]
 	
@@ -182,14 +202,14 @@ static func scan_color(hit_info:Dictionary, cache:Cache, default:Color=Color.MAG
 		pass
 	else:
 		GLDebug.error("Source '%s' is invalid" %source)
-		return default
+		return cache.default_color
 	
 	# Considers scale, rotation, and translation of hit surface
 	var mouse_local_position:Vector3 = hit_info.collider.to_local( hit_info.position )
 	
 	# Triggers when the ray does not hit the correct mesh surface
 	if face_index >= mdt.get_face_count():
-		return default
+		return cache.default_color
 	
 	# Get vertex coordinates of raycasted trangled-face using MeshDataTool magic
 	var xy:Array[Vector3] #World-space

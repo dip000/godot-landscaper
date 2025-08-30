@@ -29,7 +29,7 @@ var CURRENT_TAB:InspectorTab
 @export_range(0.1, 1.0, 0.1) var erase_ratio:float = 1.0
 ## The parent for the generated MultiMeshInstance3D grass. Grass will be anchored to this node's position
 ## Consider using multiple QuadGrassTool for non-static objects. Like a golem that will move at some point
-@export var anchor_mesh:MeshInstance3D
+@export var anchor_node:Node3D
 
 ## The transition between the terrain color and the top hand-painted color.
 @export_range(0.0, 2.0, 0.01) var splash_height:float = 1.0:
@@ -54,8 +54,9 @@ var CURRENT_TAB:InspectorTab
 	set(v): 
 		paint_with_sencondary_color = v
 		notify_property_list_changed()
+
 ## Clears ghost colliders and cached stroke data in case of errors
-@export_tool_button("Clear Scanner Cache", "Clear") var clear_cache:Callable = Scanner.clear_cache
+@export_tool_button("  Clear Scanner Cache  ", "Clear") var clear_cache:Callable = Scanner.clear_cache
 
 @export_subgroup("Scan Physics Bodies:")
 ## The collision_layer to scan for any developer-made PhysicsBody3D 
@@ -142,7 +143,7 @@ var _project:QuadGrassSave
 		if not is_inside_tree(): return
 		if not (_project and CURRENT_TAB): return
 		
-		if not anchor_mesh:
+		if not anchor_node:
 			GLDebug.error("Failed to load project. Update the Anchor Mesh and try again")
 			return
 		
@@ -294,17 +295,17 @@ func _validate_action() -> bool:
 	if not Landscaper.running() or not is_inside_tree():
 		return false
 	
-	if not anchor_mesh:
-		anchor_mesh = Scanner.scan_mesh(
+	if not anchor_node:
+		anchor_node = Scanner.scan_mesh(
 			SceneRaycaster.hit_info.collider if SceneRaycaster.hit_info else null,
 			parent_of_physics_body,
 			children_of_physics_body,
 			relative_path_from_physics_body
 		)
-		if not anchor_mesh:
+		if not anchor_node:
 			GLDebug.error("No ground mesh was selected")
 			return false
-		GLDebug.warning("Auto selected '%s' as Ground Mesh. This reference will anchor every grass position" %anchor_mesh.name)
+		GLDebug.warning("Auto selected '%s' as Ground Mesh. This reference will anchor every grass position" %anchor_node.name)
 	
 	if _project:
 		_force_fill_dependencies()
