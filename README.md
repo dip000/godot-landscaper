@@ -47,7 +47,7 @@ The downside, of course, is that it takes more GPU memory to store extra data, b
 <br /><br />
 Spawns with left-click to build a new mesh, and paint with right-click.<br />
 Properties:
-* **Anchor Mesh:** The parent for the generated MultiMeshInstance3D grass. Grass will be anchored to this node's position. <br />
+* **Anchor Node:** The parent for the generated MultiMeshInstance3D grass. Grass will be anchored to this node's position. <br />
 * **Spawn Ratio:** The amount of grass that might hit the scanned terrain per frame<br />
 * **Erase Ratio:** The chances of erasing grass per frame. Makes for a smoother experience, probably<br />
 * **Splash Height:** The splash color gradient from the ground to the top of the grass<br />
@@ -65,6 +65,17 @@ About Undo/Redo History throwing errors:
 * When you try to save a project file, the Inspector UndoRedo will be too bamboozled to work properly. I patched it by duplicating the resource and saving the scene, don't know why that works but ok 🤷‍♂️
 * If any error happens, there will be a mismatch of commits, and it might get UndoRedo crazy. Kind of fixed it by spam-committing empty actions.
 * If Nodes and properties do not seem to move or respond at all. The UndoRedo is probably the culprit, yet again. Restart the scene, and it should be ok
+
+About The Scanning (for auto-coloring the bottom of grass instances):
+* So there's a limit to one mesh per PhysicsBody3D configured in Ground Coloring > Scan Meshes. Though the scanner does find any number of materials, textures, and colors.
+* Scanning for shader shenanigans like detail textures, UV transforms, etc.. is not a viable thing to simulate to paint the bottom of the grass instances. Best I can do is find the main texture with Ground Coloring > Scan Color Sources, or manual paint with "paint_with_sencondary_color"
+
+About compatibility with Terrain3D:
+* To use QuadGrassTool or Grass3DTool:
+  - Set Terrain3D/collision_mode = DynamicEditor or FullEditor
+  - Set QuadGrassTool/AnchorNode = Terrain3D
+  - Set QuadGrassTool/paint_with_sencondary_color = True (Sorry, this tool cannot access the ground color data to be auto-colored)
+  - Set QuadGrassTool/scan_layer = Terrain3D/collision_mask
 
 # Author notes
 Hi, nickname's DIP. Thanks for passing by!<br />
