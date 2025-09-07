@@ -1,11 +1,11 @@
-## Interface members and utilities for every action (spawning grass, painting terrain, etc..)
-## Every LandscaperTool has at least one Action.
+## Interface members and utilities for every brush (spawning grass, painting terrain, etc..)
+## Every LandscaperTool has at least one Brush.
 ## Actions implement and store their own custom redo() data
 ## start() must validate its own inputs (globals are validated outside)
 
 @tool
 extends Resource
-class_name Action
+class_name Brush
 
 var _tool:LandscaperTool
 var _configs:InstanceConfigs

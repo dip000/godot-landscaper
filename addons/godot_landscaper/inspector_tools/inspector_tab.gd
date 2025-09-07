@@ -8,3 +8,4 @@ class_name InspectorTab
 @export var icon:AtlasIcon.Icon
 @export var method:String
 @export var hide_properties:PackedStringArray
+@export var brush:Brush

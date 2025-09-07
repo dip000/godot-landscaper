@@ -6,12 +6,12 @@ class_name                         Landscaper
 ##  SceneBrush  SceneRaycaster         │         │
 ##                                     ↓         ↓
 ##           ┌── LandscaperTool ───────┼─────────┼────────────┐
-##           │  (Executes Action classes)   (Sets Actions)    │
+##           │  (Executes Brush classes)   (Sets Actions)    │
 ##           │  ┌ SaveData ────────────────────────────────┐  │
 ##           │  │ (External Resources)                     │  │
 ##           │  │ ┌ InstanceConfigs ┐  ┌ InstanceConfigs ┐ │  │
-##           │  │ │ Action (Spawn)  │  │ Action (Spawn)  │ │  │
-##           │  │ │ Action (Color)  │  │ Action (Color)  │ │  │        
+##           │  │ │ Brush (Spawn)  │  │ Brush (Spawn)  │ │  │
+##           │  │ │ Brush (Color)  │  │ Brush (Color)  │ │  │        
 ##           │  │ │ (Rebuild Data)  │  │ (Rebuild Data)  │ │  │        
 ##           │  │ └─────────────────┘  └─────────────────┘ │  │          
 ##           │  └──────────────────────────────────────────┘  │                                   
@@ -27,14 +27,14 @@ static var is_enabled:bool
 var REGISTERED_TOOLS:Array[Dictionary] = [
 	{
 		"name": "QuadGrassTool",
-		"type": QuadGrassTool,
+		"type": GrassQuadTool,
 		"icon": preload("res://addons/godot_landscaper/landscaper_tools/quad_grass/icon.svg")
 	},
-	#{
-		#"name": "Grass3DTool",
-		#"type": Grass3DTool,
-		#"icon": preload("res://addons/godot_landscaper/landscaper_tools/grass_3d/icon.svg")
-	#},
+	{
+		"name": "Grass3DTool",
+		"type": Grass3DTool,
+		"icon": preload("res://addons/godot_landscaper/landscaper_tools/grass_3d/icon.svg")
+	},
 	#{
 		#"name": "PackedSceneTool",
 		#"type": PackedSceneTool,
@@ -141,13 +141,16 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 
 func _edit(new_tool:Object):
+	var old_tool:LandscaperTool = tool
+	tool = new_tool
 	if new_tool:
+		inspector.selected( new_tool )
 		new_tool.selected()
 		scene.selected( new_tool )
 	else:
-		tool.deselected()
+		inspector.deselected( new_tool )
+		old_tool.deselected()
 		scene.deselected( new_tool )
-	tool = new_tool
 
 
 func _handles(object:Object):

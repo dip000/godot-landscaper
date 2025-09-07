@@ -3,16 +3,17 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b624em5ek35wi"
-path.s3tc="res://.godot/imported/sunflower.svg-cbf40629d79b59b1c0b8ed650cbed2e8.s3tc.ctex"
+path.s3tc="res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.s3tc.ctex"
+path.etc2="res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
-source_file="res://addons/godot_landscaper/_editor_only_assets/grass/sunflower.svg"
-dest_files=["res://.godot/imported/sunflower.svg-cbf40629d79b59b1c0b8ed650cbed2e8.s3tc.ctex"]
+source_file="res://addons/godot_landscaper/_editor_only_assets/grass/texture_quad.svg"
+dest_files=["res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.s3tc.ctex", "res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.etc2.ctex"]
 
 [params]
 

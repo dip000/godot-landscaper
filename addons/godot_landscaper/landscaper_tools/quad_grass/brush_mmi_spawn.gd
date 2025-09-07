@@ -1,21 +1,17 @@
 @tool
-extends Action
+extends Brush
 class_name ActionMMISpawn
 
 var _mmi:MultiMeshInstance3D
-var _index:int
 
 
 func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
 	
-	# What variant instance is this config
-	_index = _project.grass_configs.find(_configs)
-	
 	# Rename resource
 	if _configs.resource_name.is_empty():
-		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_index,_index])
-		_configs.resource_name = "Grass %s" %_index
+		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[configs.instance_index,configs.instance_index])
+		_configs.resource_name = "Grass %s" %configs.instance_index
 	
 	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_node, _configs.resource_name)
 	
@@ -26,8 +22,8 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 		_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	
 	# Force assign refs just in case
-	_mmi.multimesh.mesh = _project.mesh
-	_mmi.set_instance_shader_parameter("variant_index", _index)
+	_mmi.multimesh.mesh = _configs.mesh
+	_mmi.set_instance_shader_parameter("variant_index", _configs.instance_index)
 
 
 func start(hit_info:Dictionary):
@@ -114,7 +110,19 @@ func _add_radial(hit_info:Dictionary):
 				continue
 		
 		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
+		# This will actually make the grass "look" up at the sky instead of standing at 90°
 		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
+		
+		# Compose rotation using quaternion magic
+		basis *= Basis(
+			# PI*0.5 on X axis compenzates for looking at the sky as mentioned before
+			Quaternion(Vector3.RIGHT, _configs.rotation_base.x - PI * 0.5) *
+			Quaternion(Vector3.UP, _configs.rotation_base.y) *
+			Quaternion(Vector3.FORWARD, _configs.rotation_base.z) *
+			Quaternion(Vector3.RIGHT, randf()*_configs.rotation_randomize.x) *
+			Quaternion(Vector3.UP, randf()*_configs.rotation_randomize.y) *
+			Quaternion(Vector3.FORWARD, randf()*_configs.rotation_randomize.z)
+		)
 		
 		# to_local() takes rotation and scale in consideration
 		var local_pos:Vector3 = _mmi.to_local( result.position )
@@ -124,94 +132,9 @@ func _add_radial(hit_info:Dictionary):
 		var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
 		
 		local_transf = local_transf.scaled_local( _configs.size_base + size_offset )
-		local_transf = local_transf.rotated_local( Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
-		local_transf = local_transf.rotated_local( Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
-		local_transf = local_transf.rotated_local( Vector3.UP, randf()*_configs.rotation_randomize.z )
 		_configs.transforms.append( local_transf )
 		
 		# Save colors. Use cached colors for performance
 		var color:Color = Scanner.scan_color( result, cache )
 		_configs.bottom_colors.append( color )
 		_configs.top_colors.append( _tool.primary_color )
-
-
-func rescan_position_y(scan_range:float):
-	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	var original_size:int = _configs.transforms.size()
-	var original_top_colors:Array[Color] = _configs.top_colors
-	var original_bottom_colors:Array[Color] = _configs.bottom_colors
-	var new_transforms:Array[Transform3D]
-	var new_bottom_colors:Array[Color]
-	var new_top_colors:Array[Color]
-	
-	for i in original_size:
-		var original_transf:Transform3D = _configs.transforms[i]
-		var scan_upper:Vector3 = _mmi.to_global( original_transf.origin )
-		var scan_lower:Vector3 = scan_upper
-		scan_upper.y += scan_range
-		scan_lower.y -= scan_range
-		
-		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result: continue
-		
-		var cache:Scanner.Cache = Scanner.cache_scan( result.collider, _tool, false )
-		if cache.new:
-			await Engine.get_main_loop().process_frame
-			result = raycaster.point_to_point(scan_upper, scan_lower)
-			if not result: continue
-		
-		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
-		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
-		
-		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
-		var local_pos:Vector3 = _mmi.to_local( result.position )
-		result.position = local_pos + _tool.anchor_node.global_position
-		
-		# Save base and random values
-		var local_transf := Transform3D( basis, local_pos )
-		var size_offset:Vector3 = _configs.size_randomize * _randv(0, 1)
-		
-		local_transf = local_transf.scaled_local( _configs.size_base + size_offset )
-		local_transf = local_transf.rotated_local( Vector3.FORWARD, randf()*_configs.rotation_randomize.y )
-		local_transf = local_transf.rotated_local( Vector3.RIGHT, randf()*_configs.rotation_randomize.x )
-		local_transf = local_transf.rotated_local( Vector3.UP, randf()*_configs.rotation_randomize.z )
-		
-		new_transforms.append( local_transf )
-		new_bottom_colors.append( original_bottom_colors[i] )
-		new_top_colors.append( original_top_colors[i] )
-	
-	_configs.top_colors = new_top_colors
-	_configs.bottom_colors = new_bottom_colors
-	_configs.transforms = new_transforms
-	_mmi.global_position = _tool.anchor_node.global_position
-	
-	var new_size:int = _configs.transforms.size()
-	var lost_instances:int = original_size - new_size
-	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost" %lost_instances)
-
-
-func rescan_bottom_colors(scan_range:float):
-	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	
-	for i in _configs.transforms.size():
-		var original_transf:Transform3D = _configs.transforms[i]
-		var global_position:Vector3 = _mmi.to_global( original_transf.origin )
-		var scan_upper:Vector3 = global_position
-		var scan_lower:Vector3 = global_position
-		scan_upper.y += scan_range
-		scan_lower.y -= scan_range
-		
-		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result: continue
-		
-		var cache:Scanner.Cache = Scanner.cache_scan( result.collider, _tool, true )
-		if cache.new:
-			# PhysicsBody3D nodes require a frame after being created to detect raycasts
-			await Engine.get_main_loop().process_frame
-			result = raycaster.point_to_point(scan_upper, scan_lower)
-			if not result: continue
-		
-		var color:Color = Scanner.scan_color( result, cache )
-		_configs.bottom_colors[i] = color
-	
-	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")

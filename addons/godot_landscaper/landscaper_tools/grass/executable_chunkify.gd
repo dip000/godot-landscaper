@@ -1,141 +1,30 @@
 @tool
-extends Resource
-class_name OptimizationQuadGrass
+extends Executable
+class_name ExecMMIChunkify
 
 const META_MIN_INDEX:int = 0
 const META_MAX_INDEX:int = 1
 const META_COUNT:int = 2
 
-static var _tool:LandscaperTool
-static var _chunks_parent:Node
-static var _anchor_node:Node3D
+@export var chunk_size:int = 32:
+	set(v): chunk_size = max(1, v)
+@export var chunks_parent_name:String = "Chunks"
+
+@export_tool_button("     Chunkify     ", "Grid") var _run:Callable = run_executable
+@export_tool_button(" Reset Chunks ", "Object") var _reset:Callable = reset_executable
 
 
-static func _check_refs() -> bool:
-	if not Landscaper.running():
-		return false
+func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
+	var original_mmi:MultiMeshInstance3D = tool.anchor_node.get_node_or_null(config.resource_name)
+	if not original_mmi: return
 	
-	_tool = Landscaper.tool
-	if not _tool:
-		return false
+	reset(tool, project, config)
+	original_mmi.hide()
 	
-	_anchor_node = _tool.anchor_node
-	if not _anchor_node:
-		GLDebug.error("Gruond mesh is null")
-		return false
+	await Engine.get_main_loop().process_frame
+	var root_parent:Node = SceneManager.find_or_create_node(Node3D, tool.anchor_node, chunks_parent_name)
 	
-	return true
-	
-
-static func _for_each_base_mmi(callback:Callable):
-	for instance in _anchor_node.get_children():
-		if instance is MultiMeshInstance3D:
-			callback.call( instance )
-
-
-static func _for_each_chunk_mmi(callback:Callable):
-	var chunks_parent:Node = _anchor_node.get_node_or_null( _tool.chunk_parent_name )
-	
-	if not chunks_parent:
-		return
-	
-	for chunk in chunks_parent.get_children():
-		for instance in chunk.get_children():
-			if instance is MultiMeshInstance3D:
-				callback.call( instance )
-
-
-static func is_chunkified() -> bool:
-	if not _check_refs():
-		return false
-	
-	var chunks_parent:Node = _tool.anchor_node.get_node_or_null( _tool.chunk_parent_name )
-	if not chunks_parent:
-		return false
-	
-	return (chunks_parent.get_child_count() > 0)
-
-
-static func chunkify():
-	if not _check_refs():
-		return
-	
-	if _tool.chunk_size < 4:
-		GLDebug.error("Cannot chunkify below 4 meters!")
-		return
-	
-	# Find or create chunks' parent
-	SceneManager.find_or_create_node( Node3D, _tool.anchor_node, _tool.chunk_parent_name )
-	
-	_for_each_base_mmi(
-		func(instance):
-			# According to very trustfull sources (ChatGPT), hiding visuals will stop shaders and rendering loads
-			instance.hide()
-			_chunkify_variant( instance )
-	)
-	
-	GLDebug.state("Chunkified MultiMeshInstance3D")
-
-
-static func reset_chunks():
-	if not _check_refs():
-		return
-	
-	# Show original instances.
-	_for_each_base_mmi( func(instance):
-		instance.show()
-	)
-	
-	# Delete chunkified instances
-	var chunks_parent:Node = _anchor_node.get_node_or_null( _tool.chunk_parent_name )
-	if chunks_parent:
-		chunks_parent.queue_free()
-	
-	GLDebug.state("Chunks Reseted")
-
-
-static func update_visiblity():
-	if not _check_refs():
-		return
-	
-	_for_each_base_mmi( func(instance):
-		instance.multimesh.visible_instance_count = instance.multimesh.instance_count*_tool.visible_instances
-		instance.visibility_range_end = _tool.custom_lod_meters
-		instance.visibility_range_end_margin = 2.0
-	)
-	_for_each_chunk_mmi(func(instance):
-		instance.multimesh.visible_instance_count = instance.multimesh.instance_count*_tool.visible_instances
-		instance.visibility_range_end = _tool.custom_lod_meters
-		instance.visibility_range_end_margin = 2.0
-	)
-	
-	GLDebug.state("Visibility Updated")
-
-
-static func reset_visible():
-	if not _check_refs():
-		return
-	
-	_for_each_base_mmi( func(instance):
-		instance.multimesh.visible_instance_count = -1
-		instance.visibility_range_end = 0
-		instance.visibility_range_end_margin = 0
-	)
-	_for_each_chunk_mmi(func(instance):
-		instance.multimesh.visible_instance_count = -1
-		instance.visibility_range_end = 0
-		instance.visibility_range_end_margin = 0
-	)
-	
-	GLDebug.state("Visibility Reseted")
-
-
-## Welp, this function took a toll on me ngl
-static func _chunkify_variant(original_mmi:MultiMeshInstance3D):
 	var original_mm:MultiMesh = original_mmi.multimesh
-	var chunk_size:int = _tool.chunk_size
-	var root_parent:Node = _tool.anchor_node.get_node( _tool.chunk_parent_name )
-	
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size
 	var pos:Vector3 = aabb.position
@@ -240,10 +129,19 @@ static func _chunkify_variant(original_mmi:MultiMeshInstance3D):
 				instance_mm.set_instance_color( instance_index, colors_bottom )
 				
 				instance_index += 1
+
+func reset(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
+	var original_mmi:MultiMeshInstance3D = tool.anchor_node.get_node_or_null(config.resource_name)
+	if not original_mmi: return
 	
+	original_mmi.show()
+	
+	var root_parent:Node = tool.anchor_node.get_node_or_null(chunks_parent_name)
+	if root_parent:
+		root_parent.queue_free()
 	
 
-static func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
+func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
 	new_mmi["instance_shader_parameters/variant_index"] = original_mmi["instance_shader_parameters/variant_index"]
 	new_mmi.multimesh = MultiMesh.new()
 	new_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D

@@ -24,7 +24,7 @@ static func create_node(type, parent:Node, child_name:String, ghost:bool) -> Nod
 
 
 # ========= Called from InspectorTools ===== ===========
-func select_action(tool:LandscaperTool, tab:InspectorTab):
+func select_brush(tool:LandscaperTool, tab:InspectorTab):
 	brush.set_icon( tab.icon )
 
 
@@ -48,7 +48,7 @@ func action_start(tool:LandscaperTool, hit_info:Dictionary):
 	raycaster.set_collision_mask( tool.scan_layer_internal | tool.scan_layer )
 
 func action_end(tool:LandscaperTool):
-	# Return to full scan mode at stroke's end
+	# Return to full scan mode at brush's end
 	raycaster.set_collision_mask( tool.scan_layer_internal | tool.scan_layer )
 
 func scale_by(sca:float):

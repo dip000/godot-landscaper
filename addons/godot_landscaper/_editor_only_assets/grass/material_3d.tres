@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://te85jcyncn45"]
+
+[ext_resource type="Shader" uid="uid://k377c2d5vjw0" path="res://addons/godot_landscaper/_editor_only_assets/grass/shader_3d.gdshader" id="1_jg51h"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_jg51h")
+shader_parameter/wind_strength = Vector3(0, 0, 0)
+shader_parameter/sway_strength = Vector3(0.1, 0.08, 0.15)
+shader_parameter/sway_frequency_base = Vector3(1.25, 0.6, 0.45)
+shader_parameter/sway_frequency_animatable = Vector3(0, 0, 0)
+shader_parameter/player_position = Vector3(0, 0, 0)
+shader_parameter/wind_direction = Vector3(0, 0, 0)
+shader_parameter/ground_size = Vector2(0, 0)
+shader_parameter/ground_position = Vector2(0, 0)
+shader_parameter/splash_height = 0.0

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cg5ltn3goebtr"
 path.s3tc="res://.godot/imported/gobot_albedo.png-d1802631cb1a7f94e812ef513cf42cfb.s3tc.ctex"
+path.etc2="res://.godot/imported/gobot_albedo.png-d1802631cb1a7f94e812ef513cf42cfb.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://example/gobot_albedo.png"
-dest_files=["res://.godot/imported/gobot_albedo.png-d1802631cb1a7f94e812ef513cf42cfb.s3tc.ctex"]
+dest_files=["res://.godot/imported/gobot_albedo.png-d1802631cb1a7f94e812ef513cf42cfb.s3tc.ctex", "res://.godot/imported/gobot_albedo.png-d1802631cb1a7f94e812ef513cf42cfb.etc2.ctex"]
 
 [params]
 

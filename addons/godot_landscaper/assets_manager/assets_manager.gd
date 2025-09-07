@@ -6,14 +6,17 @@ class_name AssetsManager
 const ASSETS_ROOT:String = "res://addons/godot_landscaper/_editor_only_assets/"
 const INSPECTOR_TOOLS_ROOT:String = "res://addons/godot_landscaper/inspector_tools/"
 
-# Resources. Tabs throw errors for some reason :P
+# Resources
 const ICONS:Texture2D = preload(INSPECTOR_TOOLS_ROOT+"icons.svg")
-#const PAINT_TAB:InspectorTab = preload(INSPECTOR_TOOLS_ROOT+"tabs/paint.tres")
-#const SPAWN_TAB:InspectorTab = preload(INSPECTOR_TOOLS_ROOT+"tabs/spawn.tres")
+
+# Tabs for InspectorTools
+const PAINT_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/paint.tres"
+const SPAWN_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/spawn.tres"
+const CHUNK_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/chunkify.tres"
 
 # Scenes
-const INFO_BOX:PackedScene = preload("res://addons/godot_landscaper/inspector_tools/info_box.tscn")
-const INSPECTOR_TAB:PackedScene = preload("res://addons/godot_landscaper/inspector_tools/inspector_tab.tscn")
+const INFO_BOX:PackedScene = preload(INSPECTOR_TOOLS_ROOT+"info_box.tscn")
+const INSPECTOR_TAB:PackedScene = preload(INSPECTOR_TOOLS_ROOT+"inspector_tab.tscn")
 const SCENE_MANAGER:PackedScene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn")
 const ASSETS_MANAGER:PackedScene = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn")
 

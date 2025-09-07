@@ -38,4 +38,4 @@ static func internal(msg:Variant):
 
 static func spam(msg:Variant):
 	if debugging_spam():
-		print_rich("[color=#FFFFBB44][b]Landscaper: [/b]%s[/color]" %msg)
+		print_rich("[color=#e0e0e088][b]Landscaper: [/b]%s[/color]" %msg)

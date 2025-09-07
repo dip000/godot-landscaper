@@ -1,6 +1,12 @@
-[gd_resource type="Resource" script_class="InspectorTab" load_steps=2 format=3 uid="uid://cqvyrjauf54o7"]
+[gd_resource type="Resource" script_class="InspectorTab" load_steps=4 format=3 uid="uid://cqvyrjauf54o7"]
 
 [ext_resource type="Script" uid="uid://chkcx6ufmmqk6" path="res://addons/godot_landscaper/inspector_tools/inspector_tab.gd" id="1_fl6k4"]
+[ext_resource type="Script" uid="uid://bybx5kwns7014" path="res://addons/godot_landscaper/landscaper_tools/quad_grass/brush_mmi_color.gd" id="1_u1te8"]
+
+[sub_resource type="Resource" id="Resource_u1te8"]
+resource_name = "PaintBrush"
+script = ExtResource("1_u1te8")
+metadata/_custom_type_script = "uid://bybx5kwns7014"
 
 [resource]
 script = ExtResource("1_fl6k4")
@@ -9,6 +15,7 @@ category = "Actions"
 current = false
 info = "left cick to paint with primary color, right click for secondary"
 icon = 10
-method = "paint_select"
-hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "anchor_mesh")
+method = "select_color_action"
+hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "anchor_node")
+brush = SubResource("Resource_u1te8")
 metadata/_custom_type_script = "uid://chkcx6ufmmqk6"

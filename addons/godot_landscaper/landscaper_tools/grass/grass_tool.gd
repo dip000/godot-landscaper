@@ -1,6 +1,6 @@
 @tool
 extends LandscaperTool
-class_name GrassQuadTool
+class_name GrassTool
 
 #region ExportBrushes
 @export_category("Brushes")
@@ -140,29 +140,3 @@ func action_end() -> void:
 
 func scale_by(value:float):
 	pass
-
-
-func _create_undo_redo(brush:String) -> void:
-	Landscaper.undo_redo.commit_action(false) # closes previous commits in case of errors
-	Landscaper.undo_redo.create_action("godot_landscaper/quad_grass_tool/"+brush.to_snake_case())
-
-func _commit_undo_redo() -> void:
-	Landscaper.undo_redo.commit_action(false)
-
-func _clear_undo_redo() -> void:
-	Landscaper.undo_redo.commit_action(false)
-	Landscaper.undo_redo.clear_history( EditorUndoRedoManager.GLOBAL_HISTORY )
-
-func _add_redo(config:QuadGrassConfigs) -> void:
-	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
-	undo_redo.add_do_property( config, "top_colors", config.top_colors.duplicate() )
-	undo_redo.add_do_property( config, "bottom_colors", config.bottom_colors.duplicate() )
-	undo_redo.add_do_property( config, "transforms", config.transforms.duplicate() )
-	undo_redo.add_do_method( config.current_brush, "rebuild" )
-
-func _add_undo(config:QuadGrassConfigs) -> void:
-	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
-	undo_redo.add_undo_property( config, "top_colors", config.top_colors.duplicate() )
-	undo_redo.add_undo_property( config, "bottom_colors", config.bottom_colors.duplicate() )
-	undo_redo.add_undo_property( config, "transforms", config.transforms.duplicate() )
-	undo_redo.add_undo_method( config.current_brush, "rebuild" )

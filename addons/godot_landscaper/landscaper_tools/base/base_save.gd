@@ -4,7 +4,3 @@
 ## 3. Follows Godot's best practices for project file management
 extends Resource
 class_name SaveData
-
-# Common resources for every tool
-@export var material:ShaderMaterial
-@export var shader:Shader

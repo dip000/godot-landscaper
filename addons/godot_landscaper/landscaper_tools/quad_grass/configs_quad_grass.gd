@@ -1,4 +1,4 @@
-## Per-instance configuration file for Action classes
+## Per-instance configuration file for Brush classes
 ## Managed by LandscaperTool classes
 @tool
 @icon("res://addons/godot_landscaper/config_icon.svg")
@@ -17,17 +17,6 @@ class_name QuadGrassConfigs
 @export var detail_color:Color = Color.DARK_SLATE_GRAY:
 	set(v): _set_shader_param("detail_colors", v)
 	get: return _get_shader_param("detail_colors", Color.BLACK)
-
-var spawn_action := ActionMMISpawn.new()
-var color_action := ActionMMIColor.new()
-
-# Rebuild data. Shared between config actions.
-# Tools might override scene instances for these in case there's a missmatch
-@export_storage var top_colors:Array[Color]
-@export_storage var bottom_colors:Array[Color]
-@export_storage var transforms:Array[Transform3D]
-
-
 
 func _get_shader_param(param:String, default:Variant) -> Variant:
 	if Landscaper.running() and Landscaper.tool:

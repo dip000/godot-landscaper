@@ -1,5 +1,5 @@
 @tool
-extends Action
+extends Brush
 class_name ActionSceneSpawn
 
 #var holder:Node3D

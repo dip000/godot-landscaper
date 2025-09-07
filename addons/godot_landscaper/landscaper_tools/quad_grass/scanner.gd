@@ -21,7 +21,7 @@ class Cache:
 
 ## Takes collider and scans its mesh, materials, etc..
 ## Caches the scan results so they can be reused multiple times per frame
-static func cache_scan(collider:CollisionObject3D, tool:QuadGrassTool, cache_color_sources:bool) -> Cache:
+static func cache_scan(collider:CollisionObject3D, tool:LandscaperTool, cache_color_sources:bool) -> Cache:
 	if not CACHE_DEFAULT:
 		CACHE_DEFAULT = Cache.new()
 	
