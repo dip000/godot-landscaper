@@ -5,6 +5,7 @@ extends Resource
 class_name InstanceConfigs
 
 ## Landscaping tools will only apply enabled configs
+@export var instance_index:int
 @export var enable:bool = true
 
 @export_group("Resources")
@@ -38,7 +39,6 @@ class_name InstanceConfigs
 # Strokes are where the actual landscaping happens.
 var current_brush:Brush
 var current_executable:Executable
-var instance_index:int
 
 func set_instance_index(index:int):
 	instance_index = index
@@ -65,6 +65,10 @@ func set_shader_parameter(param:String, value:Variant, indexed:bool):
 			GLDebug.spam("Shader Set %s=%s" % [param, value])
 
 
+func load_project_data(tool:LandscaperTool, project:SaveData):
+	current_brush.unpack(tool, project, self)
+	current_brush.rebuild()
+
 ## Generic run executable
 func run_executable(executable:Executable, tool:LandscaperTool, project:SaveData):
 	executable.run(tool, project, self)
@@ -85,6 +89,10 @@ func fix_dependencies():
 ## Virtual. Define what to load as a template, host files in AssetsManager
 func load_template():
 	pass
+
+## Brush defines what to clean up in the scene tree or otherwise
+func action_clear():
+	current_brush.clear()
 
 ## Start landscaping according to the current brush
 func action_start(hit_info:Dictionary):

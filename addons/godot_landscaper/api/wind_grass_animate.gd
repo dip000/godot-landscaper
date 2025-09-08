@@ -40,11 +40,6 @@ static var _current_wind_animations:Dictionary[ShaderMaterial, Tween]
 ## Ending transition time
 @export var end_time:float
 
-@export_tool_button("Wind Breeze", "FogVolume") var _blow_breeze:Callable = blow_breeze
-@export_tool_button("Wind Start", "FogVolume") var _wind_start:Callable = start_wind
-@export_tool_button("Wind End", "FogVolume") var _wind_end:Callable = end_wind
-
-
 static func _get_wind_animation(material:ShaderMaterial) -> Tween:
 	if not (material in _current_wind_animations):
 		_current_wind_animations[material] = Landscaper.scene.create_tween()

@@ -10,8 +10,9 @@ const META_COUNT:int = 2
 	set(v): chunk_size = max(1, v)
 @export var chunks_parent_name:String = "Chunks"
 
-@export_tool_button("     Chunkify     ", "Grid") var _run:Callable = run_executable
-@export_tool_button(" Reset Chunks ", "Object") var _reset:Callable = reset_executable
+
+func is_chunkified(tool:LandscaperTool):
+	return tool.anchor_node.has_node(chunks_parent_name)
 
 
 func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
@@ -129,6 +130,7 @@ func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 				instance_mm.set_instance_color( instance_index, colors_bottom )
 				
 				instance_index += 1
+	GLDebug.state("Level of Detail Updated")
 
 func reset(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 	var original_mmi:MultiMeshInstance3D = tool.anchor_node.get_node_or_null(config.resource_name)
@@ -139,6 +141,7 @@ func reset(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 	var root_parent:Node = tool.anchor_node.get_node_or_null(chunks_parent_name)
 	if root_parent:
 		root_parent.queue_free()
+	GLDebug.state("Level of Detail Reseted")
 	
 
 func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):

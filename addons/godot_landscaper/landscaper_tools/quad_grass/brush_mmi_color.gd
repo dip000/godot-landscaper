@@ -5,15 +5,37 @@ class_name ActionMMIColor
 var _mmi:MultiMeshInstance3D
 
 
+
 func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	super(tool, project, configs)
+	
+	# Rename resource
+	if _configs.resource_name.is_empty():
+		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its name. This will be its Node name in the scene" %[_configs.instance_index,_configs.instance_index])
+		_configs.resource_name = "Grass %s" %configs.instance_index
+	
 	_mmi = SceneManager.find_or_create_node(MultiMeshInstance3D, _tool.anchor_node, _configs.resource_name)
+	
+	if not _mmi.multimesh:
+		_mmi.multimesh = MultiMesh.new()
+		_mmi.multimesh.use_colors = true
+		_mmi.multimesh.use_custom_data = true
+		_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	
+	# Force assign refs just in case
+	_mmi.multimesh.mesh = _configs.mesh
+	_mmi.set_instance_shader_parameter("variant_index", _configs.instance_index)
 
+
+func clear():
+	_mmi = _tool.anchor_node.get_node_or_null(_configs.resource_name)
+	if is_instance_valid(_mmi):
+		_mmi.queue_free()
 
 func start(hit_info:Dictionary):
 	# Rename resource
 	if _configs.resource_name.is_empty():
-		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its Node name" %[_configs.instance_index,_configs.instance_index])
+		GLDebug.warning("'Grass %s' doesn't have a resource_name. Using 'Grass %s' as its name. This will be its Node name in the scene" %[_configs.instance_index,_configs.instance_index])
 		_configs.resource_name = "Grass %s" %_configs.instance_index
 	
 	# Set up null multimesh

@@ -18,6 +18,9 @@ func unpack(tool:LandscaperTool, project:SaveData, configs:InstanceConfigs):
 	_configs = configs
 	_project = project
 
+func clear():
+	pass
+
 func start(hit_info:Dictionary):
 	pass
 

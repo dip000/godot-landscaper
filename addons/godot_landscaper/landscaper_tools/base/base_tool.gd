@@ -20,12 +20,14 @@ func get_instance(project:Resource, index:int) -> InstanceConfigs:
 
 func set_instance(project:Resource, instance:InstanceConfigs, index:int):
 	if not project: return
-	project[TEMPLATE_CONFIGS][index] = instance
 	if instance:
 		instance.set_instance_index(index)
 		instance.select_brush(CURRENT_TAB.brush, self, project)
 		instance.fix_dependencies()
 		instance.load_template()
+	else:
+		project[TEMPLATE_CONFIGS][index].action_clear()
+	project[TEMPLATE_CONFIGS][index] = instance
 	_notify_property_list_changed_once()
 
 
@@ -48,17 +50,27 @@ func _validate_configs(project:Resource, cap:int, property:Dictionary):
 	project.set(TEMPLATE_CONFIGS, configs)
 
 
-func _set_project(new_type, project:SaveData, new_project:SaveData):
+func _set_project(new_type, prev_project:SaveData, new_project:SaveData):
 	set(TEMPLATE_PROJECT, new_project)
 	if not is_ready: return
 	if new_project:
+		GLDebug.state("Loaded Project '%s'" %new_project.resource_path)
+		# For some reason you cannot save and keep the save project file. The undo_redo history will go crazy
+		# Now i'll pretend this is a feature to keep changes local until saved manually again hehe
+		new_project = new_project.duplicate()
+		set(TEMPLATE_PROJECT, new_project)
 		_notify_property_list_changed_once()
 		new_project.fix_dependencies()
 		new_project.select_brush(CURRENT_TAB.brush, self)
-		new_project.load_project_data()
+		new_project.load_project_data(self)
+		await Engine.get_main_loop().process_frame
+		EditorInterface.save_scene()
 	else:
+		prev_project.action_clear()
+		prev_project.clear_undo_redo.call_deferred()
 		set(TEMPLATE_PROJECT, new_type.new())
 		_notify_property_list_changed_once()
+		GLDebug.state("Cleared Project '%s'" %prev_project.resource_path)
 
 
 func _validate_paint_with_sencondary_color(property:Dictionary):
@@ -87,7 +99,7 @@ func _validate_paint_with_sencondary_color(property:Dictionary):
 		return 0.1
 
 ## Color of the 3D brush shpere
-@export var brush_color:Color = Color(1.0, 0.0, 1.0, 0.3):
+@export var brush_color:Color = Color(0.859, 0.439, 0.576, 0.5):
 	set(v):
 		if Landscaper.running():
 			Landscaper.scene.brush.set_color(v)

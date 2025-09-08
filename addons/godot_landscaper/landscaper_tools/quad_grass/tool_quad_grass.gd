@@ -57,7 +57,7 @@ class_name GrassQuadTool
 
 
 #region ExportGrassInstances
-@export_category("Quad Grass")
+@export_category("Add And Enable Grass Instances")
 @export var grass_0:GrassQuadConfigs:
 	get: return get_instance(_project, 0)
 	set(v): set_instance(_project, v, 0)
@@ -102,12 +102,10 @@ func _validate_property(property):
 func run_executable(executable:Executable) -> void:
 	if _project and executable:
 		_project.run_executable( executable, self )
-		GLDebug.state("Executable executabled executably")
 
 func reset_executable(executable:Executable) -> void:
 	if _project and executable:
 		_project.reset_executable( executable, self )
-		GLDebug.state("Executable reseted")
 
 
 func select_brush(brush:Brush) -> void:
@@ -118,6 +116,7 @@ func select_brush(brush:Brush) -> void:
 
 
 func action_start(hit_info:Dictionary) -> void:
+	if not _project: return
 	if not anchor_node:
 		anchor_node = Scanner.scan_mesh(
 			SceneRaycaster.hit_info.collider if SceneRaycaster.hit_info else null,
@@ -127,6 +126,9 @@ func action_start(hit_info:Dictionary) -> void:
 			GLDebug.error("Please select an anchor node")
 			return
 		GLDebug.warning("'%s' Was auto-selected as anchor node" %anchor_node)
+	if chunkify and chunkify.is_chunkified(self):
+		reset_executable(chunkify)
+		GLDebug.warning("Chunks were reseted to be modified")
 	_project.action_start(hit_info)
 
 func action_primary(hit_info:Dictionary) -> void:
@@ -140,29 +142,3 @@ func action_end() -> void:
 
 func scale_by(value:float):
 	pass
-
-
-func _create_undo_redo(brush:String) -> void:
-	Landscaper.undo_redo.commit_action(false) # closes previous commits in case of errors
-	Landscaper.undo_redo.create_action("godot_landscaper/quad_grass_tool/"+brush.to_snake_case())
-
-func _commit_undo_redo() -> void:
-	Landscaper.undo_redo.commit_action(false)
-
-func _clear_undo_redo() -> void:
-	Landscaper.undo_redo.commit_action(false)
-	Landscaper.undo_redo.clear_history( EditorUndoRedoManager.GLOBAL_HISTORY )
-
-func _add_redo(config:QuadGrassConfigs) -> void:
-	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
-	undo_redo.add_do_property( config, "top_colors", config.top_colors.duplicate() )
-	undo_redo.add_do_property( config, "bottom_colors", config.bottom_colors.duplicate() )
-	undo_redo.add_do_property( config, "transforms", config.transforms.duplicate() )
-	undo_redo.add_do_method( config.current_brush, "rebuild" )
-
-func _add_undo(config:QuadGrassConfigs) -> void:
-	var undo_redo:EditorUndoRedoManager = Landscaper.undo_redo
-	undo_redo.add_undo_property( config, "top_colors", config.top_colors.duplicate() )
-	undo_redo.add_undo_property( config, "bottom_colors", config.bottom_colors.duplicate() )
-	undo_redo.add_undo_property( config, "transforms", config.transforms.duplicate() )
-	undo_redo.add_undo_method( config.current_brush, "rebuild" )

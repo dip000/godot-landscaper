@@ -5,7 +5,6 @@ class_name ExecMMIRescanColor
 ## Range in meters on Y axis that the grass will try to scan for a surface to sit on
 @export var min_vertical_offset:float = -2.0
 @export var max_vertical_offset:float = 2.0
-@export_tool_button("Rescan Bottom Color", "UndoRedo") var _run:Callable = run_executable
 
 
 func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
@@ -18,7 +17,7 @@ func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 		var original_transf:Transform3D = config.transforms[i]
 		var global_position:Vector3 = mmi.to_global( original_transf.origin )
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_vertical_offset
-		var scan_lower:Vector3 = scan_upper + Vector3.UP*min_vertical_offset
+		var scan_lower:Vector3 = global_position + Vector3.UP*min_vertical_offset
 		
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
 		if not result: continue
@@ -35,3 +34,7 @@ func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 	
 	Scanner.clear_cache()
 	GLDebug.state("Bottom grass was recolored from Ground Coloring settings")
+
+
+func reset(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
+	GLDebug.state("Reset using Ctrl + Z")

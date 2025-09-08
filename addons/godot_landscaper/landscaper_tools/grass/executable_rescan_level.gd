@@ -6,11 +6,6 @@ class_name ExecMMIRescanLevel
 @export var min_vertical_offset:float = -2.0
 @export var max_vertical_offset:float = 2.0
 
-@export var min_horizontal_offset:float = 0.0
-@export var max_horizontal_offset:float = 0.0
-
-@export_tool_button("Rescan Ground Level", "UndoRedo") var _run:Callable = run_executable
-
 
 func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 	var mmi:MultiMeshInstance3D = tool.anchor_node.get_node_or_null(config.resource_name)
@@ -28,7 +23,7 @@ func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 		var original_transf:Transform3D = config.transforms[i]
 		var global_position:Vector3 = mmi.to_global( original_transf.origin )
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_vertical_offset
-		var scan_lower:Vector3 = scan_upper + Vector3.UP*min_vertical_offset
+		var scan_lower:Vector3 = global_position + Vector3.UP*min_vertical_offset
 		
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
 		if not result: continue
@@ -73,5 +68,17 @@ func run(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
 	var new_size:int = config.transforms.size()
 	var lost_instances:int = original_size - new_size
 	
+	rebuild(mmi.multimesh, config)
 	Scanner.clear_cache()
 	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost" %lost_instances)
+
+
+func reset(tool:LandscaperTool, project:SaveData, config:InstanceConfigs):
+	GLDebug.state("Reset using Ctrl + Z")
+
+func rebuild(mm:MultiMesh, config:InstanceConfigs):
+	mm.instance_count = config.transforms.size()
+	for i in range(mm.instance_count):
+		mm.set_instance_transform( i, config.transforms[i] )
+		mm.set_instance_color( i, config.bottom_colors[i] )
+		mm.set_instance_custom_data( i, config.top_colors[i] )

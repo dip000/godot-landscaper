@@ -24,7 +24,7 @@ shading_mode = 0
 diffuse_mode = 3
 specular_mode = 1
 disable_ambient_light = true
-albedo_color = Color(1, 0, 1, 0.3)
+albedo_color = Color(0.859, 0.439, 0.576, 0.5)
 grow_amount = 0.674
 
 [sub_resource type="SphereMesh" id="SphereMesh_2sa2k"]
@@ -32,9 +32,9 @@ material = SubResource("StandardMaterial3D_ak6rc")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5rhw3"]
 atlas = ExtResource("4_teeap")
-region = Rect2(0, 0, 64, 64)
+region = Rect2(640, 0, 64, 64)
 script = ExtResource("5_kfnpr")
-icon = 0
+icon = 10
 metadata/_custom_type_script = "uid://onpvyjpb5186"
 
 [node name="SceneManager" type="Node3D"]

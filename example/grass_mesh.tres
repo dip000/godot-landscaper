@@ -4,5 +4,4 @@
 
 [resource]
 material = ExtResource("1_yb6fs")
-center_offset = Vector3(0, 0, -0.48)
-orientation = 1
+center_offset = Vector3(0, 0.5, 0)
