@@ -3,6 +3,7 @@
 extends Node
 class_name AssetsManager
 
+# =========== GENERAL STATICS ===============================
 const ASSETS_ROOT:String = "res://addons/godot_landscaper/_editor_only_assets/"
 const INSPECTOR_TOOLS_ROOT:String = "res://addons/godot_landscaper/inspector_tools/"
 
@@ -12,7 +13,6 @@ const ICONS:Texture2D = preload(INSPECTOR_TOOLS_ROOT+"icons.svg")
 # Tabs for InspectorTools
 const PAINT_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/paint.tres"
 const SPAWN_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/spawn.tres"
-const CHUNK_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/chunkify.tres"
 
 # Scenes
 const INFO_BOX:PackedScene = preload(INSPECTOR_TOOLS_ROOT+"info_box.tscn")
@@ -20,10 +20,11 @@ const INSPECTOR_TAB:PackedScene = preload(INSPECTOR_TOOLS_ROOT+"inspector_tab.ts
 const SCENE_MANAGER:PackedScene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn")
 const ASSETS_MANAGER:PackedScene = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn")
 
-# Databases
-static var brush:Dictionary[String,Variant]
-static var grass:Dictionary[String,Variant]
-static var models:Dictionary[String,Variant]
+
+# =========== DATABASES ===============================
+static var brush:Dictionary[String,Object]
+static var grass:Dictionary[String,Object]
+static var models:Dictionary[String,Object]
 
 
 func _enter_tree():
@@ -33,37 +34,14 @@ func _enter_tree():
 		grass = filename_as_key(ASSETS_ROOT+"grass")
 		models = filename_as_key(ASSETS_ROOT+"models")
 
-
 # Resources with the dictionary key equal to their filenames
-func filename_as_key(resource_folder:String) -> Dictionary[String, Variant]:
-	return load_callback(resource_folder,
-		func(result:Dictionary[String, Variant], file_name:String, file_path:String):
-			var file_res := load(file_path)
-			result[ file_name ] = file_res
-	)
-
-# Doesn't load the resource itself. Load them on-demand
-func only_paths(resource_folder:String) -> Dictionary[String, Variant]:
-	var paths:Dictionary[String, Variant] = load_callback(resource_folder,
-		func(result:Dictionary[String, Variant], file_name:String, file_path:String):
-			result[ file_name ] = file_path
-	)
-	return paths
-
-
 # Returns a custom dictionary for folder files
-# Call this externally to filter or format the output resource more custom-made. Or use the functions provided
-func load_callback(resource_folder:String, callback:Callable) -> Dictionary[String, Variant]:
-	if resource_folder.is_empty():
-		push_error("Unassigned directory")
-		return {}
-	
+func filename_as_key(resource_folder:String) -> Dictionary[String, Object]:
 	var file_names := ResourceLoader.list_directory( resource_folder )
-	var result:Dictionary[String, Variant]
-	
+	var result:Dictionary[String, Object]
 	for file_name in file_names:
 		if file_name.get_extension() in ["tscn", "scn", "tres", "res", "svg", "glb", "gdshader"]:
 			var file_path:String = resource_folder.path_join(file_name)
-			callback.call( result, file_name.get_basename(), file_path )
-	
+			var file_res := load(file_path)
+			result[ file_name.get_basename() ] = file_res
 	return result

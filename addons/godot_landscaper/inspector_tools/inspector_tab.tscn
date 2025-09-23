@@ -15,7 +15,7 @@ icon = 0
 metadata/_custom_type_script = "uid://onpvyjpb5186"
 
 [node name="InspectorTab" type="Button"]
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(40, 40)
 size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("ButtonGroup_pt6me")

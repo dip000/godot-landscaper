@@ -2,10 +2,7 @@ extends Resource
 class_name InspectorTab
 
 @export var name:String
-@export var category:String
-@export var current:bool
-@export var info:String
+@export_multiline var info:String
 @export var icon:AtlasIcon.Icon
-@export var method:String
+@export var brush_name:String
 @export var hide_properties:PackedStringArray
-@export var brush:Brush

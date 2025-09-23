@@ -13,7 +13,7 @@ static func find_or_create_node(type, parent:Node, child_name:String, ghost:bool
 	return create_node( type, parent, child_name, ghost )
 
 
-static func create_node(type, parent:Node, child_name:String, ghost:bool) -> Node:
+static func create_node(type, parent:Node, child_name:String, ghost:bool=false) -> Node:
 	var child:Node = type.new()
 	parent.add_child( child )
 	child.name = child_name
@@ -24,17 +24,14 @@ static func create_node(type, parent:Node, child_name:String, ghost:bool) -> Nod
 
 
 # ========= Called from InspectorTools ===== ===========
-func select_brush(tool:LandscaperTool, tab:InspectorTab):
-	brush.set_icon( tab.icon )
+func select_brush(icon:AtlasIcon.Icon):
+	brush.set_icon( icon )
 
 
 # ========= Called from main plugin Landscaper =========
-func selected(tool:LandscaperTool):
+func selected(element:SceneElement):
 	# Set full scan mode on select
-	raycaster.set_collision_mask( tool.scan_layer_internal | tool.scan_layer )
-
-func deselected(tool:LandscaperTool):
-	pass
+	raycaster.set_collision_mask( element.scan_layer_internal | element.scan_layer )
 
 func over_surface(pos:Vector3):
 	brush.over_surface( pos )
@@ -42,14 +39,14 @@ func over_surface(pos:Vector3):
 func not_over_surface():
 	brush.not_over_surface()
 
-func action_start(tool:LandscaperTool, hit_info:Dictionary):
+func stroke_start(element:SceneElement, hit_info:Dictionary):
 	# Scan only internal shapes (created on Scanner.create_shapes)
 	# This allows to "brush" over perfect surfaces instead of developer-made colliders
-	raycaster.set_collision_mask( tool.scan_layer_internal | tool.scan_layer )
+	raycaster.set_collision_mask( element.scan_layer_internal | element.scan_layer )
 
-func action_end(tool:LandscaperTool):
+func stroke_end(element:SceneElement):
 	# Return to full scan mode at brush's end
-	raycaster.set_collision_mask( tool.scan_layer_internal | tool.scan_layer )
+	raycaster.set_collision_mask( element.scan_layer_internal | element.scan_layer )
 
 func scale_by(sca:float):
 	brush.scale_by( sca )

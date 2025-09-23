@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e30e2a3hk2ih"
-path="res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.ctex"
+uid="uid://tuph3bwa1csa"
+path="res://.godot/imported/texture_polyquad.svg-2c12d9a3be31aa77af1abb3a519fef35.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/godot_landscaper/_editor_only_assets/grass/texture_quad.svg"
-dest_files=["res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.ctex"]
+source_file="res://addons/godot_landscaper/_editor_only_assets/grass/texture_polyquad.svg"
+dest_files=["res://.godot/imported/texture_polyquad.svg-2c12d9a3be31aa77af1abb3a519fef35.ctex"]
 
 [params]
 

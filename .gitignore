@@ -15,3 +15,4 @@ export_presets.cfg
 data_*/
 mono_crash.*.json
 *.tmp
+/addons/godot_landscaper/_deprecated

@@ -2,36 +2,37 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e30e2a3hk2ih"
-path="res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.ctex"
+uid="uid://ckbdbf7cotire"
+path="res://.godot/imported/grass_icon.svg-d0c70ad45a45dbb74897df8c634bacbf.ctex"
 metadata={
+"has_editor_variant": true,
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/godot_landscaper/_editor_only_assets/grass/texture_quad.svg"
-dest_files=["res://.godot/imported/texture_quad.svg-40b1f4b2293e8b3a045b41a6bfc71c65.ctex"]
+source_file="res://addons/godot_landscaper/scene_element/grass/grass_icon.svg"
+dest_files=["res://.godot/imported/grass_icon.svg-d0c70ad45a45dbb74897df8c634bacbf.ctex"]
 
 [params]
 
-compress/mode=4
+compress/mode=0
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=1.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
-process/fix_alpha_border=true
+process/fix_alpha_border=false
 process/premult_alpha=true
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=2
+detect_3d/compress_to=0
 svg/scale=1.0
-editor/scale_with_editor_scale=false
+editor/scale_with_editor_scale=true
 editor/convert_colors_with_editor_theme=false

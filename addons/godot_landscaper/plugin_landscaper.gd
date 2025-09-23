@@ -1,51 +1,14 @@
 @tool
 extends EditorPlugin
-class_name                         Landscaper
-##           ↑─────────────────────────┼─────────↓────────────────┐
-##    ↑ SceneManager ↑                 │   InspectorTools    AssetsManager  
-##  SceneBrush  SceneRaycaster         │         │
-##                                     ↓         ↓
-##           ┌── LandscaperTool ───────┼─────────┼────────────┐
-##           │  (Executes Brush classes)   (Sets Actions)    │
-##           │  ┌ SaveData ────────────────────────────────┐  │
-##           │  │ (External Resources)                     │  │
-##           │  │ ┌ InstanceConfigs ┐  ┌ InstanceConfigs ┐ │  │
-##           │  │ │ Brush (Spawn)  │  │ Brush (Spawn)  │ │  │
-##           │  │ │ Brush (Color)  │  │ Brush (Color)  │ │  │        
-##           │  │ │ (Rebuild Data)  │  │ (Rebuild Data)  │ │  │        
-##           │  │ └─────────────────┘  └─────────────────┘ │  │          
-##           │  └──────────────────────────────────────────┘  │                                   
-##           └────────────────────────────────────────────────┘
+class_name Landscaper
 
 static var scene:SceneManager
-static var tool:LandscaperTool
 static var assets:AssetsManager
 static var inspector:InspectorTools
 static var undo_redo:EditorUndoRedoManager
 static var is_enabled:bool
 
-var REGISTERED_TOOLS:Array[Dictionary] = [
-	{
-		"name": "QuadGrassTool",
-		"type": GrassQuadTool,
-		"icon": preload("res://addons/godot_landscaper/landscaper_tools/quad_grass/icon.svg")
-	},
-	{
-		"name": "Grass3DTool",
-		"type": Grass3DTool,
-		"icon": preload("res://addons/godot_landscaper/landscaper_tools/grass_3d/icon.svg")
-	},
-	#{
-		#"name": "PackedSceneTool",
-		#"type": PackedSceneTool,
-		#"icon": preload("res://addons/godot_landscaper/landscaper_tools/packed_scene/icon.svg")
-	#},
-	#{
-		#"name": "GroundTool",
-		#"type": GroundTool,
-		#"icon": preload("res://addons/godot_landscaper/landscaper_tools/ground/icon.svg")
-	#}
-]
+static var element:SceneElement
 
 
 static func running() -> bool:
@@ -53,14 +16,11 @@ static func running() -> bool:
 
 
 func _enter_tree():
-	assets = AssetsManager.ASSETS_MANAGER.instantiate()
-	scene = AssetsManager.SCENE_MANAGER.instantiate()
+	assets = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn").instantiate()
+	scene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn").instantiate()
 	inspector = InspectorTools.new()
 	add_inspector_plugin( inspector )
 	undo_redo = get_undo_redo()
-	
-	for reg_tool in REGISTERED_TOOLS:
-		add_custom_type( reg_tool.name, "Node", reg_tool.type, reg_tool.icon )
 	
 	await get_tree().process_frame
 	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
@@ -76,13 +36,10 @@ func _exit_tree():
 	scene.queue_free()
 	undo_redo.clear_history()
 	
-	for reg_tool in REGISTERED_TOOLS:
-		remove_custom_type( reg_tool.name )
-	
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
-	if not tool or not tool.is_ready:
+	if not element or not element.is_ready:
 		return
 	
 	# Accepted inputs
@@ -107,31 +64,29 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			tool.action_start( hit_info )
-			scene.action_start( tool, hit_info )
-		tool.action_primary( hit_info )
+			element.stroke_start( hit_info )
+			scene.stroke_start( element, hit_info )
+		element.stroke_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			tool.action_start( hit_info )
-			scene.action_start( tool, hit_info )
-		tool.action_secondary( hit_info )
+			element.stroke_start( hit_info )
+			scene.stroke_start( element, hit_info )
+		element.stroke_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
-		tool.action_end()
-		scene.action_end( tool )
+		element.stroke_end()
+		scene.stroke_end( element )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
 	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
 		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
-			tool.scale_by( 0.1 ) #[TODO] add to global settings
 			scene.scale_by( 0.1 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
-			tool.scale_by( -0.1 )
 			scene.scale_by( -0.1 )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif not event is InputEventMouseMotion: # Pass Panning and Zoom with special keys
@@ -140,18 +95,12 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
-func _edit(new_tool:Object):
-	var old_tool:LandscaperTool = tool
-	tool = new_tool
-	if new_tool:
-		inspector.selected( new_tool )
-		new_tool.selected()
-		scene.selected( new_tool )
-	else:
-		inspector.deselected( new_tool )
-		old_tool.deselected()
-		scene.deselected( new_tool )
+func _edit(elem:Object):
+	element = elem
+	if element:
+		inspector.selected( element )
+		scene.selected( element )
 
 
 func _handles(object:Object):
-	return object is LandscaperTool
+	return object is SceneElement

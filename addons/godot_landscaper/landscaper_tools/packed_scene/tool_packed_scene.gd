@@ -1,2 +1,0 @@
-extends LandscaperTool
-class_name PackedSceneTool
