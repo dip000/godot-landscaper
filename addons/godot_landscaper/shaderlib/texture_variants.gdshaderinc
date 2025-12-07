@@ -14,11 +14,11 @@ vec4 fragment_texture_color(vec3 albedo, vec2 uv) {
 	if(enable_textures[variant_index] == false){
 		return vec4(albedo, 1.0);
 	}
-	
+
 	vec4 detail_mask = texture(grass_texture_array, vec3(uv, float(variant_index)));
 	if(details_enable[variant_index]){
 		albedo = mix(detail_colors[variant_index], albedo, detail_mask.r);
 	}
-	
+
 	return vec4(albedo, detail_mask.a);
 }

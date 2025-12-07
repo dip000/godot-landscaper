@@ -16,7 +16,7 @@ class_name GLSaveData
 @export var enable_textures:bool = false
 ## One material can be used for multiple grass instance variants.
 ## You can set any GrassTextured variants per material, just avoid leaving empty indexes.
-@export var instance_index:int = 0
+@export var instance_index:int = -1
 ## Use your custom texture for each grass variant. It will be formated to fit inside a sampler2DArray
 @export var texture:Texture2D
 @export var enable_details:bool = false
