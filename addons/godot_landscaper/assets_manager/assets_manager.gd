@@ -5,34 +5,29 @@ class_name AssetsManager
 
 # =========== GENERAL STATICS ===============================
 const ASSETS_ROOT:String = "res://addons/godot_landscaper/_editor_only_assets/"
-const INSPECTOR_TOOLS_ROOT:String = "res://addons/godot_landscaper/inspector_tools/"
 
 # Resources
-const ICONS:Texture2D = preload(INSPECTOR_TOOLS_ROOT+"icons.svg")
-
-# Tabs for InspectorTools
-const PAINT_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/paint.tres"
-const SPAWN_TAB:String = INSPECTOR_TOOLS_ROOT+"tabs/spawn.tres"
+const ICONS:Texture2D = preload("uid://b0vixk6g6mb0o")
 
 # Scenes
-const INFO_BOX:PackedScene = preload(INSPECTOR_TOOLS_ROOT+"info_box.tscn")
-const INSPECTOR_TAB:PackedScene = preload(INSPECTOR_TOOLS_ROOT+"inspector_tab.tscn")
-const SCENE_MANAGER:PackedScene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn")
-const ASSETS_MANAGER:PackedScene = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn")
+const INFO_BOX:PackedScene = preload("uid://cc22twy7o43pp")
+const INSPECTOR_TAB:PackedScene = preload("uid://bjulr1lyuv2wc")
+const SCENE_MANAGER:PackedScene = preload("uid://dkv66uttcirw3")
+const ASSETS_MANAGER:PackedScene = preload("uid://cdpkwy3lagls0")
 
 
 # =========== DATABASES ===============================
 static var brush:Dictionary[String,Object]
 static var grass:Dictionary[String,Object]
 static var models:Dictionary[String,Object]
-
+static var execs:Dictionary[String,Object]
 
 func _enter_tree():
-	# These teamplate assets should not be exported
+	# These template assets should not be exported
 	if Engine.is_editor_hint():
-		brush = filename_as_key(ASSETS_ROOT+"brush")
-		grass = filename_as_key(ASSETS_ROOT+"grass")
-		models = filename_as_key(ASSETS_ROOT+"models")
+		brush = filename_as_key(ASSETS_ROOT + "brush")
+		grass = filename_as_key(ASSETS_ROOT + "grass")
+		models = filename_as_key(ASSETS_ROOT + "models")
 
 # Resources with the dictionary key equal to their filenames
 # Returns a custom dictionary for folder files

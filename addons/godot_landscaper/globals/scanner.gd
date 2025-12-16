@@ -1,11 +1,12 @@
 ## Utility for scanning resources
 ## Ultimately finds a color given a hit_info, image, and mesh data
 extends Object
-class_name Scanner
+class_name GLScanner
 
 const GROUP_CACHE_COLLIDERS:String = "landscaper_cache_colliders"
 const GROUP_COLLIDERS:String = "landscaper_colliders"
 static var CACHE_DEFAULT:Cache
+
 
 # Otherwise found and calculated many times per frame
 static var _cached_refs:Dictionary[CollisionObject3D, Cache]
@@ -21,15 +22,17 @@ class Cache:
 
 ## Takes collider and scans its mesh, materials, etc..
 ## Caches the scan results so they can be reused multiple times per frame
-static func cache_scan(collider:CollisionObject3D, element:SceneElement, cache_color_sources:bool) -> Cache:
+static func cache_scan(collider:CollisionObject3D, controller:GLController, cache_color_sources:bool) -> Cache:
 	if not CACHE_DEFAULT:
 		CACHE_DEFAULT = Cache.new()
 	
-	if not collider or not element:
+	if not collider or not controller:
 		return CACHE_DEFAULT
 	
-	if element.paint_with_sencondary_color:
-		CACHE_DEFAULT.default_color = element.secondary_color if element.paint_with_sencondary_color else element.fallback_color
+	var settings:GLSettingsGrass = controller.settings
+	
+	if settings.paint_splash_with_sencondary_color:
+		CACHE_DEFAULT.default_color = settings.secondary_color if settings.paint_splash_with_sencondary_color else settings.fallback_color
 		return CACHE_DEFAULT
 	
 	# Run scans if hit_info happened in a new surface
@@ -39,19 +42,19 @@ static func cache_scan(collider:CollisionObject3D, element:SceneElement, cache_c
 		return cache
 	
 	cache = Cache.new()
-	cache.default_color = element.secondary_color if element.paint_with_sencondary_color else element.fallback_color
+	cache.default_color = settings.secondary_color if settings.paint_splash_with_sencondary_color else settings.fallback_color
 	cache.collider = collider
-	cache.instance = Scanner.scan_mesh( cache.collider, element.parent_of_physics_body, element.relative_path_from_physics_body )
+	cache.instance = GLScanner.scan_mesh( cache.collider, settings )
 	
 	if not cache.instance:
 		GLDebug.error("Couldn't scan a valid mesh from settings. Auto-coloring and perfect surface placement cannot be made")
 		return cache
 	
-	cache.cached_collider = Scanner.create_cached_collider( cache.collider, element.scan_layer_internal )
-	cache.mdts = Scanner.create_shapes( cache.collider, cache.cached_collider, cache.instance )
+	cache.cached_collider = GLScanner.create_cached_collider( cache.collider, settings.scan_layer_internal )
+	cache.mdts = GLScanner.create_shapes( cache.collider, cache.cached_collider, cache.instance )
 	
 	if cache_color_sources:
-		cache.sources = Scanner.scan_color_sources( cache.instance, element.paths_in_standar_materials, element.paths_in_shader_materials )
+		cache.sources = GLScanner.scan_color_sources( cache.instance, settings.paths_in_standar_materials, settings.paths_in_shader_materials )
 
 	# The first detected collider is user-made, the following hits will always be cached_collider
 	_cached_refs[cache.cached_collider] = cache
@@ -75,16 +78,16 @@ static func clear_cache():
 	_cached_refs.clear()
 
 
-static func scan_mesh(collider:CollisionObject3D, scan_parent:bool, ref_path:String) -> MeshInstance3D:
+static func scan_mesh(collider:CollisionObject3D, settings:GLSettings) -> MeshInstance3D:
 	if not collider:
 		return null
 	
-	if ref_path.is_relative_path():
-		var node:Node = collider.get_node_or_null( ref_path )
+	if settings.relative_path_from_physics_body.is_relative_path():
+		var node:Node = collider.get_node_or_null( NodePath(settings.relative_path_from_physics_body) )
 		if node is MeshInstance3D and node.mesh:
 			return node
 	
-	if scan_parent:
+	if settings.parent_of_physics_body:
 		var node:Node = collider.get_parent()
 		if node is MeshInstance3D and node.mesh:
 			return node

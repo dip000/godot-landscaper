@@ -4,11 +4,11 @@ class_name Landscaper
 
 static var scene:SceneManager
 static var assets:AssetsManager
-static var inspector:InspectorTools
-static var undo_redo:EditorUndoRedoManager
+static var inspector:InspectorManager
+static var undo_redo:GLUndoRedo
 static var is_enabled:bool
 
-static var element:SceneElement
+static var selected_controller:GLController
 
 
 static func running() -> bool:
@@ -16,11 +16,11 @@ static func running() -> bool:
 
 
 func _enter_tree():
-	assets = preload("res://addons/godot_landscaper/assets_manager/assets_manager.tscn").instantiate()
-	scene = preload("res://addons/godot_landscaper/scene_manager/scene_manager.tscn").instantiate()
-	inspector = InspectorTools.new()
+	assets = AssetsManager.ASSETS_MANAGER.instantiate()
+	scene = AssetsManager.SCENE_MANAGER.instantiate()
+	inspector = InspectorManager.new()
 	add_inspector_plugin( inspector )
-	undo_redo = get_undo_redo()
+	undo_redo = GLUndoRedo.new( get_undo_redo() )
 	
 	await get_tree().process_frame
 	var viewport:SubViewport = EditorInterface.get_editor_viewport_3d()
@@ -34,12 +34,12 @@ func _exit_tree():
 	remove_inspector_plugin( inspector )
 	assets.queue_free()
 	scene.queue_free()
-	undo_redo.clear_history()
+	undo_redo.free()
 	
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
-	if not element or not element.is_ready:
+	if not selected_controller or not selected_controller.is_ready:
 		return
 	
 	# Accepted inputs
@@ -64,21 +64,21 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			element.stroke_start( hit_info )
-			scene.stroke_start( element, hit_info )
-		element.stroke_primary( hit_info )
+			selected_controller.stroke_start( hit_info )
+			scene.stroke_start( selected_controller, hit_info )
+		selected_controller.stroke_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			element.stroke_start( hit_info )
-			scene.stroke_start( element, hit_info )
-		element.stroke_secondary( hit_info )
+			selected_controller.stroke_start( hit_info )
+			scene.stroke_start( selected_controller, hit_info )
+		selected_controller.stroke_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
-		element.stroke_end()
-		scene.stroke_end( element )
+		selected_controller.stroke_end()
+		scene.stroke_end( selected_controller )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
@@ -95,12 +95,12 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
-func _edit(elem:Object):
-	element = elem
-	if element:
-		inspector.selected( element )
-		scene.selected( element )
+func _edit(controller:Object):
+	selected_controller = controller
+	if selected_controller:
+		inspector.selected( selected_controller )
+		scene.selected( selected_controller )
 
 
 func _handles(object:Object):
-	return object is SceneElement
+	return object is GLController

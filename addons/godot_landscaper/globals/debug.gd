@@ -1,8 +1,6 @@
 @tool
-extends Object
+extends Resource
 class_name GLDebug
-## Global class for dobugging.
-
 
 static var level:int = Level.STATES
 enum Level {ONLY_ERRORS, STATES, INTERNAL, SPAM}

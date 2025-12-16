@@ -23,15 +23,15 @@ static func create_node(type, parent:Node, child_name:String, ghost:bool=false) 
 	return child
 
 
-# ========= Called from InspectorTools ===== ===========
+# ========= Called from InspectorManager ===== ===========
 func select_brush(icon:AtlasIcon.Icon):
 	brush.set_icon( icon )
 
 
 # ========= Called from main plugin Landscaper =========
-func selected(element:SceneElement):
+func selected(controller:GLController):
 	# Set full scan mode on select
-	raycaster.set_collision_mask( element.scan_layer_internal | element.scan_layer )
+	raycaster.set_collision_mask( controller.settings.scan_layer_internal | controller.settings.scan_layer )
 
 func over_surface(pos:Vector3):
 	brush.over_surface( pos )
@@ -39,14 +39,14 @@ func over_surface(pos:Vector3):
 func not_over_surface():
 	brush.not_over_surface()
 
-func stroke_start(element:SceneElement, hit_info:Dictionary):
-	# Scan only internal shapes (created on Scanner.create_shapes)
+func stroke_start(controller:GLController, hit_info:Dictionary):
+	# Scan only internal shapes (created on GLScanner.create_shapes)
 	# This allows to "brush" over perfect surfaces instead of developer-made colliders
-	raycaster.set_collision_mask( element.scan_layer_internal | element.scan_layer )
+	raycaster.set_collision_mask( controller.settings.scan_layer_internal | controller.settings.scan_layer )
 
-func stroke_end(element:SceneElement):
+func stroke_end(controller:GLController):
 	# Return to full scan mode at brush's end
-	raycaster.set_collision_mask( element.scan_layer_internal | element.scan_layer )
+	raycaster.set_collision_mask( controller.settings.scan_layer_internal | controller.settings.scan_layer )
 
 func scale_by(sca:float):
 	brush.scale_by( sca )

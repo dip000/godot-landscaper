@@ -6,6 +6,9 @@ class_name SceneBrush
 @onready var _core:MeshInstance3D = $Core
 @onready var _icon:Sprite3D = %Icon
 
+static var default_color:Color = Color(0.859, 0.439, 0.576, 0.5)
+static var default_scale:float = 2.0
+
 
 func over_surface(pos:Vector3):
 	show()
