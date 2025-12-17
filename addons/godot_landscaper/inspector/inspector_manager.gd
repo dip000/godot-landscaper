@@ -26,10 +26,10 @@ func _parse_category(controller:Object, category:String):
 	add_custom_control( info_box )
 	
 
-# Hides/Shows each property according to 'GLController.current_brush_tab' settings
-#func _parse_property(canvas:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
-	#var current_tab:InspectorTab = canvas.current_brush_tab
-	#return name in current_tab.hide_properties if current_tab else false
+ #Hides/Shows each property according to 'GLController.current_brush_tab' settings
+func _parse_property(canvas:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
+	var current_tab:InspectorTab = canvas.current_brush_tab
+	return name in current_tab.hide_properties if current_tab else false
 
 
 func _press_tab(controller:GLControllerGrass, tab:InspectorTab):

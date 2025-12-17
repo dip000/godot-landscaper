@@ -5,25 +5,6 @@
 extends GLSettings
 class_name GLSettingsGrass
 
-@export_group("Brush Settings")
-## How many grass instances coincides to hit over the surface per frame
-@export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
-
-## How many grass instances attempt to erase per frame
-@export_range(0.1, 1.0, 0.1) var erase_ratio:float = 1.0
-
-## The transition between the bottom terrain color and the top hand-painted color.
-@export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0
-
-## Uses the secondary color to manually paint the bottom of the grass instead of the top.
-## Note that the scanning mechanics will auto detect the bottom colors.
-@export var paint_splash_with_sencondary_color:bool = false
-
-## Grass color with left button mouse
-@export var primary_color:Color = Color.PALE_GOLDENROD
-
-## Grass color with right button mouse
-@export var secondary_color:Color = Color.PALE_VIOLET_RED
 
 @export_group("Color Scanning")
 @export_subgroup("Scan Physics Bodies")
@@ -71,9 +52,12 @@ class_name GLSettingsGrass
 
 
 @export_group("Texture")
-## In regular 3D grass you have single-material, many-meshes. But textured grass can work with
-## a single-textured-material, single-quad-mesh by using shader sampler2DArray[instance_index]
-## Note that the hardware limits the amount of instances, but you can chunkify them to releif that problem entirely
+## Used for having multiple texture configurations with the same material.
+## For performance, one single GLTexture2DArray will be made for all indexes of the same material.
+## Avoid leaving empty index gaps.
+@export var instance_index:int = -1
+
+## By enabling it, you may set  
 @export var enable_texture:bool = false
 @export var enable_texture_details:bool = false
 @export var texture_detail_color:Color = Color.SEA_GREEN

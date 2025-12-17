@@ -20,6 +20,5 @@ var region:Rect2
 @export var processed:GLBuildData
 
 
-
 @abstract
 func fix_references(settings:GLSettings) -> bool

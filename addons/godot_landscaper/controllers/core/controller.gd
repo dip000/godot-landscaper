@@ -16,25 +16,31 @@ extends Node
 class_name GLController
 
 
-## Raw data storage
+## Controller-specific resources.
 @export var resources:GLResources
 
-## Describes how is the data gonna be mutated
+## Controller-specific settings.
 @export var settings:GLSettings
 
-## Mutates the data
 @export_category("Postprocess Effects")
+## Mutates the data in stack order.
+## Uses GLResources.source and mutates an output into GLResources.processed
+##
+## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 @export var effects:Array[GLEffect]
 
 ## Controller-specific builder.
-## Actually builds the resulting data
+## Actually builds the resulting data.
 var builder:GLBuilder
 
-## Controller-specific tab configs. Managed by InspectorManager
-var current_brush_tab:InspectorTab
+## Tab configs managed EXCLUSIVELY by InspectorManager.
 var brush_tabs:Array[InspectorTab]
+## InspectorManager will update this. No need to do anything else here
+var current_brush_tab:InspectorTab
+## The brush selected in brush_tabs
 var current_brush:GLBrush
 
+## Lifehack to avoid clickthrough while adding a node from the "Add Children Node" window
 var is_ready:bool
 
 

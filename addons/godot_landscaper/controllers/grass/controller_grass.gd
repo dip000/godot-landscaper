@@ -8,41 +8,58 @@ class_name GLControllerGrass
 
 
 @export_category("Brushes")
-## The source MultiMeshInstance3D tied to this controller.
-## Lives under the anchor_node and has the same name as this controller
-@export var mmi:MultiMeshInstance3D:
-	get: return SceneManager.find_or_create_node(MultiMeshInstance3D, anchor_node, name)
+## How many grass instances coincides to hit over the surface per editor frame
+@export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
 
-## The parent for the generated MultiMeshInstance3D grass. Grass will be anchored to this node's position
-## Consider using multiple GLController instances for non-static objects. Like a golem that will move at some point
-@export var anchor_node:Node3D
-var stroke_data:GLBuildDataGrass
+## How many grass instances attempt to erase per editor frame
+@export_range(0.1, 1.0, 0.1) var erase_ratio:float = 1.0
+
+## Grass color with left button mouse
+@export var primary_color:Color = Color.PALE_GOLDENROD
+
+## Grass color with right button mouse
+@export var secondary_color:Color = Color.PALE_VIOLET_RED
+
+## The transition between the bottom terrain color and the top hand-painted color.
+@export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:
+	set(v):
+		splash_height = v
+		resources.set_shader("splash_height", v)
+
+## Uses the secondary color to manually paint the bottom of the grass instead of the top.
+## Note that the scanning mechanics will auto detect the bottom colors.
+@export var paint_bottom_with_sencondary_color:bool = false
+
+## The source MultiMeshInstance3D tied to this controller.
+## It will be auto-generated and placed under the brusshing surface if not provided.
+@export var multimesh_instance:MultiMeshInstance3D
 
 
 @export_category("Controls")
-@export_tool_button("Rebuild", "InstanceOptions") var _rebuild:Callable = build_all
+@export_tool_button("     Rebuild All     ", "InstanceOptions") var _build_all_btn:Callable = build_all
+@export_tool_button("    Clear Effects    ", "Clear") var _clear_effects_btn:Callable = clear_effects
+@export_tool_button("    Apply Effects    ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
 
 
 func _ready():
-	super()
 	builder = GLBuilderGrass.new()
 	brush_tabs = [
 		InspectorTab.new(
 			"Spawn",
 			"Left click to spawn, right click to erase",
-			["spawn_ratio", "erase_ratio"],
+			["primary_color", "secondary_color", "splash_height", "paint_bottom_with_sencondary_color"],
 			AtlasIcon.Icon.GRASS_SCATTER,
 			GLBrushGrassSpawn.new(),
 		),
 		InspectorTab.new(
 			"Paint",
 			"left cick to paint with primary color, right click for secondary",
-			["primary_color", "secondary_color", "splash_height"],
+			["spawn_ratio", "erase_ratio", "multimesh_instance"],
 			AtlasIcon.Icon.COLOR,
 			GLBrushGrassPaint.new(),
 		),
 	]
-	current_brush_tab = brush_tabs[0]
+	await super()
 	fix_references()
 
 
@@ -55,44 +72,33 @@ func select_brush(brush:GLBrush):
 ## Start landscaping according to the current brush
 func stroke_start(hit_info:Dictionary):
 	if fix_references(hit_info):
-		stroke_data = GLBuildDataGrass.new()
-		current_brush.start(hit_info, stroke_data, self)
-	else:
-		stroke_data = null
+		current_brush.start( hit_info, self )
 
 
 func stroke_primary(hit_info:Dictionary):
-	if stroke_data:
-		current_brush.primary(hit_info, stroke_data, self)
-		builder.build(stroke_data, self)
+	current_brush.primary( hit_info, self )
+	builder.build( multimesh_instance.multimesh, resources.source )
 
 
 func stroke_secondary(hit_info:Dictionary):
-	if stroke_data:
-		current_brush.secondary(hit_info, stroke_data, self)
-		builder.build(stroke_data, self)
+	current_brush.secondary( hit_info, self )
+	builder.build( multimesh_instance.multimesh, resources.source )
 
 
 func stroke_end():
-	if stroke_data:
-		current_brush.end()
-		build_all(stroke_data)
+	current_brush.end()
 
 
-func build_all(stroke_data:GLBuildDataGrass):
-	if not resources.source:
-		resources.source = GLBuildDataGrass.new()
-	
-	if not resources.processed:
-		resources.processed = GLBuildDataGrass.new()
-	
-	resources.source.append(stroke_data)
+func build_all():
+	apply_effects()
+	builder.build( multimesh_instance.multimesh, resources.processed )
+
+func apply_effects():
 	for effect in effects:
-		if effect:
-			await effect.apply_safe(stroke_data, self)
-	
-	resources.processed.append(stroke_data)
-	builder.build(resources.processed, self)
+		effect.apply_safe(self)
+
+func clear_effects():
+	builder.build( multimesh_instance.multimesh, resources.source )
 
 
 func fix_references(hit_info:Dictionary={}) -> bool:
@@ -105,19 +111,29 @@ func fix_references(hit_info:Dictionary={}) -> bool:
 	
 	if not resources or not resources is GLResourcesGrass:
 		resources = GLResourcesGrass.new()
-	if not resources.fix_references(settings):
+	if not resources.fix_references( settings ):
 		GLDebug.error("Coundn't fix GLResourcesGrass references of controller %s" %name)
 		return false
 	
 	if not effects:
 		effects = []
 	
-	if not anchor_node and "collider" in hit_info:
-		anchor_node = GLScanner.scan_mesh( hit_info.collider, settings)
-		if anchor_node:
-			GLDebug.warning("Auto selected anchor node %s. If this is not your intention please select the node in settings/anchor_node_path")
-		else:
-			GLDebug.error("There's no anchor node. Add one under 'Brushes' category")
-			return false
-
+	if not multimesh_instance and "collider" in hit_info:
+		var brush_surface:Node3D = GLScanner.scan_mesh( hit_info.collider, settings)
+		var parent:Node3D = brush_surface if brush_surface else self
+		multimesh_instance = SceneManager.find_or_create_node(MultiMeshInstance3D, parent, name)
+		GLDebug.warning("Auto selected MultiMeshInstance '%s'. If this is not your intention please select the node manually" %multimesh_instance.name)
+	
+	if multimesh_instance:
+		if not multimesh_instance.multimesh:
+			multimesh_instance.multimesh = MultiMesh.new()
+			multimesh_instance.multimesh.transform_format = MultiMesh.TRANSFORM_3D
+			multimesh_instance.multimesh.use_colors = true
+			multimesh_instance.multimesh.use_custom_data = true
+		multimesh_instance.multimesh.mesh = resources.mesh
+		multimesh_instance.set_instance_shader_parameter("variant_index", settings.instance_index)
+	
+	if not resources.source:
+		resources.source = GLBuildDataGrass.new()
+	
 	return true

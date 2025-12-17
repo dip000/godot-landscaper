@@ -12,15 +12,19 @@ enum Meta {MIN_INDEX, MAX_INDEX, COUNT}
 	set(v): chunk_size = max(1, v)
 
 
-func _apply(stroke_data:GLBuildData, controller:GLController) -> bool:
-	var original_mmi:MultiMeshInstance3D = controller.mmi
+func _apply(controller:GLController) -> bool:
+	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	if not original_mmi:
 		GLDebug.error("No 'MultiMeshInstance' to chunkify")
 		return false
 	
+	var root_parent:Node = controller.get_node_or_null(chunks_parent)
+	if not root_parent:
+		GLDebug.error("Chunks Parent is invalid '%s'" %chunks_parent)
+		return false
+	
 	original_mmi.hide()
 	var settings:GLSettingsGrass = controller.settings
-	var root_parent:Node = controller.get_node_or_null(chunks_parent)
 	var original_mm:MultiMesh = original_mmi.multimesh
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size

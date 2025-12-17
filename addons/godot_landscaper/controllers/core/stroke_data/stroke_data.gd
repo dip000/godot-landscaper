@@ -1,0 +1,8 @@
+extends Resource
+class_name GLStrokeData
+
+var indexes_affected:PackedInt32Array
+var instances_affected:GLBuildData
+var instances_generated:GLBuildData
+var instances_removed:PackedInt32Array
+var region:Rect2

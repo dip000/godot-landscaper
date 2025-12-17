@@ -8,4 +8,4 @@ class_name GLBuilder
 
 
 @abstract
-func build(stroke_data:GLBuildData, controller:GLController) -> bool
+func build(mm:MultiMesh, build_data:GLBuildData) -> bool

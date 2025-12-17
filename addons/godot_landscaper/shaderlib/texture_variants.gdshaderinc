@@ -1,5 +1,5 @@
 group_uniforms TextureVariants;
-const int CAP = 32; //negligible memory usage
+const int CAP = 16; //negligible memory usage
 uniform bool enable_textures[CAP];
 uniform sampler2DArray grass_texture_array;
 uniform bool details_enable[CAP];

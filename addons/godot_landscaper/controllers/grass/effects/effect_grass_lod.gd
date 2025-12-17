@@ -8,8 +8,8 @@ class_name GLEffectLoD
 @export var chunks_parent:NodePath = "."
 
 
-func _apply(stroke_data:GLBuildData, controller:GLController) -> bool:
-	var original_mmi:MultiMeshInstance3D = controller.mmi
+func _apply(controller:GLController) -> bool:
+	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	if not original_mmi:
 		GLDebug.error("No 'MultiMeshInstance' to chunkify")
 		return false

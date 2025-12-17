@@ -32,6 +32,9 @@ func set_scale_ratio(value:float):
 func get_scale_ratio() -> float:
 	return scale.x
 
+func get_radius() -> float:
+	return scale.x * 0.5
+
 
 func set_color(color:Color):
 	_core.mesh.material.albedo_color = color

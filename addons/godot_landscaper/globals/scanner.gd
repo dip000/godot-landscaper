@@ -22,7 +22,7 @@ class Cache:
 
 ## Takes collider and scans its mesh, materials, etc..
 ## Caches the scan results so they can be reused multiple times per frame
-static func cache_scan(collider:CollisionObject3D, controller:GLController, cache_color_sources:bool) -> Cache:
+static func cache_scan(collider:CollisionObject3D, controller:GLControllerGrass, cache_color_sources:bool) -> Cache:
 	if not CACHE_DEFAULT:
 		CACHE_DEFAULT = Cache.new()
 	
@@ -31,8 +31,8 @@ static func cache_scan(collider:CollisionObject3D, controller:GLController, cach
 	
 	var settings:GLSettingsGrass = controller.settings
 	
-	if settings.paint_splash_with_sencondary_color:
-		CACHE_DEFAULT.default_color = settings.secondary_color if settings.paint_splash_with_sencondary_color else settings.fallback_color
+	if controller.paint_bottom_with_sencondary_color:
+		CACHE_DEFAULT.default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else settings.fallback_color
 		return CACHE_DEFAULT
 	
 	# Run scans if hit_info happened in a new surface
@@ -42,7 +42,7 @@ static func cache_scan(collider:CollisionObject3D, controller:GLController, cach
 		return cache
 	
 	cache = Cache.new()
-	cache.default_color = settings.secondary_color if settings.paint_splash_with_sencondary_color else settings.fallback_color
+	cache.default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else settings.fallback_color
 	cache.collider = collider
 	cache.instance = GLScanner.scan_mesh( cache.collider, settings )
 	

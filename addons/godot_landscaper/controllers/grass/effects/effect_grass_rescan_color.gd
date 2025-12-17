@@ -9,17 +9,17 @@ class_name GLEffectRescanColor
 var original_bottom_colors:Array[Color]
 
 
-func _apply(stroke_data:GLBuildData, controller:GLController) -> bool:
-	var original_mmi:MultiMeshInstance3D = controller.mmi
+func _apply(controller:GLController) -> bool:
+	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	if not original_mmi:
 		GLDebug.error("No 'MultiMeshInstance' to chunkify")
 		return false
 	
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	original_bottom_colors = stroke_data.bottom_colors.duplicate()
+	var data:GLBuildDataGrass = controller.resources.source
 	
-	for i in stroke_data.transforms.size():
-		var original_transf:Transform3D = stroke_data.transforms[i]
+	for i in data.transforms.size():
+		var original_transf:Transform3D = data.transforms[i]
 		var global_position:Vector3 = original_mmi.to_global( original_transf.origin )
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_vertical_offset
 		var scan_lower:Vector3 = global_position + Vector3.UP*min_vertical_offset
@@ -35,7 +35,7 @@ func _apply(stroke_data:GLBuildData, controller:GLController) -> bool:
 			if not result: continue
 		
 		var color:Color = GLScanner.scan_color( result, cache )
-		stroke_data.bottom_colors[i] = color
+		data.bottom_colors[i] = color
 		await _index(i)
 	
 	GLScanner.clear_cache()

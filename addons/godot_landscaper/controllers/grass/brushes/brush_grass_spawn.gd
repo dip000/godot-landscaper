@@ -3,52 +3,52 @@ extends GLBrush
 class_name GLBrushGrassSpawn
 
 
-func start(hit_info:Dictionary, stroke_data:GLBuildData, controller:GLController) -> void:
+func start(hit_info:Dictionary, controller:GLController) -> void:
 	GLScanner.clear_cache()
 
-func primary(hit_info:Dictionary, stroke_data:GLBuildData, controller:GLController):
-	_add_radial( hit_info, stroke_data, controller )
+func primary(hit_info:Dictionary, controller:GLController):
+	_add_radial( hit_info, controller )
 
-func secondary(hit_info:Dictionary, stroke_data:GLBuildData, controller:GLController):
-	_get_remove_radial( hit_info, stroke_data, controller )
+func secondary(hit_info:Dictionary, controller:GLController):
+	_get_remove_radial( hit_info, controller )
 
 func end():
 	GLScanner.clear_cache()
 
 
 # Gets every MultiMesh transform except the ones inside the brush
-func _get_remove_radial(hit_info:Dictionary, stroke_data:GLBuildDataGrass, controller:GLControllerGrass):
+func _get_remove_radial(hit_info:Dictionary, controller:GLControllerGrass):
 	var settings:GLSettingsGrass = controller.settings
-	var mmi:MultiMeshInstance3D = controller.mmi
+	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var mm:MultiMesh = mmi.multimesh
 	
-	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
+	var data:GLBuildDataGrass = controller.resources.source
+	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_radius(), 2)
 	var mouse_world_pos:Vector3 = hit_info.position
-	stroke_data.transforms.clear()
-	stroke_data.bottom_colors.clear()
-	stroke_data.top_colors.clear()
+	data.clear()
 	
 	for i in mm.instance_count:
 		var instance_transform:Transform3D = mm.get_instance_transform(i)
 		var instance_world_pos:Vector3 = mmi.to_global( instance_transform.origin )
 		var dist_sqr:float = instance_world_pos.distance_squared_to( mouse_world_pos )
 		
-		if dist_sqr > brush_radius_sqr or settings.erase_ratio < randf():
-			stroke_data.transforms.append( instance_transform )
-			stroke_data.bottom_colors.append(  mm.get_instance_color(i) )
-			stroke_data.top_colors.append(  mm.get_instance_custom_data(i) )
+		if dist_sqr > brush_radius_sqr or controller.erase_ratio < randf():
+			data.transforms.append( instance_transform )
+			data.top_colors.append( mm.get_instance_color(i) )
+			data.bottom_colors.append( mm.get_instance_custom_data(i) )
 
 
-func _add_radial(hit_info:Dictionary, stroke_data:GLBuildDataGrass, controller:GLControllerGrass):
+func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
 	var settings:GLSettingsGrass = controller.settings
-	var mmi:MultiMeshInstance3D = controller.mmi
+	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var mm:MultiMesh = mmi.multimesh
 	
+	var data:GLBuildDataGrass = controller.resources.source
 	var brush_radius:float = Landscaper.scene.brush.get_scale_ratio()*0.5
 	var mouse_world_pos:Vector3 = hit_info.position
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
 	
-	for i in range(settings.spawn_ratio):
+	for i in range(controller.spawn_ratio):
 		# Two random points over the brush sphere to make a ray
 		var sphere_global_point1:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
 		var sphere_global_point2:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
@@ -88,12 +88,12 @@ func _add_radial(hit_info:Dictionary, stroke_data:GLBuildDataGrass, controller:G
 		var size_offset:Vector3 = settings.size_randomize * _randv(0, 1)
 		
 		local_transf = local_transf.scaled_local( settings.size_base + size_offset )
-		stroke_data.transforms.append( local_transf )
+		data.transforms.append( local_transf )
 		
 		# Save colors. Use cached colors for performance
 		var color:Color = GLScanner.scan_color( result, cache )
-		stroke_data.bottom_colors.append( color )
-		stroke_data.top_colors.append( settings.primary_color )
+		data.bottom_colors.append( color )
+		data.top_colors.append( controller.primary_color )
 
 
 func _get_surface_point(radius:float) -> Vector3:

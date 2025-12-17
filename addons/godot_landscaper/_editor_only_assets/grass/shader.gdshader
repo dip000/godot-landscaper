@@ -8,7 +8,7 @@ render_mode unshaded, shadows_disabled, cull_disabled, ambient_light_disabled, d
 
 void vertex(){
 	VERTEX = vertex_sway( VERTEX, UV, MODEL_MATRIX, TIME, NODE_POSITION_WORLD );
-	COLOR.rgb = vertex_splash_color( COLOR.rgb, INSTANCE_CUSTOM.rgb, VERTEX );
+	COLOR.rgb = vertex_splash_color( INSTANCE_CUSTOM.rgb, COLOR.rgb, VERTEX );
 }
 
 void fragment() {
