@@ -10,7 +10,7 @@ uniform vec3 detail_colors[CAP]:source_color;
 instance uniform int variant_index;
 
 
-vec4 fragment_texture_color(vec3 albedo, vec2 uv) {
+vec4 texture_fragment_color(vec3 albedo, vec2 uv) {
 	if(enable_textures[variant_index] == false){
 		return vec4(albedo, 1.0);
 	}
