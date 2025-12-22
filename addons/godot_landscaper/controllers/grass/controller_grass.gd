@@ -95,7 +95,9 @@ func build_all():
 
 func apply_effects():
 	for effect in effects:
-		effect.apply_safe(self)
+		if effect:
+			effect.apply_safe(self)
+
 
 func clear_effects():
 	builder.build( multimesh_instance.multimesh, resources.source )

@@ -29,6 +29,15 @@ class_name GLController
 ## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 @export var effects:Array[GLEffect]
 
+
+@export_category("APIs")
+## Various Access Point Interfaces for use while playing.
+##
+## Warning: Only APIs are guaranteed to work stably while playing.
+## Editor tools are only for the editor!
+@export var apis:Array[GLAPI]
+
+
 ## Controller-specific builder.
 ## Actually builds the resulting data.
 var builder:GLBuilder
