@@ -26,12 +26,12 @@ const DIRECTION_PATH := "shader_parameter/wind_direction"
 
 @export_tool_button("Test Breeze", "AtlasTexture") var _on_breeze_button=_test_breeze
 func _test_breeze():
-	assert(tween_direction and tween_frequency, "Set tween properties to test the grass wind API")
+	assert(tween_direction or tween_frequency, "Set at least one GLAPITween to test the grass wind API")
 	assert(tween_direction.resource and tween_frequency.resource, "Set tween resources as the material to test the grass wind API")
-	assert(typeof(tween_direction.initial_value)==TYPE_VECTOR3, "Wind direction initial value must be a Vector3")
-	assert(typeof(tween_direction.final_value)==TYPE_VECTOR3, "Wind direction final value must be a Vector3")
-	assert(typeof(tween_frequency.initial_value)==TYPE_VECTOR3, "Wind frequency initial value must be a Vector3")
-	assert(typeof(tween_frequency.final_value)==TYPE_VECTOR3, "Wind frequency final value must be a Vector3")
+	assert(typeof(tween_direction.start_value)==TYPE_VECTOR3, "Wind direction start value must be a Vector3")
+	assert(typeof(tween_direction.reset_value)==TYPE_VECTOR3, "Wind direction reset value must be a Vector3")
+	assert(typeof(tween_frequency.start_value)==TYPE_VECTOR3, "Wind frequency start value must be a Vector3")
+	assert(typeof(tween_frequency.reset_value)==TYPE_VECTOR3, "Wind frequency reset value must be a Vector3")
 	tween_frequency.property = FREQUENCY_PATH
 	tween_direction.property = DIRECTION_PATH
 	breeze()
@@ -82,19 +82,25 @@ static func global_reset(key:Variant, reset_time:float):
 
 ## Blow wind as specified by tweens
 func breeze():
-	tween_frequency.start_hold_and_reset()
-	tween_direction.start_hold_and_reset()
+	if tween_frequency:
+		tween_frequency.start_hold_and_reset()
+	if tween_direction:
+		tween_direction.start_hold_and_reset()
 
 
 ## Start wind as specified by tweens
 func start():
-	tween_frequency.start()
-	tween_frequency.start()
+	if tween_frequency:
+		tween_frequency.start()
+	if tween_direction:
+		tween_direction.start()
 
 
 ## End wind as specified by tweens
 func reset():
-	tween_frequency.reset()
-	tween_frequency.reset()
+	if tween_frequency:
+		tween_frequency.reset()
+	if tween_direction:
+		tween_direction.reset()
 	
 	

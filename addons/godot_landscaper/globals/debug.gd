@@ -20,20 +20,20 @@ static func debugging_spam() -> bool:
 
 
 static func error(msg:Variant):
-	push_error("Landscaper Error: %s" %msg)
+	push_error("[Landscaper Error] %s" %msg)
 
 static func warning(msg:Variant):
 	if debugging_warnings():
-		push_warning("Landscaper Warning: %s" %msg)
+		push_warning("[Landscaper Warning] %s" %msg)
 
 static func state(msg:Variant):
 	if debugging_states():
-		print_rich("[color=#00FFBBAA][b]Landscaper: [/b]%s[/color]" %msg)
+		print_rich("[color=#db7093][b][Landscaper] [/b]%s[/color]" %msg)
 
 static func internal(msg:Variant):
 	if debugging_internal():
-		print_rich("[color=#AAFFBB88][b]Landscaper: [/b]%s[/color]" %msg)
+		print_rich("[color=#eee8aa][b][Landscaper] [/b]%s[/color]" %msg)
 
 static func spam(msg:Variant):
 	if debugging_spam():
-		print_rich("[color=#e0e0e088][b]Landscaper: [/b]%s[/color]" %msg)
+		print_rich("[color=#e0e0e088][b][Landscaper] [/b]%s[/color]" %msg)

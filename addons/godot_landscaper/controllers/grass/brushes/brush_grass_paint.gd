@@ -26,11 +26,10 @@ func _paint(hit_info:Dictionary, controller:GLControllerGrass, is_secondary:bool
 	var brush_size_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
 	var mouse_world_pos:Vector3 = hit_info.position
 	
-	var settings:GLSettingsGrass = controller.settings
 	var paint_bottom:bool = (is_secondary and controller.paint_bottom_with_sencondary_color)
 	var color:Color = controller.secondary_color if is_secondary else controller.primary_color
 	
-	var data:GLBuildDataGrass = controller.resources.source
+	var data:GLBuildDataGrass = controller.source
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var mm:MultiMesh = mmi.multimesh
 	

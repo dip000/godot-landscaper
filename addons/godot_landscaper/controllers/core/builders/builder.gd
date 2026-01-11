@@ -6,6 +6,11 @@
 extends Resource
 class_name GLBuilder
 
+var _controller:GLController
+
+
+func _init(controller:GLController):
+	_controller = controller
 
 @abstract
-func build(mm:MultiMesh, build_data:GLBuildData) -> bool
+func build() -> bool

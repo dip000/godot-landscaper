@@ -1,24 +1,27 @@
 group_uniforms TextureVariants;
-const int CAP = 16; //negligible memory usage
-uniform bool enable_textures[CAP];
-uniform sampler2DArray grass_texture_array;
-uniform bool details_enable[CAP];
-uniform vec3 detail_colors[CAP]:source_color;
+uniform sampler2DArray texture_array;
+uniform vec4 detail_color[16]:source_color;
 
 // Selector of textures, details, and detail colors.
-// Set from instance_shader_parameters/variant_index
-instance uniform int variant_index;
+// Set from instance_shader_parameters/texture_layer
+instance uniform int texture_layer;
+
+
+int _get_bit(int mask, int layer){
+	return (mask & (1 << layer));
+}
 
 
 vec4 texture_fragment_color(vec3 albedo, vec2 uv) {
-	if(enable_textures[variant_index] == false){
+	if(texture_layer < 0){
 		return vec4(albedo, 1.0);
 	}
-
-	vec4 detail_mask = texture(grass_texture_array, vec3(uv, float(variant_index)));
-	if(details_enable[variant_index]){
-		albedo = mix(detail_colors[variant_index], albedo, detail_mask.r);
+	//uv = clamp(uv, vec2(0.1), vec2(0.9));
+	vec4 mask = texture(texture_array, vec3(uv, float(texture_layer)));
+	vec4 detail = detail_color[texture_layer];
+	if(detail.a > 0.0){
+		albedo = mix(detail.rgb, albedo, mask.r);
 	}
 
-	return vec4(albedo, detail_mask.a);
+	return vec4(albedo, mask.g);
 }

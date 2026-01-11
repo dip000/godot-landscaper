@@ -18,11 +18,10 @@ func end():
 
 # Gets every MultiMesh transform except the ones inside the brush
 func _get_remove_radial(hit_info:Dictionary, controller:GLControllerGrass):
-	var settings:GLSettingsGrass = controller.settings
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var mm:MultiMesh = mmi.multimesh
 	
-	var data:GLBuildDataGrass = controller.resources.source
+	var data:GLBuildDataGrass = controller.source
 	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_radius(), 2)
 	var mouse_world_pos:Vector3 = hit_info.position
 	data.clear()
@@ -39,11 +38,10 @@ func _get_remove_radial(hit_info:Dictionary, controller:GLControllerGrass):
 
 
 func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
-	var settings:GLSettingsGrass = controller.settings
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var mm:MultiMesh = mmi.multimesh
 	
-	var data:GLBuildDataGrass = controller.resources.source
+	var data:GLBuildDataGrass = controller.source
 	var brush_radius:float = Landscaper.scene.brush.get_scale_ratio()*0.5
 	var mouse_world_pos:Vector3 = hit_info.position
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
@@ -72,12 +70,12 @@ func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
 		# Compose rotation using quaternion magic
 		basis *= Basis(
 			# PI*0.5 on X axis compenzates for looking at the sky as mentioned before
-			Quaternion(Vector3.RIGHT, settings.rotation_base.x - PI * 0.5) *
-			Quaternion(Vector3.UP, settings.rotation_base.y) *
-			Quaternion(Vector3.FORWARD, settings.rotation_base.z) *
-			Quaternion(Vector3.RIGHT, randf()*settings.rotation_randomize.x) *
-			Quaternion(Vector3.UP, randf()*settings.rotation_randomize.y) *
-			Quaternion(Vector3.FORWARD, randf()*settings.rotation_randomize.z)
+			Quaternion(Vector3.RIGHT, controller.rotation_base.x - PI * 0.5) *
+			Quaternion(Vector3.UP, controller.rotation_base.y) *
+			Quaternion(Vector3.FORWARD, controller.rotation_base.z) *
+			Quaternion(Vector3.RIGHT, randf()*controller.rotation_randomize.x) *
+			Quaternion(Vector3.UP, randf()*controller.rotation_randomize.y) *
+			Quaternion(Vector3.FORWARD, randf()*controller.rotation_randomize.z)
 		)
 		
 		# to_local() takes rotation and scale in consideration
@@ -85,9 +83,9 @@ func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
 		
 		# Save base and random values
 		var local_transf := Transform3D( basis, local_pos )
-		var size_offset:Vector3 = settings.size_randomize * _randv(0, 1)
+		var size_offset:Vector3 = controller.size_randomize * _randv(0, 1)
 		
-		local_transf = local_transf.scaled_local( settings.size_base + size_offset )
+		local_transf = local_transf.scaled_local( controller.size_base + size_offset )
 		data.transforms.append( local_transf )
 		
 		# Save colors. Use cached colors for performance

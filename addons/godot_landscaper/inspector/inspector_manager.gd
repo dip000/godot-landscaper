@@ -1,5 +1,5 @@
 extends EditorInspectorPlugin
-class_name InspectorManager
+class_name GLInspectorManager
 
 
 func _can_handle(object:Object):
@@ -12,7 +12,7 @@ func selected(controller:GLControllerGrass):
 
 # Creates and connects tabs according to 'GLController.brush_tabs' settings
 func _parse_category(controller:Object, category:String):
-	if category != "Brushes":
+	if category != "Brushes" or not controller.brush_tabs:
 		return
 	
 	if not controller.current_brush_tab:
@@ -27,15 +27,15 @@ func _parse_category(controller:Object, category:String):
 	
 
  #Hides/Shows each property according to 'GLController.current_brush_tab' settings
-func _parse_property(canvas:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
-	var current_tab:InspectorTab = canvas.current_brush_tab
+func _parse_property(controller:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
+	var current_tab:GLInspectorTab = controller.current_brush_tab
 	return name in current_tab.hide_properties if current_tab else false
 
 
-func _press_tab(controller:GLControllerGrass, tab:InspectorTab):
-	var configs:Array[InspectorTab] = controller.brush_tabs
+func _press_tab(controller:GLControllerGrass, tab:GLInspectorTab):
+	var configs:Array[GLInspectorTab] = controller.brush_tabs
 	controller.current_brush_tab = tab
-	controller.select_brush(tab.brush)
+	controller.select_brush( tab.brush )
 	controller.notify_property_list_changed()
 	Landscaper.scene.select_brush( tab.icon )
 

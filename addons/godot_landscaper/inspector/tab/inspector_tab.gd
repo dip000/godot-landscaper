@@ -1,5 +1,5 @@
 extends Resource
-class_name InspectorTab
+class_name GLInspectorTab
 
 @export var title:String
 @export_multiline var info:String

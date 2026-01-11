@@ -1,13 +1,13 @@
-## CONTROLLER: Base orchestrator for all controller classes
+## Base framework for all controller classes
 ## Hosts:
-##   * Controller-specific GLBrush, GLEffect, GLBuilder and GLSetting resource classes
-##   * Buttons for handy procedures or updates
+##   * Controller-specific editor properties and buttons
+##   * Controller-specific GLBrush, GLEffect and GLBuilder resource classes
 ##   * Global debug settings
 ## 
 ## Routes control down to:
 ##   * GLBrush classes. For adding/deleting new BuildData using a stroke-like interface
-##   * GLEffect classes. For mutating the source BuildData into processed data
-##   * GLBuilder classes. For applying the processed BuildData visually
+##   * GLEffect classes. For mutating the source BuildData
+##   * GLBuilder classes. For applying BuildData
 
 @tool
 @abstract
@@ -16,18 +16,15 @@ extends Node
 class_name GLController
 
 
-## Controller-specific resources.
-@export var resources:GLResources
+## Raw build data from brushing over surfaces
+@export var source:GLBuildData
 
-## Controller-specific settings.
-@export var settings:GLSettings
-
-@export_category("Postprocess Effects")
-## Mutates the data in stack order.
-## Uses GLResources.source and mutates an output into GLResources.processed
-##
+## Mutates the source data in stack order.
 ## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 @export var effects:Array[GLEffect]
+
+@export_tool_button("    Apply All Effects   ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
+@export_tool_button("    Clear All Effects   ", "InstanceOptions") var _clear_effects_btn:Callable = clear_effects
 
 
 @export_category("APIs")
@@ -37,15 +34,17 @@ class_name GLController
 ## Editor tools are only for the editor!
 @export var apis:Array[GLAPI]
 
-
 ## Controller-specific builder.
 ## Actually builds the resulting data.
 var builder:GLBuilder
 
-## Tab configs managed EXCLUSIVELY by InspectorManager.
-var brush_tabs:Array[InspectorTab]
-## InspectorManager will update this. No need to do anything else here
-var current_brush_tab:InspectorTab
+## Helper for validating stuff
+var validator:GLValidator
+
+## Tab configs managed EXCLUSIVELY by GLInspectorManager.
+var brush_tabs:Array[GLInspectorTab]
+## GLInspectorManager will update this. No need to do anything else here
+var current_brush_tab:GLInspectorTab
 ## The brush selected in brush_tabs
 var current_brush:GLBrush
 
@@ -84,24 +83,62 @@ var is_ready:bool
 
 
 
-## This avoids clicktrhough
 func _ready():
-	await get_tree().process_frame
-	await get_tree().process_frame
-	is_ready = true
+	if Engine.is_editor_hint():
+		_setup_controller()
+		if validator.validate_ready():
+			## Delay avoids clickthrough 
+			await get_tree().process_frame
+			await get_tree().process_frame
+			is_ready = true
+	else:
+		process_mode = Node.PROCESS_MODE_DISABLED
 
 
+## Connect external resources like validators, builders, tabs, etc..
 @abstract
-func select_brush(brush:GLBrush) -> void
+func _setup_controller() -> void
 
-@abstract
-func stroke_start(hit_info:Dictionary) -> void
 
-@abstract
-func stroke_primary(hit_info:Dictionary) -> void
 
-@abstract
-func stroke_secondary(hit_info:Dictionary) -> void
+## Called from GLInspectorManager on tab click
+func select_brush(brush:GLBrush):
+	if validator.validate_select_brush( brush ):
+		current_brush = brush
+		GLDebug.internal("Selected: %s/%s" %[name, brush.resource_name])
 
-@abstract
-func stroke_end() -> void
+
+## Start landscaping according to the current brush
+func stroke_start(hit_info:Dictionary):
+	if validator.validate_stroke_start( hit_info ):
+		current_brush.start( hit_info, self )
+
+
+func stroke_primary(hit_info:Dictionary):
+	if validator.validate_stroke_primary( hit_info ):
+		current_brush.primary( hit_info, self )
+		builder.build()
+
+
+func stroke_secondary(hit_info:Dictionary):
+	if validator.validate_stroke_secondary( hit_info ):
+		current_brush.secondary( hit_info, self )
+		builder.build()
+
+
+func stroke_end():
+	if validator.validate_stroke_end():
+		current_brush.end()
+
+
+func clear_effects():
+	if validator.validate_clear_effects():
+		builder.build()
+		for effect in effects:
+			await effect.clear( self )
+
+
+func apply_effects():
+	if validator.validate_apply_effects():
+		for effect in effects:
+			await effect.apply( self )

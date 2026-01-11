@@ -3,28 +3,29 @@ extends GLEffect
 class_name GLEffectRescanLevel
 
 ## Range in meters on Y axis that the grass will try to scan for a surface to sit on
-@export var min_vertical_offset:float = -2.0
-@export var max_vertical_offset:float = 2.0
+@export var min_height_offset:float = -2.0
+@export var max_height_offset:float = 2.0
 
 
 func _apply(controller:GLController) -> bool:
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
+	controller = controller as GLControllerGrass
 	if not original_mmi:
 		GLDebug.error("No 'MultiMeshInstance' to chunkify")
 		return false
 	
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	var data:GLBuildDataGrass = controller.resources.source
-	var original_size:int = data.transforms.size()
+	var original_mm:MultiMesh = original_mmi.multimesh
+	var original_instance_count:int = original_mm.instance_count
 	var updated_instances:int = 0
-	var new_transforms:Array[Transform3D]
+	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	
-	for i in original_size:
-		var original_transf:Transform3D = data.transforms[i]
+	for i in range(original_instance_count):
+		var original_transf:Transform3D = original_mm.get_instance_transform( i )
 		var global_position:Vector3 = original_mmi.to_global( original_transf.origin )
-		var scan_upper:Vector3 = global_position + Vector3.UP*max_vertical_offset
-		var scan_lower:Vector3 = global_position + Vector3.UP*min_vertical_offset
+		var scan_upper:Vector3 = global_position + Vector3.UP*max_height_offset
+		var scan_lower:Vector3 = global_position + Vector3.UP*min_height_offset
 		
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
 		if not result: continue
@@ -40,12 +41,12 @@ func _apply(controller:GLController) -> bool:
 		# Compose rotation using quaternion magic
 		basis *= Basis(
 			# PI*0.5 on X axis compenzates for looking at the sky as mentioned before
-			Quaternion(Vector3.RIGHT, data.rotation_base.x - PI * 0.5) *
-			Quaternion(Vector3.UP, data.rotation_base.y) *
-			Quaternion(Vector3.FORWARD, data.rotation_base.z) *
-			Quaternion(Vector3.RIGHT, randf()*data.rotation_randomize.x) *
-			Quaternion(Vector3.UP, randf()*data.rotation_randomize.y) *
-			Quaternion(Vector3.FORWARD, randf()*data.rotation_randomize.z)
+			Quaternion(Vector3.RIGHT, controller.rotation_base.x - PI * 0.5) *
+			Quaternion(Vector3.UP, controller.rotation_base.y) *
+			Quaternion(Vector3.FORWARD, controller.rotation_base.z) *
+			Quaternion(Vector3.RIGHT, randf()*controller.rotation_randomize.x) *
+			Quaternion(Vector3.UP, randf()*controller.rotation_randomize.y) *
+			Quaternion(Vector3.FORWARD, randf()*controller.rotation_randomize.z)
 		)
 		
 		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
@@ -54,24 +55,32 @@ func _apply(controller:GLController) -> bool:
 		
 		# Save base and random values
 		var local_transf:Transform3D = Transform3D( basis, local_pos )
-		var size_offset:Vector3 = data.size_randomize * randf()
-		local_transf = local_transf.scaled_local( data.size_base + size_offset )
+		var size_offset:Vector3 = controller.size_randomize * randf()
+		local_transf = local_transf.scaled_local( controller.size_base + size_offset )
 		
-		new_transforms.append( local_transf )
+		# Save new transforms and original colors
+		new_data.transforms.append( local_transf )
+		new_data.top_colors.append( original_mm.get_instance_color( i ) )
+		new_data.bottom_colors.append( original_mm.get_instance_custom_data( i ) )
 		await _index(i)
 	
 	# Resize down the new values if some were lost
-	var new_size:int = new_transforms.size()
-	if updated_instances != new_size:
-		data.top_colors.resize(new_size)
-		data.bottom_colors.resize(new_size)
+	var new_size:int = new_data.size()
+	original_mm.instance_count = new_size
 	
-	# Dump new transforms
-	data.transforms = new_transforms
+	# Apply new transforms and set previous colors
+	for i in range(new_size):
+		original_mm.set_instance_transform( i, new_data.transforms[i] )
+		original_mm.set_instance_color( i, new_data.top_colors[i] )
+		original_mm.set_instance_custom_data( i, new_data.bottom_colors[i] )
 	
 	original_mmi.global_position = mmi.global_position
-	var lost_instances:int = original_size - new_size
+	var lost_instances:int = original_instance_count - new_size
 	
 	GLScanner.clear_cache()
-	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost" %lost_instances)
+	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost out of %s" %[lost_instances, original_instance_count])
+	return true
+
+
+func _clear(controller:GLController) -> bool:
 	return true

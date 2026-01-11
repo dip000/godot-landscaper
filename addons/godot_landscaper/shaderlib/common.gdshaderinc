@@ -1,6 +1,5 @@
 group_uniforms Common;
 
-uniform vec3 player_position;
 
 uniform vec2 ground_size;
 uniform vec2 ground_position;

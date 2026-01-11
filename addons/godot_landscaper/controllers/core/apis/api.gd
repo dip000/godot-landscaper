@@ -35,7 +35,7 @@ class_name GLAPI
 static var _registered_apis:Dictionary[Variant, GLAPI]
 
 ## Identifier to be registered globally in _registered_apis
-@export var key:Variant
+var key:Variant
 
 
 ## Finds a stored api instance by key or creates it if it didn't exist

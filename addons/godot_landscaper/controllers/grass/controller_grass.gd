@@ -22,9 +22,8 @@ class_name GLControllerGrass
 
 ## The transition between the bottom terrain color and the top hand-painted color.
 @export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:
-	set(v):
-		splash_height = v
-		resources.set_shader("splash_height", v)
+	get: return _get_shader("splash_height", 0.0)
+	set(v): _set_shader("splash_height", v)
 
 ## Uses the secondary color to manually paint the bottom of the grass instead of the top.
 ## Note that the scanning mechanics will auto detect the bottom colors.
@@ -35,107 +34,135 @@ class_name GLControllerGrass
 @export var multimesh_instance:MultiMeshInstance3D
 
 
-@export_category("Controls")
-@export_tool_button("     Rebuild All     ", "InstanceOptions") var _build_all_btn:Callable = build_all
-@export_tool_button("    Clear Effects    ", "Clear") var _clear_effects_btn:Callable = clear_effects
-@export_tool_button("    Apply Effects    ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
+@export_group("Resources")
+## Use your custom mesh as simple 3D grass without textures.
+## Or use one QuadMesh and different textures each grass.
+@export var mesh:Mesh
+
+## Use the same shader globally for performance.
+## You can use your own shader as long as it has the same uniforms.
+@export var shader:Shader
+
+## Use the same material globally for performance (recomended).
+## Or use different materials for different biomas or to separate textured and non-textured meshes.
+@export var material:ShaderMaterial
 
 
-func _ready():
-	builder = GLBuilderGrass.new()
-	brush_tabs = [
-		InspectorTab.new(
-			"Spawn",
-			"Left click to spawn, right click to erase",
-			["primary_color", "secondary_color", "splash_height", "paint_bottom_with_sencondary_color"],
-			AtlasIcon.Icon.GRASS_SCATTER,
-			GLBrushGrassSpawn.new(),
-		),
-		InspectorTab.new(
-			"Paint",
-			"left cick to paint with primary color, right click for secondary",
-			["spawn_ratio", "erase_ratio", "multimesh_instance"],
-			AtlasIcon.Icon.COLOR,
-			GLBrushGrassPaint.new(),
-		),
-	]
-	await super()
-	fix_references()
+@export_subgroup("Texture", "texture_")
+## Used for having multiple texture configurations with the same material.
+## For performance, one single Texture2DArray will be made for all layers of the same material.
+## Avoid leaving empty layer gaps.
+@export var texture_layer:int = -1:
+	get: return _get_shader_instance("texture_layer", -1)
+	set(v): _set_shader_instance("texture_layer", v)
+
+@export var texture_detail_color:Color = Color.TRANSPARENT:
+	get: return _get_shader_index("detail_color", Color.TRANSPARENT)
+	set(v): _set_shader_index( "detail_color", v )
+
+## The formated size after baking the texture into the array
+@export var texture_size_array:Vector2i = Vector2i(255, 255)
+
+## Select a texture_layer, a texture_instance and press "Bake Instance Into Array" to apply textures. It will be formated to fit inside a Texture2DArray
+@export var texture_instance:Texture2D
+
+## Dynamic and performant array of textures for multiple grass textures. One Texture2DArray will be created per material.
+@export var texture_array:Texture2DArray:
+	get: return _get_shader("texture_array")
+	set(v): _set_shader("texture_array", v)
+
+@export_tool_button(" Bake Instance Into Array ") var texture_bake_btn:Callable = texture_bake
+@export_tool_button("  Clear Instance Of Array  ") var texture_clear_btn:Callable = texture_clear
 
 
-## Called from InspectorManager on tab click
-func select_brush(brush:GLBrush):
-	current_brush = brush
-	GLDebug.internal("Selected: %s/%s" %[name, brush.resource_name])
+@export_group("Color Scanning")
+@export_subgroup("Scan Physics Bodies")
+## The collision_layer to scan for any developer-made PhysicsBody3D 
+@export_flags_3d_physics var scan_layer:int = 0xFFFFFFFF
+
+## The collision_layer for internal PhysicsBody3D. Set one that you're not using anywhere else
+@export_flags_3d_physics var scan_layer_internal:int = (1<<31)
+@export_subgroup("Scan Meshes")
+
+## Attempts to find the mesh of the scanned PhysicsBody3D in its parent
+@export var parent_of_physics_body:bool = true
+
+## NodePath from the scanned PhysicsBody3D to its mesh
+@export var relative_path_from_physics_body:StringName = ""
+
+@export_subgroup("Scan Color Sources")
+## Property path from the scanned standar material to the source of color, can be a texture, vec3, or a vec4 
+@export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
+
+## Property path from the scanned shader material to the source of color, can be a texture, vec3, or a vec4 
+@export var paths_in_shader_materials:Array[String] = ["texture", "color"]
+
+## Color when the scanner couldn't find any color source
+@export var fallback_color:Color = Color.MAGENTA
 
 
-## Start landscaping according to the current brush
-func stroke_start(hit_info:Dictionary):
-	if fix_references(hit_info):
-		current_brush.start( hit_info, self )
+@export_group("Randomizers")
+@export_subgroup("Size", "size_")
+## Original size of the instance to spawn
+@export var size_base:Vector3 = Vector3.ONE
+## How much will the base size be modified randomly
+@export var size_randomize:Vector3 = Vector3(0, 0.25, 0)
+
+@export_subgroup("Rotation", "rotation_")
+## Original rotation of the instance to spawn
+@export var rotation_base:Vector3 = Vector3.ZERO
+## How much will the base rotation be modified randomly
+@export var rotation_randomize:Vector3 = Vector3(0, PI, 0)
+
+@export_subgroup("Position offset", "offset_")
+## [NOT-IMPLEMENTED] Original position offset of the instance to spawn.
+## Usefull for aligning the grass origin with the ground 
+@export var offset_base:Vector3 = Vector3.ZERO
+
+var texture_baker:GLTextureBaker
 
 
-func stroke_primary(hit_info:Dictionary):
-	current_brush.primary( hit_info, self )
-	builder.build( multimesh_instance.multimesh, resources.source )
+func texture_bake():
+	if validator.validate_texture_bake():
+		texture_baker.bake_layer()
+		builder.build()
+
+func texture_clear():
+	if validator.validate_texture_clear():
+		texture_baker.clear_layer()
+		builder.build()
 
 
-func stroke_secondary(hit_info:Dictionary):
-	current_brush.secondary( hit_info, self )
-	builder.build( multimesh_instance.multimesh, resources.source )
+func _setup_controller():
+	texture_baker = GLTextureBaker.new( self )
+	validator = GLValidatorGrass.new( self )
+	builder = GLBuilderGrass.new( self )
+	brush_tabs = AssetsManager.load_controller_tabs( "grass" )
 
 
-func stroke_end():
-	current_brush.end()
+func _get_shader(parameter:String, default:Variant=null) -> Variant:
+	if material and "shader_parameter/%s"%parameter in material:
+		return material["shader_parameter/%s"%parameter]
+	return default
 
+func _set_shader(parameter:String, value:Variant):
+	if material:
+		material["shader_parameter/%s"%parameter] = value
 
-func build_all():
-	apply_effects()
-	builder.build( multimesh_instance.multimesh, resources.processed )
+func _get_shader_index(parameter:String, default:Variant=null) -> Variant:
+	if material and "shader_parameter/%s"%parameter in material and texture_layer >= 0:
+		return material["shader_parameter/%s"%parameter][texture_layer]
+	return default
 
-func apply_effects():
-	for effect in effects:
-		if effect:
-			effect.apply_safe(self)
+func _set_shader_index(parameter:String, value:Variant):
+	if material and texture_layer >= 0:
+		material["shader_parameter/%s"%parameter][texture_layer] = value
 
+func _get_shader_instance(parameter:String, default:Variant=null) -> Variant:
+	if multimesh_instance and multimesh_instance.multimesh and "instance_shader_parameters/%s"%parameter in multimesh_instance:
+		return multimesh_instance.get_instance_shader_parameter(parameter)
+	return default
 
-func clear_effects():
-	builder.build( multimesh_instance.multimesh, resources.source )
-
-
-func fix_references(hit_info:Dictionary={}) -> bool:
-	if not current_brush:
-		GLDebug.error("There's no brush resource in selected tab of controller %s. Make sure InspectorTab.brush != null " %name)
-		return false
-	
-	if not settings or not settings is GLSettingsGrass:
-		settings = GLSettingsGrass.new()
-	
-	if not resources or not resources is GLResourcesGrass:
-		resources = GLResourcesGrass.new()
-	if not resources.fix_references( settings ):
-		GLDebug.error("Coundn't fix GLResourcesGrass references of controller %s" %name)
-		return false
-	
-	if not effects:
-		effects = []
-	
-	if not multimesh_instance and "collider" in hit_info:
-		var brush_surface:Node3D = GLScanner.scan_mesh( hit_info.collider, settings)
-		var parent:Node3D = brush_surface if brush_surface else self
-		multimesh_instance = SceneManager.find_or_create_node(MultiMeshInstance3D, parent, name)
-		GLDebug.warning("Auto selected MultiMeshInstance '%s'. If this is not your intention please select the node manually" %multimesh_instance.name)
-	
-	if multimesh_instance:
-		if not multimesh_instance.multimesh:
-			multimesh_instance.multimesh = MultiMesh.new()
-			multimesh_instance.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-			multimesh_instance.multimesh.use_colors = true
-			multimesh_instance.multimesh.use_custom_data = true
-		multimesh_instance.multimesh.mesh = resources.mesh
-		multimesh_instance.set_instance_shader_parameter("variant_index", settings.instance_index)
-	
-	if not resources.source:
-		resources.source = GLBuildDataGrass.new()
-	
-	return true
+func _set_shader_instance(parameter:String, value:Variant):
+	if multimesh_instance and "instance_shader_parameters/%s"%parameter in multimesh_instance:
+		multimesh_instance.set_instance_shader_parameter( parameter, value )

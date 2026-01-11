@@ -4,7 +4,7 @@ class_name Landscaper
 
 static var scene:SceneManager
 static var assets:AssetsManager
-static var inspector:InspectorManager
+static var inspector:GLInspectorManager
 static var undo_redo:GLUndoRedo
 static var is_enabled:bool
 
@@ -16,9 +16,10 @@ static func running() -> bool:
 
 
 func _enter_tree():
+	GLDebug.state("Starting GodotLandscaper..")
 	assets = AssetsManager.ASSETS_MANAGER.instantiate()
 	scene = AssetsManager.SCENE_MANAGER.instantiate()
-	inspector = InspectorManager.new()
+	inspector = GLInspectorManager.new()
 	add_inspector_plugin( inspector )
 	undo_redo = GLUndoRedo.new( get_undo_redo() )
 	
@@ -27,14 +28,17 @@ func _enter_tree():
 	viewport.add_child( assets )
 	viewport.add_child( scene )
 	is_enabled = true
+	GLDebug.state("Started GodotLandscaper!")
 	
 
 func _exit_tree():
+	GLDebug.state("Closing GodotLandscaper..")
 	is_enabled = false
 	remove_inspector_plugin( inspector )
 	assets.queue_free()
 	scene.queue_free()
 	undo_redo.free()
+	GLDebug.state("Closed GodotLandscaper")
 	
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node

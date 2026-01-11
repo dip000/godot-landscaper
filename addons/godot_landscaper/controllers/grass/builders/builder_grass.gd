@@ -6,8 +6,12 @@ extends GLBuilder
 class_name GLBuilderGrass
 
 
-func build(mm:MultiMesh, build_data:GLBuildData) -> bool:
-	mm.instance_count = build_data.transforms.size()
+func build() -> bool:
+	_controller = _controller as GLControllerGrass
+	var build_data:GLBuildDataGrass = _controller.source
+	var mmi:MultiMeshInstance3D = _controller.multimesh_instance
+	var mm:MultiMesh = mmi.multimesh
+	mm.instance_count = build_data.size()
 	
 	for i in range(mm.instance_count):
 		mm.set_instance_transform( i, build_data.transforms[i] )

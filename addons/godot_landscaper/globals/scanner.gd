@@ -29,10 +29,8 @@ static func cache_scan(collider:CollisionObject3D, controller:GLControllerGrass,
 	if not collider or not controller:
 		return CACHE_DEFAULT
 	
-	var settings:GLSettingsGrass = controller.settings
-	
 	if controller.paint_bottom_with_sencondary_color:
-		CACHE_DEFAULT.default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else settings.fallback_color
+		CACHE_DEFAULT.default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else controller.fallback_color
 		return CACHE_DEFAULT
 	
 	# Run scans if hit_info happened in a new surface
@@ -42,19 +40,19 @@ static func cache_scan(collider:CollisionObject3D, controller:GLControllerGrass,
 		return cache
 	
 	cache = Cache.new()
-	cache.default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else settings.fallback_color
+	cache.default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else controller.fallback_color
 	cache.collider = collider
-	cache.instance = GLScanner.scan_mesh( cache.collider, settings )
+	cache.instance = GLScanner.scan_mesh( cache.collider, controller )
 	
 	if not cache.instance:
 		GLDebug.error("Couldn't scan a valid mesh from settings. Auto-coloring and perfect surface placement cannot be made")
 		return cache
 	
-	cache.cached_collider = GLScanner.create_cached_collider( cache.collider, settings.scan_layer_internal )
+	cache.cached_collider = GLScanner.create_cached_collider( cache.collider, controller.scan_layer_internal )
 	cache.mdts = GLScanner.create_shapes( cache.collider, cache.cached_collider, cache.instance )
 	
 	if cache_color_sources:
-		cache.sources = GLScanner.scan_color_sources( cache.instance, settings.paths_in_standar_materials, settings.paths_in_shader_materials )
+		cache.sources = GLScanner.scan_color_sources( cache.instance, controller.paths_in_standar_materials, controller.paths_in_shader_materials )
 
 	# The first detected collider is user-made, the following hits will always be cached_collider
 	_cached_refs[cache.cached_collider] = cache
@@ -78,16 +76,16 @@ static func clear_cache():
 	_cached_refs.clear()
 
 
-static func scan_mesh(collider:CollisionObject3D, settings:GLSettings) -> MeshInstance3D:
+static func scan_mesh(collider:CollisionObject3D, controller:GLControllerGrass) -> MeshInstance3D:
 	if not collider:
 		return null
 	
-	if settings.relative_path_from_physics_body.is_relative_path():
-		var node:Node = collider.get_node_or_null( NodePath(settings.relative_path_from_physics_body) )
+	if controller.relative_path_from_physics_body.is_relative_path():
+		var node:Node = collider.get_node_or_null( NodePath(controller.relative_path_from_physics_body) )
 		if node is MeshInstance3D and node.mesh:
 			return node
 	
-	if settings.parent_of_physics_body:
+	if controller.parent_of_physics_body:
 		var node:Node = collider.get_parent()
 		if node is MeshInstance3D and node.mesh:
 			return node

@@ -1,5 +1,5 @@
 ## Gobal configuration chacheing for Tweens.
-## NOTE: It frees the tween when is not active; it creates and destroys it dynamically.
+## NOTE: Doesn't keep the actual tween reference. It creates and destroys it dynamically.
 ##
 ## Regular Tweens are self-destroyed at their end of their lifetimes,
 ## this introduces too much boilerplate configuration each time.
@@ -16,46 +16,51 @@
 ## 
 ## --------------- 2. Using static methods with global keys --------
 ##  GLAPITween.global_create("wind", material, "shader_parameter/wind", 10, 100) 
-##  GLAPITween.set_hold_and_reset_tween("wind", 1, 5, 5) 
-##  GLAPITween.reset("wind", 2)
+##  GLAPITween.global_set_hold_and_reset("wind", 1, 5, 5) 
+##  GLAPITween.global_reset("wind", 2)
 ##
 ## --------------- 3. Setting up exports from inspector ------------
-## NOT IMPLEMENTED
+## NOT-IMPLEMENTED
 ##
 
 @tool
 extends GLAPI
 class_name GLAPITween
 
-## Property string of the target object
-@export var property:String
-## Value when resetting; initial state
-@export var initial_value:Variant
-## Value when setting; final state
-@export var final_value:Variant
-
-## Configurable time to start
-@export var start_time:float
-## Configurable time to hold
-@export var hold_time:float
-## Configurable time to reset
-@export var reset_time:float
-
-@export var trans:Tween.TransitionType = Tween.TransitionType.TRANS_LINEAR
-@export var ease:Tween.EaseType = Tween.EaseType.EASE_IN_OUT
-
-## Alternatively, Tween's target resource
-@export var resource:Resource
+@export_group("Target")
 ## Tween's target object
 var object:Object:
 	get: return object if object else resource
+## Alternatively, Tween's target resource
+@export var resource:Resource
+## Property string of the target object
+@export var property:String
+
+@export_group("Start", "start_")
+## Configurable time to start
+@export var start_time:float
+## Value after start time
+@export var start_value:Variant
+
+@export_group("Hold", "hold_")
+## Configurable time to hold
+@export var hold_time:float
+
+@export_group("Reset", "reset_")
+## Configurable time to reset
+@export var reset_time:float
+## Value after reset time
+@export var reset_value:Variant
+
+@export_group("Interpolation")
+@export var trans:Tween.TransitionType = Tween.TransitionType.TRANS_LINEAR
+@export var ease:Tween.EaseType = Tween.EaseType.EASE_IN_OUT
 
 ## Will be created and destroyed dinamically
 var tween:Tween
 
 
 ## Anonymous constructor for creating a GLAPITween.
-## To register a global GLAPITween, use GLAPITween.global_register(..)
 static func create(
 	object:Object, property:String,
 	trans:Tween.TransitionType=Tween.TRANS_LINEAR, ease:Tween.EaseType=Tween.EASE_IN_OUT
@@ -151,7 +156,7 @@ func _nullify_tween():
 func start() -> PropertyTweener:
 	_revive_tween()
 	var prop:PropertyTweener = tween.tween_property(
-		object, property, final_value, start_time
+		object, property, start_value, start_time
 	).set_trans(trans).set_ease(ease)
 	_kill_tween_on_end()
 	return prop
@@ -161,7 +166,7 @@ func start() -> PropertyTweener:
 func reset() -> PropertyTweener:
 	_revive_tween()
 	var prop:PropertyTweener = tween.tween_property(
-		object, property, initial_value, reset_time
+		object, property, reset_value, reset_time
 	).set_trans(trans).set_ease(ease)
 	_kill_tween_on_end()
 	return prop
@@ -172,13 +177,13 @@ func start_hold_and_reset() -> PropertyTweener:
 	_revive_tween()
 	
 	tween.chain().tween_property(
-		object, property, final_value, start_time
+		object, property, start_value, start_time
 	).set_trans(trans).set_ease(ease)
 	
 	tween.chain().tween_interval( hold_time )
 	
 	var prop:PropertyTweener = tween.chain().tween_property(
-		object, property, initial_value, reset_time
+		object, property, reset_value, reset_time
 	).set_trans(trans).set_ease(ease)
 	
 	_kill_tween_on_end()

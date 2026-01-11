@@ -1,4 +1,5 @@
 group_uniforms Trampling;
+uniform vec3 player_position;
 uniform float character_radius = 3.0;
 uniform sampler2D character_distance_falloff_curve : hint_default_black;
 
