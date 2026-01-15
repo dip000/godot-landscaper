@@ -35,6 +35,7 @@ class_name GLControllerGrass
 
 
 @export_group("Resources")
+@export_subgroup("Shape")
 ## Use your custom mesh as simple 3D grass without textures.
 ## Or use one QuadMesh and different textures each grass.
 @export var mesh:Mesh
@@ -56,6 +57,9 @@ class_name GLControllerGrass
 	get: return _get_shader_instance("texture_layer", -1)
 	set(v): _set_shader_instance("texture_layer", v)
 
+## You can add and fine-tuned cheap details with a grayscaled grass texture (instead of purely white), like contours or veins.
+## The grayscale will be mix-recolored to this color.
+## Leave transparent for disabling it (more performant).
 @export var texture_detail_color:Color = Color.TRANSPARENT:
 	get: return _get_shader_index("detail_color", Color.TRANSPARENT)
 	set(v): _set_shader_index( "detail_color", v )
@@ -125,19 +129,17 @@ var texture_baker:GLTextureBaker
 func texture_bake():
 	if validator.validate_texture_bake():
 		texture_baker.bake_layer()
-		builder.build()
 
 func texture_clear():
 	if validator.validate_texture_clear():
 		texture_baker.clear_layer()
-		builder.build()
 
 
 func _setup_controller():
 	texture_baker = GLTextureBaker.new( self )
 	validator = GLValidatorGrass.new( self )
 	builder = GLBuilderGrass.new( self )
-	brush_tabs = AssetsManager.load_controller_tabs( "grass" )
+	brushes = AssetsManager.load_controller_brushes( "grass" )
 
 
 func _get_shader(parameter:String, default:Variant=null) -> Variant:
@@ -145,24 +147,36 @@ func _get_shader(parameter:String, default:Variant=null) -> Variant:
 		return material["shader_parameter/%s"%parameter]
 	return default
 
+
 func _set_shader(parameter:String, value:Variant):
 	if material:
 		material["shader_parameter/%s"%parameter] = value
+	else:
+		GLDebug.error("Cannot set shader parameter %s: Material is null. Assign a valid shader material with the corresponding shader" %parameter)
+
 
 func _get_shader_index(parameter:String, default:Variant=null) -> Variant:
 	if material and "shader_parameter/%s"%parameter in material and texture_layer >= 0:
 		return material["shader_parameter/%s"%parameter][texture_layer]
 	return default
 
+
 func _set_shader_index(parameter:String, value:Variant):
 	if material and texture_layer >= 0:
 		material["shader_parameter/%s"%parameter][texture_layer] = value
+	else:
+		GLDebug.error("Cannot set shader parameter %s: Material is null or texture_layer<0" %parameter)
+
 
 func _get_shader_instance(parameter:String, default:Variant=null) -> Variant:
-	if multimesh_instance and multimesh_instance.multimesh and "instance_shader_parameters/%s"%parameter in multimesh_instance:
-		return multimesh_instance.get_instance_shader_parameter(parameter)
+	if multimesh_instance and multimesh_instance.multimesh:
+		var value = multimesh_instance.get_instance_shader_parameter(parameter)
+		return value if value != null else default
 	return default
+
 
 func _set_shader_instance(parameter:String, value:Variant):
 	if multimesh_instance and "instance_shader_parameters/%s"%parameter in multimesh_instance:
 		multimesh_instance.set_instance_shader_parameter( parameter, value )
+	else:
+		GLDebug.error("Cannot set shader instance parameter: There's no multimesh. Set multimesh_instance under Inspector > Brushes > Spawn > Multimesh Instance")

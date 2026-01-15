@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://e30e2a3hk2ih"
-path="res://.godot/imported/texture_quad.svg-05dc7e045e33a84ad5eedc4e7829d314.ctex"
+path="res://.godot/imported/texture_quad.svg-f239902ede151e1dc1ae0dd756437005.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/godot_landscaper/assets_manager/grass/texture_quad.svg"
-dest_files=["res://.godot/imported/texture_quad.svg-05dc7e045e33a84ad5eedc4e7829d314.ctex"]
+source_file="res://addons/godot_landscaper/controllers/grass/resources/texture_quad.svg"
+dest_files=["res://.godot/imported/texture_quad.svg-f239902ede151e1dc1ae0dd756437005.ctex"]
 
 [params]
 
@@ -37,7 +37,7 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=2
+detect_3d/compress_to=0
 svg/scale=1.0
 editor/scale_with_editor_scale=false
 editor/convert_colors_with_editor_theme=false

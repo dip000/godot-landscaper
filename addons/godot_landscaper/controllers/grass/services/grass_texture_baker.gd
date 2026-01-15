@@ -12,16 +12,9 @@ func _init(controller:GLController):
 ## Performs 'texture_array[texture_layer] = texture_instance' but with a Texture2DArray.
 ## Gap layers will be filled with empty images
 func bake_layer():
+	_controller = _controller as GLControllerGrass
 	var requested_layer:int = _controller.texture_layer
-	if requested_layer < 0:
-		GLDebug.error("Texture bake failed. texture_layer must be a positive value")
-		return
-	
 	var requested_texture:Texture2D = _controller.texture_instance
-	if not requested_texture:
-		GLDebug.error("Texture bake failed. texture_instance is invalid")
-		return
-	
 	var texture_array:Texture2DArray = _controller.texture_array
 	if not texture_array:
 		texture_array = Texture2DArray.new()
@@ -39,7 +32,7 @@ func bake_layer():
 		var img:Image
 		if layer == requested_layer:
 			img = requested_texture.get_image()
-			GLDebug.internal( "Layer replaced: %s, Data array format: %s, Size: (%s,%s), Total layers: %s" %[layer, texture_array.get_format(), texture_array.get_width(), texture_array.get_height(), texture_array.get_layers()] )
+			GLDebug.state( "Layer Set: %s, Data array format: %s, Size: (%s,%s), Total layers: %s" %[layer, texture_array.get_format(), texture_array.get_width(), texture_array.get_height(), texture_array.get_layers()] )
 		elif layer < baked_layers:
 			img = texture_array.get_layer_data( layer )
 			GLDebug.internal( "Layer colected: %s" %layer )
@@ -102,11 +95,11 @@ func _format_img(img:Image, texture_size:Vector2i) -> Image:
 		img.convert( Image.FORMAT_RG8 )
 	
 	if img.get_size() != texture_size:
-		var base:Image = _make_empty_image( texture_size )
-		var inner_size:Vector2i = texture_size - Vector2i(2,2)
-		img.resize( inner_size.x, inner_size.y, Image.INTERPOLATE_LANCZOS )
-		base.blit_rect( img, Rect2i(Vector2i.ZERO, inner_size), Vector2i.ONE )
-		img = base
+		#var base:Image = _make_empty_image( texture_size )
+		#var inner_size:Vector2i = texture_size - Vector2i(2,2)
+		img.resize( texture_size.x, texture_size.y, Image.INTERPOLATE_LANCZOS )
+		#base.blit_rect( img, Rect2i(Vector2i.ZERO, inner_size), Vector2i.ONE )
+		#img = base
 	
 	if not img.has_mipmaps():
 		img.generate_mipmaps()

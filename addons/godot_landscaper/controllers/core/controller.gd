@@ -35,17 +35,16 @@ class_name GLController
 @export var apis:Array[GLAPI]
 
 ## Controller-specific builder.
-## Actually builds the resulting data.
+## Actually builds the resulting data. Set in _setup_controller()
 var builder:GLBuilder
 
-## Helper for validating stuff
+## Helper for validating stuff. Set in _setup_controller()
 var validator:GLValidator
 
-## Tab configs managed EXCLUSIVELY by GLInspectorManager.
-var brush_tabs:Array[GLInspectorTab]
-## GLInspectorManager will update this. No need to do anything else here
-var current_brush_tab:GLInspectorTab
-## The brush selected in brush_tabs
+## Tab configs with UI info. Set in _setup_controller()
+## GLInspectorManager listens for the brushes[clicked_tab]
+var brushes:Array[GLBrush]
+## The current active brush from brushes
 var current_brush:GLBrush
 
 ## Lifehack to avoid clickthrough while adding a node from the "Add Children Node" window
@@ -105,7 +104,7 @@ func _setup_controller() -> void
 func select_brush(brush:GLBrush):
 	if validator.validate_select_brush( brush ):
 		current_brush = brush
-		GLDebug.internal("Selected: %s/%s" %[name, brush.resource_name])
+		GLDebug.internal("Selected: %s/%s" %[name, brush.title])
 
 
 ## Start landscaping according to the current brush

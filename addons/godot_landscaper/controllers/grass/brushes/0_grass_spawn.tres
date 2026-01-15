@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GLBrushGrassSpawn" load_steps=2 format=3 uid="uid://bbilslko5cndt"]
+
+[ext_resource type="Script" uid="uid://b1xgefqgd5g55" path="res://addons/godot_landscaper/controllers/grass/brushes/brush_grass_spawn.gd" id="1_w4ehw"]
+
+[resource]
+script = ExtResource("1_w4ehw")
+title = "Spawn"
+info = "Left click to spawn grass over a surface, right click to erase"
+hide_properties = PackedStringArray("primary_color", "secondary_color", "splash_height", "paint_bottom_with_sencondary_color")
+metadata/_custom_type_script = "uid://b1xgefqgd5g55"

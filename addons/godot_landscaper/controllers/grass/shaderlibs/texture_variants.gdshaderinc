@@ -16,7 +16,9 @@ vec4 texture_fragment_color(vec3 albedo, vec2 uv) {
 	if(texture_layer < 0){
 		return vec4(albedo, 1.0);
 	}
-	//uv = clamp(uv, vec2(0.1), vec2(0.9));
+	// Clears artifacts due mipmap bleeding into other layers 
+	uv = max(uv, 0.02);
+	
 	vec4 mask = texture(texture_array, vec3(uv, float(texture_layer)));
 	vec4 detail = detail_color[texture_layer];
 	if(detail.a > 0.0){
