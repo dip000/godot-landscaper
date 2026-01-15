@@ -19,27 +19,26 @@ func end():
 # Gets every MultiMesh transform except the ones inside the brush
 func _get_remove_radial(hit_info:Dictionary, controller:GLControllerGrass):
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var mm:MultiMesh = mmi.multimesh
-	
-	var data:GLBuildDataGrass = controller.source
 	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_radius(), 2)
 	var mouse_world_pos:Vector3 = hit_info.position
-	data.clear()
+	var prev_data:GLBuildDataGrass = controller.source
+	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
 	
-	for i in mm.instance_count:
-		var instance_transform:Transform3D = mm.get_instance_transform(i)
+	for i in prev_data.size():
+		var instance_transform:Transform3D = prev_data.transforms[i]
 		var instance_world_pos:Vector3 = mmi.to_global( instance_transform.origin )
 		var dist_sqr:float = instance_world_pos.distance_squared_to( mouse_world_pos )
 		
 		if dist_sqr > brush_radius_sqr or controller.erase_ratio < randf():
-			data.transforms.append( instance_transform )
-			data.top_colors.append( mm.get_instance_color(i) )
-			data.bottom_colors.append( mm.get_instance_custom_data(i) )
+			new_data.transforms.append( instance_transform )
+			new_data.top_colors.append( prev_data.top_colors[i] )
+			new_data.bottom_colors.append( prev_data.bottom_colors[i] )
+	
+	controller.source = new_data
 
 
 func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var mm:MultiMesh = mmi.multimesh
 	
 	var data:GLBuildDataGrass = controller.source
 	var brush_radius:float = Landscaper.scene.brush.get_scale_ratio()*0.5
@@ -94,6 +93,8 @@ func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
 		data.top_colors.append( controller.primary_color )
 
 
+# Finds a random point in an imaginary sphere from its center.
+# Not perfectly normalized since it comes from a square but meh
 func _get_surface_point(radius:float) -> Vector3:
 	var point:Vector3 = _randv(-1, +1).normalized()
 	return point * radius

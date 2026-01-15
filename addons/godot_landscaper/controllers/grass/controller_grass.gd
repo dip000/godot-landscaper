@@ -9,16 +9,19 @@ class_name GLControllerGrass
 
 @export_category("Brushes")
 ## How many grass instances coincides to hit over the surface per editor frame
-@export_range(1.0, 10.0, 1.0, "or_greater") var spawn_ratio:float = 1.0
+@export_range(1.0, 10.0, 1.0, "or_greater", "suffix:instances/frame") var spawn_ratio:float = 1.0
 
-## How many grass instances attempt to erase per editor frame
-@export_range(0.1, 1.0, 0.1) var erase_ratio:float = 1.0
+## Smooths the erasing.
+## For decreasing the density withouth hard-cutting everything
+@export_range(0.1, 1.0, 0.1, "suffix:%/frame") var erase_ratio:float = 1.0
 
-## Grass color with left button mouse
+## Grass color with left button mouse.
+## Use transparency for smooth blending.
 @export var primary_color:Color = Color.PALE_GOLDENROD
 
 ## Grass color with right button mouse
-@export var secondary_color:Color = Color.PALE_VIOLET_RED
+## Use transparency for smooth blending.
+@export var secondary_color:Color = Color(Color.PALE_VIOLET_RED, 0.5)
 
 ## The transition between the bottom terrain color and the top hand-painted color.
 @export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:
