@@ -1,34 +1,33 @@
 ## EFFECT GRASS: Interface members for all effect classes
 ##
 
+## MultiMeshInstance3D Chunkifyier
+##
+## The chunks are split in absolute world coordinates, including negatives
+
 @tool
 extends GLEffect
 class_name GLEffectGrassChunkify
 
 enum Meta {MIN_INDEX, MAX_INDEX, COUNT}
 
-@export var chunks_parent:NodePath
+## The size squared to split the grass instances.
 @export var chunk_size:int = 32:
 	set(v): chunk_size = max(1, v)
+
+## Stores the chunks in organized "node folders" as parents like "Chunk_0_1"
 @export var organize_by_chunk_parents:bool = true
+
+## Hides the controller's multimesh_instance instead of replacing it.
+## Consider replacing it on export builds to avoid clutter nodes.
+@export var hide_original_multimesh:bool = true
 
 
 func _apply(controller:GLController) -> bool:
+	controller = controller as GLControllerGrass
+	var processed:GLBuildDataGrass = controller.processed
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	if not original_mmi:
-		GLDebug.error("GLController does not have a 'MultiMeshInstance3D' to chunkify")
-		return false
-	
-	var root_parent:Node = controller.get_node_or_null( chunks_parent )
-	if not root_parent:
-		GLDebug.warning("Chunks Parent is invalid '%s'. Placed as a sibling of the multimesh_instance instead, select another parent node if this is not your intention." %chunks_parent)
-		root_parent = original_mmi.get_parent()
-		chunks_parent = controller.get_path_to( root_parent )
-	
-	if not _clear( controller ):
-		return false
-	
-	var original_mm:MultiMesh = original_mmi.multimesh
+	var root_parent:Node = original_mmi.get_parent()
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size
 	var pos:Vector3 = aabb.position
@@ -61,8 +60,8 @@ func _apply(controller:GLController) -> bool:
 	
 	
 	# Remaps MultiMesh data into chunk indexes
-	for original_index in original_mm.instance_count:
-		var original_local_transf:Transform3D = original_mm.get_instance_transform( original_index )
+	for original_index in processed.size():
+		var original_local_transf:Transform3D = processed.transforms[original_index]
 		var original_global_pos:Vector3 = original_mmi.to_global( original_local_transf.origin )
 		var original_global_h_pos:Vector2 = Vector2( original_global_pos.x, original_global_pos.z )
 		var global_chunk_coords:Vector2i = ( original_global_h_pos / float(chunk_size) ).floor()
@@ -122,23 +121,23 @@ func _apply(controller:GLController) -> bool:
 				
 				# Compenzate moving the origin of the MMI Node by moving back each instance
 				# By doing the whole local-global-local switcheroo, we include any rotation the referenced nodes might have
-				var local_transform:Transform3D = original_mm.get_instance_transform( original_index )
+				var local_transform:Transform3D = processed.transforms[original_index]
 				var world_pos: Vector3 = original_mmi.to_global( local_transform.origin )
 				var local_pos: Vector3 = instance_mmi.to_local( world_pos )
 				local_transform = Transform3D( local_transform.basis, local_pos )
 				
-				var colors_top:Color = original_mm.get_instance_custom_data( original_index )
-				var colors_bottom:Color = original_mm.get_instance_color( original_index )
+				var colors_top:Color = processed.top_colors[original_index]
+				var colors_bottom:Color = processed.bottom_colors[original_index]
 				
 				instance_mm.set_instance_transform( instance_index, local_transform )
-				instance_mm.set_instance_custom_data( instance_index, colors_top )
-				instance_mm.set_instance_color( instance_index, colors_bottom )
+				instance_mm.set_instance_custom_data( instance_index, colors_bottom )
+				instance_mm.set_instance_color( instance_index, colors_top )
 				
 				instance_index += 1
 				await _index( instance_index )
 	
 	original_mmi.hide()
-	GLDebug.state("Chunkified. Total chunks = %s, Total grass instances = %s" %[total_chunks, original_mm.instance_count])
+	GLDebug.state("Chunkified. Total chunks = %s, Total grass instances = %s" %[total_chunks, processed.size()])
 	return true
 
 
@@ -155,15 +154,11 @@ func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
 	
 
 func _clear(controller:GLController) -> bool:
+	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	if not original_mmi:
-		return true
-	
-	var root_parent:Node = controller.get_node_or_null( chunks_parent )
-	if not root_parent:
-		return true
-	
+	var root_parent:Node = original_mmi.get_parent()
 	original_mmi.show()
+	
 	for node in root_parent.get_children():
 		var is_as_chunk_parent:bool = node.name.begins_with( "Chunk" )
 		var is_as_original:bool = node.name.begins_with( original_mmi.name )

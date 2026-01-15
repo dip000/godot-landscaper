@@ -1,3 +1,8 @@
+## Texture Baker and formater for Texture2DArray
+##
+## Although this class could be extended directly from Texture2DArray,
+## that would mean adding this class as a hard dependency to the exported game.
+
 @tool
 extends RefCounted
 class_name GLTextureBaker

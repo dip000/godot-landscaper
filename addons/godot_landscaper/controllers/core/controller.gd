@@ -16,8 +16,12 @@ extends Node
 class_name GLController
 
 
-## Raw build data from brushing over surfaces
+## Raw MultiMesh data from brushing over surfaces.
+## Press "Clear All Effects" or "Apply All Effects" to rebuild.
+## You can store this data in the filesystem for safekeeping backups or versions,
 @export var source:GLBuildData
+## The result of processing the MultiMesh source data after applying all effects.
+@export var processed:GLBuildData
 
 ## Mutates the source data in stack order.
 ## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
@@ -116,13 +120,13 @@ func stroke_start(hit_info:Dictionary):
 func stroke_primary(hit_info:Dictionary):
 	if validator.validate_stroke_primary( hit_info ):
 		current_brush.primary( hit_info, self )
-		builder.build()
+		builder.build_from_source()
 
 
 func stroke_secondary(hit_info:Dictionary):
 	if validator.validate_stroke_secondary( hit_info ):
 		current_brush.secondary( hit_info, self )
-		builder.build()
+		builder.build_from_source()
 
 
 func stroke_end():
@@ -132,12 +136,17 @@ func stroke_end():
 
 func clear_effects():
 	if validator.validate_clear_effects():
-		builder.build()
 		for effect in effects:
 			await effect.clear( self )
+		builder.build_from_source()
 
 
 func apply_effects():
 	if validator.validate_apply_effects():
+		processed = source.duplicate( true )
 		for effect in effects:
 			await effect.apply( self )
+		builder.build_from_processed()
+	
+	
+	

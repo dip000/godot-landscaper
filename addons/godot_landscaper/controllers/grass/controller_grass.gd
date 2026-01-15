@@ -1,8 +1,16 @@
-## CONTROLLER GRASS: 
+## Grass Controller. Based on MultiMeshInstance3D
 ##
+## Select "Spawn" tab to create grass instances over a surface.
+## Select "Paint" tab to paint grass instances.
+##
+## Set your custom mesh under Resources > Shape,
+## and optionally, your custom grass texture under Resources > Texture.
+##
+## You can configure the color scanning capabilities and spawn randomness.
+## Try the various effects like recolorings or the chunkifier and press "Apply All Effects".
 
 @tool
-@icon("uid://ckbdbf7cotire")
+@icon("uid://bayr1rdodg66t")
 extends GLController
 class_name GLControllerGrass
 

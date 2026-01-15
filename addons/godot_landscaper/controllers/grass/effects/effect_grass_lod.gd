@@ -9,10 +9,6 @@ class_name GLEffectLoD
 
 func _apply(controller:GLController) -> bool:
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	if not original_mmi:
-		GLDebug.error("GLController does not have a 'MultiMeshInstance3D'")
-		return false
-	
 	original_mmi.multimesh.visible_instance_count = original_mmi.multimesh.instance_count*visible_instances
 	original_mmi.visibility_range_end = custom_lod_meters
 	original_mmi.visibility_range_end_margin = 0.0
@@ -22,9 +18,6 @@ func _apply(controller:GLController) -> bool:
 
 func _clear(controller:GLController) -> bool:
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	if not original_mmi:
-		return false
-	
 	original_mmi.multimesh.visible_instance_count = -1
 	original_mmi.visibility_range_end = 0.0
 	original_mmi.visibility_range_end_margin = 0.0

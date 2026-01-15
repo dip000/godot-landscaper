@@ -2,8 +2,4 @@
 extends Resource
 class_name GLBuildData
 
-@abstract
-func append(data:GLBuildData) -> void
-
-@abstract
-func clear() -> void
+@export_storage var version:String

@@ -10,9 +10,13 @@ class_name GLEffect
 
 const AWAIT_INDEX_COUNT:int = 100
 
+## Helps remembering to unapply side-effects. Tough clearing it must be run manually for responsivenes sakee
 @export_storage var is_applied:bool = false
+
+## Keeps the effect inside the controller but does not apply it.
 @export var enable:bool = true
 
+## Flag for async awaits
 var running:bool = false
 
 
@@ -27,12 +31,16 @@ func apply(controller:GLController) -> void:
 		GLDebug.error("Please wait until effect finishes running")
 		return
 	
+	var success:bool = false
+	
 	running = true
-	var result = await _apply(controller)
+	success = await _clear( controller )
+	if success:
+		success = await _apply( controller )
 	running = false
 	is_applied = true
 	
-	if not result:
+	if not success:
 		GLDebug.error("Effect with index '%s' failed" %controller.effects.find(self))
 
 
@@ -51,9 +59,10 @@ func clear(controller:GLController) -> void:
 	running = false
 	is_applied = false
 	
-	if not result:
+	if result:
+		controller.processed = null
+	else:
 		GLDebug.error("Effect with index '%s' failed" %controller.effects.find(self))
-
 
 # ========= EXECUTABLE INTERFACE =============
 ## Implement using frame skip utilities every so often for heavy loads
@@ -67,10 +76,8 @@ func _clear(controller:GLController) -> bool
 # ========= FRAME SKIP UTILITIES ==============
 func _index(index:int):
 	if index % AWAIT_INDEX_COUNT == 0:
-		#await Engine.get_main_loop().process_frame
-		pass
+		await Engine.get_main_loop().process_frame
 	
 func _frame():
-	pass
-	#await Engine.get_main_loop().process_frame
+	await Engine.get_main_loop().process_frame
 	

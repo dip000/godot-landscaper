@@ -20,11 +20,11 @@ static func debugging_spam() -> bool:
 
 
 static func error(msg:Variant):
-	push_error("[Landscaper Error] %s" %msg)
+	push_error("[Landscaper] %s" %msg)
 
 static func warning(msg:Variant):
 	if debugging_warnings():
-		push_warning("[Landscaper Warning] %s" %msg)
+		push_warning("[Landscaper] %s" %msg)
 
 static func state(msg:Variant):
 	if debugging_states():

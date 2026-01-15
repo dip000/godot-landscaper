@@ -13,4 +13,7 @@ func _init(controller:GLController):
 	_controller = controller
 
 @abstract
-func build() -> bool
+func build_from_source() -> bool
+
+@abstract
+func build_from_processed() -> bool

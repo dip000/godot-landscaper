@@ -2,28 +2,30 @@
 extends GLEffect
 class_name GLEffectRescanColor
 
-## Range in meters on Y axis that the grass will try to scan for a surface to sit on
+## Lower height in meters on Y axis that the grass will try to scan for a surface to recolor with
 @export var min_height_offset:float = -2.0
+## Upper height in meters on Y axis that the grass will try to scan for a surface to recolor with
 @export var max_height_offset:float = 2.0
-
-var original_bottom_colors:Array[Color]
 
 
 func _apply(controller:GLController) -> bool:
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	if not original_mmi:
-		GLDebug.error("GLController does not have a 'MultiMeshInstance3D'")
-		return false
-	
+	var processed:GLBuildDataGrass = controller.processed
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	var original_mm:MultiMesh = original_mmi.multimesh
-	var instance_count:int = original_mm.instance_count
+	var scanner:GLScanner = GLScanner.new()
 	
-	for i in range(instance_count):
-		var original_transf:Transform3D = original_mm.get_instance_transform( i )
+	for i in processed.size():
+		var original_transf:Transform3D = processed.transforms[i]
 		var global_position:Vector3 = original_mmi.to_global( original_transf.origin )
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_height_offset
 		var scan_lower:Vector3 = global_position + Vector3.UP*min_height_offset
+		
+		#if scanner.try_raycast( scan_upper, scan_lower ):
+			#var cache:GLScanner.Cache = await scanner.cache_all()
+			#var color:Color = scanner.scan_color( cache )
+		#if scanner.try_raycast( scan_upper, scan_lower ):
+			#var cache:GLScanner.Cache = await scanner.cache_surface()
+		
 		
 		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
 		if not result: continue
@@ -36,11 +38,11 @@ func _apply(controller:GLController) -> bool:
 			if not result: continue
 		
 		var color:Color = GLScanner.scan_color( result, cache )
-		original_mm.set_instance_custom_data( i, color )
+		processed.bottom_colors[i] = color
 		await _index(i)
 	
 	GLScanner.clear_cache()
-	GLDebug.state("Bottom grass was recolored from Ground Coloring settings. Total=%s" %instance_count)
+	GLDebug.state("Bottom grass was recolored from Ground Coloring settings. Total=%s" %processed.size())
 	return true
 
 

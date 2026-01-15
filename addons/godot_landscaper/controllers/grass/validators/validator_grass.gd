@@ -110,6 +110,7 @@ func validate_stroke_end() -> bool:
 
 
 func validate_clear_effects() -> bool:
+	_controller = _controller as GLControllerGrass
 	if not _controller.multimesh_instance:
 		GLDebug.warning("Clearing effects is not possible: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
 		return false
@@ -126,10 +127,10 @@ func validate_apply_effects() -> bool:
 		GLDebug.warning("Effects are empty. Append them under GLController > Effects")
 	
 	if not _controller.multimesh_instance:
-		GLDebug.warning("Applying effects is not possible: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
+		GLDebug.error("Applying effects is not possible: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
 		return false
-	
 	_controller.multimesh_instance = _format_mmi( _controller.multimesh_instance )
+	
 	return true
 
 

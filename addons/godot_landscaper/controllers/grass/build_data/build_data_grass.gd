@@ -14,16 +14,23 @@ class_name GLBuildDataGrass
 ## MultiMesh does not store these directly
 @export var transforms:Array[Transform3D]
 
+## Absolute world coordinate ranges where this build data exists.
+@export var area:Rect2
 
-func append(data:GLBuildData):
-	top_colors.append_array(data.top_colors)
-	bottom_colors.append_array(data.bottom_colors)
-	transforms.append_array(data.transforms)
 
 func clear():
+	transforms.clear()
 	top_colors.clear()
 	bottom_colors.clear()
-	transforms.clear()
 
+
+## Usefull when you don't want to replace the resource reference
+func fill(data:GLBuildData):
+	transforms = data.transforms
+	top_colors = data.top_colors
+	bottom_colors = data.bottom_colors
+
+
+## Minimum of all arrays, to ensure future indexing works correctly
 func size() -> int:
-	return transforms.size()
+	return min( transforms.size(), top_colors.size(), bottom_colors.size() )

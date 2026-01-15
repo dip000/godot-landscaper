@@ -8,21 +8,15 @@ class_name GLEffectRescanLevel
 
 
 func _apply(controller:GLController) -> bool:
-	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	controller = controller as GLControllerGrass
-	if not original_mmi:
-		GLDebug.error("No 'MultiMeshInstance' to chunkify")
-		return false
-	
+	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
+	var processed:GLBuildDataGrass = controller.processed
 	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
-	var original_mm:MultiMesh = original_mmi.multimesh
-	var original_instance_count:int = original_mm.instance_count
-	var updated_instances:int = 0
+	var original_instance_count:int = processed.size()
 	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
-	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	
 	for i in range(original_instance_count):
-		var original_transf:Transform3D = original_mm.get_instance_transform( i )
+		var original_transf:Transform3D = processed.transforms[i]
 		var global_position:Vector3 = original_mmi.to_global( original_transf.origin )
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_height_offset
 		var scan_lower:Vector3 = global_position + Vector3.UP*min_height_offset
@@ -51,7 +45,7 @@ func _apply(controller:GLController) -> bool:
 		
 		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
 		var local_pos:Vector3 = original_mmi.to_local( result.position )
-		result.position = local_pos + mmi.global_position
+		result.position = local_pos + original_mmi.global_position
 		
 		# Save base and random values
 		var local_transf:Transform3D = Transform3D( basis, local_pos )
@@ -60,23 +54,14 @@ func _apply(controller:GLController) -> bool:
 		
 		# Save new transforms and original colors
 		new_data.transforms.append( local_transf )
-		new_data.top_colors.append( original_mm.get_instance_color( i ) )
-		new_data.bottom_colors.append( original_mm.get_instance_custom_data( i ) )
+		new_data.top_colors.append( processed.top_colors[i] )
+		new_data.bottom_colors.append( processed.bottom_colors[i] )
 		await _index(i)
 	
-	# Resize down the new values if some were lost
-	var new_size:int = new_data.size()
-	original_mm.instance_count = new_size
-	
 	# Apply new transforms and set previous colors
-	for i in range(new_size):
-		original_mm.set_instance_transform( i, new_data.transforms[i] )
-		original_mm.set_instance_color( i, new_data.top_colors[i] )
-		original_mm.set_instance_custom_data( i, new_data.bottom_colors[i] )
+	processed.fill( new_data )
 	
-	original_mmi.global_position = mmi.global_position
-	var lost_instances:int = original_instance_count - new_size
-	
+	var lost_instances:int = original_instance_count - new_data.size()
 	GLScanner.clear_cache()
 	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost out of %s" %[lost_instances, original_instance_count])
 	return true
