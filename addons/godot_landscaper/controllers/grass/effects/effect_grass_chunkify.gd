@@ -9,8 +9,6 @@
 extends GLEffect
 class_name GLEffectGrassChunkify
 
-enum Meta {MIN_INDEX, MAX_INDEX, COUNT}
-
 ## The size squared to split the grass instances.
 @export var chunk_size:int = 32:
 	set(v): chunk_size = max(1, v)
@@ -18,12 +16,12 @@ enum Meta {MIN_INDEX, MAX_INDEX, COUNT}
 ## Stores the chunks in organized "node folders" as parents like "Chunk_0_1"
 @export var organize_by_chunk_parents:bool = true
 
-## Hides the controller's multimesh_instance instead of replacing it.
-## Consider replacing it on export builds to avoid clutter nodes.
-@export var hide_original_multimesh:bool = true
-
 
 func _apply(controller:GLController) -> bool:
+	if not _clear( controller ):
+		GLDebug.error("Chunkifying is not possible: Clearing chunks failed")
+		return false
+	
 	controller = controller as GLControllerGrass
 	var processed:GLBuildDataGrass = controller.processed
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
@@ -41,23 +39,15 @@ func _apply(controller:GLController) -> bool:
 	GLDebug.internal("LowerChunk: %s, UpperChunk: %s" %[lower_chunk, upper_chunk])
 	GLDebug.internal("TotalChunks: %s" %total_chunks)
 	
-	# Every original index mapped as chunks
-	# This avoids making and managing arrays of ChunkX[ChunkY[Transforms[],Colors[],Colors[],Min,Max]]
-	# Instead just ChunkX[ChunkY[raw[min,max,indexes]]]
-	var chunked_index_map:Array[Array]
-	chunked_index_map.resize( total_chunks.x )
+	# Organized map of chunks, example: chunks[x][y].transforms[i]
+	var chunks:Array[Array]
+	chunks.resize( total_chunks.x )
 	
 	# Fill map for performance, i guess
 	for x in total_chunks.x:
-		chunked_index_map[x].resize( total_chunks.y )
+		chunks[x].resize( total_chunks.y )
 		for y in total_chunks.y:
-			# Add min, max space for later
-			var raw:Array
-			raw.resize( Meta.COUNT )
-			raw[Meta.MIN_INDEX] = Vector3.INF
-			raw[Meta.MAX_INDEX] = -Vector3.INF
-			chunked_index_map[x][y] = raw
-	
+			chunks[x][y] = GLBuildDataGrass.new()
 	
 	# Remaps MultiMesh data into chunk indexes
 	for original_index in processed.size():
@@ -68,27 +58,24 @@ func _apply(controller:GLController) -> bool:
 		
 		# Make sure to index with positive numbers
 		var positive:Vector2i = global_chunk_coords - lower_chunk
-		var raw:Array = chunked_index_map[positive.x][positive.y]
+		var chunk:GLBuildDataGrass = chunks[positive.x][positive.y]
 		
-		# Find Min/Max positions and store them as metadata
-		# This creates a bounding box for each MultiMeshInstance3D
-		raw[Meta.MIN_INDEX] = raw[Meta.MIN_INDEX].min( original_global_pos )
-		raw[Meta.MAX_INDEX] = raw[Meta.MAX_INDEX].max( original_global_pos )
-		raw.append( original_index )
+		# Find Min/Max positions creating a bounding box for each MultiMeshInstance3D
+		chunk.min = chunk.min.min( original_global_pos )
+		chunk.max = chunk.max.max( original_global_pos )
+		chunk.transforms.append( original_local_transf )
+		chunk.top_colors.append( processed.top_colors[original_index] )
+		chunk.bottom_colors.append( processed.bottom_colors[original_index] )
 		
 		await _index(original_index)
 	
+	
 	# Rebuilds MultiMeshInstance3D knowing the chunked indexes
-	for row_index in chunked_index_map.size():
-		var row:Array = chunked_index_map[row_index]
+	for row_index in chunks.size():
+		var chunk_rows:Array = chunks[row_index]
 		
-		for col_index in row.size():
-			# Separate Raw with indexes
-			var raw:Array = row[col_index]
-			var original_indexes:Array = raw.slice( Meta.COUNT )
-			
-			if original_indexes.size() <= 0:
-				continue
+		for col_index in chunk_rows.size():
+			var chunk:GLBuildDataGrass = chunk_rows[col_index]
 			
 			# Return to global; (possible) negative chunks
 			var global_chunk:Vector2i = Vector2i( row_index, col_index ) + lower_chunk
@@ -102,38 +89,32 @@ func _apply(controller:GLController) -> bool:
 			
 			# Place individual multimeshes in their global center position
 			# Find center of the individual chunk instances (not to confuse with center of chunk)
-			var local_min:Vector3 = raw[Meta.MIN_INDEX]
-			var local_max:Vector3 = raw[Meta.MAX_INDEX]
+			var local_min:Vector3 = chunk.min
+			var local_max:Vector3 = chunk.max
 			var local_center:Vector3 = local_min + 0.5*(local_max - local_min)
 			var instance_mmi:MultiMeshInstance3D = SceneManager.find_or_create_node( MultiMeshInstance3D, parent, "%s_%s_%s" %[original_mmi.name, global_chunk.x, global_chunk.y] )
 			instance_mmi.global_position = local_center
 			
-			
 			# Setup MultiMesh
 			_fill_mmi( instance_mmi, original_mmi )
 			var instance_mm:MultiMesh = instance_mmi.multimesh
-			instance_mm.instance_count = original_indexes.size()
-			GLDebug.spam("Chunk[%s, %s] -> min=%s, max=%s, count=%s" %[row_index, col_index, local_min, local_max, original_indexes.size()])
+			instance_mm.instance_count = chunk.size()
+			GLDebug.spam("Chunk[%s, %s] -> min=%s, max=%s, count=%s" %[row_index, col_index, local_min, local_max, instance_mm.instance_count])
 			
-			# Find the mapped instance data and dump it into the new Multi Meshes
-			var instance_index:int = 0
-			for original_index in original_indexes:
+			# Move the instance data from the original_mmi to the chunked instance_mmi
+			for instance_index in instance_mm.instance_count:
 				
 				# Compenzate moving the origin of the MMI Node by moving back each instance
 				# By doing the whole local-global-local switcheroo, we include any rotation the referenced nodes might have
-				var local_transform:Transform3D = processed.transforms[original_index]
+				var local_transform:Transform3D = chunk.transforms[instance_index]
 				var world_pos: Vector3 = original_mmi.to_global( local_transform.origin )
 				var local_pos: Vector3 = instance_mmi.to_local( world_pos )
 				local_transform = Transform3D( local_transform.basis, local_pos )
 				
-				var colors_top:Color = processed.top_colors[original_index]
-				var colors_bottom:Color = processed.bottom_colors[original_index]
-				
 				instance_mm.set_instance_transform( instance_index, local_transform )
-				instance_mm.set_instance_custom_data( instance_index, colors_bottom )
-				instance_mm.set_instance_color( instance_index, colors_top )
+				instance_mm.set_instance_color( instance_index, chunk.top_colors[instance_index] )
+				instance_mm.set_instance_custom_data( instance_index, chunk.bottom_colors[instance_index] )
 				
-				instance_index += 1
 				await _index( instance_index )
 	
 	original_mmi.hide()
@@ -160,11 +141,29 @@ func _clear(controller:GLController) -> bool:
 	original_mmi.show()
 	
 	for node in root_parent.get_children():
-		var is_as_chunk_parent:bool = node.name.begins_with( "Chunk" )
 		var is_as_original:bool = node.name.begins_with( original_mmi.name )
 		var is_original:bool = (node.name == original_mmi.name)
+		var is_mmi:bool = (node is MultiMeshInstance3D)
 		
-		if is_as_chunk_parent or (is_as_original and not is_original):
+		# Delete MultiMeshInstance3D chunk by name if it's outside
+		if is_mmi and is_as_original and not is_original:
+			node.free()
+		
+		else:
+			for child in node.get_children():
+				is_as_original = child.name.begins_with( original_mmi.name )
+				is_original = (child.name == original_mmi.name)
+				is_mmi = (child is MultiMeshInstance3D)
+				
+				# Delete MultiMeshInstance3D chunk by name if it's inside
+				if is_mmi and is_as_original and not is_original:
+					child.free()
+	
+	# Clean up empty "folders"
+	for node in root_parent.get_children():
+		var is_as_chunk_parent:bool = node.name.begins_with( "Chunk" )
+		var is_empty:bool = (node.get_child_count() <= 0)
+		if is_as_chunk_parent and is_empty:
 			node.queue_free()
 	
 	return true

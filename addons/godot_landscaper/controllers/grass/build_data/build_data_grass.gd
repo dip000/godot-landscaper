@@ -15,7 +15,9 @@ class_name GLBuildDataGrass
 @export var transforms:Array[Transform3D]
 
 ## Absolute world coordinate ranges where this build data exists.
-@export var area:Rect2
+## Currently only used for chunkifying
+var min:Vector3 = Vector3.INF
+var max:Vector3 = -Vector3.INF
 
 
 func clear():

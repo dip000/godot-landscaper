@@ -31,12 +31,8 @@ func apply(controller:GLController) -> void:
 		GLDebug.error("Please wait until effect finishes running")
 		return
 	
-	var success:bool = false
-	
 	running = true
-	success = await _clear( controller )
-	if success:
-		success = await _apply( controller )
+	var success:bool = await _apply( controller )
 	running = false
 	is_applied = true
 	
