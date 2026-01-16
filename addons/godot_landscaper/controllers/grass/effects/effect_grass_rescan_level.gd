@@ -11,7 +11,7 @@ func _apply(controller:GLController) -> bool:
 	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var processed:GLBuildDataGrass = controller.processed
-	var raycaster:SceneRaycaster = Landscaper.scene.raycaster
+	var scanner:GLSurfaceScanner = GLSurfaceScanner.new( controller )
 	var original_instance_count:int = processed.size()
 	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
 	
@@ -21,17 +21,13 @@ func _apply(controller:GLController) -> bool:
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_height_offset
 		var scan_lower:Vector3 = global_position + Vector3.UP*min_height_offset
 		
-		var result:Dictionary = raycaster.point_to_point(scan_upper, scan_lower)
-		if not result: continue
-		
-		var cache:GLScanner.Cache = GLScanner.cache_scan( result.collider, controller, false )
-		if cache.new:
-			await _frame()
-			result = raycaster.point_to_point(scan_upper, scan_lower)
-			if not result: continue
+		var cache:GLSurfaceScanner.Cache = await scanner.scan( scan_upper, scan_lower )
+		if not cache:
+			continue
 		
 		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
-		var basis := Basis.looking_at(result.normal + Vector3.ONE*0.01)
+		var basis := Basis.looking_at( cache.normal + Vector3.ONE*0.01 )
+		
 		# Compose rotation using quaternion magic
 		basis *= Basis(
 			# PI*0.5 on X axis compenzates for looking at the sky as mentioned before
@@ -44,8 +40,8 @@ func _apply(controller:GLController) -> bool:
 		)
 		
 		# to_local() takes rotation in consideration. Then feed back to result as global for color scaning
-		var local_pos:Vector3 = original_mmi.to_local( result.position )
-		result.position = local_pos + original_mmi.global_position
+		var local_pos:Vector3 = original_mmi.to_local( cache.position )
+		cache.position = local_pos + original_mmi.global_position
 		
 		# Save base and random values
 		var local_transf:Transform3D = Transform3D( basis, local_pos )
@@ -62,7 +58,7 @@ func _apply(controller:GLController) -> bool:
 	processed.fill( new_data )
 	
 	var lost_instances:int = original_instance_count - new_data.size()
-	GLScanner.clear_cache()
+	scanner.clear_cache()
 	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost out of %s" %[lost_instances, original_instance_count])
 	return true
 

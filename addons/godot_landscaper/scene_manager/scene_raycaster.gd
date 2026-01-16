@@ -4,7 +4,6 @@
 extends Node3D
 class_name SceneRaycaster
 
-static var hit_info:Dictionary
 var _ray_surfaces := PhysicsRayQueryParameters3D.new()
 var _ray_points := PhysicsRayQueryParameters3D.new()
 var _direct_space_state:PhysicsDirectSpaceState3D
@@ -20,8 +19,7 @@ func update_hit_info(cam:Camera3D, mouse_pos:Vector2) -> Dictionary:
 	if _direct_space_state:
 		_ray_surfaces.from = cam.project_ray_origin( mouse_pos )
 		_ray_surfaces.to = _ray_surfaces.from + (cam.project_ray_normal( mouse_pos ) * cam.far)
-		hit_info = _direct_space_state.intersect_ray( _ray_surfaces )
-		return hit_info
+		return _direct_space_state.intersect_ray( _ray_surfaces )
 	return {}
 
 

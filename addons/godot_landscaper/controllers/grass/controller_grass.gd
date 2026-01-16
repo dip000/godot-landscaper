@@ -154,25 +154,29 @@ func _setup_controller():
 
 
 func _get_shader(parameter:String, default:Variant=null) -> Variant:
+	if not is_ready: return default
 	if material and "shader_parameter/%s"%parameter in material:
 		return material["shader_parameter/%s"%parameter]
 	return default
 
 
 func _set_shader(parameter:String, value:Variant):
-	if material:
+	if not is_ready: return
+	if ready and material:
 		material["shader_parameter/%s"%parameter] = value
 	else:
 		GLDebug.error("Cannot set shader parameter %s: Material is null. Assign a valid shader material with the corresponding shader" %parameter)
 
 
 func _get_shader_index(parameter:String, default:Variant=null) -> Variant:
+	if not is_ready: return default
 	if material and "shader_parameter/%s"%parameter in material and texture_layer >= 0:
 		return material["shader_parameter/%s"%parameter][texture_layer]
 	return default
 
 
 func _set_shader_index(parameter:String, value:Variant):
+	if not is_ready: return
 	if material and texture_layer >= 0:
 		material["shader_parameter/%s"%parameter][texture_layer] = value
 	else:
@@ -180,6 +184,7 @@ func _set_shader_index(parameter:String, value:Variant):
 
 
 func _get_shader_instance(parameter:String, default:Variant=null) -> Variant:
+	if not is_ready: return default
 	if multimesh_instance and multimesh_instance.multimesh:
 		var value = multimesh_instance.get_instance_shader_parameter(parameter)
 		return value if value != null else default
@@ -187,6 +192,7 @@ func _get_shader_instance(parameter:String, default:Variant=null) -> Variant:
 
 
 func _set_shader_instance(parameter:String, value:Variant):
+	if not is_ready: return
 	if multimesh_instance and "instance_shader_parameters/%s"%parameter in multimesh_instance:
 		multimesh_instance.set_instance_shader_parameter( parameter, value )
 	else:

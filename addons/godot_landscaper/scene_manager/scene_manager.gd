@@ -40,7 +40,7 @@ func not_over_surface():
 	brush.not_over_surface()
 
 func stroke_start(controller:GLController, hit_info:Dictionary):
-	# Scan only internal shapes (created on GLScanner.create_shapes)
+	# Scan only internal shapes (created on GLSurfaceScanner.create_shapes)
 	# This allows to "brush" over perfect surfaces instead of developer-made colliders
 	raycaster.set_collision_mask( controller.scan_layer_internal | controller.scan_layer )
 

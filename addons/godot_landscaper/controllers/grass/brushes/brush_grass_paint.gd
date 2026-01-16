@@ -7,7 +7,7 @@ class_name GLBrushGrassPaint
 
 
 func start(hit_info:Dictionary, controller:GLController):
-	GLScanner.clear_cache()
+	pass
 
 
 func primary(hit_info:Dictionary, controller:GLController):
@@ -19,7 +19,7 @@ func secondary(hit_info:Dictionary, controller:GLController):
 
 
 func end():
-	GLScanner.clear_cache()
+	pass
 
 
 func _paint(hit_info:Dictionary, controller:GLControllerGrass, is_secondary:bool):
