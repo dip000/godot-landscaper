@@ -1,0 +1,2 @@
+extends GLBuildData
+class_name GLBuildDataTerrain

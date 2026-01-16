@@ -54,7 +54,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
 	# Raycast
-	var hit_info:Dictionary = scene.raycaster.update_hit_info( cam, event.get_position() )
+	var hit_info:Dictionary = scene.raycaster.cam_to_surface( cam, event.get_position() )
 	if not hit_info:
 		scene.not_over_surface()
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
@@ -108,3 +108,5 @@ func _edit(controller:Object):
 
 func _handles(object:Object):
 	return object is GLController
+	
+	

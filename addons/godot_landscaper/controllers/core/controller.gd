@@ -55,41 +55,46 @@ var current_brush:GLBrush
 var is_ready:bool
 
 
-@export_category("Debugging")
+@export_category("Globals")
 ## Global class for dobugging.
 ## The amount of messages printed from Godot Landscaper
-@export var level:GLDebug.Level=GLDebug.Level.STATES:
+@export var debug_level:GLDebug.Level=GLDebug.Level.STATES:
 	set(v): GLDebug.level = v
 	get: return GLDebug.level
 
 
 ## Diameter of the 3D brush sphere. Keybind is [Shift] + [MouseWheel]
-@export_range(0.1, 20, 0.1) var brush_size:float = SceneBrush.default_scale:
+@export_range(0.1, 20, 0.1) var brush_size:float = 2.0:
 	set(v):
 		if Landscaper.running():
 			Landscaper.scene.brush.set_scale_ratio(v)
 	get:
 		if Landscaper.running():
 			return Landscaper.scene.brush.get_scale_ratio()
-		return SceneBrush.default_scale
+		return 2.0
 
 
 ## Color of the 3D brush shpere
-@export var brush_color:Color = SceneBrush.default_color:
+@export var brush_color:Color = Color(Color.PALE_VIOLET_RED, 0.5):
 	set(v):
 		if Landscaper.running():
 			Landscaper.scene.brush.set_color(v)
 	get:
 		if Landscaper.running():
 			return Landscaper.scene.brush.get_color()
-		return SceneBrush.default_color
+		return Color(Color.PALE_VIOLET_RED, 0.5)
+
+## Color of the 3D brush shpere
+@export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF:
+	set(v): SceneRaycaster.scan_layer = v
+	get: return SceneRaycaster.scan_layer
 
 
 
 func _ready():
 	if Engine.is_editor_hint():
 		_setup_controller()
-		if validator.validate_ready():
+		if GLValidator.validate_ready( validator ):
 			## Delay avoids clickthrough 
 			await get_tree().process_frame
 			await get_tree().process_frame
@@ -106,43 +111,43 @@ func _setup_controller() -> void
 
 ## Called from GLInspectorManager on tab click
 func select_brush(brush:GLBrush):
-	if validator.validate_select_brush( brush ):
+	if GLValidator.validate_select_brush( validator, brush ):
 		current_brush = brush
 		GLDebug.internal("Selected: %s/%s" %[name, brush.title])
 
 
 ## Start landscaping according to the current brush
 func stroke_start(hit_info:Dictionary):
-	if validator.validate_stroke_start( hit_info ):
+	if GLValidator.validate_stroke_start( validator, hit_info ):
 		current_brush.start( hit_info, self )
 
 
 func stroke_primary(hit_info:Dictionary):
-	if validator.validate_stroke_primary( hit_info ):
+	if GLValidator.validate_stroke_primary( validator, hit_info ):
 		current_brush.primary( hit_info, self )
 		builder.build_from_source()
 
 
 func stroke_secondary(hit_info:Dictionary):
-	if validator.validate_stroke_secondary( hit_info ):
+	if GLValidator.validate_stroke_secondary( validator, hit_info ):
 		current_brush.secondary( hit_info, self )
 		builder.build_from_source()
 
 
 func stroke_end():
-	if validator.validate_stroke_end():
+	if GLValidator.validate_stroke_end( validator):
 		current_brush.end()
 
 
 func clear_effects():
-	if validator.validate_clear_effects():
+	if GLValidator.validate_clear_effects( validator ):
 		for effect in effects:
 			await effect.clear( self )
 		builder.build_from_source()
 
 
 func apply_effects():
-	if validator.validate_apply_effects():
+	if GLValidator.validate_apply_effects( validator ):
 		processed = source.duplicate( true )
 		for effect in effects:
 			await effect.apply( self )

@@ -3,7 +3,7 @@ extends GLValidator
 class_name GLValidatorGrass
 
 
-func validate_ready() -> bool:
+func _validate_ready() -> bool:
 	_controller = _controller as GLControllerGrass
 	if not _controller:
 		GLDebug.error("Inizialization is not possible: Controller '%s' is not a GLControllerGrass instance. Assign it correctly in _setup_controller() and restart this scene" %_controller.name)
@@ -30,8 +30,8 @@ func validate_ready() -> bool:
 	return true
 
 
-func validate_select_brush(brush:GLBrush) -> bool:
-	if not validate_ready():
+func _validate_select_brush(brush:GLBrush) -> bool:
+	if not _validate_ready():
 		return false
 	if not brush:
 		GLDebug.error("Selecting brush is not possible: Brush is null. Check if GLInspectorManager has thrown any errors")
@@ -39,7 +39,7 @@ func validate_select_brush(brush:GLBrush) -> bool:
 	return true
 
 
-func validate_stroke_start(hit_info:Dictionary) -> bool:
+func _validate_stroke_start(hit_info:Dictionary) -> bool:
 	_controller = _controller as GLControllerGrass
 	if not _controller is GLControllerGrass:
 		GLDebug.error("Stroke start is not possible: Controller '%s' is not a GLControllerGrass instance. Assign it correctly in _setup_controller() and restart this scene" %_controller.name)
@@ -98,19 +98,19 @@ func validate_stroke_start(hit_info:Dictionary) -> bool:
 	return true
 
 
-func validate_stroke_primary(hit_info:Dictionary) -> bool:
+func _validate_stroke_primary(hit_info:Dictionary) -> bool:
 	return true
 
 
-func validate_stroke_secondary(hit_info:Dictionary) -> bool:
+func _validate_stroke_secondary(hit_info:Dictionary) -> bool:
 	return true
 
 
-func validate_stroke_end() -> bool:
+func _validate_stroke_end() -> bool:
 	return true
 
 
-func validate_clear_effects() -> bool:
+func _validate_clear_effects() -> bool:
 	_controller = _controller as GLControllerGrass
 	if not _controller.multimesh_instance:
 		GLDebug.warning("Clearing effects is not possible: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
@@ -119,7 +119,7 @@ func validate_clear_effects() -> bool:
 	return true
 
 
-func validate_apply_effects() -> bool:
+func _validate_apply_effects() -> bool:
 	_controller = _controller as GLControllerGrass
 	if _controller.effects:
 		var clean_empty:Callable = func (effect:GLEffect): return effect
@@ -135,7 +135,7 @@ func validate_apply_effects() -> bool:
 	return true
 
 
-func validate_texture_bake() -> bool:
+func _validate_texture_bake() -> bool:
 	_controller = _controller as GLControllerGrass
 	if not _controller.builder:
 		GLDebug.error("Texture bake is not possible: There's no builder in _controller %s. Make sure to set one on _setup_controller()" %_controller.name)
@@ -158,8 +158,8 @@ func validate_texture_bake() -> bool:
 	return true
 
 
-func validate_texture_clear() -> bool:
-	return validate_texture_bake()
+func _validate_texture_clear() -> bool:
+	return _validate_texture_bake()
 
 
 func _format_mmi(mmi:MultiMeshInstance3D) -> MultiMeshInstance3D:

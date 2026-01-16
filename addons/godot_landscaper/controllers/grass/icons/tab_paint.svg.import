@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0vixk6g6mb0o"
-path.s3tc="res://.godot/imported/icons.svg-d36ab785da6021b5082473802d7d1026.s3tc.ctex"
-path.etc2="res://.godot/imported/icons.svg-d36ab785da6021b5082473802d7d1026.etc2.ctex"
+uid="uid://c3pvk65o5eu8a"
+path.s3tc="res://.godot/imported/tab_paint.svg-cb23bda197ee6d5cf33029f247e334fa.s3tc.ctex"
+path.etc2="res://.godot/imported/tab_paint.svg-cb23bda197ee6d5cf33029f247e334fa.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/godot_landscaper/inspector/icons.svg"
-dest_files=["res://.godot/imported/icons.svg-d36ab785da6021b5082473802d7d1026.s3tc.ctex", "res://.godot/imported/icons.svg-d36ab785da6021b5082473802d7d1026.etc2.ctex"]
+source_file="res://addons/godot_landscaper/controllers/grass/icons/tab_paint.svg"
+dest_files=["res://.godot/imported/tab_paint.svg-cb23bda197ee6d5cf33029f247e334fa.s3tc.ctex", "res://.godot/imported/tab_paint.svg-cb23bda197ee6d5cf33029f247e334fa.etc2.ctex"]
 
 [params]
 

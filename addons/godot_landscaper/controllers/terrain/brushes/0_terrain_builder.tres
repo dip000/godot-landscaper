@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GLBrushTerrainBuider" load_steps=3 format=3 uid="uid://ctxmw7m2kjg"]
+
+[ext_resource type="Texture2D" uid="uid://cuhiamhh8gann" path="res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_build.svg" id="1_b0ipx"]
+[ext_resource type="Script" uid="uid://byui0q6lutlyl" path="res://addons/godot_landscaper/controllers/terrain/brushes/terrain_builder.gd" id="1_haua6"]
+
+[resource]
+script = ExtResource("1_haua6")
+title = "Build"
+icon = ExtResource("1_b0ipx")
+info = "Left click to build terrain, right click to erase"
+metadata/_custom_type_script = "uid://byui0q6lutlyl"

@@ -24,14 +24,14 @@ static func create_node(type, parent:Node, child_name:String, ghost:bool=false) 
 
 
 # ========= Called from GLInspectorManager ===== ===========
-func select_brush(icon:AtlasIcon.Icon):
-	brush.set_icon( icon )
+func select_brush(brush_to_select:GLBrush):
+	brush.set_icon( brush_to_select.icon )
 
 
 # ========= Called from main plugin Landscaper =========
 func selected(controller:GLController):
 	# Set full scan mode on select
-	raycaster.set_collision_mask( controller.scan_layer_internal | controller.scan_layer )
+	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
 
 func over_surface(pos:Vector3):
 	brush.over_surface( pos )
@@ -42,11 +42,11 @@ func not_over_surface():
 func stroke_start(controller:GLController, hit_info:Dictionary):
 	# Scan only internal shapes (created on GLSurfaceScanner.create_shapes)
 	# This allows to "brush" over perfect surfaces instead of developer-made colliders
-	raycaster.set_collision_mask( controller.scan_layer_internal | controller.scan_layer )
+	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
 
 func stroke_end(controller:GLController):
 	# Return to full scan mode at brush's end
-	raycaster.set_collision_mask( controller.scan_layer_internal | controller.scan_layer )
+	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
 
 func scale_by(sca:float):
 	brush.scale_by( sca )

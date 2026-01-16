@@ -91,12 +91,6 @@ class_name GLControllerGrass
 
 
 @export_group("Color Scanning")
-@export_subgroup("Scan Physics Bodies")
-## The collision_layer to scan for any developer-made PhysicsBody3D 
-@export_flags_3d_physics var scan_layer:int = 0xFFFFFFFF
-
-## The collision_layer for internal PhysicsBody3D. Set one that you're not using anywhere else
-@export_flags_3d_physics var scan_layer_internal:int = (1<<31)
 @export_subgroup("Scan Meshes")
 
 ## Attempts to find the mesh of the scanned PhysicsBody3D in its parent

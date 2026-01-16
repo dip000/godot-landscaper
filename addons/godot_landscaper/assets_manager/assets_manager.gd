@@ -6,9 +6,6 @@ class_name AssetsManager
 # =========== GENERAL STATICS ===============================
 const CONTROLLER_ROOT:String = "res://addons/godot_landscaper/controllers/"
 
-# Resources
-const ICONS:Texture2D = preload("uid://b0vixk6g6mb0o")
-
 # Scenes
 const INFO_BOX:PackedScene = preload("uid://cc22twy7o43pp")
 const INSPECTOR_TAB:PackedScene = preload("uid://bjulr1lyuv2wc")

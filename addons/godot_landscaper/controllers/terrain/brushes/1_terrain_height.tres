@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GLBrushTerrainHeight" load_steps=3 format=3 uid="uid://60fm1rbtxk4q"]
+
+[ext_resource type="Texture2D" uid="uid://dgjsktynk4pnw" path="res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_height.svg" id="1_b3bcb"]
+[ext_resource type="Script" uid="uid://dxggt0kdy7bwq" path="res://addons/godot_landscaper/controllers/terrain/brushes/terrain_height.gd" id="1_v7q6h"]
+
+[resource]
+script = ExtResource("1_v7q6h")
+title = "Height"
+icon = ExtResource("1_b3bcb")
+info = "Left click to heighten terrain, right click to lower it"
+metadata/_custom_type_script = "uid://dxggt0kdy7bwq"

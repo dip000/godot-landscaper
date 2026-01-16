@@ -26,7 +26,7 @@ class Cache:
 var _paint_bottom_with_sencondary_color:bool
 var _relative_path_from_physics_body:String
 var _parent_of_physics_body:bool
-var _scan_layer_internal:int
+var _scan_layer:int
 var _paths_in_standar_materials:PackedStringArray
 var _paths_in_shader_materials:PackedStringArray
 var _default_color:Color
@@ -40,7 +40,7 @@ func _init(controller:GLControllerGrass):
 	_paint_bottom_with_sencondary_color = controller.paint_bottom_with_sencondary_color
 	_relative_path_from_physics_body = controller.relative_path_from_physics_body
 	_parent_of_physics_body = controller.parent_of_physics_body
-	_scan_layer_internal = controller.scan_layer_internal
+	_scan_layer = controller.scan_layer
 	_paths_in_standar_materials = controller.paths_in_standar_materials
 	_paths_in_shader_materials = controller.paths_in_shader_materials
 
@@ -69,15 +69,15 @@ func scan(from:Vector3, to:Vector3) -> Cache:
 	cache = Cache.new()
 	cache.collider = collider
 	cache.default_color = _default_color
-	cache.instance = scan_mesh( cache.collider )
+	cache.instance = scan_mesh( collider )
 	
 	if not cache.instance:
 		GLDebug.error("Couldn't scan a valid mesh from settings. Auto-coloring and perfect surface placement cannot be made")
 		return cache
 	
-	cache.cached_collider = create_cached_collider( cache, _scan_layer_internal )
-	cache.mdts = create_shapes( cache )
-	cache.sources = scan_color_sources( cache )
+	create_cached_collider( cache )
+	create_shapes( cache )
+	scan_color_sources( cache )
 	
 	# Engine requires a frame rest to detect the created collider and shapes
 	# Then raycast again to update hit_info with the new nodes
@@ -124,8 +124,7 @@ func scan_mesh(collider:CollisionObject3D) -> MeshInstance3D:
 			return node
 	return null
 
-
-func scan_color_sources(cache:Cache) -> Variant:
+func scan_color_sources(cache:Cache):
 	var color_sources:Array[Variant]
 	var material_count:int = cache.instance.get_surface_override_material_count()
 	color_sources.resize( material_count )
@@ -145,7 +144,7 @@ func scan_color_sources(cache:Cache) -> Variant:
 				color_sources[i] = format_source( source )
 				if color_sources[i]: break
 	
-	return color_sources
+	cache.sources = color_sources
 
 
 func format_source(source:Variant) -> Variant:
@@ -172,11 +171,11 @@ func format_source(source:Variant) -> Variant:
 	return img
 
 
-func create_cached_collider(cache:Cache, layer:int) -> CollisionObject3D:
+func create_cached_collider(cache:Cache):
 	var collider:CollisionObject3D = cache.collider
 	var collider_parent:Node = collider.get_parent()
 	var cached_collider:CollisionObject3D = SceneManager.find_or_create_node( StaticBody3D, collider_parent, "CachedBody", not GLDebug.debugging_internal() )
-	cached_collider.collision_layer = layer
+	cached_collider.collision_layer = _scan_layer
 	cached_collider.collision_mask = 0
 	cached_collider.process_mode = Node.PROCESS_MODE_INHERIT
 	# Hard save them to hard clear them in case of errors
@@ -184,13 +183,12 @@ func create_cached_collider(cache:Cache, layer:int) -> CollisionObject3D:
 	collider.add_to_group(GROUP_COLLIDERS, true)
 	# Clear original collider's collision layer so it doesn't get detected anymore. Resets on rest/clear_cache()
 	collider.process_mode = Node.PROCESS_MODE_DISABLED
-	return cached_collider
+	cache.cached_collider = cached_collider
 
 
-func create_shapes(cache:Cache) -> Array[MeshDataTool]:
+func create_shapes(cache:Cache):
 	var surfaces:int = cache.instance.get_surface_override_material_count()
-	var mdts:Array[MeshDataTool]
-	mdts.resize( surfaces )
+	cache.mdts.resize( surfaces )
 	
 	for surface in surfaces:
 		var material:Material = cache.instance.get_active_material( surface )
@@ -206,9 +204,8 @@ func create_shapes(cache:Cache) -> Array[MeshDataTool]:
 		# So just store on the first surface but inside a surface-indexed array
 		var mdt:MeshDataTool = MeshDataTool.new()
 		mdt.create_from_surface(arary_mesh, 0)
-		mdts[surface] = mdt
+		cache.mdts[surface] = mdt
 	
-	return mdts
 
 
 ## Takes hit_info from PhysicsDirectSpaceState3D.intersect_ray(), and cached data from cache_scan()

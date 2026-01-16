@@ -10,7 +10,7 @@ class_name GLBrush
 ## Inspector UI Tab title
 @export var title:String = ""
 ## Inspector UI Tab icon
-@export var icon:AtlasIcon.Icon = 0
+@export var icon:Texture2D
 ## Inspector UI Infobox info
 @export_multiline var info:String = ""
 ## Inspector UI properties to hide if tab is selected

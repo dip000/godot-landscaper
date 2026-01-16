@@ -19,8 +19,8 @@ func not_over_surface():
 	hide()
 
 
-func set_icon(icon:AtlasIcon.Icon):
-	_icon.texture.icon = icon
+func set_icon(icon:Texture2D):
+	_icon.texture = icon
 
 
 func scale_by(value:float):

@@ -3,11 +3,12 @@ class_name GLInspectorManager
 
 
 func _can_handle(object:Object):
-	return object is GLControllerGrass
+	return object is GLController
 
 # Re select the canvas's tab
-func selected(controller:GLControllerGrass):
-	_press_tab( controller, controller.current_brush )
+func selected(controller:GLController):
+	if controller.current_brush:
+		_press_tab( controller, controller.current_brush )
 
 
 # Creates and connects tabs according to 'GLController.brushes' settings
@@ -32,12 +33,12 @@ func _parse_property(controller:Object, type, name:String, hint_type, hint_strin
 	return name in current_tab.hide_properties if current_tab else false
 
 
-func _press_tab(controller:GLControllerGrass, brush:GLBrush):
+func _press_tab(controller:GLController, brush:GLBrush):
 	controller.select_brush( brush )
 	controller.notify_property_list_changed()
-	Landscaper.scene.select_brush( brush.icon )
+	Landscaper.scene.select_brush( brush )
 
-func _create_tabs(controller:GLControllerGrass) -> Control:
+func _create_tabs(controller:GLController) -> Control:
 	var tabs := HBoxContainer.new()
 	tabs.set_anchors_preset( Control.PRESET_TOP_WIDE )
 	
@@ -45,7 +46,7 @@ func _create_tabs(controller:GLControllerGrass) -> Control:
 		var tab_ui:Button = AssetsManager.INSPECTOR_TAB.instantiate()
 		tabs.add_child( tab_ui )
 		tab_ui.text = brush.title
-		tab_ui.icon.icon = brush.icon
+		tab_ui.icon = brush.icon
 		tab_ui.button_pressed = (controller.current_brush == brush)
 		tab_ui.pressed.connect( _press_tab.bind(controller, brush) )
 	return tabs
