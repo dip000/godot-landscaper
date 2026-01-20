@@ -51,6 +51,8 @@ var brushes:Array[GLBrush]
 ## The current active brush from brushes
 var current_brush:GLBrush
 
+var use_grid:bool
+
 ## Lifehack to avoid clickthrough while adding a node from the "Add Children Node" window
 var is_ready:bool
 
@@ -67,22 +69,12 @@ var is_ready:bool
 @export_range(0.1, 20, 0.1) var brush_size:float = 2.0:
 	set(v):
 		if Landscaper.running():
-			Landscaper.scene.brush.set_scale_ratio(v)
+			Landscaper.scene.brush.set_scale_ratio(self, v)
 	get:
 		if Landscaper.running():
 			return Landscaper.scene.brush.get_scale_ratio()
 		return 2.0
 
-
-## Color of the 3D brush shpere
-@export var brush_color:Color = Color(Color.PALE_VIOLET_RED, 0.5):
-	set(v):
-		if Landscaper.running():
-			Landscaper.scene.brush.set_color(v)
-	get:
-		if Landscaper.running():
-			return Landscaper.scene.brush.get_color()
-		return Color(Color.PALE_VIOLET_RED, 0.5)
 
 ## Color of the 3D brush shpere
 @export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF:
@@ -108,12 +100,12 @@ func _ready():
 func _setup_controller() -> void
 
 
-
 ## Called from GLInspectorManager on tab click
 func select_brush(brush:GLBrush):
 	if GLValidator.validate_select_brush( validator, brush ):
 		current_brush = brush
 		GLDebug.internal("Selected: %s/%s" %[name, brush.title])
+
 
 
 ## Start landscaping according to the current brush

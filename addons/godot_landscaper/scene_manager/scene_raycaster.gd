@@ -14,8 +14,6 @@ var _ray_surfaces := PhysicsRayQueryParameters3D.new()
 var _ray_points := PhysicsRayQueryParameters3D.new()
 var _direct_space_state:PhysicsDirectSpaceState3D
 
-@onready var scene_brush:SceneBrush = %SceneBrush
-
 
 func _ready():
 	_direct_space_state = get_world_3d().direct_space_state

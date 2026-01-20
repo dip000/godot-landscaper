@@ -8,4 +8,5 @@ script = ExtResource("1_haua6")
 title = "Build"
 icon = ExtResource("1_b0ipx")
 info = "Left click to build terrain, right click to erase"
+hide_properties = PackedStringArray("strenght", "primary_color", "secondary_color")
 metadata/_custom_type_script = "uid://byui0q6lutlyl"

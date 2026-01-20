@@ -1,0 +1,67 @@
+[gd_scene load_steps=8 format=4 uid="uid://bi2pmhwn821hp"]
+
+[ext_resource type="Script" uid="uid://k2h3xr0j4uvh" path="res://addons/godot_landscaper/controllers/terrain/terrain_controller.gd" id="1_lelu6"]
+[ext_resource type="Material" uid="uid://dv0l7x5rgt4e8" path="res://addons/godot_landscaper/controllers/terrain/resources/material.tres" id="2_rqwvx"]
+[ext_resource type="Shader" uid="uid://dblstk6bs53sr" path="res://addons/godot_landscaper/controllers/terrain/resources/shader.gdshader" id="3_edapv"]
+[ext_resource type="Script" uid="uid://cqohd7g8xbqtb" path="res://addons/godot_landscaper/controllers/terrain/build_data/terrain_build_data.gd" id="4_itajp"]
+
+[sub_resource type="Environment" id="Environment_pksgc"]
+background_mode = 1
+background_color = Color(0.216019, 0.384473, 0.43957, 1)
+glow_hdr_threshold = 4.0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_jxb4l"]
+_surfaces = [{
+"aabb": AABB(-2, 0, -2, 4, 1e-05, 4),
+"attribute_data": PackedByteArray("AAAAPwAAAD8AAEA/AAAAPwAAAD8AAEA/AAAAPwAAQD8AAEA/AAAAPwAAQD8AAEA/AAAAPwAAQD8AAEA/AABAPwAAAD8AAIA/AAAAPwAAgD8AAEA/AABAPwAAQD8AAIA/AABAPwAAAD8AAIA/AAAAPwAAQD8AAEA/AABAPwAAQD8AAIA/AAAAPwAAgD8AAEA/AABAPwAAQD8AAIA/AABAPwAAQD8AAIA/AABAPwAAgD8AAIA/AABAPwAAgD8AAIA/AACAPgAAAD8AAAA/AAAAPwAAgD4AAEA/AACAPgAAQD8AAAA/AAAAPwAAAD8AAEA/AACAPgAAQD8AAAA/AABAPwAAgD4AAIA/AACAPgAAgD8AAAA/AABAPwAAAD8AAIA/AAAAAAAAAD8AAIA+AAAAPwAAAAAAAEA/AAAAAAAAQD8AAIA+AAAAPwAAgD4AAEA/AAAAAAAAQD8AAIA+AABAPwAAAAAAAIA/AAAAAAAAgD8AAIA+AABAPwAAgD4AAIA/AAAAAAAAgD4AAIA+AACAPgAAAAAAAAA/AAAAAAAAAD8AAIA+AACAPgAAgD4AAAA/AACAPgAAgD4AAAA/AACAPgAAgD4AAAA/AACAPgAAAD8AAAA/AACAPgAAAD8AAAA/AAAAAAAAAAAAAIA+AAAAAAAAAAAAAIA+AAAAAAAAgD4AAIA+AAAAAAAAgD4AAIA+AACAPgAAAAAAAAA/AAAAAAAAgD4AAIA+AACAPgAAgD4AAAA/AAAAAAAAAD8AAIA+AAAAPwAAAAAAAEA/AAAAAAAAAD8AAIA+AAAAPwAAgD4AAEA/AAAAAAAAQD8AAIA+AAAAPwAAgD4AAEA/AACAPgAAAD8AAAA/AAAAPwAAAD8AAEA/AACAPgAAQD8AAAA/AABAPwAAAAAAAIA/AAAAAAAAQD8AAIA+AABAPwAAgD4AAIA/AAAAAAAAgD8AAIA+AABAPwAAgD4AAIA/AACAPgAAQD8AAAA/AABAPwAAAD8AAIA/AACAPgAAgD8AAAA/"),
+"format": 34359738385,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 96,
+"vertex_data": PackedByteArray("AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AACAPwAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAAAAAAIA/AACAPwAAAAAAAIA/AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAACAPwAAAAAAAIA/AACAPwAAAAAAAABAAACAPwAAAAAAAAAAAAAAQAAAAAAAAAAAAACAPwAAAAAAAIA/AACAPwAAAAAAAIA/AAAAQAAAAAAAAAAAAAAAQAAAAAAAAIA/AACAPwAAAAAAAIA/AAAAQAAAAAAAAIA/AACAPwAAAAAAAABAAACAPwAAAAAAAABAAAAAQAAAAAAAAIA/AAAAQAAAAAAAAABAAACAvwAAAAAAAAAAAAAAAAAAAAAAAAAAAACAvwAAAAAAAIA/AACAvwAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AACAvwAAAAAAAIA/AAAAAAAAAAAAAIA/AACAvwAAAAAAAABAAACAvwAAAAAAAABAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAABAAAAAwAAAAAAAAAAAAACAvwAAAAAAAAAAAAAAwAAAAAAAAIA/AAAAwAAAAAAAAIA/AACAvwAAAAAAAAAAAACAvwAAAAAAAIA/AAAAwAAAAAAAAIA/AACAvwAAAAAAAIA/AAAAwAAAAAAAAABAAAAAwAAAAAAAAABAAACAvwAAAAAAAIA/AACAvwAAAAAAAABAAAAAwAAAAAAAAIC/AACAvwAAAAAAAIC/AAAAwAAAAAAAAAAAAAAAwAAAAAAAAAAAAACAvwAAAAAAAIC/AACAvwAAAAAAAAAAAACAvwAAAAAAAIC/AAAAAAAAAAAAAIC/AACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAAAAAwAAAAAAAAADAAACAvwAAAAAAAADAAAAAwAAAAAAAAIC/AAAAwAAAAAAAAIC/AACAvwAAAAAAAADAAACAvwAAAAAAAIC/AACAvwAAAAAAAADAAAAAAAAAAAAAAADAAACAvwAAAAAAAIC/AACAvwAAAAAAAIC/AAAAAAAAAAAAAADAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAADAAACAPwAAAAAAAADAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AACAPwAAAAAAAADAAACAPwAAAAAAAIC/AAAAAAAAAAAAAIC/AACAPwAAAAAAAIC/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAIC/AACAPwAAAAAAAAAAAACAPwAAAAAAAADAAAAAQAAAAAAAAADAAACAPwAAAAAAAIC/AACAPwAAAAAAAIC/AAAAQAAAAAAAAADAAAAAQAAAAAAAAIC/AACAPwAAAAAAAIC/AAAAQAAAAAAAAIC/AACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAQAAAAAAAAIC/AAAAQAAAAAAAAAAA")
+}]
+
+[sub_resource type="Resource" id="Resource_jxb4l"]
+script = ExtResource("4_itajp")
+vertices_map = Dictionary[Vector2i, PackedVector3Array]({
+Vector2i(-2, -2): PackedVector3Array(-2, 0, -2, -1, 0, -2, -2, 0, -1, -2, 0, -1, -1, 0, -2, -1, 0, -1),
+Vector2i(-2, -1): PackedVector3Array(-2, 0, -1, -1, 0, -1, -2, 0, 0, -2, 0, 0, -1, 0, -1, -1, 0, 0),
+Vector2i(-2, 0): PackedVector3Array(-2, 0, 0, -1, 0, 0, -2, 0, 1, -2, 0, 1, -1, 0, 0, -1, 0, 1),
+Vector2i(-2, 1): PackedVector3Array(-2, 0, 1, -1, 0, 1, -2, 0, 2, -2, 0, 2, -1, 0, 1, -1, 0, 2),
+Vector2i(-1, -2): PackedVector3Array(-1, 0, -2, 0, 0, -2, -1, 0, -1, -1, 0, -1, 0, 0, -2, 0, 0, -1),
+Vector2i(-1, -1): PackedVector3Array(-1, 0, -1, 0, 0, -1, -1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0),
+Vector2i(-1, 0): PackedVector3Array(-1, 0, 0, 0, 0, 0, -1, 0, 1, -1, 0, 1, 0, 0, 0, 0, 0, 1),
+Vector2i(-1, 1): PackedVector3Array(-1, 0, 1, 0, 0, 1, -1, 0, 2, -1, 0, 2, 0, 0, 1, 0, 0, 2),
+Vector2i(0, -2): PackedVector3Array(0, 0, -2, 1, 0, -2, 0, 0, -1, 0, 0, -1, 1, 0, -2, 1, 0, -1),
+Vector2i(0, -1): PackedVector3Array(0, 0, -1, 1, 0, -1, 0, 0, 0, 0, 0, 0, 1, 0, -1, 1, 0, 0),
+Vector2i(0, 0): PackedVector3Array(0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1),
+Vector2i(0, 1): PackedVector3Array(0, 0, 1, 1, 0, 1, 0, 0, 2, 0, 0, 2, 1, 0, 1, 1, 0, 2),
+Vector2i(1, -2): PackedVector3Array(1, 0, -2, 2, 0, -2, 1, 0, -1, 1, 0, -1, 2, 0, -2, 2, 0, -1),
+Vector2i(1, -1): PackedVector3Array(1, 0, -1, 2, 0, -1, 1, 0, 0, 1, 0, 0, 2, 0, -1, 2, 0, 0),
+Vector2i(1, 0): PackedVector3Array(1, 0, 0, 2, 0, 0, 1, 0, 1, 1, 0, 1, 2, 0, 0, 2, 0, 1),
+Vector2i(1, 1): PackedVector3Array(1, 0, 1, 2, 0, 1, 1, 0, 2, 1, 0, 2, 2, 0, 1, 2, 0, 2)
+})
+
+[node name="ExampleTerrain" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_pksgc")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.96346, 20.339146)
+
+[node name="GLControllerTerrain" type="MeshInstance3D" parent="."]
+material_override = ExtResource("2_rqwvx")
+mesh = SubResource("ArrayMesh_jxb4l")
+skeleton = NodePath("../TerrainControllers/GLControllerTerrain")
+
+[node name="TerrainControllers" type="Node" parent="."]
+
+[node name="GLControllerTerrain" type="Node" parent="TerrainControllers" node_paths=PackedStringArray("terrain")]
+script = ExtResource("1_lelu6")
+terrain = NodePath("../../GLControllerTerrain")
+material = ExtResource("2_rqwvx")
+shader = ExtResource("3_edapv")
+source = SubResource("Resource_jxb4l")
+debug_level = 3
+metadata/_custom_type_script = "uid://k2h3xr0j4uvh"

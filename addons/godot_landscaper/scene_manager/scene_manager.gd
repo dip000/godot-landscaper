@@ -3,7 +3,7 @@ extends Node3D
 class_name SceneManager
 
 @onready var raycaster:SceneRaycaster = $Raycaster
-@onready var brush:SceneBrush = $SceneBrush
+@onready var brush:SceneBrush = $Brush
 
 
 static func find_or_create_node(type, parent:Node, child_name:String, ghost:bool=false) -> Node:
@@ -25,19 +25,22 @@ static func create_node(type, parent:Node, child_name:String, ghost:bool=false) 
 
 # ========= Called from GLInspectorManager ===== ===========
 func select_brush(brush_to_select:GLBrush):
-	brush.set_icon( brush_to_select.icon )
+	brush.select_brush( brush_to_select )
 
 
 # ========= Called from main plugin Landscaper =========
 func selected(controller:GLController):
 	# Set full scan mode on select
 	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
+	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
+	brush.selected( controller )
 
-func over_surface(pos:Vector3):
-	brush.over_surface( pos )
+func deselected(controller:GLController):
+	brush.deselected( controller )
 
-func not_over_surface():
-	brush.not_over_surface()
+func over_surface(controller:GLController, pos:Vector3):
+	brush.over_surface( controller, pos )
+
 
 func stroke_start(controller:GLController, hit_info:Dictionary):
 	# Scan only internal shapes (created on GLSurfaceScanner.create_shapes)
@@ -48,5 +51,9 @@ func stroke_end(controller:GLController):
 	# Return to full scan mode at brush's end
 	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
 
-func scale_by(sca:float):
-	brush.scale_by( sca )
+
+func scale_down(controller:GLController):
+	brush.scale_down( controller )
+
+func scale_up(controller:GLController):
+	brush.scale_up( controller )

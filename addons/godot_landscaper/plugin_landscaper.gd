@@ -8,7 +8,7 @@ static var inspector:GLInspectorManager
 static var undo_redo:GLUndoRedo
 static var is_enabled:bool
 
-static var selected_controller:GLController
+var _active_controller:GLController
 
 
 static func running() -> bool:
@@ -43,7 +43,7 @@ func _exit_tree():
 
 # Raycasts terrain colliders to track mouse pointer and sends input to an active 'SceneLandscaper' node
 func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
-	if not selected_controller or not selected_controller.is_ready:
+	if not _active_controller or not _active_controller.is_ready:
 		return
 	
 	# Accepted inputs
@@ -56,10 +56,9 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	# Raycast
 	var hit_info:Dictionary = scene.raycaster.cam_to_surface( cam, event.get_position() )
 	if not hit_info:
-		scene.not_over_surface()
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	scene.over_surface( hit_info.position )
+	scene.over_surface( _active_controller, hit_info.position )
 	
 	# Paint
 	var mbl:bool = is_button and event.button_index == MOUSE_BUTTON_LEFT
@@ -68,30 +67,30 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			selected_controller.stroke_start( hit_info )
-			scene.stroke_start( selected_controller, hit_info )
-		selected_controller.stroke_primary( hit_info )
+			_active_controller.stroke_start( hit_info )
+			scene.stroke_start( _active_controller, hit_info )
+		_active_controller.stroke_primary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			selected_controller.stroke_start( hit_info )
-			scene.stroke_start( selected_controller, hit_info )
-		selected_controller.stroke_secondary( hit_info )
+			_active_controller.stroke_start( hit_info )
+			scene.stroke_start( _active_controller, hit_info )
+		_active_controller.stroke_secondary( hit_info )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
-		selected_controller.stroke_end()
-		scene.stroke_end( selected_controller )
+		_active_controller.stroke_end()
+		scene.stroke_end( _active_controller )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel
 	if event.ctrl_pressed or event.shift_pressed or event.alt_pressed:
 		if Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_UP ):
-			scene.scale_by( 0.1 )
+			scene.scale_up( _active_controller )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif Input.is_mouse_button_pressed( MOUSE_BUTTON_WHEEL_DOWN ):
-			scene.scale_by( -0.1 )
+			scene.scale_down( _active_controller )
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		elif not event is InputEventMouseMotion: # Pass Panning and Zoom with special keys
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
@@ -100,10 +99,13 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 
 func _edit(controller:Object):
-	selected_controller = controller
-	if selected_controller:
-		inspector.selected( selected_controller )
-		scene.selected( selected_controller )
+	if controller:
+		inspector.selected( controller )
+		scene.selected( controller )
+	else:
+		scene.deselected( controller )
+	_active_controller = controller
+
 
 
 func _handles(object:Object):

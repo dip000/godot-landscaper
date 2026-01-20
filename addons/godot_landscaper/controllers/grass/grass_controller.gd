@@ -145,6 +145,7 @@ func _setup_controller():
 	validator = GLValidatorGrass.new( self )
 	builder = GLBuilderGrass.new( self )
 	brushes = AssetsManager.load_controller_brushes( "grass" )
+	use_grid = false
 
 
 func _get_shader(parameter:String, default:Variant=null) -> Variant:

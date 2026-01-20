@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://drdkhreturdff"]
+
+[ext_resource type="Shader" uid="uid://c8l4rq7d66kx0" path="res://addons/godot_landscaper/scene_manager/brush/shader.gdshader" id="1_ixqpl"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_ixqpl")
+shader_parameter/cell_size = 1.0
+shader_parameter/line_width = 1.0
+shader_parameter/grid_color = Color(0.859, 0.439, 0.576, 1)
+shader_parameter/mask_center = Vector3(5, 0, 1)
+shader_parameter/mask_radius = 6.0
+shader_parameter/mask_softness = 10.0

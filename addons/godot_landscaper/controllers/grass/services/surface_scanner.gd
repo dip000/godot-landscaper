@@ -198,7 +198,7 @@ func create_shapes(cache:Cache):
 		
 		var shape:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, cache.cached_collider, "CachedShape%s"%surface, not GLDebug.debugging_internal() )
 		shape.shape = arary_mesh.create_trimesh_shape()
-		shape.debug_color = Color(Landscaper.scene.brush.get_color(), 1.0)
+		shape.debug_color = Color.PALE_VIOLET_RED
 		
 		# I *think* MeshDataTool cannot store more than one surface, and MeshDataTool.get_vertex() is absolutely needed.
 		# So just store on the first surface but inside a surface-indexed array
@@ -224,7 +224,7 @@ func scan_color(cache:Cache) -> Color:
 		return source
 	
 	elif not source is Image:
-		GLDebug.error("Source '%s' is invalid" %source)
+		GLDebug.error("Color source '%s' is invalid. Using fallback color" %source)
 		return cache.default_color
 	
 	# Triggers when the ray does not hit the correct mesh surface
