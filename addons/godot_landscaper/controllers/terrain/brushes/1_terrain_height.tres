@@ -8,5 +8,5 @@ script = ExtResource("1_v7q6h")
 title = "Height"
 icon = ExtResource("1_b3bcb")
 info = "Left click to heighten terrain, right click to lower it"
-hide_properties = PackedStringArray("base_height", "cell_size", "primary_color", "secondary_color")
+hide_properties = PackedStringArray("sew_seams_on_build", "cell_size", "primary_color", "secondary_color")
 metadata/_custom_type_script = "uid://dxggt0kdy7bwq"

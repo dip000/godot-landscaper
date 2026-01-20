@@ -5,13 +5,12 @@ class_name GLControllerTerrain
 
 
 @export_category("Brushes")
-
-## Height to build the terrain. You can heighten and lower with the Height Brush
-@export var base_height:float = 0
-
 ## How many cells to build per meter squared.
 ## You can always optimize by applying effects at the end.
 @export_range(1.0, 10.0, 0.01, "or_greater", "or_less", "suffix:cells/meter") var cell_size:float = 1
+
+## Joins hard-edges with the closest cells
+@export var sew_seams_on_build:bool = true
 
 
  ## Controls how much the terrain is raised or lowered per stroke.

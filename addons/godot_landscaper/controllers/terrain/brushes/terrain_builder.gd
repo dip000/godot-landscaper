@@ -2,6 +2,15 @@
 extends GLBrush
 class_name GLBrushTerrainBuider
 
+# Each corner of a square has a list of 3 closest neighbors that share the same vertex
+# These const define their mapping of {relative_index_in_square_shape: neighbor_corner_offset}
+# For example. Looking from the TOP_LEFT corner:
+#   You have the neighbors left-up, left, and up with their respective indexes of the shared vertex 5,1,2
+const TOP_LEFT:Dictionary[int, Vector2i] = {5:Vector2i(-1,-1), 1:Vector2i(-1,0), 2:Vector2i(0,-1)}
+const TOP_RIGHT:Dictionary[int, Vector2i] = {5:Vector2i(0,-1), 2:Vector2i(-1,-1), 0:Vector2i(0,1)}
+const BOTTOM_LEFT:Dictionary[int, Vector2i] = {5:Vector2i(-1,0), 1:Vector2i(-1,1), 0:Vector2i(0,1)}
+const BOTTOM_RIGHT:Dictionary[int, Vector2i] = {2:Vector2i(1,0), 1:Vector2i(0,1), 0:Vector2i(1,1)}
+
 const SQUARE_SHAPE:Array[Vector2i] = [
 	Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), #top-left triangle
 	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #bottom-right triangle
@@ -29,7 +38,6 @@ func _update(hit_info:Dictionary, controller:GLControllerTerrain, build:bool):
 	var brush_size:float = controller.brush_size
 	var brush_radius:float = brush_size * 0.5
 	var cell_size:float = controller.cell_size
-	var height:float = controller.base_height
 	var source:GLBuildDataTerrain = controller.source
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = source.vertices_map
 	
@@ -53,16 +61,36 @@ func _update(hit_info:Dictionary, controller:GLControllerTerrain, build:bool):
 				var vertices:PackedVector3Array
 				GLDebug.spam("Added Cell: %s" %[cell])
 				
-				# TODO: Make an "auto-sew seams if close enough"
-				for offset_shape in SQUARE_SHAPE:
+				for corner_index in SQUARE_SHAPE.size():
+					var offset:Vector2i = SQUARE_SHAPE[corner_index]
+					var corner_height:float = 0
+					
+					if controller.sew_seams_on_build:
+						match corner_index:
+							0: corner_height = _get_corner_height(TOP_LEFT, vertices_map, cell)
+							1, 4: corner_height = _get_corner_height(TOP_RIGHT, vertices_map, cell)
+							2, 3: corner_height = _get_corner_height(BOTTOM_LEFT, vertices_map, cell)
+							5: corner_height = _get_corner_height(BOTTOM_RIGHT, vertices_map, cell)
+					
 					vertices.append(Vector3(
-						origin_x + offset_shape.x * cell_size,
-						height,
-						origin_z + offset_shape.y * cell_size
+						origin_x + offset.x * cell_size,
+						corner_height,
+						origin_z + offset.y * cell_size
 					))
+				
 				vertices_map[cell] = vertices
 			
 			elif not build and vertices_map.has( cell ):
 				GLDebug.spam("Erasd Cell: %s" %cell)
 				vertices_map.erase( cell )
-			
+
+
+
+func _get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map:Dictionary[Vector2i, PackedVector3Array], pivot:Vector2i) -> float:
+	for cell_corner in corner_map:
+		var cell:Vector2i = pivot + corner_map[cell_corner]
+		if vertices_map.has( cell ):
+			return vertices_map[cell][cell_corner].y
+	return 0
+	
+	
