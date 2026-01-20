@@ -8,5 +8,5 @@ script = ExtResource("2_vlo2c")
 title = "Paint"
 icon = ExtResource("1_47n8j")
 info = "Left click to paint terrain with primary color, right click for secondary"
-hide_properties = PackedStringArray("base_height", "cell_size", "strenght")
+hide_properties = PackedStringArray("base_height", "cell_size", "strenght", "ease_curve")
 metadata/_custom_type_script = "uid://t22pds07a38c"

@@ -53,6 +53,7 @@ func _update(hit_info:Dictionary, controller:GLControllerTerrain, build:bool):
 				var vertices:PackedVector3Array
 				GLDebug.spam("Added Cell: %s" %[cell])
 				
+				# TODO: Make an "auto-sew seams if close enough"
 				for offset_shape in SQUARE_SHAPE:
 					vertices.append(Vector3(
 						origin_x + offset_shape.x * cell_size,

@@ -11,7 +11,7 @@
 
 @tool
 @abstract
-@icon("res://addons/godot_landscaper/scene_element/grass/grass_icon.svg")
+@icon("res://addons/godot_landscaper/scene_element/core/base_icon.svg")
 extends Node
 class_name GLController
 

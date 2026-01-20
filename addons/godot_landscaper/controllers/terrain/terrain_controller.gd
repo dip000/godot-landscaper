@@ -13,8 +13,17 @@ class_name GLControllerTerrain
 ## You can always optimize by applying effects at the end.
 @export_range(1.0, 10.0, 0.01, "or_greater", "or_less", "suffix:cells/meter") var cell_size:float = 1
 
-## How quickly you want to raise or lower the ground when you paint over the terrain
-@export_range(0.01, 10.0, 0.01) var strenght:float = 1.0
+
+ ## Controls how much the terrain is raised or lowered per stroke.
+ ## Higher values produce steeper hills and deeper depressions.
+ ## Lower values allow for subtle shaping and fine adjustments.
+@export_range(0.01, 1.0, 0.001, "or_greater", "exp") var strenght:float = 0.1
+
+## Controls how the brush strength fades from the center toward the edges.
+## Lower values create a softer, wider influence.
+## Higher values concentrate the effect near the center for sharper shapes.
+@export_range(-3.0, 3.0, 0.01, "or_greater", "or_less") var ease_curve:float = 0.5
+
 
 ## Terrain color with left button mouse.
 ## Use transparency for smooth blending.
@@ -23,6 +32,7 @@ class_name GLControllerTerrain
 ## Terrain color with right button mouse
 ## Use transparency for smooth blending.
 @export var secondary_color:Color = Color(Color.PALE_VIOLET_RED, 0.5)
+
 
 ## The terrain target reference
 @export var terrain:MeshInstance3D
