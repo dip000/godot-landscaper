@@ -37,7 +37,7 @@ albedo_texture = SubResource("GradientTexture2D_8lvy3")
 material = SubResource("StandardMaterial3D_wcwec")
 size = Vector2(30, 30)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_wcwec"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_d3koy"]
 data = PackedVector3Array(15, 0, 15, -15, 0, 15, 15, 0, -15, -15, 0, 15, -15, 0, -15, 15, 0, -15)
 
 [sub_resource type="MultiMesh" id="MultiMesh_wmyp6"]
@@ -147,7 +147,7 @@ mesh = SubResource("PlaneMesh_wcwec")
 [node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_wcwec")
+shape = SubResource("ConcavePolygonShape3D_d3koy")
 
 [node name="GrassPolyquadTextured" type="MultiMeshInstance3D" parent="Ground"]
 instance_shader_parameters/texture_layer = 0
@@ -185,9 +185,8 @@ texture_instance = ExtResource("9_5xkbc")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_n4gct")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_ntg8m")])
-paths_in_shader_materials = Array[String](["texture", "color"])
-debug_level = 3
-brush_size = 2.3000016
+paths_in_shader_materials = Array[String](["albedo", "albedo_texture", "texture", "color"])
+brush_size = 4.0
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"
 
 [node name="GrassSingleTextured" type="Node" parent="GrassControllers" node_paths=PackedStringArray("multimesh_instance")]
@@ -202,8 +201,7 @@ texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_cfvs2")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_1cem6")])
 paths_in_shader_materials = Array[String](["texture", "color"])
-debug_level = 3
-brush_size = 2.3000016
+brush_size = 4.0
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"
 
 [node name="GrassFoxtail3D" type="Node" parent="GrassControllers" node_paths=PackedStringArray("multimesh_instance")]
@@ -215,9 +213,8 @@ material = ExtResource("8_q4dv6")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_5qies")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_yfmii")])
-paths_in_shader_materials = Array[String](["texture", "color"])
-debug_level = 3
-brush_size = 2.3000016
+paths_in_shader_materials = Array[String](["albedo", "albedo_texture", "texture", "color"])
+brush_size = 4.0
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"
 
 [node name="GrassSingle3D" type="Node" parent="GrassControllers" node_paths=PackedStringArray("multimesh_instance")]
@@ -229,7 +226,5 @@ material = ExtResource("8_q4dv6")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_f5pa1")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_ybn00")])
-paths_in_shader_materials = Array[String](["texture", "color"])
-debug_level = 3
-brush_size = 2.3000016
+brush_size = 4.0
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"

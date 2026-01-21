@@ -3,26 +3,26 @@ extends GLBrush
 class_name GLBrushTerrainHeight
 
 
-func start(hit_info:Dictionary, controller:GLController):
+func start(scan_data:GLScanData, controller:GLController):
 	pass
 
 
 ## Heighten terrain level
-func primary(hit_info:Dictionary, controller:GLController):
-	_update( hit_info, controller, true )
+func primary(scan_data:GLScanData, controller:GLController):
+	_update( scan_data, controller, true )
 
 
 ## Lower terrain level
-func secondary(hit_info:Dictionary, controller:GLController):
-	_update( hit_info, controller, false )
+func secondary(scan_data:GLScanData, controller:GLController):
+	_update( scan_data, controller, false )
 
 
 func end():
 	pass
 
 
-func _update(hit_info:Dictionary, controller:GLControllerTerrain, heighten:bool):
-	var brush_pos:Vector3 = hit_info.position
+func _update(scan_data:GLScanData, controller:GLControllerTerrain, heighten:bool):
+	var brush_pos:Vector3 = scan_data.position
 	var brush_size:float = controller.brush_size
 	var brush_radius:float = brush_size * 0.5
 	var cell_size:float = controller.cell_size

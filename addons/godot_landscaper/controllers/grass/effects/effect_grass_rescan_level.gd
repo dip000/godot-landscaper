@@ -2,7 +2,7 @@
 extends GLEffect
 class_name GLEffectRescanLevel
 
-## Range in meters on Y axis that the grass will try to scan for a surface to sit on
+## Range in meters on Y axis that the grass will try to cache_scan_all for a surface to sit on
 @export var min_height_offset:float = -2.0
 @export var max_height_offset:float = 2.0
 
@@ -11,7 +11,7 @@ func _apply(controller:GLController) -> bool:
 	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var processed:GLBuildDataGrass = controller.processed
-	var scanner:GLSurfaceScanner = GLSurfaceScanner.new( controller )
+	var scanner:GLSurfaceScanner = GLSurfaceScanner.new().set_configs_from_controller( controller )
 	var original_instance_count:int = processed.size()
 	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
 	
@@ -21,7 +21,7 @@ func _apply(controller:GLController) -> bool:
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_height_offset
 		var scan_lower:Vector3 = global_position + Vector3.UP*min_height_offset
 		
-		var cache:GLSurfaceScanner.Cache = await scanner.scan( scan_upper, scan_lower )
+		var cache:GLScanData = await scanner.cache_scan_all( scan_upper, scan_lower )
 		if not cache:
 			continue
 		

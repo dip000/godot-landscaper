@@ -36,7 +36,7 @@ func _validate_select_brush(brush:GLBrush) -> bool:
 	return true
 
 
-func _validate_stroke_start(hit_info:Dictionary) -> bool:
+func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	if not _controller is GLControllerTerrain:
 		GLDebug.error("Stroke start is not possible: Controller '%s' is not a GLControllerTerrain instance. Assign it correctly in _setup_controller() and restart this scene" %_controller.name)
 		return false
@@ -77,11 +77,11 @@ func _validate_stroke_start(hit_info:Dictionary) -> bool:
 
 
 
-func _validate_stroke_primary(hit_info:Dictionary) -> bool:
+func _validate_stroke_primary(scan_data:GLScanData) -> bool:
 	return true
 
 
-func _validate_stroke_secondary(hit_info:Dictionary) -> bool:
+func _validate_stroke_secondary(scan_data:GLScanData) -> bool:
 	return true
 
 

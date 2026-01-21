@@ -39,7 +39,7 @@ func _validate_select_brush(brush:GLBrush) -> bool:
 	return true
 
 
-func _validate_stroke_start(hit_info:Dictionary) -> bool:
+func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	_controller = _controller as GLControllerGrass
 	if not _controller is GLControllerGrass:
 		GLDebug.error("Stroke start is not possible: Controller '%s' is not a GLControllerGrass instance. Assign it correctly in _setup_controller() and restart this scene" %_controller.name)
@@ -82,11 +82,9 @@ func _validate_stroke_start(hit_info:Dictionary) -> bool:
 		_controller.multimesh_instance = null
 	
 	# Create a MultiMeshInstance3D under the scanned surface if not selected
-	var collider:Node = hit_info.get("collider")
-	if not _controller.multimesh_instance and collider:
-		var scanner:GLSurfaceScanner = GLSurfaceScanner.new( _controller )
-		var brush_surface:Node3D = scanner.scan_mesh( collider )
-		var parent:Node3D = brush_surface if brush_surface else self
+	if not _controller.multimesh_instance and scan_data.collider:
+		GLSurfaceScanner.new().set_configs_from_controller( _controller ).scan_mesh_instace( scan_data )
+		var parent:Node = scan_data.mesh_instance if scan_data.mesh_instance else self
 		_controller.multimesh_instance = SceneManager.find_or_create_node(MultiMeshInstance3D, parent, _controller.name)
 		GLDebug.warning("Auto selected MultiMeshInstance '%s'. If this is not your intention please select the node manually" %_controller.multimesh_instance.name)
 	
@@ -98,11 +96,11 @@ func _validate_stroke_start(hit_info:Dictionary) -> bool:
 	return true
 
 
-func _validate_stroke_primary(hit_info:Dictionary) -> bool:
+func _validate_stroke_primary(scan_data:GLScanData) -> bool:
 	return true
 
 
-func _validate_stroke_secondary(hit_info:Dictionary) -> bool:
+func _validate_stroke_secondary(scan_data:GLScanData) -> bool:
 	return true
 
 

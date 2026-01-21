@@ -34,30 +34,30 @@ static func validate_select_brush(validator:GLValidator, brush:GLBrush) -> bool:
 
 
 @abstract
-func _validate_stroke_start(hit_info:Dictionary) -> bool
-static func validate_stroke_start(validator:GLValidator, hit_info:Dictionary) -> bool:
+func _validate_stroke_start(scan_data:GLScanData) -> bool
+static func validate_stroke_start(validator:GLValidator, scan_data:GLScanData) -> bool:
 	if not validator:
 		GLDebug.error("Inizialization is not possible: Validator is null. Assign it correctly in _setup_controller() and restart this scene")
 		return false
-	return validator._validate_stroke_start( hit_info )
+	return validator._validate_stroke_start( scan_data )
 
 
 @abstract
-func _validate_stroke_primary(hit_info:Dictionary) -> bool
-static func validate_stroke_primary(validator:GLValidator, hit_info:Dictionary) -> bool:
+func _validate_stroke_primary(scan_data:GLScanData) -> bool
+static func validate_stroke_primary(validator:GLValidator, scan_data:GLScanData) -> bool:
 	if not validator:
 		GLDebug.error("Inizialization is not possible: Validator is null. Assign it correctly in _setup_controller() and restart this scene")
 		return false
-	return validator._validate_stroke_primary( hit_info )
+	return validator._validate_stroke_primary( scan_data )
 
 
 @abstract
-func _validate_stroke_secondary(hit_info:Dictionary) -> bool
-static func validate_stroke_secondary(validator:GLValidator, hit_info:Dictionary) -> bool:
+func _validate_stroke_secondary(scan_data:GLScanData) -> bool
+static func validate_stroke_secondary(validator:GLValidator, scan_data:GLScanData) -> bool:
 	if not validator:
 		GLDebug.error("Inizialization is not possible: Validator is null. Assign it correctly in _setup_controller() and restart this scene")
 		return false
-	return validator._validate_stroke_secondary( hit_info )
+	return validator._validate_stroke_secondary( scan_data )
 
 
 @abstract

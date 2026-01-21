@@ -58,7 +58,8 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	if not hit_info:
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	scene.over_surface( _active_controller, hit_info.position )
+	var scan_data:GLScanData = GLScanData.new().set_hit_info( hit_info )
+	scene.over_surface( _active_controller, scan_data )
 	
 	# Paint
 	var mbl:bool = is_button and event.button_index == MOUSE_BUTTON_LEFT
@@ -67,16 +68,16 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			_active_controller.stroke_start( hit_info )
-			scene.stroke_start( _active_controller, hit_info )
-		_active_controller.stroke_primary( hit_info )
+			_active_controller.stroke_start( scan_data )
+			scene.stroke_start( _active_controller, scan_data )
+		_active_controller.stroke_primary( scan_data )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			_active_controller.stroke_start( hit_info )
-			scene.stroke_start( _active_controller, hit_info )
-		_active_controller.stroke_secondary( hit_info )
+			_active_controller.stroke_start( scan_data )
+			scene.stroke_start( _active_controller, scan_data )
+		_active_controller.stroke_secondary( scan_data )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:

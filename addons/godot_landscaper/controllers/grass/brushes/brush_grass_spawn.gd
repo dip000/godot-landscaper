@@ -5,25 +5,25 @@ class_name GLBrushGrassSpawn
 var scanner:GLSurfaceScanner
 
 
-func start(hit_info:Dictionary, controller:GLController) -> void:
-	scanner = GLSurfaceScanner.new( controller )
+func start(scan_data:GLScanData, controller:GLController) -> void:
+	scanner = GLSurfaceScanner.new().set_configs_from_controller( controller )
 	scanner.clear_cache()
 
-func primary(hit_info:Dictionary, controller:GLController):
-	_add_radial( hit_info, controller )
+func primary(scan_data:GLScanData, controller:GLController):
+	_add_radial( scan_data, controller )
 
-func secondary(hit_info:Dictionary, controller:GLController):
-	_get_remove_radial( hit_info, controller )
+func secondary(scan_data:GLScanData, controller:GLController):
+	_get_remove_radial( scan_data, controller )
 
 func end():
 	scanner.clear_cache()
 
 
 # Gets every MultiMesh transform except the ones inside the brush
-func _get_remove_radial(hit_info:Dictionary, controller:GLControllerGrass):
+func _get_remove_radial(scan_data:GLScanData, controller:GLControllerGrass):
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_radius(), 2)
-	var mouse_world_pos:Vector3 = hit_info.position
+	var mouse_world_pos:Vector3 = scan_data.position
 	var prev_data:GLBuildDataGrass = controller.source
 	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
 	
@@ -40,12 +40,12 @@ func _get_remove_radial(hit_info:Dictionary, controller:GLControllerGrass):
 	prev_data.fill( new_data )
 
 
-func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
+func _add_radial(scan_data:GLScanData, controller:GLControllerGrass):
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
 	
 	var data:GLBuildDataGrass = controller.source
 	var brush_radius:float = Landscaper.scene.brush.get_scale_ratio()*0.5
-	var mouse_world_pos:Vector3 = hit_info.position
+	var mouse_world_pos:Vector3 = scan_data.position
 	
 	for i in range(controller.spawn_ratio):
 		# Two random points over the brush sphere to make a ray
@@ -53,7 +53,7 @@ func _add_radial(hit_info:Dictionary, controller:GLControllerGrass):
 		var sphere_global_point2:Vector3 = _get_surface_point(brush_radius) + mouse_world_pos
 		
 		# Scan in between the sphere points
-		var cache:GLSurfaceScanner.Cache = await scanner.scan( sphere_global_point1, sphere_global_point2 )
+		var cache:GLScanData = await scanner.cache_scan_all( sphere_global_point1, sphere_global_point2 )
 		if not cache:
 			continue
 		

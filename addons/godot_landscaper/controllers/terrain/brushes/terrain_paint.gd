@@ -3,15 +3,15 @@ extends GLBrush
 class_name GLBrushTerrainPaint
 
 
-func start(hit_info:Dictionary, controller:GLController):
+func start(scan_data:GLScanData, controller:GLController):
 	pass
 
 
-func primary(hit_info:Dictionary, controller:GLController):
+func primary(scan_data:GLScanData, controller:GLController):
 	pass
 
 
-func secondary(hit_info:Dictionary, controller:GLController):
+func secondary(scan_data:GLScanData, controller:GLController):
 	pass
 
 

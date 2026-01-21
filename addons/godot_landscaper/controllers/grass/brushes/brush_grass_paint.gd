@@ -6,25 +6,25 @@ extends GLBrush
 class_name GLBrushGrassPaint
 
 
-func start(hit_info:Dictionary, controller:GLController):
+func start(scan_data:GLScanData, controller:GLController):
 	pass
 
 
-func primary(hit_info:Dictionary, controller:GLController):
-	_paint( hit_info, controller, false )
+func primary(scan_data:GLScanData, controller:GLController):
+	_paint( scan_data, controller, false )
 
 
-func secondary(hit_info:Dictionary, controller:GLController):
-	_paint( hit_info, controller, true )
+func secondary(scan_data:GLScanData, controller:GLController):
+	_paint( scan_data, controller, true )
 
 
 func end():
 	pass
 
 
-func _paint(hit_info:Dictionary, controller:GLControllerGrass, is_secondary:bool):
-	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_scale_ratio()*0.5, 2)
-	var mouse_world_pos:Vector3 = hit_info.position
+func _paint(scan_data:GLScanData, controller:GLControllerGrass, is_secondary:bool):
+	var brush_radius_sqr:float = pow( controller.brush_size*0.5, 2)
+	var mouse_world_pos:Vector3 = scan_data.position
 	
 	var paint_bottom:bool = (is_secondary and controller.paint_bottom_with_sencondary_color)
 	var color:Color = controller.secondary_color if is_secondary else controller.primary_color

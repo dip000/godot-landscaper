@@ -2,12 +2,17 @@
 
 [ext_resource type="Shader" uid="uid://dblstk6bs53sr" path="res://addons/godot_landscaper/controllers/terrain/resources/shader.gdshader" id="1_vhmr3"]
 
-[sub_resource type="Gradient" id="Gradient_vhmr3"]
+[sub_resource type="Gradient" id="Gradient_2jas5"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.133333, 0.275, 0.416667, 0.558333, 0.708333, 0.866667)
+colors = PackedColorArray(0.796078, 0.831373, 0.760784, 1, 0.858824, 0.921569, 0.752941, 1, 0.764706, 0.698039, 0.6, 1, 0.505882, 0.32549, 0.333333, 1, 0.321569, 0.196078, 0.286275, 1, 0.94902, 0.721569, 0.501961, 1, 0.505882, 0.698039, 0.603922, 1)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_knfsx"]
-gradient = SubResource("Gradient_vhmr3")
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vhmr3"]
+gradient = SubResource("Gradient_2jas5")
+width = 256
+height = 256
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_vhmr3")
-shader_parameter/albedo = SubResource("GradientTexture2D_knfsx")
+shader_parameter/albedo_texture = SubResource("GradientTexture2D_vhmr3")

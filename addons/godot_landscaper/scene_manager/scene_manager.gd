@@ -30,7 +30,7 @@ func select_brush(brush_to_select:GLBrush):
 
 # ========= Called from main plugin Landscaper =========
 func selected(controller:GLController):
-	# Set full scan mode on select
+	# Set full cache_scan_all mode on select
 	raycaster.set_collision_mask( controller.scan_layer )
 	raycaster.set_collision_mask( controller.scan_layer )
 	brush.selected( controller )
@@ -38,11 +38,11 @@ func selected(controller:GLController):
 func deselected(controller:GLController):
 	brush.deselected( controller )
 
-func over_surface(controller:GLController, pos:Vector3):
-	brush.over_surface( controller, pos )
+func over_surface(controller:GLController, scan_data:GLScanData):
+	brush.over_surface( controller, scan_data )
 
 
-func stroke_start(controller:GLController, hit_info:Dictionary):
+func stroke_start(controller:GLController, scan_data:GLScanData):
 	raycaster.set_collision_mask( controller.scan_layer )
 
 func stroke_end(controller:GLController):

@@ -30,6 +30,7 @@ func selected(controller:GLController):
 		_box_brush.hide()
 		_sphere_brush.show()
 		_brushes.scale.y = _brushes.scale.x
+		_sphere_icon.set_disable_scale( true )
 
 func deselected(controller:GLController):
 	_grid.process_mode = Node.PROCESS_MODE_DISABLED
@@ -38,7 +39,8 @@ func deselected(controller:GLController):
 	_sphere_brush.hide()
 
 
-func over_surface(controller:GLController, pos:Vector3):
+func over_surface(controller:GLController, scan_data:GLScanData):
+	var pos:Vector3 = scan_data.position
 	if controller.use_grid:
 		if roundi( get_scale_ratio() ) % 2 == 0.0:
 			pos.x = roundf(pos.x)
@@ -47,10 +49,11 @@ func over_surface(controller:GLController, pos:Vector3):
 			pos.x = floorf(pos.x) + 0.5
 			pos.z = floorf(pos.z) + 0.5
 		_box_brush.global_position = pos
+		_box_icon.global_position.y = pos.y + _brushes.scale.y*0.5
 		_set_shader( "mask_center", pos )
 	else:
 		_sphere_brush.global_position = pos
-		_sphere_icon.global_position.y = pos.y + get_scale_ratio()
+		_sphere_icon.global_position.y = pos.y + _brushes.scale.y*0.5
 
 
 func select_brush(brush:GLBrush):
@@ -77,8 +80,6 @@ func scale_up(controller:GLController):
 		_brushes.scale = _brushes.scale.round()
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 	else:
-		_brushes.scale.y = _brushes.scale.x
-		_brushes.scale.z = _brushes.scale.x
 		_brushes.scale += SCALE_INCREASE
 		_brushes.scale = _brushes.scale.clampf( 0.1, 100 )
 

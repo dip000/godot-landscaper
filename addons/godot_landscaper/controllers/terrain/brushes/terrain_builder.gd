@@ -17,24 +17,24 @@ const SQUARE_SHAPE:Array[Vector2i] = [
 ]
 
 
-func start(hit_info:Dictionary, controller:GLController):
+func start(scan_data:GLScanData, controller:GLController):
 	pass
 
 
-func primary(hit_info:Dictionary, controller:GLController):
-	_update( hit_info, controller, true )
+func primary(scan_data:GLScanData, controller:GLController):
+	_update( scan_data, controller, true )
 	
 
-func secondary(hit_info:Dictionary, controller:GLController):
-	_update( hit_info, controller, false )
+func secondary(scan_data:GLScanData, controller:GLController):
+	_update( scan_data, controller, false )
 
 
 func end():
 	pass
 
 
-func _update(hit_info:Dictionary, controller:GLControllerTerrain, build:bool):
-	var brush_pos:Vector3 = hit_info.position
+func _update(scan_data:GLScanData, controller:GLControllerTerrain, build:bool):
+	var brush_pos:Vector3 = scan_data.position
 	var brush_size:float = controller.brush_size
 	var brush_radius:float = brush_size * 0.5
 	var cell_size:float = controller.cell_size

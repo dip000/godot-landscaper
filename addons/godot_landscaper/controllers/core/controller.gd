@@ -52,7 +52,7 @@ class_name GLController
 @export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
 
 ## Property path from the scanned shader material to the source of color, can be a texture, vec3, or a vec4 
-@export var paths_in_shader_materials:Array[String] = ["albedo", "albedo_texture", "texture", "color"]
+@export var paths_in_shader_materials:Array[String] = ["albedo_texture", "texture", "color", "albedo"]
 
 ## Color when the scanner couldn't find any color source
 @export var fallback_color:Color = Color.MAGENTA
@@ -123,20 +123,20 @@ func select_brush(brush:GLBrush):
 
 
 ## Start landscaping according to the current brush
-func stroke_start(hit_info:Dictionary):
-	if GLValidator.validate_stroke_start( validator, hit_info ):
-		current_brush.start( hit_info, self )
+func stroke_start(scan_data:GLScanData):
+	if GLValidator.validate_stroke_start( validator, scan_data ):
+		current_brush.start( scan_data, self )
 
 
-func stroke_primary(hit_info:Dictionary):
-	if GLValidator.validate_stroke_primary( validator, hit_info ):
-		current_brush.primary( hit_info, self )
+func stroke_primary(scan_data:GLScanData):
+	if GLValidator.validate_stroke_primary( validator, scan_data ):
+		current_brush.primary( scan_data, self )
 		builder.build_from_source()
 
 
-func stroke_secondary(hit_info:Dictionary):
-	if GLValidator.validate_stroke_secondary( validator, hit_info ):
-		current_brush.secondary( hit_info, self )
+func stroke_secondary(scan_data:GLScanData):
+	if GLValidator.validate_stroke_secondary( validator, scan_data ):
+		current_brush.secondary( scan_data, self )
 		builder.build_from_source()
 
 
