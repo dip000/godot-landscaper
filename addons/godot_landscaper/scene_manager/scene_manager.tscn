@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://dkv66uttcirw3"]
 
 [ext_resource type="Script" uid="uid://cgiqs3qbj0pfj" path="res://addons/godot_landscaper/scene_manager/scene_manager.gd" id="1_mmp5c"]
-[ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/scene_raycaster.gd" id="2_spad5"]
+[ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/raycaster/scene_raycaster.gd" id="2_spad5"]
 [ext_resource type="Script" uid="uid://htun6icbhcvw" path="res://addons/godot_landscaper/scene_manager/brush/scene_brush.gd" id="3_ak6rc"]
 [ext_resource type="Texture2D" uid="uid://c3pvk65o5eu8a" path="res://addons/godot_landscaper/controllers/grass/icons/tab_paint.svg" id="4_5rhw3"]
 [ext_resource type="Texture2D" uid="uid://cuhiamhh8gann" path="res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_build.svg" id="4_kfnpr"]
@@ -84,14 +84,15 @@ skeleton = NodePath("")
 
 [node name="Grid" type="MeshInstance3D" parent="Brush"]
 process_mode = 4
-visible = false
 material_override = ExtResource("6_kfnpr")
 mesh = SubResource("PlaneMesh_teeap")
 skeleton = NodePath("../..")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Brush/Grid"]
+[node name="GridBody" type="StaticBody3D" parent="Brush/Grid"]
+collision_layer = 2147483648
+collision_mask = 0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Brush/Grid/StaticBody3D"]
+[node name="GridCollider" type="CollisionShape3D" parent="Brush/Grid/GridBody"]
 visible = false
 shape = SubResource("HeightMapShape3D_kfnpr")
 debug_color = Color(0, 0.6, 0.69803923, 0)

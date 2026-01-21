@@ -1,14 +1,13 @@
-## Raycaster utilities
-## Pretty much a static class
+## Scene Raycaster.
+##
+## An instance of this node will always be running and can be accessed
+## with 'Landscaper.scene.raycaster'. Use this instance for raycasting
+## over the terrain.
+## For more complex scene scanning, use GLSurfaceScanner
+
 @tool
 extends Node3D
 class_name SceneRaycaster
-
-## The collision_layer for internal PhysicsBody3D. Set one that you're not using anywhere else
-static var scan_layer_internal:int = (1<<31)
-
-## The collision_layer to scan for any developer-made PhysicsBody3D 
-static var scan_layer:int = 0xFFFF_FFFF
 
 var _ray_surfaces := PhysicsRayQueryParameters3D.new()
 var _ray_points := PhysicsRayQueryParameters3D.new()

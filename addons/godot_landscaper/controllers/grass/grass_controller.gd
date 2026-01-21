@@ -90,26 +90,6 @@ class_name GLControllerGrass
 @export_tool_button("  Clear Instance Of Array  ") var texture_clear_btn:Callable = texture_clear
 
 
-@export_group("Color Scanning")
-@export_subgroup("Scan Meshes")
-
-## Attempts to find the mesh of the scanned PhysicsBody3D in its parent
-@export var parent_of_physics_body:bool = true
-
-## NodePath from the scanned PhysicsBody3D to its mesh
-@export var relative_path_from_physics_body:StringName = ""
-
-@export_subgroup("Scan Color Sources")
-## Property path from the scanned standar material to the source of color, can be a texture, vec3, or a vec4 
-@export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
-
-## Property path from the scanned shader material to the source of color, can be a texture, vec3, or a vec4 
-@export var paths_in_shader_materials:Array[String] = ["texture", "color"]
-
-## Color when the scanner couldn't find any color source
-@export var fallback_color:Color = Color.MAGENTA
-
-
 @export_group("Randomizers")
 @export_subgroup("Size", "size_")
 ## Original size of the instance to spawn

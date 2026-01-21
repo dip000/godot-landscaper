@@ -22,11 +22,14 @@ func selected(controller:GLController):
 		_grid.show()
 		_box_brush.show()
 		_sphere_brush.hide()
+		_brushes.scale.y = 1
+		_box_icon.set_disable_scale( true )
 	else:
 		_grid.process_mode = Node.PROCESS_MODE_DISABLED
 		_grid.hide()
 		_box_brush.hide()
 		_sphere_brush.show()
+		_brushes.scale.y = _brushes.scale.x
 
 func deselected(controller:GLController):
 	_grid.process_mode = Node.PROCESS_MODE_DISABLED
@@ -98,5 +101,5 @@ func get_radius() -> float:
 
 
 func _set_shader(parameter:String, value:Variant):
-		_grid.material_override.set_shader_parameter( parameter, value )
+	_grid.material_override.set_shader_parameter( parameter, value )
 	

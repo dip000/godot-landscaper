@@ -185,8 +185,9 @@ texture_instance = ExtResource("9_5xkbc")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_n4gct")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_ntg8m")])
+paths_in_shader_materials = Array[String](["texture", "color"])
 debug_level = 3
-brush_size = 2.4999995
+brush_size = 2.3000016
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"
 
 [node name="GrassSingleTextured" type="Node" parent="GrassControllers" node_paths=PackedStringArray("multimesh_instance")]
@@ -200,8 +201,9 @@ texture_instance = ExtResource("13_u1vqt")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_cfvs2")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_1cem6")])
+paths_in_shader_materials = Array[String](["texture", "color"])
 debug_level = 3
-brush_size = 2.4999995
+brush_size = 2.3000016
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"
 
 [node name="GrassFoxtail3D" type="Node" parent="GrassControllers" node_paths=PackedStringArray("multimesh_instance")]
@@ -213,8 +215,9 @@ material = ExtResource("8_q4dv6")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_5qies")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_yfmii")])
+paths_in_shader_materials = Array[String](["texture", "color"])
 debug_level = 3
-brush_size = 2.4999995
+brush_size = 2.3000016
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"
 
 [node name="GrassSingle3D" type="Node" parent="GrassControllers" node_paths=PackedStringArray("multimesh_instance")]
@@ -226,6 +229,7 @@ material = ExtResource("8_q4dv6")
 texture_array = SubResource("Texture2DArray_2xiy6")
 source = SubResource("Resource_f5pa1")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_ybn00")])
+paths_in_shader_materials = Array[String](["texture", "color"])
 debug_level = 3
-brush_size = 2.4999995
+brush_size = 2.3000016
 metadata/_custom_type_script = "uid://dv23o0mkxkygy"

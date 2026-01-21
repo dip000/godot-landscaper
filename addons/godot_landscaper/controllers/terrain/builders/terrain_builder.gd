@@ -6,46 +6,59 @@ class_name GLBuilderTerrain
 func build_from_source() -> bool:
 	_controller = _controller as GLControllerTerrain
 	var source:GLBuildDataTerrain = _controller.source
-	var mesh:ArrayMesh = _controller.terrain.mesh
+	var terrain:MeshInstance3D = _controller.terrain
+	var mesh:ArrayMesh = terrain.mesh
 	
 	if not source.vertices_map:
 		mesh.clear_surfaces()
 		return true
 	
+	# Find bounds with the cell data (few iterations)
+	var bounds:Rect2i = Rect2i( Vector2i.ZERO, Vector2i(INF,INF) )
+	for cell in source.vertices_map:
+		bounds.position = cell.min( bounds.position )
+		bounds.end = cell.max( bounds.end )
+	
+	# Fill vertex raw data for mesh_arrays (many cheap iterations)
+	# Welds vertices by default (vertex indexing)
+	var vertices_values:Array[PackedVector3Array] = source.vertices_map.values()
+	var vertex_index:Dictionary[Vector3, int]
+	var indices:PackedInt32Array
 	var vertices:PackedVector3Array
 	var uvs:PackedVector2Array
-	var vertices_values:Array[PackedVector3Array] = source.vertices_map.values()
-	
-	var min_x:float = INF
-	var max_x:float = -INF
-	var min_z:float = INF
-	var max_z:float = -INF
 	
 	for cell_vertices in vertices_values:
-		for v in cell_vertices:
-			min_x = min(min_x, v.x)
-			max_x = max(max_x, v.x)
-			min_z = min(min_z, v.z)
-			max_z = max(max_z, v.z)
-	
-	var size_x:float = max_x - min_x
-	var size_z:float = max_z - min_z
-	
-	for cell_vertices in vertices_values:
-		vertices.append_array( cell_vertices )
 		for vertex in cell_vertices:
-			uvs.append(Vector2(
-				(vertex.x - min_x) / size_x,
-				(vertex.z - min_z) / size_z
-			))
+			var index:int
+			if vertex_index.has( vertex ):
+				index = vertex_index[vertex]
+			else:
+				index = vertices.size()
+				vertex_index[vertex] = index
+				vertices.append( vertex )
+				uvs.append(Vector2(
+					(vertex.x - bounds.position.x) / (bounds.size.x+1),
+					(vertex.z - bounds.position.y) / (bounds.size.y+1)
+				))
+			indices.append( index )
 	
+	# Create and apply mesh arrays
 	var mesh_arrays:Array
 	mesh_arrays.resize( Mesh.ARRAY_MAX )
 	mesh_arrays[Mesh.ARRAY_VERTEX] = vertices
 	mesh_arrays[Mesh.ARRAY_TEX_UV] = uvs
+	mesh_arrays[Mesh.ARRAY_INDEX] = indices
 	
 	mesh.clear_surfaces()
 	mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, mesh_arrays )
+	
+	 #Update collider
+	var terrain_body:StaticBody3D = SceneManager.find_or_create_node( StaticBody3D, terrain, "TerrainBody" )
+	var terrain_collider:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, terrain_body, "TerrainCollider" )
+	terrain_collider.debug_color = Color( Color.PALE_VIOLET_RED, 0.5 )
+	terrain_body.process_mode = Node.PROCESS_MODE_DISABLED
+	terrain_collider.shape = mesh.create_trimesh_shape()
+	terrain_body.process_mode = Node.PROCESS_MODE_INHERIT
 	return true
 	
 

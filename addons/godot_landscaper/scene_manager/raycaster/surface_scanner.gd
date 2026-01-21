@@ -1,4 +1,4 @@
-## Utility for scanning resources.
+## Utility for scanning scene resources.
 ##
 ## Raycast to a surface and finds its mesh instance, mesh, material and color source.
 ## Caches all results so it doesn't have to rescan every time.
@@ -25,6 +25,7 @@ class Cache:
 
 var _paint_bottom_with_sencondary_color:bool
 var _relative_path_from_physics_body:String
+var _active_materials:Array[int]
 var _parent_of_physics_body:bool
 var _scan_layer:int
 var _paths_in_standar_materials:PackedStringArray
@@ -36,11 +37,12 @@ var _raycaster:SceneRaycaster
 
 func _init(controller:GLControllerGrass):
 	_raycaster = Landscaper.scene.raycaster
+	_scan_layer = controller.scan_layer
 	_default_color = controller.secondary_color if controller.paint_bottom_with_sencondary_color else controller.fallback_color
 	_paint_bottom_with_sencondary_color = controller.paint_bottom_with_sencondary_color
 	_relative_path_from_physics_body = controller.relative_path_from_physics_body
 	_parent_of_physics_body = controller.parent_of_physics_body
-	_scan_layer = controller.scan_layer
+	_active_materials = controller.active_materials
 	_paths_in_standar_materials = controller.paths_in_standar_materials
 	_paths_in_shader_materials = controller.paths_in_shader_materials
 
@@ -127,27 +129,30 @@ func scan_mesh(collider:CollisionObject3D) -> MeshInstance3D:
 func scan_color_sources(cache:Cache):
 	var color_sources:Array[Variant]
 	var material_count:int = cache.instance.get_surface_override_material_count()
-	color_sources.resize( material_count )
 	
 	for i in material_count:
-		var material:Material = cache.instance.get_active_material(i)
+		var material:Material = cache.instance.get_active_material( i )
 		
 		if material is StandardMaterial3D:
 			for path in _paths_in_standar_materials:
 				var source:Variant = material.get(path)
-				color_sources[i] = format_source( source )
-				if color_sources[i]: break
+				source = _format_source( source )
+				if source:
+					color_sources.append( source )
+					break
 		
 		elif material is ShaderMaterial:
 			for path in _paths_in_shader_materials:
 				var source:Variant = material.get( "shader_parameters".path_join(path) )
-				color_sources[i] = format_source( source )
-				if color_sources[i]: break
+				source = _format_source( source )
+				if source:
+					color_sources.append( source )
+					break
 	
 	cache.sources = color_sources
 
 
-func format_source(source:Variant) -> Variant:
+func _format_source(source:Variant) -> Variant:
 	if not source:
 		return null
 	

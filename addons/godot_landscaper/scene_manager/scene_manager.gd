@@ -31,8 +31,8 @@ func select_brush(brush_to_select:GLBrush):
 # ========= Called from main plugin Landscaper =========
 func selected(controller:GLController):
 	# Set full scan mode on select
-	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
-	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
+	raycaster.set_collision_mask( controller.scan_layer )
+	raycaster.set_collision_mask( controller.scan_layer )
 	brush.selected( controller )
 
 func deselected(controller:GLController):
@@ -43,13 +43,10 @@ func over_surface(controller:GLController, pos:Vector3):
 
 
 func stroke_start(controller:GLController, hit_info:Dictionary):
-	# Scan only internal shapes (created on GLSurfaceScanner.create_shapes)
-	# This allows to "brush" over perfect surfaces instead of developer-made colliders
-	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
+	raycaster.set_collision_mask( controller.scan_layer )
 
 func stroke_end(controller:GLController):
-	# Return to full scan mode at brush's end
-	raycaster.set_collision_mask( SceneRaycaster.scan_layer )
+	raycaster.set_collision_mask( controller.scan_layer )
 
 
 func scale_down(controller:GLController):

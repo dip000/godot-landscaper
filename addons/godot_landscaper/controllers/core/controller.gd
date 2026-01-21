@@ -31,12 +31,32 @@ class_name GLController
 @export_tool_button("    Clear All Effects   ", "InstanceOptions") var _clear_effects_btn:Callable = clear_effects
 
 
-@export_category("APIs")
-## Various Access Point Interfaces for use while playing.
-##
-## Warning: Only APIs are guaranteed to work stably while playing.
-## Editor tools are only for the editor!
-@export var apis:Array[GLAPI]
+@export_category("Scan Configs")
+@export_group("Layers")
+## Layers to detect your surfaces
+@export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF
+
+@export_group("Meshes")
+## Attempts to find the mesh of the scanned PhysicsBody3D in its parent
+@export var parent_of_physics_body:bool = true
+
+## NodePath from the scanned PhysicsBody3D to its mesh
+@export var relative_path_from_physics_body:String = ""
+
+
+@export_group("Color Sources")
+## Attempts to find the material of the scanned MeshInstance3D under any of the selected active surfaces (includes override and overlay)
+@export var active_materials:Array[int] = [0,1,2,3]
+
+## Property path from the scanned standar material to the source of color, can be a texture, vec3, or a vec4 
+@export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
+
+## Property path from the scanned shader material to the source of color, can be a texture, vec3, or a vec4 
+@export var paths_in_shader_materials:Array[String] = ["albedo", "albedo_texture", "texture", "color"]
+
+## Color when the scanner couldn't find any color source
+@export var fallback_color:Color = Color.MAGENTA
+
 
 ## Controller-specific builder.
 ## Actually builds the resulting data. Set in _setup_controller()
@@ -74,12 +94,6 @@ var is_ready:bool
 		if Landscaper.running():
 			return Landscaper.scene.brush.get_scale_ratio()
 		return 2.0
-
-
-## Color of the 3D brush shpere
-@export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF:
-	set(v): SceneRaycaster.scan_layer = v
-	get: return SceneRaycaster.scan_layer
 
 
 
