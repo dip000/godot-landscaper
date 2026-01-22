@@ -13,6 +13,12 @@ func selected(controller:GLController):
 
 # Creates and connects tabs according to 'GLController.brushes' settings
 func _parse_category(controller:Object, category:String):
+	if category == "Scan Configs":
+		_create_info_box( "Auto detect your own setups like mesh-over-body or body-over-mesh" )
+		return
+	elif category == "controller.gd":
+		_create_info_box( "Effects are non-destructive. To save effects permanently: Apply, move 'processed' to 'source' and Clear." )
+		return
 	if category != "Brushes" or not controller.brushes:
 		return
 	
@@ -21,16 +27,19 @@ func _parse_category(controller:Object, category:String):
 	
 	var tabs:Control = _create_tabs( controller )
 	add_custom_control( tabs )
-	
-	var info_box:InfoBox = AssetsManager.INFO_BOX.instantiate()
-	info_box.set_info( controller.current_brush.info )
-	add_custom_control( info_box )
+	_create_info_box( controller.current_brush.info )
 	
 
  #Hides/Shows each property according to 'GLController.current_brush' settings
 func _parse_property(controller:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
 	var current_tab:GLBrush = controller.current_brush
 	return name in current_tab.hide_properties if current_tab else false
+
+
+func _create_info_box(info:String):
+	var info_box:InfoBox = AssetsManager.INFO_BOX.instantiate()
+	info_box.set_info( info )
+	add_custom_control( info_box )
 
 
 func _press_tab(controller:GLController, brush:GLBrush):

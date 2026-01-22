@@ -77,13 +77,13 @@ func scale_up(controller:GLController):
 
 
 func set_scale_ratio(controller:GLController, value:float):
-	_sphere.scale = _sphere.scale.clampf( value+0.1, 100 )
+	_sphere.scale = Vector3.ONE * value
+	_sphere.scale = _sphere.scale.clampf( 0.1 , 100 )
 	if controller.use_grid:
 		_sphere.scale.y = 1
 		_grid_select.scale.y = 1
 		_grid_select.scale.x = clampf(value, 0.1, 100)
 		_grid_select.scale.z = clampf(value, 0.1, 100)
-		_grid_select.scale.y = clampf(value, 0.1, 100)
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 
