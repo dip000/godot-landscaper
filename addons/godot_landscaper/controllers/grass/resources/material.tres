@@ -20,7 +20,7 @@ data = {
 "width": 255
 }
 
-[sub_resource type="Texture2DArray" id="Texture2DArray_2xiy6"]
+[sub_resource type="Texture2DArray" id="Texture2DArray_ow2he"]
 _images = Array[Image]([SubResource("Image_lims2"), SubResource("Image_1g6lf")])
 
 [resource]
@@ -32,5 +32,5 @@ shader_parameter/sway_frequency_base = 2.0
 shader_parameter/ground_size = Vector2(0, 0)
 shader_parameter/ground_position = Vector2(0, 0)
 shader_parameter/splash_height = 0.0
-shader_parameter/texture_array = SubResource("Texture2DArray_2xiy6")
+shader_parameter/texture_array = SubResource("Texture2DArray_ow2he")
 shader_parameter/detail_color = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

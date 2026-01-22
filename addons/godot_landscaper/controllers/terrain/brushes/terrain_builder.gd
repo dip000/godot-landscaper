@@ -35,29 +35,30 @@ func end():
 
 func _update(scan_data:GLScanData, controller:GLControllerTerrain, build:bool):
 	var brush_pos:Vector3 = scan_data.position
-	var brush_size:float = controller.brush_size
+	var brush_size:float = Landscaper.scene.brush.get_grid_scale_ratio() #we need to snap
 	var brush_radius:float = brush_size * 0.5
 	var cell_size:float = controller.cell_size
 	var source:GLBuildDataTerrain = controller.source
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = source.vertices_map
+	var prev_bounds:Rect2i = get_bounding_box_from_mesh( controller.terrain )
 	
 	# Find the affected area
 	# Even and odd sizes behave differently in a 2D grid
 	var is_even:bool = (roundi( brush_size ) % 2 == 0.0)
 	var brush_pos_xz:Vector2 = Vector2(brush_pos.x, brush_pos.z)
-	brush_pos_xz = brush_pos_xz.round() if is_even else brush_pos_xz.floor() + Vector2(0.5,0.5) 
+	brush_pos_xz = brush_pos_xz.round() if is_even else (brush_pos_xz.floor() + Vector2(0.5,0.5) )
 	
 	var brush_area:Rect2 = Rect2(brush_pos_xz, Vector2.ZERO)
 	brush_area = brush_area.grow( brush_radius )
 	
 	# Update the affected area
-	for cx in range(brush_area.position.x, brush_area.end.x):
-		for cz in range(brush_area.position.y, brush_area.end.y):
-			var cell:Vector2i = Vector2i(cx, cz)
+	for x in range(brush_area.position.x, brush_area.end.x):
+		for z in range(brush_area.position.y, brush_area.end.y):
+			var cell:Vector2i = Vector2i(x, z)
 			
 			if build and not vertices_map.has( cell ):
-				var origin_x := cx * cell_size
-				var origin_z := cz * cell_size
+				var origin_x := x * cell_size
+				var origin_z := z * cell_size
 				var vertices:PackedVector3Array
 				GLDebug.spam("Added Cell: %s" %[cell])
 				
@@ -83,7 +84,10 @@ func _update(scan_data:GLScanData, controller:GLControllerTerrain, build:bool):
 			elif not build and vertices_map.has( cell ):
 				GLDebug.spam("Erasd Cell: %s" %cell)
 				vertices_map.erase( cell )
-
+	
+	await Engine.get_main_loop().process_frame
+	var new_bounds:Rect2i = get_bounding_box_from_mesh( controller.terrain )
+	source.image = GLBrushTerrainPaint.resize_texture( source.image, prev_bounds, new_bounds )
 
 
 func _get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map:Dictionary[Vector2i, PackedVector3Array], pivot:Vector2i) -> float:
@@ -93,4 +97,8 @@ func _get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map:Dicti
 			return vertices_map[cell][cell_corner].y
 	return 0
 	
+
+static func get_bounding_box_from_mesh(mesh:MeshInstance3D) -> Rect2i:
+	var aabb:AABB = mesh.get_aabb()
+	return Rect2i(aabb.position.x, aabb.position.z, aabb.size.x, aabb.size.z)
 	

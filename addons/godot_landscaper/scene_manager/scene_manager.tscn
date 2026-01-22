@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/raycaster/scene_raycaster.gd" id="2_spad5"]
 [ext_resource type="Script" uid="uid://htun6icbhcvw" path="res://addons/godot_landscaper/scene_manager/brush/scene_brush.gd" id="3_ak6rc"]
 [ext_resource type="Texture2D" uid="uid://c3pvk65o5eu8a" path="res://addons/godot_landscaper/controllers/grass/icons/tab_paint.svg" id="4_5rhw3"]
-[ext_resource type="Texture2D" uid="uid://cuhiamhh8gann" path="res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_build.svg" id="4_kfnpr"]
+[ext_resource type="ArrayMesh" uid="uid://cpf2oidgp85b1" path="res://addons/godot_landscaper/scene_manager/brush/grid_select.res" id="6_5rhw3"]
 [ext_resource type="Material" uid="uid://drdkhreturdff" path="res://addons/godot_landscaper/scene_manager/brush/material.tres" id="6_kfnpr"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ak6rc"]
@@ -19,8 +19,16 @@ grow_amount = 0.674
 [sub_resource type="SphereMesh" id="SphereMesh_2sa2k"]
 material = SubResource("StandardMaterial3D_ak6rc")
 
-[sub_resource type="BoxMesh" id="BoxMesh_teeap"]
-material = SubResource("StandardMaterial3D_ak6rc")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kfnpr"]
+transparency = 1
+shading_mode = 0
+diffuse_mode = 3
+specular_mode = 2
+disable_ambient_light = true
+disable_fog = true
+disable_specular_occlusion = true
+albedo_color = Color(0.85882354, 0.4392157, 0.5764706, 0.38039216)
+grow_amount = 0.674
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_teeap"]
 size = Vector2(500, 500)
@@ -41,58 +49,42 @@ script = ExtResource("2_spad5")
 unique_name_in_owner = true
 script = ExtResource("3_ak6rc")
 
-[node name="Brushes" type="Node3D" parent="Brush"]
-
-[node name="Sphere" type="Node3D" parent="Brush/Brushes"]
+[node name="Sphere" type="Node3D" parent="Brush"]
 unique_name_in_owner = true
-visible = false
 
-[node name="Icon" type="Sprite3D" parent="Brush/Brushes/Sphere"]
+[node name="Icon" type="Sprite3D" parent="Brush/Sphere"]
+unique_name_in_owner = true
 transform = Transform3D(1.365, 0, 0, 0, 1.365, 0, 0, 0, 1.365, 0, 0.6825, 0)
 billboard = 1
 render_priority = 1
 texture = ExtResource("4_5rhw3")
 
-[node name="Outer" type="MeshInstance3D" parent="Brush/Brushes/Sphere"]
+[node name="Outer" type="MeshInstance3D" parent="Brush/Sphere"]
 mesh = SubResource("SphereMesh_2sa2k")
-skeleton = NodePath("../../..")
+skeleton = NodePath("../..")
 
-[node name="Inner" type="MeshInstance3D" parent="Brush/Brushes/Sphere"]
+[node name="Inner" type="MeshInstance3D" parent="Brush/Sphere"]
 transform = Transform3D(0.9, -5.60825e-07, 3.9014e-07, 5.60826e-07, 0.9, -8.53431e-07, -3.9014e-07, 8.53432e-07, 0.9, 2.38419e-07, -5.66244e-07, 2.98023e-07)
 mesh = SubResource("SphereMesh_2sa2k")
 skeleton = NodePath("")
 
-[node name="Box" type="Node3D" parent="Brush/Brushes"]
+[node name="GridSelect" type="MeshInstance3D" parent="Brush"]
 unique_name_in_owner = true
-visible = false
+material_override = SubResource("StandardMaterial3D_kfnpr")
+mesh = ExtResource("6_5rhw3")
 
-[node name="Icon" type="Sprite3D" parent="Brush/Brushes/Box"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-billboard = 1
-render_priority = 1
-texture = ExtResource("4_kfnpr")
-
-[node name="Outer" type="MeshInstance3D" parent="Brush/Brushes/Box"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-mesh = SubResource("BoxMesh_teeap")
-skeleton = NodePath("../../..")
-
-[node name="Inner" type="MeshInstance3D" parent="Brush/Brushes/Box"]
-transform = Transform3D(0.9, -5.60825e-07, 3.9014e-07, 5.60826e-07, 0.9, -8.53431e-07, -3.9014e-07, 8.53432e-07, 0.9, 2.38419e-07, 0.49999943, 2.98023e-07)
-mesh = SubResource("BoxMesh_teeap")
-skeleton = NodePath("")
-
-[node name="Grid" type="MeshInstance3D" parent="Brush"]
+[node name="StaticGrid" type="MeshInstance3D" parent="Brush"]
+unique_name_in_owner = true
 process_mode = 4
 material_override = ExtResource("6_kfnpr")
 mesh = SubResource("PlaneMesh_teeap")
 skeleton = NodePath("../..")
 
-[node name="GridBody" type="StaticBody3D" parent="Brush/Grid"]
+[node name="GridBody" type="StaticBody3D" parent="Brush/StaticGrid"]
 collision_layer = 2147483648
 collision_mask = 0
 
-[node name="GridCollider" type="CollisionShape3D" parent="Brush/Grid/GridBody"]
+[node name="GridCollider" type="CollisionShape3D" parent="Brush/StaticGrid/GridBody"]
 visible = false
 shape = SubResource("HeightMapShape3D_kfnpr")
 debug_color = Color(0, 0.6, 0.69803923, 0)

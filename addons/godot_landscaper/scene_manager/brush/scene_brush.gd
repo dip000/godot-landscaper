@@ -5,102 +5,98 @@ class_name SceneBrush
 const SCALE_INCREASE:Vector3 = Vector3.ONE * 0.1
 const GRID_MARGIN:float = 5
 
-@onready var _brushes:Node3D = $Brushes
-
-@onready var _sphere_brush:Node3D = %Sphere
-@onready var _sphere_icon:Sprite3D = %Sphere/Icon
-
-@onready var _box_brush:Node3D = %Box
-@onready var _box_icon:Sprite3D = %Box/Icon
-
-@onready var _grid:MeshInstance3D = $Grid
+@onready var _icon:Sprite3D = %Icon
+@onready var _sphere:Node3D = %Sphere
+@onready var _grid_select:MeshInstance3D = %GridSelect
+@onready var _static_grid:MeshInstance3D = %StaticGrid
 
 
 func selected(controller:GLController):
+	show()
+	_icon.set_disable_scale( true )
 	if controller.use_grid:
-		_grid.process_mode = Node.PROCESS_MODE_INHERIT
-		_grid.show()
-		_box_brush.show()
-		_sphere_brush.hide()
-		_brushes.scale.y = 1
-		_box_icon.set_disable_scale( true )
+		_static_grid.process_mode = Node.PROCESS_MODE_INHERIT
+		_grid_select.show()
+		_static_grid.show()
+		_sphere.scale.y = 1
+		_grid_select.scale.y = 1
 	else:
-		_grid.process_mode = Node.PROCESS_MODE_DISABLED
-		_grid.hide()
-		_box_brush.hide()
-		_sphere_brush.show()
-		_brushes.scale.y = _brushes.scale.x
-		_sphere_icon.set_disable_scale( true )
+		_static_grid.process_mode = Node.PROCESS_MODE_DISABLED
+		_static_grid.hide()
+		_grid_select.hide()
+		_sphere.scale.y = _sphere.scale.x
+		_grid_select.scale.y = _grid_select.scale.x
+
 
 func deselected(controller:GLController):
-	_grid.process_mode = Node.PROCESS_MODE_DISABLED
-	_grid.hide()
-	_box_brush.hide()
-	_sphere_brush.hide()
+	_grid_select.process_mode = Node.PROCESS_MODE_DISABLED
+	hide()
 
 
 func over_surface(controller:GLController, scan_data:GLScanData):
 	var pos:Vector3 = scan_data.position
+	_sphere.global_position = pos
+	_icon.global_position.y = pos.y + _sphere.scale.y*0.5
+	
 	if controller.use_grid:
-		if roundi( get_scale_ratio() ) % 2 == 0.0:
+		_set_shader( "mask_center", pos )
+		var is_even:bool = (roundi( get_scale_ratio() ) % 2 == 0.0)
+		if is_even:
 			pos.x = roundf(pos.x)
 			pos.z = roundf(pos.z)
 		else:
 			pos.x = floorf(pos.x) + 0.5
 			pos.z = floorf(pos.z) + 0.5
-		_box_brush.global_position = pos
-		_box_icon.global_position.y = pos.y + _brushes.scale.y*0.5
-		_set_shader( "mask_center", pos )
-	else:
-		_sphere_brush.global_position = pos
-		_sphere_icon.global_position.y = pos.y + _brushes.scale.y*0.5
+		_grid_select.global_position = pos
 
 
 func select_brush(brush:GLBrush):
-	_sphere_icon.texture = brush.icon
-	_box_icon.texture = brush.icon
+	_icon.texture = brush.icon
 
 
 func scale_down(controller:GLController):
+	_sphere.scale -= SCALE_INCREASE
+	_sphere.scale = _sphere.scale.clampf( 0.1, 100 )
 	if controller.use_grid:
-		_brushes.scale -= Vector3.ONE
-		_brushes.scale = _brushes.scale.clampf( 1, 100 )
-		_brushes.scale.y = 1
-		_brushes.scale = _brushes.scale.round()
+		_sphere.scale.y = 1
+		_grid_select.scale.y = 1
+		_grid_select.scale = _sphere.scale.clampf( 1, 100 )
+		_grid_select.scale = _sphere.scale.round()
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
-	else:
-		_brushes.scale -= SCALE_INCREASE
-		_brushes.scale = _brushes.scale.clampf( 0.1, 100 )
+
 
 func scale_up(controller:GLController):
+	_sphere.scale += SCALE_INCREASE
+	_sphere.scale = _sphere.scale.clampf( 0.1, 100 )
 	if controller.use_grid:
-		_brushes.scale += Vector3.ONE
-		_brushes.scale = _brushes.scale.clampf( 1, 100 )
-		_brushes.scale.y = 1
-		_brushes.scale = _brushes.scale.round()
+		_sphere.scale.y = 1
+		_grid_select.scale.y = 1
+		_grid_select.scale = _sphere.scale.clampf( 1, 100 )
+		_grid_select.scale = _sphere.scale.round()
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
-	else:
-		_brushes.scale += SCALE_INCREASE
-		_brushes.scale = _brushes.scale.clampf( 0.1, 100 )
 
 
 func set_scale_ratio(controller:GLController, value:float):
-	_brushes.scale.x = clampf(value, 0.1, 100)
-	_brushes.scale.z = clampf(value, 0.1, 100)
+	_sphere.scale = _sphere.scale.clampf( value+0.1, 100 )
 	if controller.use_grid:
-		_brushes.scale.y = 1
-		_brushes.scale = _brushes.scale.round()
+		_sphere.scale.y = 1
+		_grid_select.scale.y = 1
+		_grid_select.scale.x = clampf(value, 0.1, 100)
+		_grid_select.scale.z = clampf(value, 0.1, 100)
+		_grid_select.scale.y = clampf(value, 0.1, 100)
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
-	else:
-		_brushes.scale.y = clampf(value, 0.1, 100)
+
 
 func get_scale_ratio() -> float:
-	return _brushes.scale.x
+	return _sphere.scale.x
+
+func get_grid_scale_ratio() -> float:
+	return _grid_select.scale.x
 
 func get_radius() -> float:
-	return _brushes.scale.x * 0.5
+	return _sphere.scale.x * 0.5
 
 
 func _set_shader(parameter:String, value:Variant):
-	_grid.material_override.set_shader_parameter( parameter, value )
+	_static_grid.material_override.set_shader_parameter( parameter, value )
 	

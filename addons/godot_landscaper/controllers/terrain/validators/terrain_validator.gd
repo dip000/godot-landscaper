@@ -62,6 +62,15 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 		_controller.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
 	if not _controller.material:
 		_controller.material = AssetsManager.load_controller_resource("terrain", "material.tres")
+	if not _controller.brush_shape:
+		_controller.brush_shape = AssetsManager.load_controller_resource("terrain", "brush_shape.tres")
+	
+	# The only type capable of image processing is ImageTexture
+	if not _controller.texture:
+		_controller.texture = ImageTexture.new()
+	if not _controller.texture is ImageTexture:
+		_controller.texture = ImageTexture.create_from_image( _controller.texture.get_image() )
+	
 	if not _controller.terrain:
 		_controller.terrain = SceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
 		GLDebug.warning("Auto selected MeshInstance3D '%s'. If this is not your intention please select the node manually" %_controller.name)
@@ -73,6 +82,7 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	# Force set values
 	_controller.material.shader = _controller.shader
 	_controller.terrain.material_override = _controller.material
+	_controller.material.set_shader_parameter( "albedo_texture", _controller.texture )
 	return true
 
 

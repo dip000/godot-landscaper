@@ -13,11 +13,8 @@ func build_from_source() -> bool:
 		mesh.clear_surfaces()
 		return true
 	
-	# Find bounds with the cell data (few iterations)
-	var bounds:Rect2i = Rect2i( Vector2i.ZERO, Vector2i(INF,INF) )
-	for cell in source.vertices_map:
-		bounds.position = cell.min( bounds.position )
-		bounds.end = cell.max( bounds.end )
+	# Find bounds with the mesh instance
+	var bounds:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( terrain )
 	
 	# Fill vertex raw data for mesh_arrays (many cheap iterations)
 	# Welds vertices by default (vertex indexing)
@@ -37,8 +34,8 @@ func build_from_source() -> bool:
 				vertex_index[vertex] = index
 				vertices.append( vertex )
 				uvs.append(Vector2(
-					(vertex.x - bounds.position.x) / (bounds.size.x+1),
-					(vertex.z - bounds.position.y) / (bounds.size.y+1)
+					(vertex.x - bounds.position.x) / (bounds.size.x),
+					(vertex.z - bounds.position.y) / (bounds.size.y)
 				))
 			indices.append( index )
 	
@@ -59,6 +56,9 @@ func build_from_source() -> bool:
 	terrain_body.process_mode = Node.PROCESS_MODE_DISABLED
 	terrain_collider.shape = mesh.create_trimesh_shape()
 	terrain_body.process_mode = Node.PROCESS_MODE_INHERIT
+	
+	# Update texture
+	_controller.texture.set_image( source.image )
 	return true
 	
 

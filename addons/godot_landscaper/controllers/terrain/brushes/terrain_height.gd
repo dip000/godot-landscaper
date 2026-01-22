@@ -67,4 +67,3 @@ func _update(scan_data:GLScanData, controller:GLControllerTerrain, heighten:bool
 					var vertices:PackedVector3Array = vertices_map[cell]
 					vertices[cell_corner].y += falloff_height
 	
-	

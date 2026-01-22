@@ -86,7 +86,7 @@ var is_ready:bool
 
 
 ## Diameter of the 3D brush sphere. Keybind is [Shift] + [MouseWheel]
-@export_range(0.1, 20, 0.1) var brush_size:float = 2.0:
+@export_range(0.1, 20, 0.001, "or_greater") var brush_size:float = 2.0:
 	set(v):
 		if Landscaper.running():
 			Landscaper.scene.brush.set_scale_ratio(self, v)
