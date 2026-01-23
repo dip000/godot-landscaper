@@ -21,7 +21,7 @@ void fragment() {
 	vec2 uv = world_position.xz / cell_size;
 	vec2 d = abs(fract(uv - 0.5) - 0.5) / fwidth(uv);
 	float grid = 1.0 - smoothstep(0.0, line_width, min(d.x, d.y));
-	
+
 	// Single tracking mask
 	float dist = distance(world_position.xz, mask_center.xz);
 	float mask = 1.0 - smoothstep(
@@ -29,7 +29,7 @@ void fragment() {
 		mask_radius + mask_softness,
 		dist
 	);
-	
+
 	ALBEDO = grid_color.rgb;
-	ALPHA  = grid * mask;
+	ALPHA  = grid * mask * grid_color.a;
 }

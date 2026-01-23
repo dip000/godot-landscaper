@@ -88,18 +88,19 @@ var is_ready:bool
 ## Diameter of the 3D brush sphere. Keybind is [Shift] + [MouseWheel]
 @export_range(0.1, 20, 0.001, "or_greater") var brush_size:float = 2.0:
 	set(v):
+		brush_size = v
 		if Landscaper.running():
-			Landscaper.scene.brush.set_scale_ratio(self, v)
+			Landscaper.scene.brush.set_size(use_grid, v)
 	get:
 		if Landscaper.running():
-			return Landscaper.scene.brush.get_scale_ratio()
+			return Landscaper.scene.brush.get_size()
 		return 2.0
-
 
 
 func _ready():
 	if Engine.is_editor_hint():
 		_setup_controller()
+		process_mode = Node.PROCESS_MODE_INHERIT
 		if GLValidator.validate_ready( validator ):
 			## Delay avoids clickthrough 
 			await get_tree().process_frame
@@ -141,7 +142,7 @@ func stroke_secondary(scan_data:GLScanData):
 
 
 func stroke_end():
-	if GLValidator.validate_stroke_end( validator):
+	if GLValidator.validate_stroke_end( validator ):
 		current_brush.end()
 
 

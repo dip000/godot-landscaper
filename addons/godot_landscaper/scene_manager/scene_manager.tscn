@@ -27,7 +27,7 @@ specular_mode = 2
 disable_ambient_light = true
 disable_fog = true
 disable_specular_occlusion = true
-albedo_color = Color(0.85882354, 0.4392157, 0.5764706, 0.38039216)
+albedo_color = Color(0.85882354, 0.4392157, 0.5764706, 0.5019608)
 grow_amount = 0.674
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_teeap"]
@@ -71,14 +71,15 @@ skeleton = NodePath("")
 [node name="GridSelect" type="MeshInstance3D" parent="Brush"]
 unique_name_in_owner = true
 material_override = SubResource("StandardMaterial3D_kfnpr")
+cast_shadow = 0
 mesh = ExtResource("6_5rhw3")
 
 [node name="StaticGrid" type="MeshInstance3D" parent="Brush"]
 unique_name_in_owner = true
 process_mode = 4
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 material_override = ExtResource("6_kfnpr")
 mesh = SubResource("PlaneMesh_teeap")
-skeleton = NodePath("../..")
 
 [node name="GridBody" type="StaticBody3D" parent="Brush/StaticGrid"]
 collision_layer = 2147483648

@@ -13,19 +13,24 @@ class_name GLEffectGrassChunkify
 @export var chunk_size:int = 32:
 	set(v): chunk_size = max(1, v)
 
-## Stores the chunks in organized "node folders" as parents like "Chunk_0_1"
-@export var organize_by_chunk_parents:bool = true
+## The chunks holder.
+@export var root_parent_path:NodePath = "."
 
 
 func _apply(controller:GLController) -> bool:
 	if not _clear( controller ):
 		GLDebug.error("Chunkifying is not possible: Clearing chunks failed")
 		return false
-	
+		
 	controller = controller as GLControllerGrass
 	var processed:GLBuildDataGrass = controller.processed
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var root_parent:Node = original_mmi.get_parent()
+	var root_parent:Node = controller.get_node_or_null( root_parent_path )
+	
+	if not root_parent:
+		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
+		return false
+	
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size
 	var pos:Vector3 = aabb.position
@@ -80,19 +85,15 @@ func _apply(controller:GLController) -> bool:
 			# Return to global; (possible) negative chunks
 			var global_chunk:Vector2i = Vector2i( row_index, col_index ) + lower_chunk
 			
-			# Place instance either inside a slot_parent or just directly under its root_parent
-			var parent:Node3D = root_parent
-			if organize_by_chunk_parents:
-				parent = SceneManager.find_or_create_node(Node3D, root_parent, "Chunk_%s_%s" %[global_chunk.x, global_chunk.y])
-				parent.global_position = Vector3( global_chunk.x+0.5, 0 , global_chunk.y+0.5 )
-				parent.global_position *= chunk_size
+			# Place instance inside a chunk folder
+			var parent:Node = SceneManager.find_or_create_node( Node, root_parent, _format_chunk(global_chunk) )
 			
 			# Place individual multimeshes in their global center position
 			# Find center of the individual chunk instances (not to confuse with center of chunk)
 			var local_min:Vector3 = chunk.min
 			var local_max:Vector3 = chunk.max
 			var local_center:Vector3 = local_min + 0.5*(local_max - local_min)
-			var instance_mmi:MultiMeshInstance3D = SceneManager.find_or_create_node( MultiMeshInstance3D, parent, "%s_%s_%s" %[original_mmi.name, global_chunk.x, global_chunk.y] )
+			var instance_mmi:MultiMeshInstance3D = SceneManager.find_or_create_node( MultiMeshInstance3D, parent, original_mmi.name )
 			instance_mmi.global_position = local_center
 			
 			# Setup MultiMesh
@@ -137,33 +138,25 @@ func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
 func _clear(controller:GLController) -> bool:
 	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var root_parent:Node = original_mmi.get_parent()
+	var root_parent:Node = controller.get_node_or_null( root_parent_path )
+	
+	if not root_parent:
+		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
+		return false
+	
 	original_mmi.show()
 	
-	for node in root_parent.get_children():
-		var is_as_original:bool = node.name.begins_with( original_mmi.name )
-		var is_original:bool = (node.name == original_mmi.name)
-		var is_mmi:bool = (node is MultiMeshInstance3D)
-		
-		# Delete MultiMeshInstance3D chunk by name if it's outside
-		if is_mmi and is_as_original and not is_original:
-			node.free()
-		
-		else:
-			for child in node.get_children():
-				is_as_original = child.name.begins_with( original_mmi.name )
-				is_original = (child.name == original_mmi.name)
-				is_mmi = (child is MultiMeshInstance3D)
-				
-				# Delete MultiMeshInstance3D chunk by name if it's inside
-				if is_mmi and is_as_original and not is_original:
-					child.free()
+	# Delete MultiMeshInstance3D chunk by name if it's inside
+	for chunk in root_parent.get_children():
+		for node in chunk.get_children():
+			if node is MultiMeshInstance3D and node.name == original_mmi.name:
+				node.free()
 	
 	# Clean up empty "folders"
 	for node in root_parent.get_children():
-		var is_as_chunk_parent:bool = node.name.begins_with( "Chunk" )
+		var is_chunk_parent:bool = node.name.begins_with( "Chunk" )
 		var is_empty:bool = (node.get_child_count() <= 0)
-		if is_as_chunk_parent and is_empty:
+		if is_chunk_parent and is_empty:
 			node.queue_free()
 	
 	return true

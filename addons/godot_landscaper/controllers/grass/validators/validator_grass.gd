@@ -82,10 +82,8 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 		_controller.multimesh_instance = null
 	
 	# Create a MultiMeshInstance3D under the scanned surface if not selected
-	if not _controller.multimesh_instance and scan_data.collider:
-		GLSurfaceScanner.new().set_configs_from_controller( _controller ).scan_mesh_instace( scan_data )
-		var parent:Node = scan_data.mesh_instance if scan_data.mesh_instance else self
-		_controller.multimesh_instance = SceneManager.find_or_create_node(MultiMeshInstance3D, parent, _controller.name)
+	if not _controller.multimesh_instance:
+		_controller.multimesh_instance = SceneManager.find_or_create_node(MultiMeshInstance3D, _controller, _controller.name)
 		GLDebug.warning("Auto selected MultiMeshInstance '%s'. If this is not your intention please select the node manually" %_controller.multimesh_instance.name)
 	
 	_controller.multimesh_instance = _format_mmi( _controller.multimesh_instance )

@@ -4,39 +4,52 @@ class_name GLBuilderTerrain
 
 
 func build_from_source() -> bool:
-	_controller = _controller as GLControllerTerrain
-	var source:GLBuildDataTerrain = _controller.source
-	var terrain:MeshInstance3D = _controller.terrain
+	return build_headless( _controller.source, _controller.terrain, _controller.texture, true )
+
+func build_from_processed() -> bool:
+	return build_headless( _controller.processed, _controller.terrain, _controller.texture, true )
+
+
+static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D, texture:Texture2D, renormalize_uvs:bool) -> bool:
 	var mesh:ArrayMesh = terrain.mesh
 	
-	if not source.vertices_map:
+	if not build_data.vertices_map:
 		mesh.clear_surfaces()
 		return true
 	
-	# Find bounds with the mesh instance
-	var bounds:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( terrain )
-	
 	# Fill vertex raw data for mesh_arrays (many cheap iterations)
 	# Welds vertices by default (vertex indexing)
-	var vertices_values:Array[PackedVector3Array] = source.vertices_map.values()
+	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = build_data.vertices_map
+	var uvs_map:Dictionary[Vector2i, PackedVector2Array] = build_data.uvs_map
 	var vertex_index:Dictionary[Vector3, int]
 	var indices:PackedInt32Array
 	var vertices:PackedVector3Array
 	var uvs:PackedVector2Array
 	
-	for cell_vertices in vertices_values:
-		for vertex in cell_vertices:
+	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_coordinates( vertices_map.keys() )
+	var terrain_offset:Vector3 = terrain.global_position
+	
+	for cell in vertices_map:
+		var cell_vertices:PackedVector3Array = vertices_map[cell]
+		var cell_uvs:PackedVector2Array = uvs_map[cell]
+		
+		for i in cell_vertices.size():
+			var vertex:Vector3 = cell_vertices[i]
+			var uv:Vector2 = cell_uvs[i]
 			var index:int
 			if vertex_index.has( vertex ):
 				index = vertex_index[vertex]
 			else:
 				index = vertices.size()
 				vertex_index[vertex] = index
-				vertices.append( vertex )
-				uvs.append(Vector2(
-					(vertex.x - bounds.position.x) / (bounds.size.x),
-					(vertex.z - bounds.position.y) / (bounds.size.y)
-				))
+				vertices.append( vertex-terrain_offset )
+				if renormalize_uvs:
+					uvs.append(Vector2(
+						(vertex.x - bounds.position.x) / (bounds.size.x),
+						(vertex.z - bounds.position.y) / (bounds.size.y)
+					))
+				else:
+					uvs.append( uv )
 			indices.append( index )
 	
 	# Create and apply mesh arrays
@@ -58,9 +71,6 @@ func build_from_source() -> bool:
 	terrain_body.process_mode = Node.PROCESS_MODE_INHERIT
 	
 	# Update texture
-	_controller.texture.set_image( source.image )
+	terrain.material_override.set_shader_parameter("albedo_texture", texture)
 	return true
 	
-
-func build_from_processed() -> bool:
-	return true

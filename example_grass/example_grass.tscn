@@ -90,7 +90,7 @@ data = {
 "width": 255
 }
 
-[sub_resource type="Texture2DArray" id="Texture2DArray_2xiy6"]
+[sub_resource type="Texture2DArray" id="Texture2DArray_ow2he"]
 _images = Array[Image]([SubResource("Image_d3koy"), SubResource("Image_a3ugy")])
 
 [sub_resource type="Resource" id="Resource_n4gct"]
@@ -182,7 +182,7 @@ texture_layer = 0
 texture_detail_color = Color(0, 0, 0, 1)
 texture_size_array = Vector2i(64, 64)
 texture_instance = ExtResource("9_5xkbc")
-texture_array = SubResource("Texture2DArray_2xiy6")
+texture_array = SubResource("Texture2DArray_ow2he")
 source = SubResource("Resource_n4gct")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_ntg8m")])
 paths_in_shader_materials = Array[String](["albedo", "albedo_texture", "texture", "color"])
@@ -197,7 +197,7 @@ shader = ExtResource("7_v715p")
 material = ExtResource("8_q4dv6")
 texture_layer = 1
 texture_instance = ExtResource("13_u1vqt")
-texture_array = SubResource("Texture2DArray_2xiy6")
+texture_array = SubResource("Texture2DArray_ow2he")
 source = SubResource("Resource_cfvs2")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_1cem6")])
 paths_in_shader_materials = Array[String](["texture", "color"])
@@ -210,7 +210,7 @@ multimesh_instance = NodePath("../../Ground/GrassFoxtail3D")
 mesh = ExtResource("3_upcre")
 shader = ExtResource("7_v715p")
 material = ExtResource("8_q4dv6")
-texture_array = SubResource("Texture2DArray_2xiy6")
+texture_array = SubResource("Texture2DArray_ow2he")
 source = SubResource("Resource_5qies")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_yfmii")])
 paths_in_shader_materials = Array[String](["albedo", "albedo_texture", "texture", "color"])
@@ -223,7 +223,7 @@ multimesh_instance = NodePath("../../Ground/GrassSingle3D")
 mesh = ExtResource("4_0xddh")
 shader = ExtResource("7_v715p")
 material = ExtResource("8_q4dv6")
-texture_array = SubResource("Texture2DArray_2xiy6")
+texture_array = SubResource("Texture2DArray_ow2he")
 source = SubResource("Resource_f5pa1")
 effects = Array[ExtResource("11_jiwhx")]([SubResource("Resource_ybn00")])
 brush_size = 4.0

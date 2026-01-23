@@ -26,6 +26,8 @@ func selected(controller:GLController):
 		_grid_select.hide()
 		_sphere.scale.y = _sphere.scale.x
 		_grid_select.scale.y = _grid_select.scale.x
+	
+	set_size.call_deferred(controller.use_grid, controller.brush_size)
 
 
 func deselected(controller:GLController):
@@ -40,14 +42,14 @@ func over_surface(controller:GLController, scan_data:GLScanData):
 	
 	if controller.use_grid:
 		_set_shader( "mask_center", pos )
-		var is_even:bool = (roundi( get_scale_ratio() ) % 2 == 0.0)
-		if is_even:
+		if _is_size_even():
 			pos.x = roundf(pos.x)
 			pos.z = roundf(pos.z)
 		else:
 			pos.x = floorf(pos.x) + 0.5
 			pos.z = floorf(pos.z) + 0.5
 		_grid_select.global_position = pos
+		_grid_select.global_position.y += 0.05
 
 
 func select_brush(brush:GLBrush):
@@ -76,10 +78,10 @@ func scale_up(controller:GLController):
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 
-func set_scale_ratio(controller:GLController, value:float):
+func set_size(use_grid:bool, value:float):
 	_sphere.scale = Vector3.ONE * value
 	_sphere.scale = _sphere.scale.clampf( 0.1 , 100 )
-	if controller.use_grid:
+	if use_grid:
 		_sphere.scale.y = 1
 		_grid_select.scale.y = 1
 		_grid_select.scale.x = clampf(value, 0.1, 100)
@@ -87,11 +89,13 @@ func set_scale_ratio(controller:GLController, value:float):
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 
-func get_scale_ratio() -> float:
+func get_size() -> float:
 	return _sphere.scale.x
 
-func get_grid_scale_ratio() -> float:
-	return _grid_select.scale.x
+
+func get_rect() -> Rect2:
+	var rect:Rect2 = Rect2(_grid_select.global_position.x, _grid_select.global_position.z, 0, 0)
+	return rect.grow( _grid_select.scale.x * 0.5 )
 
 func get_radius() -> float:
 	return _sphere.scale.x * 0.5
@@ -99,4 +103,9 @@ func get_radius() -> float:
 
 func _set_shader(parameter:String, value:Variant):
 	_static_grid.material_override.set_shader_parameter( parameter, value )
+
+
+func _is_size_even() -> bool:
+	return (roundi( _sphere.scale.x ) % 2 == 0)
+	
 	

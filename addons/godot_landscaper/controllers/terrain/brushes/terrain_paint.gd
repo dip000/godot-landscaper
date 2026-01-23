@@ -27,6 +27,8 @@ func _bake_brush_into_texture(scan_data:GLScanData, controller:GLController, col
 	var source:GLBuildDataTerrain = controller.source
 	var world_brush_size:float = controller.brush_size
 	var world_brush_position:Vector3 = scan_data.position
+	var texture:ImageTexture = controller.texture
+	var image:Image = texture.get_image()
 	var world_brush_position_xz:Vector2 = Vector2(world_brush_position.x, world_brush_position.z)
 	var world_bounds:Rect2i = Rect2i( Vector2i.ZERO, Vector2i(INF,INF) )
 	
@@ -46,9 +48,10 @@ func _bake_brush_into_texture(scan_data:GLScanData, controller:GLController, col
 	var texture_brush_shape:Image = controller.brush_shape.duplicate().get_image()
 	texture_brush_shape.resize( texture_brush_size.x, texture_brush_size.y )
 	
-	if not source.image:
-		source.image = create_image( texture_size, Color.WHITE )
-	source.image.blend_rect_mask( texture_brush_color, texture_brush_shape, texture_rect, texture_brush_position )
+	if not image:
+		image = create_image( texture_size, Color.WHITE )
+	image.blend_rect_mask( texture_brush_color, texture_brush_shape, texture_rect, texture_brush_position )
+	texture.update( image )
 
 
 static func meters_to_pixels(squared_meters:Vector2) -> Vector2i:
@@ -62,19 +65,20 @@ static func create_image(size:Vector2i, color:Color) -> Image:
 	img.fill( color )
 	return img
 
-static func resize_texture(image:Image, prev_rect:Rect2i, new_rect:Rect2i) -> Image:
+static func resize_texture(texture:ImageTexture, prev_rect:Rect2i, new_rect:Rect2i):
 	if prev_rect.size == new_rect.size:
-		return image
+		return texture
 	
 	GLDebug.internal("Resizing texture %s -> %s" %[prev_rect.size, new_rect.size])
-
+	
 	# 1. Create base image
 	var new_size := meters_to_pixels(new_rect.size)
 	var new_img := create_image(new_size, Color.WHITE)
 
 	# 2. Compute destination for old image
-	var dst := meters_to_pixels(prev_rect.position - new_rect.position)
+	var texture_position:Vector2i = meters_to_pixels(prev_rect.position - new_rect.position)
 
 	# 3. Paste old image
-	new_img.blit_rect( image, Rect2i(Vector2i.ZERO, image.get_size()), dst )
-	return new_img
+	var image:Image = texture.get_image()
+	new_img.blit_rect( image, Rect2i(Vector2i.ZERO, image.get_size()), texture_position )
+	texture.set_image( new_img )

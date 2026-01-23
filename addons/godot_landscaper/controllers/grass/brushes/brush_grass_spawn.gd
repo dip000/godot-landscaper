@@ -42,9 +42,8 @@ func _get_remove_radial(scan_data:GLScanData, controller:GLControllerGrass):
 
 func _add_radial(scan_data:GLScanData, controller:GLControllerGrass):
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
-	
 	var data:GLBuildDataGrass = controller.source
-	var brush_radius:float = Landscaper.scene.brush.get_scale_ratio()*0.5
+	var brush_radius:float = controller.brush_size * 0.5
 	var mouse_world_pos:Vector3 = scan_data.position
 	
 	for i in range(controller.spawn_ratio):

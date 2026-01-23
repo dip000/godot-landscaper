@@ -76,4 +76,8 @@ func _index(index:int):
 	
 func _frame():
 	await Engine.get_main_loop().process_frame
-	
+
+
+# ========= OTHER UTILITIES ==============
+func _format_chunk(chunk:Vector2i) -> String:
+	return "Chunk_%s_%s" %[chunk.x, chunk.y]
