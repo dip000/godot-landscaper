@@ -52,6 +52,8 @@ func _apply(controller:GLController) -> bool:
 		
 		# Same material with the same texture (same draw call), and new mesh
 		chunk_terrain.material_override = original_terrain.material_override
+		chunk_terrain.visibility_range_end = original_terrain.visibility_range_end
+		chunk_terrain.visibility_range_end_margin = original_terrain.visibility_range_end_margin
 		chunk_terrain.mesh = ArrayMesh.new()
 		
 		# Do not renormalize UVS, they stay where they were

@@ -77,7 +77,7 @@ func _apply(controller:GLController) -> bool:
 	
 	# Rebuilds MultiMeshInstance3D knowing the chunked indexes
 	for row_index in chunks.size():
-		var chunk_rows:Array = chunks[row_index]
+		var chunk_rows:Array[GLBuildDataGrass] = chunks[row_index]
 		
 		for col_index in chunk_rows.size():
 			var chunk:GLBuildDataGrass = chunk_rows[col_index]
