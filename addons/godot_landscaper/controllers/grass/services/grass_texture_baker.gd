@@ -100,11 +100,7 @@ func _format_img(img:Image, texture_size:Vector2i) -> Image:
 		img.convert( Image.FORMAT_RG8 )
 	
 	if img.get_size() != texture_size:
-		#var base:Image = _make_empty_image( texture_size )
-		#var inner_size:Vector2i = texture_size - Vector2i(2,2)
 		img.resize( texture_size.x, texture_size.y, Image.INTERPOLATE_LANCZOS )
-		#base.blit_rect( img, Rect2i(Vector2i.ZERO, inner_size), Vector2i.ONE )
-		#img = base
 	
 	if not img.has_mipmaps():
 		img.generate_mipmaps()

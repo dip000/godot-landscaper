@@ -11,6 +11,10 @@ class_name GLTerrainChunkify
 
 
 func _apply(controller:GLController) -> bool:
+	if not controller is GLControllerTerrain:
+		GLDebug.error("Chunkifying failed: This effect is only valid for GLControllerTerrain controller types")
+		return false
+		
 	controller = controller as GLControllerTerrain
 	var processed:GLBuildDataTerrain = controller.processed
 	var original_terrain:MeshInstance3D = controller.terrain
@@ -66,6 +70,10 @@ func _apply(controller:GLController) -> bool:
 
 
 func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerTerrain:
+		GLDebug.error("Chunkifying failed: This effect is only valid for GLControllerTerrain controller types")
+		return false
+		
 	controller = controller as GLControllerTerrain
 	var processed:GLBuildDataTerrain = controller.processed
 	var original_terrain:MeshInstance3D = controller.terrain

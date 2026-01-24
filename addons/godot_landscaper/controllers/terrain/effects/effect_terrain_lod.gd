@@ -7,6 +7,10 @@ class_name GLTerrainLoD
 
 
 func _apply(controller:GLController) -> bool:
+	if not controller is GLControllerTerrain:
+		GLDebug.error("Terrain LoD failed: This effect is only valid for GLControllerTerrain controller types")
+		return false
+		
 	controller = controller as GLControllerTerrain
 	var original_terrain:MeshInstance3D = controller.terrain
 	original_terrain.visibility_range_end = custom_lod_meters
@@ -16,6 +20,10 @@ func _apply(controller:GLController) -> bool:
 
 
 func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerTerrain:
+		GLDebug.error("Terrain LoD failed: This effect is only valid for GLControllerTerrain controller types")
+		return false
+		
 	controller = controller as GLControllerTerrain
 	var original_terrain:MeshInstance3D = controller.terrain
 	original_terrain.visibility_range_end = 0.0

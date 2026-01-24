@@ -101,8 +101,15 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 func _edit(controller:Object):
 	if controller:
-		inspector.selected( controller )
-		scene.selected( controller )
+		if not controller.is_ready:
+			await Engine.get_main_loop().process_frame
+			await Engine.get_main_loop().process_frame
+			await Engine.get_main_loop().process_frame
+		if controller.is_ready:
+			inspector.selected( controller )
+			scene.selected( controller )
+		else:
+			GLDebug.error("Can't select a controller: The controller timed out. Try re-selecting it from the scene tree")
 	else:
 		scene.deselected( controller )
 	_active_controller = controller

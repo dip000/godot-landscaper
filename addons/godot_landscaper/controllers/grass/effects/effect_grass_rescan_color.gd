@@ -9,6 +9,10 @@ class_name GLEffectRescanColor
 
 
 func _apply(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Grass Rescan Color Failed: This effect is only valid for GLControllerGrass controller types")
+		return false
+		
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var processed:GLBuildDataGrass = controller.processed
 	var scanner:GLSurfaceScanner = GLSurfaceScanner.new().set_configs_from_controller( controller )
@@ -30,4 +34,7 @@ func _apply(controller:GLController) -> bool:
 
 
 func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Grass Rescan Color Failed: This effect is only valid for GLControllerGrass controller types")
+		return false
 	return true

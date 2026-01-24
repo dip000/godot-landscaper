@@ -21,6 +21,7 @@ material = SubResource("StandardMaterial3D_ak6rc")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kfnpr"]
 transparency = 1
+no_depth_test = true
 shading_mode = 0
 diffuse_mode = 3
 specular_mode = 2

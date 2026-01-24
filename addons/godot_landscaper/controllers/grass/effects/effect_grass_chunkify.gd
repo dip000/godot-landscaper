@@ -18,8 +18,12 @@ class_name GLEffectGrassChunkify
 
 
 func _apply(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Chunkifying failed: This effect is only valid for GLControllerGrass controller types")
+		return false
+		
 	if not _clear( controller ):
-		GLDebug.error("Chunkifying is not possible: Clearing chunks failed")
+		GLDebug.error("Chunkifying failed: Clearing chunks failed")
 		return false
 		
 	controller = controller as GLControllerGrass
@@ -136,6 +140,10 @@ func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
 	
 
 func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Chunkifying failed: This effect is only valid for GLControllerGrass controller types")
+		return false
+		
 	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var root_parent:Node = controller.get_node_or_null( root_parent_path )

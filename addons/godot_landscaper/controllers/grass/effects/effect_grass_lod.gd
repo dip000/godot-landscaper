@@ -8,6 +8,10 @@ class_name GLEffectLoD
 
 
 func _apply(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Grass LoD failed: This effect is only valid for GLControllerGrass controller types")
+		return false
+		
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	original_mmi.multimesh.visible_instance_count = original_mmi.multimesh.instance_count*visible_instances
 	original_mmi.visibility_range_end = custom_lod_meters
@@ -17,6 +21,10 @@ func _apply(controller:GLController) -> bool:
 
 
 func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Grass LoD failed: This effect is only valid for GLControllerGrass controller types")
+		return false
+		
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	original_mmi.multimesh.visible_instance_count = -1
 	original_mmi.visibility_range_end = 0.0

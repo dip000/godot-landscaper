@@ -12,6 +12,9 @@ const GRID_MARGIN:float = 5
 
 
 func selected(controller:GLController):
+	if not controller.is_ready:
+		deselected( controller )
+		return
 	show()
 	_icon.set_disable_scale( true )
 	if controller.use_grid:
@@ -49,7 +52,6 @@ func over_surface(controller:GLController, scan_data:GLScanData):
 			pos.x = floorf(pos.x) + 0.5
 			pos.z = floorf(pos.z) + 0.5
 		_grid_select.global_position = pos
-		_grid_select.global_position.y += 0.05
 
 
 func select_brush(brush:GLBrush):

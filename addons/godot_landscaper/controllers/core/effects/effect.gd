@@ -17,48 +17,55 @@ const AWAIT_INDEX_COUNT:int = 100
 @export var enable:bool = true
 
 ## Flag for async awaits
-var running:bool = false
+var is_running:bool = false
 
 
 # ========= PUBLIC INTERFACE =============
-## The controller calls apply on each effect.
-## Does not modify the GLBuildData in GLController.source
-func apply(controller:GLController) -> void:
-	if not enable:
-		return
+static func apply_all(effects:Array[GLEffect], controller:GLController) -> bool:
+	for i in effects.size():
+		if effects[i] and effects[i].is_running:
+			GLDebug.error("Please wait until effect with index '%s' finishes running or delete it and add it again" %i)
+			return false
 	
-	if running:
-		GLDebug.error("Please wait until effect finishes running")
-		return
-	
-	running = true
-	var success:bool = await _apply( controller )
-	running = false
-	is_applied = true
-	
-	if not success:
-		GLDebug.error("Effect with index '%s' failed" %controller.effects.find(self))
+	for i in effects.size():
+		var effect:GLEffect = effects[i]
+		if not effect and not effect.enable:
+			continue
+		
+		effect.is_running = true
+		var success:bool = await effect._apply( controller )
+		await _frame()
+		effect.is_running = false
+		effect.is_applied = true
+		
+		if not success:
+			GLDebug.error("The effect with index '%s' failed to be applied" %i)
+			return false
+	return true
 
 
-## Some effects may apply other side-effects like creating nodes.
-## The controller calls clear on each effect to make sure the side-effects are cleaned up 
-func clear(controller:GLController) -> void:
-	if not enable:
-		return
+static func clear_all(effects:Array[GLEffect], controller:GLController) -> bool:
+	for i in effects.size():
+		if effects[i] and effects[i].is_running:
+			GLDebug.error("Please wait until effect with index '%s' finishes running or delete it and add it again" %i)
+			return false
 	
-	if running:
-		GLDebug.error("Please wait until effect finishes running")
-		return
-	
-	running = true
-	var result = await _clear(controller)
-	running = false
-	is_applied = false
-	
-	if result:
-		controller.processed = null
-	else:
-		GLDebug.error("Effect with index '%s' failed" %controller.effects.find(self))
+	for i in effects.size():
+		var effect:GLEffect = effects[i]
+		if not effect and not effect.enable:
+			continue
+		
+		effect.is_running = true
+		var success:bool = await effect._clear( controller )
+		effect.is_running = false
+		effect.is_applied = false
+		
+		if not success:
+			effect.is_applied = true
+			GLDebug.error("The effect with index '%s' failed to be cleared" %i)
+			return false
+	return true
+
 
 # ========= EXECUTABLE INTERFACE =============
 ## Implement using frame skip utilities every so often for heavy loads
@@ -74,7 +81,7 @@ func _index(index:int):
 	if index % AWAIT_INDEX_COUNT == 0:
 		await Engine.get_main_loop().process_frame
 	
-func _frame():
+static func _frame():
 	await Engine.get_main_loop().process_frame
 
 

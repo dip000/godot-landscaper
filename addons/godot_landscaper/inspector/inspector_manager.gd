@@ -5,10 +5,14 @@ class_name GLInspectorManager
 func _can_handle(object:Object):
 	return object is GLController
 
+
 # Re select the canvas's tab
 func selected(controller:GLController):
-	if controller.current_brush:
-		_press_tab( controller, controller.current_brush )
+	if controller is GLController and controller.is_ready:
+		if controller.current_brush:
+			_press_tab( controller, controller.current_brush )
+		else:
+			_press_tab( controller, controller.brushes[0] )
 
 
 # Creates and connects tabs according to 'GLController.brushes' settings
@@ -19,7 +23,7 @@ func _parse_category(controller:Object, category:String):
 	elif category == "controller.gd":
 		_create_info_box( "Effects are non-destructive. To save effects permanently: Apply, move 'processed' to 'source' and Clear." )
 		return
-	if category != "Brushes" or not controller.brushes:
+	if category != "Brushes" or not controller is GLController or not controller.brushes or not controller.is_ready:
 		return
 	
 	if not controller.current_brush:
@@ -32,9 +36,10 @@ func _parse_category(controller:Object, category:String):
 
  #Hides/Shows each property according to 'GLController.current_brush' settings
 func _parse_property(controller:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
-	var current_tab:GLBrush = controller.current_brush
-	return name in current_tab.hide_properties if current_tab else false
-
+	if controller is GLController and controller.current_brush and controller.is_ready:
+		var current_tab:GLBrush = controller.current_brush
+		return name in current_tab.hide_properties if current_tab else false
+	return false
 
 func _create_info_box(info:String):
 	var info_box:InfoBox = AssetsManager.INFO_BOX.instantiate()

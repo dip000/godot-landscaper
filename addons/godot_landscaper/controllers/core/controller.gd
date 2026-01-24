@@ -97,14 +97,14 @@ var is_ready:bool
 		return 2.0
 
 
-func _ready():
+func _enter_tree():
 	if Engine.is_editor_hint():
 		_setup_controller()
 		process_mode = Node.PROCESS_MODE_INHERIT
-		if GLValidator.validate_ready( validator ):
-			## Delay avoids clickthrough 
-			await get_tree().process_frame
-			await get_tree().process_frame
+		if GLValidator.validate_initialization( validator ):
+			## Delay avoids clickthrough. get_tree() is unreliable
+			await Engine.get_main_loop().process_frame
+			await Engine.get_main_loop().process_frame
 			is_ready = true
 	else:
 		process_mode = Node.PROCESS_MODE_DISABLED
@@ -148,17 +148,13 @@ func stroke_end():
 
 func clear_effects():
 	if GLValidator.validate_clear_effects( validator ):
-		for effect in effects:
-			await effect.clear( self )
-		builder.build_from_source()
+		if await GLEffect.clear_all( effects, self ):
+			processed = null
 
 
 func apply_effects():
 	if GLValidator.validate_apply_effects( validator ):
 		processed = source.duplicate( true )
-		for effect in effects:
-			await effect.apply( self )
-		builder.build_from_processed()
-	
-	
+		if await GLEffect.apply_all( effects, self ):
+			pass
 	

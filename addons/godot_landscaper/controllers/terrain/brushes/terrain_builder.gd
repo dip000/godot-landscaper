@@ -93,8 +93,10 @@ static func get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map
 	return 0
 	
 
-static func get_bounding_box_from_mesh(mesh:MeshInstance3D) -> Rect2i:
-	var aabb:AABB = mesh.get_aabb()
+static func get_bounding_box_from_mesh(mesh_instance:MeshInstance3D) -> Rect2i:
+	if not mesh_instance or not mesh_instance.mesh:
+		return Rect2i()
+	var aabb:AABB = mesh_instance.get_aabb()
 	return Rect2i(aabb.position.x, aabb.position.z, aabb.size.x, aabb.size.z)
 
 

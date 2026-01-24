@@ -9,7 +9,8 @@ var mdts:Array[MeshDataTool]
 var images:Array[Image]
 var colors:Array[Color]
 
-# hit_info
+# hit_info as in PhysicsDirectSpaceState3D.intersect_ray(..)
+# Use with SceneRaycaster
 var collider:CollisionObject3D
 var face_index:int
 var shape:int
