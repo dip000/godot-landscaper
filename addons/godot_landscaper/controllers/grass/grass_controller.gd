@@ -45,28 +45,15 @@ class_name GLControllerGrass
 @export var multimesh_instance:MultiMeshInstance3D
 
 
-@export_group("Resources")
-@export_subgroup("Shape")
-## Use your custom mesh as simple 3D grass without textures.
-## Or use one QuadMesh and different textures each grass.
-@export var mesh:Mesh
-
-## Use the same shader globally for performance.
-## You can use your own shader as long as it has the same uniforms.
-@export var shader:Shader
-
-## Use the same material globally for performance (recomended).
-## Or use different materials for different biomas or to separate textured and non-textured meshes.
-@export var material:ShaderMaterial
-
-
-@export_subgroup("Texture", "texture_")
+@export_group("Texture Layers", "texture_")
 ## Used for having multiple texture configurations with the same material.
 ## For performance, one single Texture2DArray will be made for all layers of the same material.
 ## Avoid leaving empty layer gaps.
-@export var texture_layer:int = -1:
-	get: return _get_shader_instance("texture_layer", -1)
-	set(v): _set_shader_instance("texture_layer", v)
+@export var texture_layer:int = -1
+
+## The formated size after baking the texture into the array
+@export var texture_size_array:Vector2i = Vector2i(255, 255):
+	set(v): texture_size_array = v.max(Vector2i.ONE)
 
 ## You can add and fine-tuned cheap details with a grayscaled grass texture (instead of purely white), like contours or veins.
 ## The grayscale will be mix-recolored to this color.
@@ -75,19 +62,12 @@ class_name GLControllerGrass
 	get: return _get_shader_index("detail_color", Color.TRANSPARENT)
 	set(v): _set_shader_index( "detail_color", v )
 
-## The formated size after baking the texture into the array
-@export var texture_size_array:Vector2i = Vector2i(255, 255)
+## Select a texture_layer, a texture_texture and press "Bake Instance Into Array" to apply textures. It will be formated to fit inside a Texture2DArray
+@export var texture_texture:Texture2D
 
-## Select a texture_layer, a texture_instance and press "Bake Instance Into Array" to apply textures. It will be formated to fit inside a Texture2DArray
-@export var texture_instance:Texture2D
 
-## Dynamic and performant array of textures for multiple grass textures. One Texture2DArray will be created per material.
-@export var texture_array:Texture2DArray:
-	get: return _get_shader("texture_array")
-	set(v): _set_shader("texture_array", v)
-
-@export_tool_button(" Bake Instance Into Array ") var texture_bake_btn:Callable = texture_bake
-@export_tool_button("  Clear Instance Of Array  ") var texture_clear_btn:Callable = texture_clear
+@export_tool_button("  Save Layer Into Array ", "Save") var texture_bake_btn:Callable = texture_bake
+@export_tool_button("Clear Layer From Array", "Clear") var texture_clear_btn:Callable = texture_clear
 
 
 @export_group("Randomizers")
@@ -101,27 +81,29 @@ class_name GLControllerGrass
 ## Original rotation of the instance to spawn
 @export var rotation_base:Vector3 = Vector3.ZERO
 ## How much will the base rotation be modified randomly
-@export var rotation_randomize:Vector3 = Vector3(0, PI, 0)
+@export var rotation_randomize:Vector3 = Vector3(0, TAU, 0)
 
 @export_subgroup("Position offset", "offset_")
 ## [NOT-IMPLEMENTED] Original position offset of the instance to spawn.
 ## Usefull for aligning the grass origin with the ground 
 @export var offset_base:Vector3 = Vector3.ZERO
 
-var texture_baker:GLTextureBaker
-
 
 func texture_bake():
-	if validator.validate_texture_bake():
-		texture_baker.bake_layer()
-
+	if GLValidatorGrass.validate_texture_bake( validator ):
+		var texture_array_layer:GLTextureAtlasLayer = source.texture_array_layer
+		texture_array_layer.bake_layer( texture_layer, texture_texture, texture_size_array )
+		multimesh_instance.set_instance_shader_parameter("texture_layer", texture_layer)
+	
+	
 func texture_clear():
-	if validator.validate_texture_clear():
-		texture_baker.clear_layer()
-
+	if GLValidatorGrass.validate_texture_clear( validator ):
+		var texture_array_layer:GLTextureAtlasLayer = source.texture_array_layer
+		texture_array_layer.clear_layer( texture_size_array )
+		multimesh_instance.set_instance_shader_parameter("texture_layer", -1)
+		
 
 func _setup_controller():
-	texture_baker = GLTextureBaker.new( self )
 	validator = GLValidatorGrass.new( self )
 	builder = GLBuilderGrass.new( self )
 	brushes = AssetsManager.load_controller_brushes( "grass" )
@@ -129,14 +111,16 @@ func _setup_controller():
 
 
 func _get_shader(parameter:String, default:Variant=null) -> Variant:
-	if not is_ready: return default
+	if not is_ready or not source: return default
+	var material:ShaderMaterial = source.material
 	if material and "shader_parameter/%s"%parameter in material:
 		return material["shader_parameter/%s"%parameter]
 	return default
 
 
 func _set_shader(parameter:String, value:Variant):
-	if not is_ready: return
+	if not is_ready or not source: return
+	var material:ShaderMaterial = source.material
 	if ready and material:
 		material["shader_parameter/%s"%parameter] = value
 	else:
@@ -144,31 +128,17 @@ func _set_shader(parameter:String, value:Variant):
 
 
 func _get_shader_index(parameter:String, default:Variant=null) -> Variant:
-	if not is_ready: return default
+	if not is_ready or not source: return default
+	var material:ShaderMaterial = source.material
 	if material and "shader_parameter/%s"%parameter in material and texture_layer >= 0:
 		return material["shader_parameter/%s"%parameter][texture_layer]
 	return default
 
 
 func _set_shader_index(parameter:String, value:Variant):
-	if not is_ready: return
+	if not is_ready or not source: return
+	var material:ShaderMaterial = source.material
 	if material and texture_layer >= 0:
 		material["shader_parameter/%s"%parameter][texture_layer] = value
 	else:
 		GLDebug.error("Cannot set shader parameter %s: Material is null or texture_layer<0" %parameter)
-
-
-func _get_shader_instance(parameter:String, default:Variant=null) -> Variant:
-	if not is_ready: return default
-	if multimesh_instance and multimesh_instance.multimesh:
-		var value = multimesh_instance.get_instance_shader_parameter(parameter)
-		return value if value != null else default
-	return default
-
-
-func _set_shader_instance(parameter:String, value:Variant):
-	if not is_ready: return
-	if multimesh_instance and "instance_shader_parameters/%s"%parameter in multimesh_instance:
-		multimesh_instance.set_instance_shader_parameter( parameter, value )
-	else:
-		GLDebug.error("Cannot set shader instance parameter: There's no multimesh. Set multimesh_instance under Inspector > Brushes > Spawn > Multimesh Instance")

@@ -7,7 +7,7 @@ static var _deck:Array[int]
 
 static func _card_shuffle_next() -> int:
 	if not _deck:
-		_deck = [0, 1, 2, 3]
+		_deck = [3, 2, 1, 0]
 	var hand:int = _deck.pop_back()
 	_deck.push_front( hand )
 	return hand
@@ -20,22 +20,26 @@ static func load_random_template(controller:GLControllerGrass):
 
 
 static func load_template(controller:GLControllerGrass, template_index:int):
+	var source:GLBuildDataGrass = controller.source
 	match template_index:
 		0:
-			controller.mesh = AssetsManager.load_controller_resource("grass", "mesh_3d_single.res")
+			source.mesh = AssetsManager.load_controller_resource("grass", "mesh_3d_single.res")
 			controller.name = "GrassSingle3D"
+			GLDebug.warning("Loaded a basic grass template. Set another mesh under 'GLController > Source > Mesh'")
 		
 		1:
-			controller.mesh = AssetsManager.load_controller_resource("grass", "mesh_3d_foxtail.res")
+			source.mesh = AssetsManager.load_controller_resource("grass", "mesh_3d_foxtail.res")
 			controller.name = "GrassFoxtail3D"
+			GLDebug.warning("Loaded a basic grass template. Set another mesh under 'GLController > Source > Mesh'")
 		
 		2:
-			controller.mesh = AssetsManager.load_controller_resource("grass", "mesh_textured_quad.tres")
-			controller.texture_instance = AssetsManager.load_controller_resource("grass", "texture_quad.svg")
+			source.mesh = AssetsManager.load_controller_resource("grass", "mesh_textured_quad.tres")
+			controller.texture_texture = AssetsManager.load_controller_resource("grass", "texture_quad.svg")
 			controller.name = "GrassSingleTextured"
+			GLDebug.warning("Loaded a textured grass template. To visualize it, select a texture layer and press 'Brushes > Texture Layers > Save layer Into Array'")
 		
 		3:
-			controller.mesh = AssetsManager.load_controller_resource("grass", "mesh_textured_polyquad.res")
-			controller.texture_instance = AssetsManager.load_controller_resource("grass", "texture_polyquad.svg")
+			source.mesh = AssetsManager.load_controller_resource("grass", "mesh_textured_polyquad.res")
+			controller.texture_texture = AssetsManager.load_controller_resource("grass", "texture_polyquad.svg")
 			controller.name = "GrassPolyquadTextured"
-	
+			GLDebug.warning("Loaded a textured grass template. To visualize it, select a texture layer and press 'Brushes > Texture Layers > Save layer Into Array'")

@@ -37,17 +37,9 @@ class_name GLControllerTerrain
 @export var terrain:MeshInstance3D
 
 
-@export_group("Resources")
-@export var material:ShaderMaterial
-
-## You can use your own shader as long as you have a "uniform sampler2D albedo_texture" as the terrain texture
-@export var shader:Shader
-
-## It will be converted to ImageTexture while in use.
-## Consider saving it into your file system as CompressedTexture2D with VRAM Compression for best GPU memory usage
-@export var texture:Texture2D
-
-## The splat texture to brush with
+@export_group("Other")
+## The splat texture to brush with.
+## Use alpha gradients for a smooth falloff
 @export var brush_shape:Texture2D
 
 

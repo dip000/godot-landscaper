@@ -16,7 +16,7 @@ func start(scan_data:GLScanData, controller:GLController):
 	var wold_brush_size:Vector2 = Vector2.ONE * controller.brush_size
 	var texture_brush_size:Vector2i = meters_to_pixels( wold_brush_size )
 	
-	target_image = controller.texture.get_image()
+	target_image = controller.source.texture.get_image()
 	brush_shape = controller.brush_shape.get_image().duplicate()
 	brush_shape.resize( texture_brush_size.x, texture_brush_size.y )
 	brush_color = Image.create( texture_brush_size.x, texture_brush_size.y, false, Image.FORMAT_RGBA8 )
@@ -24,18 +24,18 @@ func start(scan_data:GLScanData, controller:GLController):
 
 func primary(scan_data:GLScanData, controller:GLController):
 	controller = controller as GLControllerTerrain
+	var world_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
 	var world_brush_rect:Rect2 = Rect2( scan_data.position.x, scan_data.position.z, 0, 0 )
 	world_brush_rect = world_brush_rect.grow( controller.brush_size*0.5 )
-	var world_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
-	stroke_paint( controller.primary_color, controller.texture, world_brush_rect, world_rect )
+	stroke_paint( controller.primary_color, controller.source.texture, world_brush_rect, world_rect )
 	
 
 func secondary(scan_data:GLScanData, controller:GLController):
 	controller = controller as GLControllerTerrain
+	var world_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
 	var world_brush_rect:Rect2 = Rect2( scan_data.position.x, scan_data.position.z, 0, 0 )
 	world_brush_rect = world_brush_rect.grow( controller.brush_size*0.5 )
-	var world_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
-	stroke_paint( controller.secondary_color, controller.texture, world_brush_rect, world_rect )
+	stroke_paint( controller.secondary_color, controller.source.texture, world_brush_rect, world_rect )
 
 
 func end():

@@ -4,10 +4,10 @@ class_name GLBuilderTerrain
 
 
 func build_from_source() -> bool:
-	return build_headless( _controller.source, _controller.terrain, _controller.texture, true )
+	return build_headless( _controller.source, _controller.terrain, _controller.source.texture, true )
 
 func build_from_processed() -> bool:
-	return build_headless( _controller.processed, _controller.terrain, _controller.texture, true )
+	return build_headless( _controller.processed, _controller.terrain, _controller.source.texture, true )
 
 
 static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D, texture:Texture2D, renormalize_uvs:bool) -> bool:

@@ -5,6 +5,26 @@
 extends GLBuildData
 class_name GLBuildDataGrass
 
+
+@export_group("Resources")
+## Use your custom mesh as simple 3D grass without textures.
+## Or use one QuadMesh and different textures each grass.
+@export var mesh:Mesh
+
+## Use the same shader globally for performance (recomended).
+## You can use your own shader as long as it has the same uniforms.
+@export var shader:Shader
+
+## Use the same material globally for performance (recomended).
+## Or use different materials for different biomas or to separate textured and non-textured meshes.
+@export var material:ShaderMaterial
+
+## Use the same GLTextureAtlasLayer globally for performance (recomended).
+## Dynamic and performant array of textures for multiple grass textures. One Texture2DArray should exist per material.
+@export var texture_array_layer:GLTextureAtlasLayer
+
+
+@export_group("Raw Data")
 ## MultiMesh.instance_colors
 @export var top_colors:PackedColorArray
 

@@ -61,7 +61,7 @@ func _apply(controller:GLController) -> bool:
 		chunk_terrain.mesh = ArrayMesh.new()
 		
 		# Do not renormalize UVS, they stay where they were
-		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain, controller.texture, false )
+		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain, controller.source.texture, false )
 		chunk_terrain.set_display_folded( true )
 		
 	original_terrain.hide()

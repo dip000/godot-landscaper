@@ -28,7 +28,7 @@ class_name GLController
 @export var effects:Array[GLEffect]
 
 @export_tool_button("    Apply All Effects   ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
-@export_tool_button("    Clear All Effects   ", "InstanceOptions") var _clear_effects_btn:Callable = clear_effects
+@export_tool_button("    Clear All Effects   ", "Clear") var _clear_effects_btn:Callable = clear_effects
 
 
 @export_category("Scan Configs")

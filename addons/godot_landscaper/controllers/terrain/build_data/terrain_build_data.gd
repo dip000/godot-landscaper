@@ -1,6 +1,16 @@
 extends GLBuildData
 class_name GLBuildDataTerrain
 
+@export_group("Resources")
+## You can use your own shader as long as you have a "uniform sampler2D albedo_texture" as the terrain texture
+@export var shader:Shader
+
+## It will be converted to ImageTexture while in use.
+## Consider saving it into your file system as CompressedTexture2D with VRAM Compression for best GPU memory usage
+@export var texture:Texture2D
+
+
+@export_group("Raw Data")
 ## Ordered map that stores the vertex raw data by given XZ coordinate
 @export var vertices_map:Dictionary[Vector2i, PackedVector3Array]
 
