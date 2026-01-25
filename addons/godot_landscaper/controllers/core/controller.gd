@@ -154,7 +154,6 @@ func clear_effects():
 
 func apply_effects():
 	if GLValidator.validate_apply_effects( validator ):
-		processed = source.duplicate( true )
-		if await GLEffect.apply_all( effects, self ):
-			pass
+		processed = source.duplicate_deep( Resource.DEEP_DUPLICATE_ALL )
+		GLEffect.apply_all( effects, self )
 	

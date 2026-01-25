@@ -1,6 +1,6 @@
 ## Abstract class for all effect classes.
-## Implement '_apply' to run custom effects and stack them on controller.effects
 ##
+## Implement '_apply' to run custom effects and stack them on controller.effects
 ## Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 
 @tool
@@ -80,9 +80,12 @@ func _clear(controller:GLController) -> bool
 func _index(index:int):
 	if index % AWAIT_INDEX_COUNT == 0:
 		await Engine.get_main_loop().process_frame
-	
+
 static func _frame():
 	await Engine.get_main_loop().process_frame
+
+static func _timeout(time:float):
+	await Engine.get_main_loop().create_timer(time).timeout
 
 
 # ========= OTHER UTILITIES ==============

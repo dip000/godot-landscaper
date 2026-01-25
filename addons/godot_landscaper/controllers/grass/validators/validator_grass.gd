@@ -14,6 +14,8 @@ func _validate_initialization() -> bool:
 		source.shader = AssetsManager.load_controller_resource("grass", "shader.gdshader")
 	if not source.material:
 		source.material = AssetsManager.load_controller_resource("grass", "material.tres")
+	if not source.texture_array_layer:
+		source.texture_array_layer = GLTextureAtlasLayer.new()
 	return true
 
 
@@ -43,12 +45,13 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 		source.material = AssetsManager.load_controller_resource("grass", "material.tres")
 	if not source.texture_array_layer:
 		source.texture_array_layer = GLTextureAtlasLayer.new()
+	if source.texture_array_layer.texture_array:
+		source.material.set_shader_parameter("texture_array", source.texture_array_layer.texture_array)
 	
 	# Force set values
 	_format_mmi( _controller )
 	source.material.shader = source.shader
 	source.mesh.surface_set_material(0, source.material)
-	source.material.set_shader_parameter("texture_array", source.texture_array_layer.texture_array)
 	return true
 
 
@@ -118,7 +121,7 @@ static func validate_texture_bake(validator:GLValidatorGrass) -> bool:
 	if not source.texture_array_layer:
 		source.texture_array_layer = GLTextureAtlasLayer.new()
 	if not source.texture_array_layer.texture_array:
-		source.texture_array_layer.texture_array = Texture2DArray.new()
+		source.texture_array_layer.texture_array = AssetsManager.load_controller_resource("grass", "texture_atlas.res")
 	
 	# Force set values
 	_format_mmi( controller )

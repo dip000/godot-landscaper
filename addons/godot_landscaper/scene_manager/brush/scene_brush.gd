@@ -19,8 +19,8 @@ func selected(controller:GLController):
 	_icon.set_disable_scale( true )
 	if controller.use_grid:
 		_static_grid.process_mode = Node.PROCESS_MODE_INHERIT
-		_grid_select.show()
 		_static_grid.show()
+		_grid_select.show()
 		_sphere.scale.y = 1
 		_grid_select.scale.y = 1
 	else:
@@ -45,13 +45,13 @@ func over_surface(controller:GLController, scan_data:GLScanData):
 	
 	if controller.use_grid:
 		_set_shader( "mask_center", pos )
-		if _is_size_even():
-			pos.x = roundf(pos.x)
-			pos.z = roundf(pos.z)
-		else:
-			pos.x = floorf(pos.x) + 0.5
-			pos.z = floorf(pos.z) + 0.5
-		_grid_select.global_position = pos
+	if _is_size_even():
+		pos.x = roundf(pos.x)
+		pos.z = roundf(pos.z)
+	else:
+		pos.x = floorf(pos.x) + 0.5
+		pos.z = floorf(pos.z) + 0.5
+	_grid_select.global_position = pos
 
 
 func select_brush(brush:GLBrush):
@@ -86,8 +86,8 @@ func set_size(use_grid:bool, value:float):
 	if use_grid:
 		_sphere.scale.y = 1
 		_grid_select.scale.y = 1
-		_grid_select.scale.x = clampf(value, 0.1, 100)
-		_grid_select.scale.z = clampf(value, 0.1, 100)
+		_grid_select.scale = _sphere.scale.clampf( 1, 100 )
+		_grid_select.scale = _sphere.scale.round()
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 
