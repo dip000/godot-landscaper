@@ -7,7 +7,7 @@
 
 @tool
 extends GLEffect
-class_name GLEffectGrassChunkify
+class_name GLGrassChunkify
 
 ## The size squared to split the grass instances.
 @export var chunk_size:int = 32:

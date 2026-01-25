@@ -12,7 +12,7 @@ class_name GLGrassTextureCompressor
 
 func _apply(controller:GLController) -> bool:
 	if not controller is GLControllerGrass:
-		GLDebug.error("...")
+		GLDebug.error("Grass VRAM Compression Failed: This effect is only valid for GLControllerGrass controller types")
 		return false
 	
 	var save_dir:String = save_path.get_base_dir()
@@ -88,6 +88,10 @@ func _apply(controller:GLController) -> bool:
 	
 
 func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerGrass:
+		GLDebug.error("Grass VRAM Compression Failed: This effect is only valid for GLControllerGrass controller types")
+		return false
+	
 	controller = controller as GLControllerGrass
 	var source:GLBuildDataGrass = controller.source
 	source.material.set_shader_parameter( "texture_array", source.texture_array_layer.texture_array )

@@ -1,6 +1,6 @@
 @tool
 extends GLEffect
-class_name GLEffectLoD
+class_name GLGrassLoD
 
 @export var end_margin:float = 2.0
 @export_range(0.0, 1.0, 0.01) var visible_instances:float = 1.0

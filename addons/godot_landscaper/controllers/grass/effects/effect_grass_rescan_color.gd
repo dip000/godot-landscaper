@@ -1,6 +1,6 @@
 @tool
 extends GLEffect
-class_name GLEffectRescanColor
+class_name GLGrassRescanColor
 
 ## Lower height in meters on Y axis that the grass will try to cache_scan_all for a surface to recolor with
 @export var min_height_offset:float = -2.0

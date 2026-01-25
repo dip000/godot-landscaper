@@ -48,6 +48,7 @@ script = ExtResource("2_spad5")
 
 [node name="Brush" type="Node3D" parent="."]
 unique_name_in_owner = true
+visible = false
 script = ExtResource("3_ak6rc")
 
 [node name="Sphere" type="Node3D" parent="Brush"]
