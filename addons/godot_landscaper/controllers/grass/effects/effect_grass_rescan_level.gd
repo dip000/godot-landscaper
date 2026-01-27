@@ -15,7 +15,7 @@ func _apply(controller:GLController) -> bool:
 	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
 	var processed:GLBuildDataGrass = controller.processed
-	var scanner:GLSurfaceScanner = GLSurfaceScanner.new().set_configs_from_controller( controller )
+	var scanner:GLSurfaceScanner = GLSurfaceScanner.new( controller )
 	var original_instance_count:int = processed.size()
 	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()
 	
@@ -25,7 +25,7 @@ func _apply(controller:GLController) -> bool:
 		var scan_upper:Vector3 = global_position + Vector3.UP*max_height_offset
 		var scan_lower:Vector3 = global_position + Vector3.UP*min_height_offset
 		
-		var cache:GLScanData = await scanner.cache_scan_all( scan_upper, scan_lower )
+		var cache:GLScanData = await scanner.scan_point_to_point( scan_upper, scan_lower )
 		if not cache:
 			continue
 		

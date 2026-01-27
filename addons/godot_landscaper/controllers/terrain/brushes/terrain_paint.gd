@@ -38,7 +38,7 @@ func secondary(scan_data:GLScanData, controller:GLController):
 	stroke_paint( controller.secondary_color, controller.source.texture, world_brush_rect, world_rect )
 
 
-func end():
+func end(scan_data:GLScanData, controller:GLController):
 	brush_shape = null
 	brush_color = null
 	target_image = null

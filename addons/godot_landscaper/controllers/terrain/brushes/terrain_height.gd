@@ -17,7 +17,7 @@ func secondary(scan_data:GLScanData, controller:GLController):
 	_update( scan_data, controller, false )
 
 
-func end():
+func end(scan_data:GLScanData, controller:GLController):
 	pass
 
 

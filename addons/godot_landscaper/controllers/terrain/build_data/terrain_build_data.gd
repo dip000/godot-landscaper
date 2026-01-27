@@ -6,7 +6,7 @@ class_name GLBuildDataTerrain
 @export var shader:Shader
 
 ## It will be converted to ImageTexture while in use.
-## Consider saving it into your file system as CompressedTexture2D with VRAM Compression for best GPU memory usage
+## Use the Terrain Formater effect for better format alternatives.
 @export var texture:Texture2D
 
 

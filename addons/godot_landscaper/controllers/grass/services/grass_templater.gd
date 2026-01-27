@@ -15,7 +15,6 @@ static func _card_shuffle_next() -> int:
 
 static func load_random_template(controller:GLControllerGrass):
 	var random_index:int = _card_shuffle_next()
-	GLDebug.internal("Random template load index: %s" %random_index)
 	load_template( controller, random_index )
 
 

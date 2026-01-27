@@ -25,6 +25,11 @@ func _apply(controller:GLController) -> bool:
 	
 	var processed:GLBuildDataGrass = controller.processed
 	var texture_array:Texture2DArray = processed.texture_array_layer.texture_array
+	
+	if not texture_array:
+		GLDebug.error("Grass VRAM Compression Failed: There are no textures to compress")
+		return false
+	
 	var layers:int = texture_array.get_layers()
 	
 	var tile_w:int = texture_array.get_width()

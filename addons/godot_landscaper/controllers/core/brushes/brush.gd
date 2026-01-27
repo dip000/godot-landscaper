@@ -37,4 +37,4 @@ func secondary(scan_data:GLScanData, controller:GLController) -> void
 
 ## Called once at the end of the stroke. End subprocesses, resets, etc..
 @abstract
-func end() -> void
+func end(scan_data:GLScanData, controller:GLController) -> void

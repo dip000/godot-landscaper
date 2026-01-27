@@ -102,6 +102,14 @@ static func validate_stroke_end(validator:GLValidator) -> bool:
 
 
 @abstract
+func _validate_rebuild_from_source() -> bool
+static func validate_rebuild_from_source(validator:GLValidator) -> bool:
+	if not validate_base( validator ):
+		return false
+	return validator._validate_rebuild_from_source()
+	
+	
+@abstract
 func _validate_clear_effects() -> bool
 static func validate_clear_effects(validator:GLValidator) -> bool:
 	if not validate_base( validator ):

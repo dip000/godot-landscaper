@@ -15,7 +15,7 @@ class_name GLTextureAtlasLayer
 ## The layer this instance is tied to.
 ## This value is read-only. To change it go to:
 ## Grass Controller Inspector > Texture Layers > Save Layer Into Array
-@export_custom(PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY) var layer:int = -1
+@export_custom(PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY ) var layer:int = -1
 
 
 

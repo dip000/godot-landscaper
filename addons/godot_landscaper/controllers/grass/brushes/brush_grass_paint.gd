@@ -18,7 +18,7 @@ func secondary(scan_data:GLScanData, controller:GLController):
 	_paint( scan_data, controller, true )
 
 
-func end():
+func end(scan_data:GLScanData, controller:GLController):
 	pass
 
 

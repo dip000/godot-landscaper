@@ -73,6 +73,10 @@ func _validate_stroke_end() -> bool:
 	return true
 
 
+func _validate_rebuild_from_source() -> bool:
+	return true
+
+
 func _validate_clear_effects() -> bool:
 	return true
 

@@ -14,8 +14,6 @@
 extends GLController
 class_name GLControllerGrass
 
-
-@export_category("Brushes")
 ## How many grass instances coincides to hit over the surface per editor frame
 @export_range(1.0, 10.0, 1.0, "or_greater", "suffix:instances/frame") var spawn_ratio:float = 1.0
 

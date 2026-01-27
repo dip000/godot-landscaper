@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cc22twy7o43pp"]
+[gd_scene format=3 uid="uid://cc22twy7o43pp"]
 
 [ext_resource type="Script" uid="uid://d1oewt82sdi8x" path="res://addons/godot_landscaper/inspector/info_box/inspector_info_box.gd" id="1_hmcpr"]
 
@@ -7,13 +7,13 @@ content_margin_left = 6.0
 content_margin_top = 6.0
 content_margin_right = 6.0
 content_margin_bottom = 6.0
-bg_color = Color(0.160784, 0.207843, 0.258824, 1)
+bg_color = Color(0.1764706, 0.19215687, 0.21960784, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[node name="InfoBox" type="MarginContainer"]
+[node name="InfoBox" type="MarginContainer" unique_id=1372408840]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 40.0
@@ -24,15 +24,15 @@ theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 script = ExtResource("1_hmcpr")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=183014551]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v70gc")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer" unique_id=1532758417]
 layout_mode = 2
 theme_override_constants/separation = 15
 
-[node name="Info" type="Label" parent="PanelContainer/HBoxContainer"]
+[node name="Info" type="Label" parent="PanelContainer/HBoxContainer" unique_id=214150757]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2

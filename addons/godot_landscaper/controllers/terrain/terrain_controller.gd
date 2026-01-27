@@ -4,7 +4,6 @@ extends GLController
 class_name GLControllerTerrain
 
 
-@export_category("Brushes")
 ## How many cells to build per meter squared.
 ## You can always optimize by applying effects at the end.
 @export_range(1.0, 10.0, 0.01, "or_greater", "or_less", "suffix:cells/meter") var cell_size:float = 1

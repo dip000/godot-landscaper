@@ -27,34 +27,40 @@ class_name GLController
 ## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 @export var effects:Array[GLEffect]
 
-@export_tool_button("    Apply All Effects   ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
-@export_tool_button("    Clear All Effects   ", "Clear") var _clear_effects_btn:Callable = clear_effects
+@export_tool_button("Rebuild From Source", "PlayScene") var _rebuild_from_source_btn:Callable = rebuild_from_source
+@export_tool_button("     Apply All Effects     ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
+@export_tool_button("     Clear All Effects     ", "Clear") var _clear_effects_btn:Callable = clear_effects
 
 
 @export_category("Scan Configs")
+@export_tool_button("    Clear Scan Data    ", "Clear") var _clear_all_surfaces_btn:Callable = GLSurfaceScanner.clear_all_surfaces
+
 @export_group("Layers")
 ## Layers to detect your surfaces
 @export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF
 
 @export_group("Meshes")
-## Attempts to find the mesh of the scanned PhysicsBody3D in its parent
+## Attempts to find the mesh of the scanned PhysicsBody3D in its parent.
+## Last layer is kept disabled by default to avoid internal layers.
 @export var parent_of_physics_body:bool = true
+
+## Attempts to find the mesh of the scanned PhysicsBody3D in any of its children.
+@export var child_of_physics_body:bool = false
 
 ## NodePath from the scanned PhysicsBody3D to its mesh
 @export var relative_path_from_physics_body:String = ""
 
 
 @export_group("Color Sources")
-## Attempts to find the material of the scanned MeshInstance3D under any of the selected active surfaces (includes override and overlay)
-@export var active_materials:Array[int] = [0,1,2,3]
+## Attempts to find the material of the scanned MeshInstance3D, in priority order,
+## under any of the selected active surfaces (zero includes override and overlay)
+@export var active_materials:Array[int] = [0, 1, 2, 3, 4, 5]
 
-## Property path from the scanned standar material to the source of color, can be a texture, vec3, or a vec4 
-@export var paths_in_standar_materials:Array[String] = ["albedo_texture", "albedo_color"]
+## Property path from the scanned material to the source of color, can be a texture, vec3, or a vec4.
+## Prefix 'shader_parameter/' for shader materials
+@export var paths_in_material:Array[String] = ["albedo_texture", "albedo_color", "shader_parameter/albedo_texture", "shader_parameter/texture", "shader_parameter/color", "shader_parameter/albedo_color"]
 
-## Property path from the scanned shader material to the source of color, can be a texture, vec3, or a vec4 
-@export var paths_in_shader_materials:Array[String] = ["albedo_texture", "texture", "color", "albedo"]
-
-## Color when the scanner couldn't find any color source
+## Color if the scanner can't find any color source
 @export var fallback_color:Color = Color.MAGENTA
 
 
@@ -99,15 +105,15 @@ var is_ready:bool
 
 func _enter_tree():
 	if Engine.is_editor_hint():
+		## Delay avoids clickthrough and waits for scene resources to be loaded
+		await Engine.get_main_loop().process_frame
+		await Engine.get_main_loop().process_frame
 		_setup_controller()
-		process_mode = Node.PROCESS_MODE_INHERIT
 		if GLValidator.validate_initialization( validator ):
-			## Delay avoids clickthrough. get_tree() is unreliable
-			await Engine.get_main_loop().process_frame
-			await Engine.get_main_loop().process_frame
+			process_mode = Node.PROCESS_MODE_INHERIT
 			is_ready = true
-	else:
-		process_mode = Node.PROCESS_MODE_DISABLED
+			return
+	process_mode = Node.PROCESS_MODE_DISABLED
 
 
 ## Connect external resources like validators, builders, tabs, etc..
@@ -122,35 +128,34 @@ func select_brush(brush:GLBrush):
 		GLDebug.internal("Selected: %s/%s" %[name, brush.title])
 
 
-
 ## Start landscaping according to the current brush
 func stroke_start(scan_data:GLScanData):
 	if GLValidator.validate_stroke_start( validator, scan_data ):
 		current_brush.start( scan_data, self )
-
 
 func stroke_primary(scan_data:GLScanData):
 	if GLValidator.validate_stroke_primary( validator, scan_data ):
 		current_brush.primary( scan_data, self )
 		builder.build_from_source()
 
-
 func stroke_secondary(scan_data:GLScanData):
 	if GLValidator.validate_stroke_secondary( validator, scan_data ):
 		current_brush.secondary( scan_data, self )
 		builder.build_from_source()
 
-
-func stroke_end():
+func stroke_end(scan_data:GLScanData):
 	if GLValidator.validate_stroke_end( validator ):
-		current_brush.end()
+		current_brush.end( scan_data, self )
 
+
+func rebuild_from_source():
+	if GLValidator.validate_rebuild_from_source( validator ):
+		builder.build_from_source()
 
 func clear_effects():
 	if GLValidator.validate_clear_effects( validator ):
 		if await GLEffect.clear_all( effects, self ):
 			processed = null
-
 
 func apply_effects():
 	if GLValidator.validate_apply_effects( validator ):

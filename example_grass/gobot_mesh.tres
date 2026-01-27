@@ -1,4 +1,4 @@
-[gd_resource type="ArrayMesh" load_steps=5 format=4 uid="uid://dcqf8grxgfwfm"]
+[gd_resource type="ArrayMesh" format=4 uid="uid://dcqf8grxgfwfm"]
 
 [ext_resource type="Texture2D" uid="uid://cg5ltn3goebtr" path="res://example_grass/gobot_albedo.png" id="1_2usow"]
 

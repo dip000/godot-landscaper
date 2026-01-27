@@ -53,12 +53,13 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	if not (is_motion or is_button):
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	# Raycast
+	# Surface Scanner with raycasting
 	var hit_info:Dictionary = scene.raycaster.cam_to_surface( cam, event.get_position() )
 	if not hit_info:
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	
-	var scan_data:GLScanData = GLScanData.new().set_hit_info( hit_info )
+	var scan_data:GLScanData = GLScanData.new()
+	scan_data.set_hit_info( hit_info )
 	scene.over_surface( _active_controller, scan_data )
 	
 	# Paint
@@ -81,7 +82,7 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
-		_active_controller.stroke_end()
+		_active_controller.stroke_end( scan_data )
 		scene.stroke_end( _active_controller )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
@@ -109,7 +110,7 @@ func _edit(controller:Object):
 			inspector.selected( controller )
 			scene.selected( controller )
 		else:
-			GLDebug.error("Can't select a controller: The controller timed out. Try re-selecting it from the scene tree")
+			GLDebug.error("Can't select a controller: The controller timed out. Try re-selecting it from the scene tree, or restarting the editor")
 	else:
 		scene.deselected( controller )
 	_active_controller = controller

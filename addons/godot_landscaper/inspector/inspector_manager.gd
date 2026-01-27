@@ -21,9 +21,9 @@ func _parse_category(controller:Object, category:String):
 		_create_info_box( "Auto detect your own setups like mesh-over-body or body-over-mesh" )
 		return
 	elif category == "controller.gd":
-		_create_info_box( "Effects are non-destructive. To save effects permanently: Apply, move 'processed' to 'source' and Clear." )
+		_create_info_box( "Effects are non-destructive. To save effects permanently: Apply, copy 'processed' to 'source' and Clear." )
 		return
-	if category != "Brushes" or not controller is GLController or not controller.brushes or not controller.is_ready:
+	if not category.ends_with("_controller.gd") or not controller is GLController or not controller.brushes or not controller.is_ready:
 		return
 	
 	if not controller.current_brush:

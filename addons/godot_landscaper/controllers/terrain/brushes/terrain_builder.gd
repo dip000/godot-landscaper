@@ -33,7 +33,7 @@ func secondary(scan_data:GLScanData, controller:GLController):
 	headless_erase( brush_rect, source.vertices_map, source.uvs_map, source.texture )
 
 
-func end():
+func end(scan_data:GLScanData, controller:GLController):
 	pass
 
 
