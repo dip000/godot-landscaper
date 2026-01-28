@@ -25,10 +25,10 @@ func _apply(controller:GLController) -> bool:
 		
 		var cache:GLScanData = await scanner.scan_point_to_point( scan_upper, scan_lower )
 		if cache:
-			processed.bottom_colors[i] = cache.scan_color()
+			processed.bottom_colors[i] = scanner.scan_color( cache )
 			await _100_index( i )
 	
-	scanner.clear_cache()
+	scanner.clear_all_surfaces()
 	GLDebug.state("Bottom grass was recolored from Ground Coloring settings. Total=%s" %processed.size())
 	return true
 

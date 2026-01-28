@@ -30,7 +30,7 @@ class_name GLControllerTerrain
 
 ## Terrain color with left button mouse.
 ## Use transparency for smooth blending.
-@export var primary_color:Color = Color.PALE_GOLDENROD
+@export var primary_color:Color = Color(Color.PALE_GOLDENROD, 0.5)
 
 ## Terrain color with right button mouse
 ## Use transparency for smooth blending.
@@ -52,3 +52,6 @@ func _setup_controller() -> void:
 	builder = GLBuilderTerrain.new( self )
 	brushes = AssetsManager.load_controller_brushes( "terrain" )
 	use_grid = true
+	
+	
+	

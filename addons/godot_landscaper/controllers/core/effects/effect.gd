@@ -26,8 +26,12 @@ static func apply_all(effects:Array[GLEffect], controller:GLController) -> bool:
 			GLDebug.error("Please wait until effect with index '%s' finishes running or delete it and add it again" %i)
 			return false
 	
+	var applied:int = 0
+	
 	for i in effects.size():
 		var effect:GLEffect = effects[i]
+		GLDebug.internal("Effect i=%s, enabled=%s, is_applied=%s" %[i, effect.enable, effect.is_applied])
+		
 		if not effect:
 			continue
 		if not effect.enable:
@@ -40,8 +44,15 @@ static func apply_all(effects:Array[GLEffect], controller:GLController) -> bool:
 		effect.is_applied = true
 		
 		if not success:
-			GLDebug.error("The effect with index '%s' failed to be applied" %i)
+			GLDebug.error("The effect with index '%s' failed to be applied. Next effects will not be applied" %i)
 			return false
+		
+		applied += 1
+	
+	if effects.is_empty():
+		GLDebug.state("No Effects Were Applied. Add effects under 'GLController > Effects'")
+	else:
+		GLDebug.state("'%s/%s' Effects Were Applied" %[applied, effects.size()])
 	return true
 
 
@@ -51,8 +62,12 @@ static func clear_all(effects:Array[GLEffect], controller:GLController) -> bool:
 			GLDebug.error("Please wait until effect with index '%s' finishes running or delete it and add it again" %i)
 			return false
 	
+	var cleared:int = 0
+	
 	for i in effects.size():
 		var effect:GLEffect = effects[i]
+		GLDebug.internal("Effect i=%s, enabled=%s, is_applied=%s" %[i, effect.enable, effect.is_applied])
+		
 		if not effect:
 			continue
 		if not effect.enable:
@@ -65,8 +80,15 @@ static func clear_all(effects:Array[GLEffect], controller:GLController) -> bool:
 		
 		if not success:
 			effect.is_applied = true
-			GLDebug.error("The effect with index '%s' failed to be cleared" %i)
+			GLDebug.error("The effect with index '%s' failed to be cleared. Next effects will not be cleared" %i)
 			return false
+		
+		cleared += 1
+	
+	if effects.is_empty():
+		GLDebug.state("No Effects Were Cleared. Add effects under 'GLController > Effects'")
+	else:
+		GLDebug.state("'%s/%s' Effects Were Cleared" %[cleared, effects.size()])
 	return true
 
 

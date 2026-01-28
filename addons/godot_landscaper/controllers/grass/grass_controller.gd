@@ -23,7 +23,7 @@ class_name GLControllerGrass
 
 ## Grass color with left button mouse.
 ## Use transparency for smooth blending.
-@export var primary_color:Color = Color.PALE_GOLDENROD
+@export var primary_color:Color = Color(Color.PALE_GOLDENROD, 0.5)
 
 ## Grass color with right button mouse
 ## Use transparency for smooth blending.

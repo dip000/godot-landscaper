@@ -1,3 +1,4 @@
+@static_unload
 extends Resource
 class_name GLGrassTemplater
 

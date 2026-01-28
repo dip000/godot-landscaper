@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="GLTerrainRoundCorners" format=3 uid="uid://ksqhkiue3fvr"]
+
+[ext_resource type="Script" uid="uid://bhsq3ln28jhe6" path="res://addons/godot_landscaper/controllers/terrain/effects/effect_terrain_round_corners.gd" id="1_fitmh"]
+
+[resource]
+script = ExtResource("1_fitmh")
+is_applied = true
+metadata/_custom_type_script = "uid://bhsq3ln28jhe6"

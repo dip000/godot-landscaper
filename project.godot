@@ -15,11 +15,13 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Landscaper"
+config/version="0.3.1"
 config/tags=PackedStringArray("hot", "plugin")
 run/main_scene="uid://s65n1x8rdh40"
 config/features=PackedStringArray("4.6", "Mobile")
 boot_splash/stretch_mode=0
 boot_splash/image="res://icon.png"
+config/icon="uid://dqeoslfngfb1r"
 
 [editor]
 

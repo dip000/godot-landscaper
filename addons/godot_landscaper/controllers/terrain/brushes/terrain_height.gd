@@ -36,7 +36,7 @@ func _height(full_strength:float, ease:float, level:bool, center:Vector3, radius
 	var max_height:float = -INF
 	if level:
 		for cell in Rect2iter.new( brush_area ):
-			var vertices:PackedVector3Array = vertices_map[cell]
+			var vertices:PackedVector3Array = vertices_map.get(cell, [])
 			for vertex in vertices:
 				min_height = min(vertex.y, min_height)
 				max_height = max(vertex.y, max_height)

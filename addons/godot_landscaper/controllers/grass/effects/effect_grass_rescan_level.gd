@@ -62,7 +62,7 @@ func _apply(controller:GLController) -> bool:
 	processed.fill( new_data )
 	
 	var lost_instances:int = original_instance_count - new_data.size()
-	scanner.clear_cache()
+	scanner.clear_all_surfaces()
 	GLDebug.state("Grass was repositioned in Y axis. %s instances were lost out of %s" %[lost_instances, original_instance_count])
 	return true
 
