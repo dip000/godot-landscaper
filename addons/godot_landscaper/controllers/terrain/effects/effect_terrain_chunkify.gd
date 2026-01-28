@@ -44,11 +44,12 @@ func _apply(controller:GLController) -> bool:
 		
 		# UVs stay where they are, chunked mesh just renders its own part.
 		chunk_data.min = chunk_data.min.min( vertices[0] )
-		chunk_data.max = chunk_data.max.max( vertices[5] )
+		chunk_data.max = chunk_data.max.max( vertices[vertices.size()-1] )
 		chunk_data.vertices_map[cell] = vertices
 		chunk_data.uvs_map[cell] = uvs
 		chunks[chunk] = chunk_data
 	
+	await _frame()
 	
 	# Build terrain chunks
 	for chunk in chunks:
@@ -70,6 +71,7 @@ func _apply(controller:GLController) -> bool:
 		
 		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain )
 		chunk_terrain.set_display_folded( true )
+		await _frame()
 		
 	original_terrain.hide()
 	GLDebug.state("Chunkified Terrain %s: Total Chunks: %s, Total Cells: %s" %[original_terrain.name, chunks.size(), vertices_map.size()])

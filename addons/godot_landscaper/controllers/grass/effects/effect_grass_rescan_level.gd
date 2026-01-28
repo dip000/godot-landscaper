@@ -56,7 +56,7 @@ func _apply(controller:GLController) -> bool:
 		new_data.transforms.append( local_transf )
 		new_data.top_colors.append( processed.top_colors[i] )
 		new_data.bottom_colors.append( processed.bottom_colors[i] )
-		await _index(i)
+		await _100_index(i)
 	
 	# Apply new transforms and set previous colors
 	processed.fill( new_data )

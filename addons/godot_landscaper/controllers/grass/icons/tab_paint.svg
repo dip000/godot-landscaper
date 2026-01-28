@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="16.933332mm"
-   height="16.933332mm"
-   viewBox="0 0 16.933332 16.933332"
+   width="33.866665mm"
+   height="33.866665mm"
+   viewBox="0 0 33.866664 33.866664"
    version="1.1"
    id="svg11372"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
-   sodipodi:docname="icons.svg"
+   sodipodi:docname="tab_paint.svg"
    xml:space="preserve"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -26,9 +26,9 @@
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:zoom="2"
-     inkscape:cx="77.000001"
-     inkscape:cy="24.25"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="-15.556349"
+     inkscape:cy="98.641396"
      inkscape:window-width="1366"
      inkscape:window-height="705"
      inkscape:window-x="-8"
@@ -42,9 +42,9 @@
      inkscape:label="Capa 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(152.35118,296.6864)"><g
+     transform="translate(152.35118,296.68639)"><g
        id="g16"
-       transform="translate(-67.733295)"><g
+       transform="matrix(2.0000001,0,0,2.0000001,16.884596,296.68643)"><g
          id="g7"
          transform="translate(128.36631,-81.752162)"><rect
            style="fill:#21262e;fill-opacity:0;stroke-width:0.700001;stroke-linecap:round;stroke-linejoin:round"

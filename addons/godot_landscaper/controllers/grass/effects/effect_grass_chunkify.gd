@@ -76,7 +76,7 @@ func _apply(controller:GLController) -> bool:
 		chunk.top_colors.append( processed.top_colors[original_index] )
 		chunk.bottom_colors.append( processed.bottom_colors[original_index] )
 		
-		await _index(original_index)
+		await _100_index(original_index)
 	
 	
 	# Rebuilds MultiMeshInstance3D knowing the chunked indexes
@@ -120,7 +120,7 @@ func _apply(controller:GLController) -> bool:
 				instance_mm.set_instance_color( instance_index, chunk.top_colors[instance_index] )
 				instance_mm.set_instance_custom_data( instance_index, chunk.bottom_colors[instance_index] )
 				
-				await _index( instance_index )
+				await _100_index( instance_index )
 	
 	original_mmi.hide()
 	GLDebug.state("Chunkified. Total chunks = %s, Total grass instances = %s" %[total_chunks, processed.size()])

@@ -4,16 +4,26 @@ class_name GLBrushTerrainBuider
 
 # Each corner of a square has a list of 3 closest neighbors that share the same vertex
 # These const define their mapping of {relative_index_in_square_shape: neighbor_corner_offset}
-# For example. Looking from the TOP_LEFT corner:
+# For example. Looking from the TOP_LEFT_MAP corner:
 #   You have the neighbors left-up, left, and up with their respective indexes of the shared vertex 5,1,2
-const TOP_LEFT:Dictionary[int, Vector2i] = {5:Vector2i(-1,-1), 1:Vector2i(-1,0), 2:Vector2i(0,-1)}
-const TOP_RIGHT:Dictionary[int, Vector2i] = {5:Vector2i(0,-1), 2:Vector2i(-1,-1), 0:Vector2i(0,1)}
-const BOTTOM_LEFT:Dictionary[int, Vector2i] = {5:Vector2i(-1,0), 1:Vector2i(-1,1), 0:Vector2i(0,1)}
-const BOTTOM_RIGHT:Dictionary[int, Vector2i] = {2:Vector2i(1,0), 1:Vector2i(0,1), 0:Vector2i(1,1)}
+const TOP_LEFT_MAP:Dictionary[int, Vector2i] = {5:Vector2i(-1,-1), 1:Vector2i(-1,0), 2:Vector2i(0,-1)}
+const TOP_RIGHT_MAP:Dictionary[int, Vector2i] = {5:Vector2i(0,-1), 2:Vector2i(1,-1), 0:Vector2i(1,0)}
+const BOTTOM_LEFT_MAP:Dictionary[int, Vector2i] = {5:Vector2i(-1,0), 1:Vector2i(-1,1), 0:Vector2i(0,1)}
+const BOTTOM_RIGHT_MAP:Dictionary[int, Vector2i] = {2:Vector2i(1,0), 1:Vector2i(0,1), 0:Vector2i(1,1)}
+
+const TOP_LEFT:Vector2i = Vector2i(0, 0)
+const TOP_RIGHT:Vector2i = Vector2i(1, 0)
+const BOTTOM_LEFT:Vector2i = Vector2i(0, 1)
+const BOTTOM_RIGHT:Vector2i = Vector2i(1, 1)
+
+const TOP_LEFT_TRI:Array[Vector2i] = [TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT]
+const TOP_RIGHT_TRI:Array[Vector2i] = [TOP_LEFT, TOP_RIGHT, BOTTOM_RIGHT]
+const BOTTOM_LEFT_TRI:Array[Vector2i] = [TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT]
+const BOTTOM_RIGHT_TRI:Array[Vector2i] = [BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT]
 
 const SQUARE_SHAPE:Array[Vector2i] = [
-	Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), #top-left triangle
-	Vector2i(0,1), Vector2i(1,0), Vector2i(1,1), #bottom-right triangle
+	TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT,
+	BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT
 ]
 
 
@@ -67,10 +77,10 @@ static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, 
 			
 			if sew_seams_on_build:
 				match corner_index:
-					0: corner_height = get_corner_height(TOP_LEFT, vertices_map, cell)
-					1, 4: corner_height = get_corner_height(TOP_RIGHT, vertices_map, cell)
-					2, 3: corner_height = get_corner_height(BOTTOM_LEFT, vertices_map, cell)
-					5: corner_height = get_corner_height(BOTTOM_RIGHT, vertices_map, cell)
+					0: corner_height = get_corner_height(TOP_LEFT_MAP, vertices_map, cell)
+					1, 4: corner_height = get_corner_height(TOP_RIGHT_MAP, vertices_map, cell)
+					2, 3: corner_height = get_corner_height(BOTTOM_LEFT_MAP, vertices_map, cell)
+					5: corner_height = get_corner_height(BOTTOM_RIGHT_MAP, vertices_map, cell)
 			
 			var world_pos:Vector2 = cell + offset
 			vertices.append( Vector3( world_pos.x, corner_height, world_pos.y ) )
@@ -83,12 +93,14 @@ static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, 
 
 ## Returns any vertex in the same corner position shared by all 3 adjacent cells of 'corner_map'.
 ## I know is weid but it works ok!
-static func get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map:Dictionary[Vector2i, PackedVector3Array], pivot:Vector2i) -> float:
+static func get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map:Dictionary[Vector2i, PackedVector3Array], pivot:Vector2i, default:float=0.0) -> float:
 	for cell_corner in corner_map:
 		var cell:Vector2i = pivot + corner_map[cell_corner]
 		if vertices_map.has( cell ):
+			#printt("found neighbor -> Pivot:", pivot, "IndexShape:", cell_corner, "WorldCell:", cell, "Value:", vertices_map[cell][cell_corner].y)
 			return vertices_map[cell][cell_corner].y
-	return 0
+	#printt("Did NOT found neighbor -> Pivot:", pivot)
+	return default
 	
 
 static func get_bounding_box_from_mesh(mesh_instance:MeshInstance3D) -> Rect2i:

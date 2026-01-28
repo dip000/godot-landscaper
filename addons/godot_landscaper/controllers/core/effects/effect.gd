@@ -8,7 +8,6 @@
 extends Resource
 class_name GLEffect
 
-const AWAIT_INDEX_COUNT:int = 100
 
 ## Helps remembering to unapply side-effects. Tough clearing it must be run manually for responsivenes sakee
 @export_storage var is_applied:bool = false
@@ -81,8 +80,12 @@ func _clear(controller:GLController) -> bool
 
 
 # ========= FRAME SKIP UTILITIES ==============
-func _index(index:int):
-	if index % AWAIT_INDEX_COUNT == 0:
+func _100_index(index:int):
+	if index % 100 == 0:
+		await Engine.get_main_loop().process_frame
+
+func _10_index(index:int):
+	if index % 10 == 0:
 		await Engine.get_main_loop().process_frame
 
 static func _frame():

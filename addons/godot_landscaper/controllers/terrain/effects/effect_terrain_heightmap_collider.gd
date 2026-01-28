@@ -32,11 +32,13 @@ func _apply(controller:GLController) -> bool:
 	var map_data:PackedFloat32Array
 	map_data.resize( heightmap.map_width * heightmap.map_depth )
 	for global in Rect2iter.new(bounds):
-		var height:float = GLBrushTerrainBuider.get_corner_height( GLBrushTerrainBuider.TOP_LEFT, vertices_map, global )
+		var height:float = GLBrushTerrainBuider.get_corner_height( GLBrushTerrainBuider.TOP_LEFT_MAP, vertices_map, global )
 		var local:Vector2i = global - bounds.position
 		var index:int = local.x + local.y * heightmap.map_width
 		GLDebug.spam("Global: %s, Local: %s, Index: %s, Height: %s" %[global, local, index, height])
 		map_data[index] = height
+	
+	await _frame()
 	
 	var collider:CollisionShape3D = controller.get_node( collider_path )
 	var body:Node = collider.get_parent()
@@ -55,6 +57,14 @@ func _clear(controller:GLController) -> bool:
 	if not controller is GLControllerTerrain:
 		GLDebug.error("Terrain Texture Formater Failed: This effect is only valid for GLControllerTerrain controller types")
 		return false
+		
+	if not controller.has_node( collider_path ):
+		GLDebug.error("Terrain Heightmap Collider Failed: 'collider_path=%s' was not found" %collider_path)
+		return false
+	
+	controller = controller as GLControllerTerrain
+	var collider:CollisionShape3D = controller.get_node( collider_path )
+	collider.position = Vector3.ZERO
 	return true
 	
 	

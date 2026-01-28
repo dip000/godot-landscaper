@@ -55,8 +55,10 @@ unique_name_in_owner = true
 
 [node name="Icon" type="Sprite3D" parent="Brush/Sphere" unique_id=992277869]
 unique_name_in_owner = true
-transform = Transform3D(1.365, 0, 0, 0, 1.365, 0, 0, 0, 1.365, 0, 0.6825, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6825, 0)
+pixel_size = 0.0015
 billboard = 1
+fixed_size = true
 render_priority = 1
 texture = ExtResource("4_5rhw3")
 

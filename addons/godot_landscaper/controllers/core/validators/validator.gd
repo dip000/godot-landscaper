@@ -114,6 +114,9 @@ func _validate_clear_effects() -> bool
 static func validate_clear_effects(validator:GLValidator) -> bool:
 	if not validate_base( validator ):
 		return false
+	if not validator._controller.source:
+		GLDebug.error("Clear Effects Failed: 'source' data is null. Create one or load a project")
+		return false
 	return validator._validate_clear_effects()
 
 
@@ -121,6 +124,9 @@ static func validate_clear_effects(validator:GLValidator) -> bool:
 func _validate_apply_effects() -> bool
 static func validate_apply_effects(validator:GLValidator) -> bool:
 	if not validate_base( validator ):
+		return false
+	if not validator._controller.source:
+		GLDebug.error("Apply Effects Failed: 'source' data is null. Create one or load a project")
 		return false
 	if validator._controller.effects:
 		var clean_empty:Callable = func (effect:GLEffect): return effect

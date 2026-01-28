@@ -121,10 +121,18 @@ func _validate_rebuild_from_source() -> bool:
 
 
 func _validate_clear_effects() -> bool:
+	_controller = _controller as GLControllerTerrain
+	if not _controller.terrain:
+		GLDebug.error("Clear Effects Failed: 'terrain' is null. Assign one under GLControllerTerrain > Multimesh Instance")
+		return false
 	return true
 
 
 func _validate_apply_effects() -> bool:
+	_controller = _controller as GLControllerTerrain
+	if not _controller.terrain:
+		GLDebug.error("Apply Effects Failed: 'terrain' is null. Assign one under GLControllerTerrain > Multimesh Instance")
+		return false
 	return true
 	
 	
