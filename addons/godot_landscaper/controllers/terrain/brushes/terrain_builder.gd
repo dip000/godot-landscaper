@@ -97,9 +97,7 @@ static func get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map
 	for cell_corner in corner_map:
 		var cell:Vector2i = pivot + corner_map[cell_corner]
 		if vertices_map.has( cell ):
-			#printt("found neighbor -> Pivot:", pivot, "IndexShape:", cell_corner, "WorldCell:", cell, "Value:", vertices_map[cell][cell_corner].y)
 			return vertices_map[cell][cell_corner].y
-	#printt("Did NOT found neighbor -> Pivot:", pivot)
 	return default
 	
 

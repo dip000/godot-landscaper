@@ -10,7 +10,6 @@ class_name SceneManager
 static func find_or_create_node(type, parent:Node, child_name:String, ghost:bool=false) -> Node:
 	if parent.has_node( child_name ):
 		var node:Node = parent.get_node( child_name )
-		GLDebug.spam( "Found node %s" %EditorInterface.get_edited_scene_root().get_path_to(node) )
 		return node
 	return create_node( type, parent, child_name, ghost )
 

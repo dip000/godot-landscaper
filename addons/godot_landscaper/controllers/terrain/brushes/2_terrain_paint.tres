@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GLBrushTerrainPaint" load_steps=3 format=3 uid="uid://bgimu7gg8glay"]
+[gd_resource type="Resource" script_class="GLBrushTerrainPaint" format=3 uid="uid://bgimu7gg8glay"]
 
 [ext_resource type="Texture2D" uid="uid://g6iog30eycda" path="res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_paint.svg" id="1_47n8j"]
 [ext_resource type="Script" uid="uid://t22pds07a38c" path="res://addons/godot_landscaper/controllers/terrain/brushes/terrain_paint.gd" id="2_vlo2c"]
@@ -8,5 +8,5 @@ script = ExtResource("2_vlo2c")
 title = "Paint"
 icon = ExtResource("1_47n8j")
 info = "Left click to paint terrain with primary color, right click for secondary"
-hide_properties = PackedStringArray("sew_seams_on_build", "cell_size", "strenght", "ease_curve")
+hide_properties = PackedStringArray("sew_seams_on_build", "cell_size", "strenght", "ease_curve", "level")
 metadata/_custom_type_script = "uid://t22pds07a38c"

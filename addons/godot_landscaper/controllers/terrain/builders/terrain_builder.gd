@@ -14,8 +14,12 @@ func build_from_processed() -> bool:
 ## if uvs_map is not provided, renormalizes them to scale with the bounds.
 ## fills 'lods' data if provided, otherwise left empty.
 static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D) -> bool:
+	var terrain_body:StaticBody3D = SceneManager.find_or_create_node( StaticBody3D, terrain, "TerrainBody" )
+	var terrain_collider:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, terrain_body, "TerrainCollider" )
+	
 	if build_data.vertices_map.is_empty():
 		terrain.mesh.clear_surfaces()
+		terrain_collider.shape = null
 		return true
 	
 	# Fill vertex raw data for mesh_arrays (many cheap iterations)
@@ -71,8 +75,6 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	terrain.mesh = importer.get_mesh()
 	
 	 #Update collider
-	var terrain_body:StaticBody3D = SceneManager.find_or_create_node( StaticBody3D, terrain, "TerrainBody" )
-	var terrain_collider:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, terrain_body, "TerrainCollider" )
 	terrain_collider.debug_color = Color( Color.PALE_VIOLET_RED, 0.5 )
 	terrain_body.process_mode = Node.PROCESS_MODE_DISABLED
 	terrain_collider.shape = ConcavePolygonShape3D.new()

@@ -15,12 +15,17 @@ class_name GLControllerTerrain
  ## Controls how much the terrain is raised or lowered per stroke.
  ## Higher values produce steeper hills and deeper depressions.
  ## Lower values allow for subtle shaping and fine adjustments.
-@export_range(0.01, 1.0, 0.001, "or_greater", "exp") var strenght:float = 0.1
+@export_range(0.001, 1.0, 0.001, "or_greater", "exp") var strenght:float = 0.05
 
 ## Controls how the brush strength fades from the center toward the edges.
 ## Lower values create a softer, wider influence.
 ## Higher values concentrate the effect near the center for sharper shapes.
-@export_range(-3.0, 3.0, 0.01, "or_greater", "or_less") var ease_curve:float = 0.5
+@export_range(-0.1, 3.0, 0.01, "or_greater", "or_less") var ease_curve:float = 0.5
+
+
+## Flattens the affected terrain towards the minimum height if using the primary key.
+## Flattens to the max height if using secondary.
+@export var level:bool = false
 
 
 ## Terrain color with left button mouse.

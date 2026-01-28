@@ -19,6 +19,8 @@ grow_amount = 0.674
 
 [sub_resource type="SphereMesh" id="SphereMesh_2sa2k"]
 material = SubResource("StandardMaterial3D_ak6rc")
+radial_segments = 24
+rings = 12
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kfnpr"]
 transparency = 1
@@ -47,7 +49,6 @@ script = ExtResource("2_spad5")
 
 [node name="Brush" type="Node3D" parent="." unique_id=329908857]
 unique_name_in_owner = true
-visible = false
 script = ExtResource("3_ak6rc")
 
 [node name="Sphere" type="Node3D" parent="Brush" unique_id=380668303]
