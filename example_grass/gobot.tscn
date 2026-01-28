@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://ylxpdnbhitbe"]
+[gd_scene format=3 uid="uid://ylxpdnbhitbe"]
 
 [ext_resource type="ArrayMesh" uid="uid://dcqf8grxgfwfm" path="res://example_grass/gobot_mesh.tres" id="1_rel6s"]
 
@@ -14,25 +14,25 @@ points = PackedVector3Array(-0.0633526, 0.400106, -0.135988, -0.617082, 0.57191,
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rujmf"]
 points = PackedVector3Array(0.137454, 0.636708, 0.265939, -0.120578, 0.594483, -0.273109, 0.623997, 0.571916, -0.0925798, -0.617082, 0.571916, 0.0878878, 0.601401, 0.639598, -0.0700059, -0.617082, 0.617031, -0.0925798, 0.601401, 0.571916, 0.0878878, -0.0885061, 0.636437, -0.288747, -0.0891151, 0.63664, 0.285951, 0.127371, 0.594483, 0.268417, -0.617082, 0.571916, -0.0925798, 0.601401, 0.639598, 0.0653139, -0.594486, 0.617031, 0.0878878, 0.0944327, 0.636144, -0.286011, -0.29706, 0.636843, 0.0390689, -0.120578, 0.594483, 0.268417, 0.104775, 0.594483, -0.273109, 0.623997, 0.617031, -0.0925798, -0.235757, 0.636954, -0.189523, 0.601401, 0.617031, 0.0878878, 0.623997, 0.617031, 0.0653139, -0.132394, 0.63711, 0.269425, -0.617082, 0.617031, 0.0653139, 0.0951715, 0.636391, 0.283622, -0.277062, 0.636927, -0.127041, 0.0614156, 0.58088, 0.163506, -0.209338, 0.636156, 0.220596, -0.0379767, 0.580882, -0.168185, -0.173392, 0.636976, -0.252132, -0.617082, 0.594483, 0.0878878)
 
-[node name="Gobot" type="MeshInstance3D"]
+[node name="Gobot" type="MeshInstance3D" unique_id=1907845702]
 transform = Transform3D(10, 0, 0, 0, 7.071, 7.071, 0, -7.071, 7.071, 0, 0, 0)
 visible = false
 mesh = ExtResource("1_rel6s")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=410489278]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1534273424]
 shape = SubResource("ConvexPolygonShape3D_wcwec")
 debug_color = Color(0.0466105, 0.758111, 0.782501, 1)
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D" unique_id=300009385]
 shape = SubResource("ConvexPolygonShape3D_ei00m")
 debug_color = Color(0.0466105, 0.758111, 0.782501, 1)
 
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="StaticBody3D" unique_id=1368558908]
 shape = SubResource("ConvexPolygonShape3D_ugfer")
 debug_color = Color(0.0466105, 0.758111, 0.782501, 1)
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="StaticBody3D" unique_id=774419828]
 shape = SubResource("ConvexPolygonShape3D_rujmf")
 debug_color = Color(0.0466105, 0.758111, 0.782501, 1)

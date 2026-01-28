@@ -25,15 +25,19 @@ func _apply(controller:GLController) -> bool:
 		return false
 	
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = processed.vertices_map
-	var uvs_map:Dictionary[Vector2i, PackedVector2Array] = processed.uvs_map
+	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_mesh( original_terrain )
 	
 	# Organize a map of chunks.
 	var chunks:Dictionary[Vector2i, GLBuildDataTerrain]
-	
 	for cell in vertices_map:
 		var chunk:Vector2i = ( cell/float(chunk_size) ).floor()
 		var vertices:PackedVector3Array = vertices_map[cell]
-		var uvs:PackedVector2Array = uvs_map[cell]
+		
+		# Collect UVs
+		var uvs:PackedVector2Array
+		for vertex in vertices:
+			var vertex_xz:Vector2 = Vector2( vertex.x, vertex.z )
+			uvs.append( (vertex_xz - bounds.position) / bounds.size )
 		
 		# Create or find chunk_data for this chunk.
 		var chunk_data:GLBuildDataTerrain = chunks[chunk] if chunks.has( chunk ) else GLBuildDataTerrain.new()
@@ -44,7 +48,8 @@ func _apply(controller:GLController) -> bool:
 		chunk_data.vertices_map[cell] = vertices
 		chunk_data.uvs_map[cell] = uvs
 		chunks[chunk] = chunk_data
-		
+	
+	
 	# Build terrain chunks
 	for chunk in chunks:
 		var chunk_data:GLBuildDataTerrain = chunks[chunk]
@@ -60,8 +65,10 @@ func _apply(controller:GLController) -> bool:
 		chunk_terrain.visibility_range_end_margin = original_terrain.visibility_range_end_margin
 		chunk_terrain.mesh = ArrayMesh.new()
 		
-		# Do not renormalize UVS, they stay where they were
-		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain, controller.source.texture, false )
+		# Fill with the source texture since it is the same UV mapping
+		chunk_data.texture = controller.source.texture
+		
+		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain )
 		chunk_terrain.set_display_folded( true )
 		
 	original_terrain.hide()

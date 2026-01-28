@@ -29,7 +29,9 @@ static func apply_all(effects:Array[GLEffect], controller:GLController) -> bool:
 	
 	for i in effects.size():
 		var effect:GLEffect = effects[i]
-		if not effect and not effect.enable:
+		if not effect:
+			continue
+		if not effect.enable:
 			continue
 		
 		effect.is_running = true
@@ -52,7 +54,9 @@ static func clear_all(effects:Array[GLEffect], controller:GLController) -> bool:
 	
 	for i in effects.size():
 		var effect:GLEffect = effects[i]
-		if not effect and not effect.enable:
+		if not effect:
+			continue
+		if not effect.enable:
 			continue
 		
 		effect.is_running = true

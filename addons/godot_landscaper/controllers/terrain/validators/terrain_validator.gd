@@ -30,10 +30,13 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 		_controller.source = GLBuildDataTerrain.new()
 	
 	var source:GLBuildDataTerrain = _controller.source
-	if not source.shader:
-		source.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
+	if not source.uvs_map.is_empty() and source.uvs_map.size() != source.vertices_map.size():
+		GLDebug.error("Stroke Start Failed: Vertex maps size '%s' do not match UVs map size '%s'. Fix UVs map or clear it to regenerate it" %[source.vertices_map.size(), source.uvs_map.size()])
+		return false
 	
 	# The only type capable of image processing is ImageTexture
+	if not source.shader:
+		source.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
 	if not source.texture:
 		source.texture = ImageTexture.new()
 	if not source.texture is ImageTexture:
@@ -74,6 +77,46 @@ func _validate_stroke_end() -> bool:
 
 
 func _validate_rebuild_from_source() -> bool:
+	_controller = _controller as GLControllerTerrain
+	if not _controller.source is GLBuildDataTerrain:
+		GLDebug.error("Rebuild From Source Failed: 'source' is null. Create or load one under 'GLController > Source'")
+		return false
+	
+	var source:GLBuildDataTerrain = _controller.source
+	if not source.uvs_map.is_empty() and source.uvs_map.size() != source.vertices_map.size():
+		GLDebug.error("Stroke Start Failed: Vertex maps size '%s' do not match UVs map size '%s'. Fix UVs map or clear it to regenerate it" %[source.vertices_map.size(), source.uvs_map.size()])
+		return false
+	
+	if _controller.terrain and (not is_instance_valid(_controller.terrain) or not _controller.terrain.is_inside_tree()):
+		GLDebug.warning("terrain='%s' is set but its invalid. It was cleaned up" %_controller.terrain)
+		_controller.terrain = null
+	
+	# The only type capable of image processing is ImageTexture
+	if not source.shader:
+		source.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
+	if not source.texture:
+		source.texture = ImageTexture.new()
+	if not source.texture is ImageTexture:
+		GLDebug.warning("Texture type '%s' was converted to ImageTexture for image processing. Convert back manually to restore" %source.texture.get_class())
+		source.texture = ImageTexture.create_from_image( source.texture.get_image() )
+	if source.texture.get_size() <= Vector2.ZERO:
+		var terrain_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( _controller.terrain )
+		var terrain_size_px:Vector2i = GLBrushTerrainPaint.meters_to_pixels( terrain_rect.size )
+		var image:Image = GLBrushTerrainPaint.create_image( terrain_size_px, _controller.primary_color )
+		source.texture.set_image( image )
+		GLDebug.warning("Texture has been resized to match terrain size of '%s'" %terrain_size_px)
+	
+	# Create terrain
+	if not _controller.terrain:
+		_controller.terrain = SceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
+	if not _controller.terrain.mesh:
+		_controller.terrain.mesh = ArrayMesh.new()
+	if not _controller.terrain.material_override:
+		_controller.terrain.material_override = AssetsManager.load_controller_resource("terrain", "material.tres").duplicate(true)
+	
+	# Force set values
+	_controller.terrain.material_override.shader = source.shader
+	_controller.terrain.material_override.set_shader_parameter( "albedo_texture", source.texture )
 	return true
 
 

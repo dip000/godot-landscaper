@@ -24,34 +24,33 @@ func start(scan_data:GLScanData, controller:GLController):
 func primary(scan_data:GLScanData, controller:GLController):
 	var source:GLBuildDataTerrain = controller.source
 	var brush_rect:Rect2 = Landscaper.scene.brush.get_rect()
-	headless_build( brush_rect, source.vertices_map, source.uvs_map, source.texture, controller.sew_seams_on_build )
+	headless_build( brush_rect, source.vertices_map, source.texture, controller.sew_seams_on_build )
 
 
 func secondary(scan_data:GLScanData, controller:GLController):
 	var source:GLBuildDataTerrain = controller.source
 	var brush_rect:Rect2 = Landscaper.scene.brush.get_rect()
-	headless_erase( brush_rect, source.vertices_map, source.uvs_map, source.texture )
+	headless_erase( brush_rect, source.vertices_map, source.texture )
 
 
 func end(scan_data:GLScanData, controller:GLController):
 	pass
 
 
-static func headless_erase(erase_rect:Rect2i, vertices_map:Dictionary[Vector2i, PackedVector3Array], uvs_map:Dictionary[Vector2i, PackedVector2Array], texture:ImageTexture):
+static func headless_erase(erase_rect:Rect2i, vertices_map:Dictionary[Vector2i, PackedVector3Array], texture:ImageTexture):
 	var prev_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
 	
 	for cell in Rect2iter.new(erase_rect):
 		if vertices_map.has( cell ):
 			GLDebug.spam("Erasd Cell: %s" %cell)
 			vertices_map.erase( cell )
-			uvs_map.erase( cell )
 	
 	var new_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
 	GLBrushTerrainPaint.resize_texture( texture, prev_bounds, new_bounds )
 	
 
 
-static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, PackedVector3Array], uvs_map:Dictionary[Vector2i, PackedVector2Array], texture:ImageTexture, sew_seams_on_build:bool):
+static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, PackedVector3Array], texture:ImageTexture, sew_seams_on_build:bool):
 	var prev_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
 	var new_bounds:Rect2 = prev_bounds.merge( build_rect )
 	
@@ -60,7 +59,6 @@ static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, 
 			continue
 		
 		var vertices:PackedVector3Array
-		var uvs:PackedVector2Array
 		GLDebug.spam("Added Cell: %s" %[cell])
 		
 		for corner_index in SQUARE_SHAPE.size():
@@ -76,15 +74,15 @@ static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, 
 			
 			var world_pos:Vector2 = cell + offset
 			vertices.append( Vector3( world_pos.x, corner_height, world_pos.y ) )
-			uvs.append( (world_pos-new_bounds.position) / new_bounds.size ) # 0 to 1 range
 		
 		vertices_map[cell] = vertices
-		uvs_map[cell] = uvs
 	
 	return GLBrushTerrainPaint.resize_texture( texture, prev_bounds, new_bounds )
 
 
 
+## Returns any vertex in the same corner position shared by all 3 adjacent cells of 'corner_map'.
+## I know is weid but it works ok!
 static func get_corner_height(corner_map:Dictionary[int, Vector2i], vertices_map:Dictionary[Vector2i, PackedVector3Array], pivot:Vector2i) -> float:
 	for cell_corner in corner_map:
 		var cell:Vector2i = pivot + corner_map[cell_corner]

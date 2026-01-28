@@ -13,4 +13,4 @@ shader_parameter/ground_size = Vector2(0, 0)
 shader_parameter/ground_position = Vector2(0, 0)
 shader_parameter/splash_height = 0.0
 shader_parameter/texture_array = ExtResource("2_1g6lf")
-shader_parameter/detail_color = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.14117648, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/detail_color = PackedColorArray(1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

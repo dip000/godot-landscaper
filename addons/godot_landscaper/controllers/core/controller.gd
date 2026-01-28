@@ -155,6 +155,7 @@ func rebuild_from_source():
 func clear_effects():
 	if GLValidator.validate_clear_effects( validator ):
 		if await GLEffect.clear_all( effects, self ):
+			builder.build_from_source()
 			processed = null
 
 func apply_effects():
