@@ -1,92 +1,321 @@
 
 
 
-https://github.com/user-attachments/assets/38ccb876-4720-4675-85c7-c3eaa982daeb
 
+
+
+https://github.com/user-attachments/assets/e6faebd4-d146-494a-9d54-636cef62c6c4
 
 <br>
 
-**🌟 Update**: Added Auto-scan multiple color sources and rescanning tools<br/>
-**🌟 Update**: Added Chunkifyier, Auto LODs and visibility ranges<br/>
-**🌟 Update**: Added BakedQuadGrass. A color-baked grass instancer for Quad meshes<br/>
+**🌟 Update**: Realeased v0.3 to the main branch.<br/>
 <br/>
 <br/>
 
-## Content
-1. ☑️ [**QuadGrassTool**](#quadgrasstool). A hand-paintable color-baked grass instancer for Quad MultiMeshes</br>
-	1.1	☑️ Auto Scans Ground Color</br>
-   	1.2	☑️ Paints Top / Bottom individually</br>
-   	1.3 ☑️ Chunkify</br>
-   	1.4 ☑️ LODs / Visibility</br>
-   	1.5 ☑️ Undo / Redo</br>
-   	1.6 ☑️ Save / Load Project</br>
-   	1.7 ☑️ Per-Instance Configurations (up to 4)</br>
-   	1.8 ☑️ Full Rendering/Web Compatibility</br>
-	1.9 ☑️ Rotate / Scale / Translate, and it Still Works
-2. ❌ **Grass3DTool**. A hand-paintable color-baked instancer for 3D model MultiMeshes
-3. ❌ **PackedSceneTool**. A PackedScene instancer
-4. ❌ **GroundBuilderTool**. A hand-paintable terrain builder with height maps and vertex-baking 
+# **Trying This Add-On**
+### [1/2] Start with these steps
+1. Download and install this Plugin. See how in [installing_plugins](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html)
+2. Open a scene and add a **GLTerrainController** or a **GLGrassController** node in the scene tree.
+3. Select your controller and choose a brush tab from the inspector like **Build** or **Spawn**
+4. Drag the brush over your terrain to start landscaping!
+<br/>
 
-# Trying This Add-On
-Follow the next steps:
-1. Download and install this Plugin. See [installing_plugins](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html)
-2. Open a scene, and instantiate a 'QuadGrassTool' node in the scene tree.
-3. In the inspector, select "Spawn" or "Paint"
-4. Drag over your terrain to start landscaping!
+### [2/2] Understanding *Brush* And *Effects* Systems
+The brush system can be summarized with the following steps:
+- **On Controller Selected**. Changes the top level orchestrator (Grass or Terrain)
+- **On Inspector Tab Selected**. Changes the brush logic block (spawn grass, build terrain, paint color, etc..)
+- **On 3D GUI Input**. Runs a stroke-like interface over the selected controller with the selected brush:
+	- **On Stroke Start**. Caches, initializations, might lagspike a bit.
+	- **While Primary**. Brush smoothly with the Right Mouse Button.
+	- **While Secondary**. Brush smoothly with the Left Mouse Button.
+	- **Stroke End**. Cleanup, stores into **Source BuildData**.
+	- **Build** Uses **Source BuildData** to apply changes.
+<br/>
 
-# QuadGrassTool
+And when your satisfied with the result of brush stroking, try the **Apply All Effects** button. This..
+- Grabs the **Source BuildData**, copies into a **Processed BuildData**.
+- Feeds **Processed BuildData** to the **Effects Stack**.
+- Each effect uses the processed data to make (or clear) changes.
+- Builds the result at the end.
+<br/>
+
+This means that..
+> ***Effects are offline non-destructive modifiers for production (see GIF above)***
+<br/>
+
+
+# **⭐ Features Index ⭐**
+1. [**Base Features**](#1-base-features). This features are shared among all landscaper controllers
+   	- [x] Save / Load From Build Data
+	- [x] Effects Stack
+	- [x] Unlimited Instances And Per-Instance Customization
+	- [x] All Rendering Targets / WebGL / Compatibility / Forward / Mobile
+	- [x] Surface Scanner For Mesh / Material / Textures / Colors
+	- [ ] Undo / Redo
+
+
+2. [**GrassController**](#2-grasscontroller). A hand-paintable color-baked grass instancer for textured and non textured 3D MultiMeshes
+	- [x] Spawn Brush
+ 	- [x] Paint Brush
+	- [x] Effects
+		- [x] Chunkify
+		- [x] LoD / Visibility Ranges
+		- [x] Color Re-Scanner
+		- [x] Level Re-Scanner
+	  	- [x] Texture Exporter
+	   	- [ ] Texture Overlay
+    	- [ ] LUT Maps
+	    - [ ] Impostor Swapping
+
+
+3. [**TerrainController**](#3-terraincontroller). A hand-paintable vertex terrain builder with height mapping and brush coloring</br>
+	- [x] Build Brush
+	- [x] Height Brush
+	- [x] Paint Brush
+	- [x] Effects
+		- [x] Chunkify
+		- [x] LoD / Visibility Ranges
+	  	- [x] Texture Exporter
+		- [x] Round Corners
+  		- [x] Heightmap Collider
+	- [x] Vertex Indexing
+	- [x] Mesh LoD
+
+</br>
+</br>
+
+
+# 1. Base Features
+## Save and Load
+The save and load system is straightforward:
+1. Place a BuildData resource under **"GLController > Source"**. A BuildData resource can be obtained from:
+   - Previously saved from your filesystem
+   - Created with Godot's context menu **"New GLBuildDataGrass"**, for example. And filled with your own resources.
+   - Auto-created when used without configuring anything. GrassController will load templates and TerrainController will load all default resources needed
+2. Optionally, select your target node. GrassController as MultiMeshInstance3D and TerrainController has MeshInstance3D. If no node was selected, it will create one under the controller.
+2. Press **Build From Source**. This will use the source build data to construct the target controller.
+</br>
+
+## Effects Stack
+1. Select a controller like GLTerrainController.
+2. Having built a terrain mesh, go to the effects stack under **"GLController > Effects"**
+3. Add an effect from Godot's context menu **"New GLRoundCorners"**, for example.
+4. Press "**Apply All Effects**". And watch how it cuts the outer sharp corners
+5. Remember to clear effects before continuing editing your terrain or the results might not be as expected.
+6. You can stack all effects you want for that controller, or even make your own
+</br>
+
+## Unlimited Instances
+You can theorically add any number of controllers to the scene, simple as that. 
+</br>
+
+## Rendering Targets
+The reason I'm even making this is that i needed tools with full compatiblity, so here we are.
+Some random, notes about compatibility:
+- In Compatibility mode, the grass shader needs to convert sRGB to linear manually since the colors are sourced from CUSTOM and COLOR variables, and they do not get converted as they were samplers.
+- Web exports do not allow to index arrays of textures nor have the shader change the preallocated array size. So anyway, Texture2DArray is more performant so who cares.
+</br>
+
+## Surface Scanner
+The Scanner adds functionality to the native physics raycaster. Using PhysicsDirectSpaceState3D.intersect_ray() you get pretty usefull data from the intersection, most often than not however, this is not enough. Presenting..
+- Scan Mesh Instance. Finds the mehs instance the CollisionObject3D belongs to.
+- Scan Color Sources. Finds materials, textures and colors and wraps them in a MeshDataTool.
+- Create Surfaces. Instances new colliders over the physics body that matches their material shapes. One collider for each material detected.
+- Scan Color. From the collider face and shape index hit, and using the found color sources, matches the exact pixel texture hit.
+</br>
+
+**Caveats**:
+- There's a limit to one mesh per PhysicsBody3D configured in Ground Coloring > Scan Meshes. Though the scanner does find any number of materials, textures, and colors.
+- Scanning for shader shenanigans like detail textures, UV transforms, etc.. is not a viable thing to simulate to paint the bottom of the grass instances. Best I can do is find the main texture with Ground Coloring > Scan Color Sources, or manual paint with "paint_with_sencondary_color"
+</br>
+
+## Undo-Redo
+Not implemented yet because i've had problems with clearing the history correctly, throwing errors and blocking the entire scene from being edited. The way to implement this is extremely easy since the comand pattern is already there.
+</br>
+</br>
+
+# 2. GrassController
+## Spawn Brush 
+> Instances or erases grass over any surface when you brush over it, auto coloring the bottom with the scanned terrain color.
+</br>
 <p align="center">
-	<img src="https://github.com/user-attachments/assets/5d146bd7-3ef8-48fd-9244-a2cfacf804f8"/>
+	<img height="200px" src="https://github.com/user-attachments/assets/9f8055fa-cb6e-4821-b752-a9767b2a4d29" />
 </p><br />
-Brush that spawns and paints grass over any terrain when you brush over it.<br />
-The biggest advantage is that its colors will be "baked" into the instances, and the bottom of the grass will automatically take the color of the terrain. No need for textures or aligning to the terrain.
-<br /><br />
-Another advantage is that it sticks and aligns to any surface.
-<br />
-The downside, of course, is that it takes more GPU memory to store extra data, but it can be mitigated by chunking the multimesh instances.
-<br /><br />
-Spawns with left-click to build a new mesh, and paint with right-click.<br />
-Properties:
-* **Anchor Node:** The parent for the generated MultiMeshInstance3D grass. Grass will be anchored to this node's position. <br />
-* **Spawn Ratio:** The amount of grass that might hit the scanned terrain per frame<br />
-* **Erase Ratio:** The chances of erasing grass per frame. Makes for a smoother experience, probably<br />
+
+- **Multimesh Instance:** The MultiMeshInstance3D node reference in scene. A MultiMeshInstance3D will be auto created if none is selected, it will also be built with BuildData if provided.<br />
+- **Spawn Ratio:** The amount of grass that might hit the scanned terrain per frame<br />
+- **Erase Ratio:** The chances of erasing grass per frame. Good for decreasing the density instead of hard-cutting all instances<br />
+</br>
+
+## Paint Brush
+> Paints grass instances when you brush over them.
+</br>
+<p align="center">
+	<img height="200px" src="https://github.com/user-attachments/assets/afdc4cb2-102d-442c-81a1-deba99bd554e" />
+</p><br />
+
 * **Splash Height:** The splash color gradient from the ground to the top of the grass<br />
 * **Primary Color:** To paint the top of the grass. Use with left click<br />
-* **Secondary Color:** To paint the bottom of the grass. Use with right click<br />
+* **Secondary Color:** To paint the top of the grass, optionally the bottom (see below). Use with right click<br />
+* **Paint Bottom With Secondary** If enabled, paints th the bottom of the grass with secondary color instead of scanning the ground color automatically.
+</br>
+
+### Rambling About MultiMesh Colors, Please Skip.
+Painting colors uses MultiMesh.use_colors (COLOR) and MultiMesh.use_custom (CUSTOM) to store the top and bottom colors of each grass instance, respectively.
+
+Pros of using COLOR and CUSTOM as storage instead of a texture sampler:
+- The colors will be "baked" into the instances, no need to sample any texture.
+- No struggle to sync the bottom color texture with the terrain because is not a spatialy placed texture, no texture offset calculations. The color "sticks" to the instance.
+- Since the instances are not tied to a texture that means that they can be feely placed anywhere regardless of dinstance. With textures that'd mean a potentially giant texture with empty gaps.
+
+Cons of using COLOR and CUSTOM as storage instead of a texture sampler:
+- It needs to store 2 extra vect4 per instance on the GPU memory and that might not scale well with hundreds of thousands of instances, however, this can be mitigated by chunking the multimesh instances so the GPU loads in batches. Well is not like using textures is free either.
+- As mentioned before, Compatibility needs to convert these colors from sRGB to linear. Textures can do that automatically.
+<br />
 
 
+## Effects
+### Chunkify
+Using individual MeshInstance3D nodes is almost as bad as not chunkifying a giant MultiMeshinstance3D (based). So this is a mandatory step for any real tool.
+This effect separates the MultiMeshInstance instances in batches so the GPU has some respite. A chunk size of 32x32 is a good start.
 
-# Addressing Current Caveats
-About Shading or Un-cartooning The Meshes:
-* From my research, Godot developers use either very basic lighting or just not lighting at all in 3D.
-* This will be added, eventually
+Note: Different hardware has different amounts of memory to spare to shaders for each mesh, so smaller chunks may be needed for potato machines.
+</br>
 
-About Undo/Redo History throwing errors:
-* When you try to save a project file, the Inspector UndoRedo will be too bamboozled to work properly. I patched it by duplicating the resource and saving the scene, don't know why that works but ok 🤷‍♂️
-* If any error happens, there will be a mismatch of commits, and it might get UndoRedo crazy. Kind of fixed it by spam-committing empty actions.
-* If Nodes and properties do not seem to move or respond at all. The UndoRedo is probably the culprit, yet again. Restart the scene, and it should be ok
+### LoD - Visibility Range
+It only modifies the GeometryInstance3D.visibility_range_end and MultiMesh.visible _instances of the MultiMeshInstence, these properties are passed to the chunks as well.
+</br>
 
-About The Scanning (for auto-coloring the bottom of grass instances):
-* So there's a limit to one mesh per PhysicsBody3D configured in Ground Coloring > Scan Meshes. Though the scanner does find any number of materials, textures, and colors.
-* Scanning for shader shenanigans like detail textures, UV transforms, etc.. is not a viable thing to simulate to paint the bottom of the grass instances. Best I can do is find the main texture with Ground Coloring > Scan Color Sources, or manual paint with "paint_with_sencondary_color"
+### Texture Exporter
+By default, the landscaper will use a Texture2DArray to process images, but only Godot's native importer has the ability to compress textures into CompressedTexture2DArray. To make this work, this effect saves the texture into the filesystem using a custom ConfigFile *.import file with the following parameters:
+- `importer=2d_array_texture`. Saves as a CompressedTexture3DArray, the default is CompressedTexture2D so this is a must.
+- `compress/channel_pack=2`. Uses only the RB color channels for the detail mask and alpha, the actual colors are given by the grass coloring brush.
+- `mipmaps/generate=true`. A must for 3D texture assets. As a side effect, the mipmaps bleed into the neighbor textures. Use a margin to mitigate this (i tried to do it by code but doesn't work for some reason)
+- `slices/horizontal` as the number of layers (textured grass instances) used.
+- `slices/vertical=1`. The result is a lineal array, not a box, for simplicity.
+- `compress/mode` as `VRAM Compressed` or `Basis Universal`. According to the docs, "Size on disk is reduced and video memory usage is also decreased considerably"
+</br>
 
-About compatibility with Terrain3D:
-* To use QuadGrassTool or Grass3DTool:
-  - Set Terrain3D/collision_mode = DynamicEditor or FullEditor
-  - Set QuadGrassTool/AnchorNode = Terrain3D
-  - Set QuadGrassTool/paint_with_sencondary_color = True (Sorry, this tool cannot access the ground color data to be auto-colored)
-  - Set QuadGrassTool/scan_layer = Terrain3D/collision_mask
+### Color Re-Escanner
+Since the terrain texture will most likely be updated, the baked grass colors will no longer match. In this case, apply the Color Re-Escanner effect to update the ground colors to match the bottom texture or color.
+</br>
+
+### Level Re-Escanner
+The same as the Color Re-Scanner, but with terrain height updates. Use this when the terrain height changed to level the grass to the correct positions.
+</br>
+
+### Texture Overlay
+Shading with grass is a big performance eater, the recomended route to shade gras is to:
+- Shade manually with darker colors at the bottom (possible by using paint_bottom_with_secondary_color=true)
+- Use a texture mix over the result for dynamic shade like clouds
+
+This feature is not implemented, but you're free to modify the grass shader provided to add it.
+</br>
+
+### LUT Maps
+Same with Texture overlays, shading is too expensive so Look Up Table Maps exists. LUT mapping is a technique for remapping colors, a simple implementation is:
+- Create a GradientTexture1D with a pretty color palette, this will be the LUT Map.
+- In the shader, calculate the luminance per pixel.
+- Index the map with the luminance value. This will return a different color than the original
+
+This feature is not implemented, but you're free to modify the grass shader provided to add it.
+</br>
+
+### Impostor Swapping
+For rendering millions of grass in larger maps, culling, LoD, chunks, and Mipmaps won't cut it anymore, you need to consider changing the entire MultimeshInstance for a Sprite3D over very long distances. This effect will do just that using Godot's HLOD system.
+
+This feature is not implemented.
+</br>
+</br>
+
+
+# 3. TerrainController
+## Build Brush
+> Creates or erases mesh over a grid in the XZ axis when you brush over it.
+</br>
+<p align="center">
+	<img height="200px" src="https://github.com/user-attachments/assets/c4ac97d5-9045-402c-a303-3087c08bb6c7" />
+</p><br />
+
+- **sew_seams_on_build**. Joins hard-edges with the closest cells.
+- **terrain**. The MeshInstance3D terrain node reference.
+</br>
+
+## Height Brush
+> Heightens or lowers mesh over a grid in the XZ axis when you brush over it.
+</br>
+<p align="center">
+	<img height="200px" src="https://github.com/user-attachments/assets/b08d2eb7-654c-430f-9adb-f12116012508" />
+</p><br />
+
+- **strenght**. Controls how much the terrain is raised or lowered per stroke. Higher values produce steeper hills and deeper depressions. Lower values allow for subtle shaping and fine adjustments.
+- **ease_curve**. Controls how the brush strength fades from the center toward the edges. Lower values create a softer, wider influence. Higher values concentrate the effect near the center for sharper shapes.
+- **level**. Flattens the affected terrain towards the minimum height if using the primary key. Flattens to the max height if using secondary.
+</br>
+
+## Color Brush
+> Colors the terrain texture when you brush over it.
+</br>
+<p align="center">
+	<img height="200px" src="https://github.com/user-attachments/assets/62c2947a-5a67-4648-bea6-efd34f1287ba" />
+</p><br />
+
+. **primary_color**. Terrain color with the left button mouse. Use transparency for smooth blending.
+. **secondary_color**. Terrain color with the right button mouse. Use transparency for smooth blending.
+- **brush_shape**. The splat texture to brush with. Use alpha gradients for a smooth falloff.
+</br>
+
+
+## Effects
+### Chunkify
+A straightforward split, UV maps are renormalized to cover the entire mesh bounds and each chunk gets to keet its part of the texture. This means that the texture is not split and the material uses the same texture for every chunk.
+</br>
+
+### Visibility Range LoD
+Modifies the GeometryInstance3D.visibility_range_end of the terrain MeshInstance3D. This property is passed to the chunks as well.
+</br>
+
+### Texture Exporter
+Different that the grass txture, which is very restrictive, this texture exporter has unnecessarily many options to format the output terrain texture.
+</br>
+
+### Round Corners
+My personal favorite, it just changes the square shape for a tri if there are no cell neighbors. Looks better and saves a few vertices.
+</br>
+
+### Heightmap Collider
+Changes the original Collision Trimesh Shape, which may be very costy, to a lightweight HeightmapCollisionShape. Holes and gaps in the terrain will be covered since the heightmap is a continuous plane.
+</br>
+
+## Mesh LoD
+Uses ImporterMesh to create mesh LoD.
+This is a feature that runs by default in the builder itself, this means that it does not require an effect to be applied.
+</br>
+
+## Vertex Indexing
+Sometimes called vertex welding. Uses Mesh.ARRAY_INDEX capabilities to share vertex data. For example, if a square is made out of two triangles, that's 6 vertices and two squares are 12, but by indexing the shared vertices you're saving all of the extra vertex data. This scales incredibly well for thousands upon thousands of vertices.
+
+This is a feature that runs by default in the builder itself, this means that it does not require an effect to be applied.
+</br>
+</br>
 
 # Author notes
 Hi, nickname's DIP. Thanks for passing by!<br />
 
 I'd be glad to hear what you have to say about this addon. Contact me at [ab-cb@hotmail.com](mailto:ab-cb@hotmail.com?subject=[GitHub]%20Godot%20Landscaper%20Plugin)<br />
-See ya!<br />
-
-*And for those who sent their feedback, thank you very much!*
+See ya!
+<br />
+</br>
 
 # Self Promotions Here
+If you like my work, consider looking at my other works..
 [Chroma Alchemy, by DIP](https://dip000.itch.io/chromalchemy)
+
 <br>
 <a href='https://ko-fi.com/O4O61JATV3' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
+
+
+
+
 
