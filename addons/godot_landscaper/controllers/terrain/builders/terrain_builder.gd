@@ -31,16 +31,14 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	var indices:PackedInt32Array
 	var vertices:PackedVector3Array
 	var uvs:PackedVector2Array
-	var vertices_flat:PackedVector3Array
 	
 	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_coordinates( vertices_map.keys() )
 	var terrain_offset:Vector3 = terrain.global_position
 	
 	for cell in vertices_map:
 		var cell_vertices:PackedVector3Array = vertices_map[cell]
-		vertices_flat.append_array(cell_vertices)
-		
 		var cell_uvs:PackedVector2Array
+		
 		if not renormalize_uvs:
 			cell_uvs = uvs_map[cell]
 		
@@ -77,8 +75,7 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	 #Update collider
 	terrain_collider.debug_color = Color( Color.PALE_VIOLET_RED, 0.5 )
 	terrain_body.process_mode = Node.PROCESS_MODE_DISABLED
-	terrain_collider.shape = ConcavePolygonShape3D.new()
-	terrain_collider.shape.set_faces( vertices_flat )
+	terrain_collider.shape = terrain.mesh.create_trimesh_shape()
 	terrain_body.process_mode = Node.PROCESS_MODE_INHERIT
 	
 	# Update texture
