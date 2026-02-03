@@ -90,14 +90,14 @@ func _apply(controller:GLController) -> bool:
 			var global_chunk:Vector2i = Vector2i( row_index, col_index ) + lower_chunk
 			
 			# Place instance inside a chunk folder
-			var parent:Node = SceneManager.find_or_create_node( Node, root_parent, _format_chunk(global_chunk) )
+			var parent:Node = GLSceneManager.find_or_create_node( Node, root_parent, _format_chunk(global_chunk) )
 			
 			# Place individual multimeshes in their global center position
 			# Find center of the individual chunk instances (not to confuse with center of chunk)
 			var local_min:Vector3 = chunk.min
 			var local_max:Vector3 = chunk.max
 			var local_center:Vector3 = local_min + 0.5*(local_max - local_min)
-			var instance_mmi:MultiMeshInstance3D = SceneManager.find_or_create_node( MultiMeshInstance3D, parent, original_mmi.name )
+			var instance_mmi:MultiMeshInstance3D = GLSceneManager.find_or_create_node( MultiMeshInstance3D, parent, original_mmi.name )
 			instance_mmi.global_position = local_center
 			
 			# Setup MultiMesh

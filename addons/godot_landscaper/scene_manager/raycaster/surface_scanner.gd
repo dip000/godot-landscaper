@@ -12,12 +12,12 @@ const GROUP_USER_COLLIDERS:String = "landscaper_user_collider"
 
 static var _cached_refs:Dictionary[int, GLScanData]
 var _controller:GLController
-var _raycaster:SceneRaycaster
+var _raycaster:GLSceneRaycaster
 
 
 func _init(controller:GLController):
 	_controller = controller
-	_raycaster = Landscaper.scene.raycaster
+	_raycaster = GLandscaper.scene.raycaster
 
 
 ## Raycasts from one world point to another and returns a GLScanData with scanning capabilities
@@ -57,8 +57,8 @@ func scan_point_to_point(from:Vector3, to:Vector3) -> GLScanData:
 ## GROUP_SURFACE_COLLIDERS is the interal created collider per surface to be deleted.
 ## GROUP_USER_COLLIDERS is the original user collider to be re-enabled.
 static func clear_all_surfaces():
-	var surface_colliders:Array[Node] = Landscaper.scene.get_tree().get_nodes_in_group( GROUP_SURFACE_COLLIDERS )
-	var user_colliders:Array[Node] = Landscaper.scene.get_tree().get_nodes_in_group( GROUP_USER_COLLIDERS )
+	var surface_colliders:Array[Node] = GLandscaper.scene.get_tree().get_nodes_in_group( GROUP_SURFACE_COLLIDERS )
+	var user_colliders:Array[Node] = GLandscaper.scene.get_tree().get_nodes_in_group( GROUP_USER_COLLIDERS )
 	
 	for surface_collider in surface_colliders:
 		if is_instance_valid( surface_collider ):
@@ -126,7 +126,7 @@ func scan_color_source(data:GLScanData):
 ## Instantiates a CollisionShape3D on current surface
 func create_surfaces(data:GLScanData):
 	var surfaces:int = data.mesh_instance.get_surface_override_material_count()
-	var surface_body:StaticBody3D = SceneManager.find_or_create_node( StaticBody3D, data.body.get_parent(), "GLBody", not GLDebug.debugging_internal() )
+	var surface_body:StaticBody3D = GLSceneManager.find_or_create_node( StaticBody3D, data.body.get_parent(), "GLBody", not GLDebug.debugging_internal() )
 	
 	surface_body.add_to_group( GROUP_SURFACE_COLLIDERS, true )
 	data.body.add_to_group( GROUP_USER_COLLIDERS, true)
@@ -142,7 +142,7 @@ func create_surfaces(data:GLScanData):
 		mdt.create_from_surface( arary_mesh, 0 )
 		data.mdts[surface] = mdt
 		
-		var surface_collider:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, surface_body, "GLSurface%s"%surface, not GLDebug.debugging_internal() )
+		var surface_collider:CollisionShape3D = GLSceneManager.find_or_create_node( CollisionShape3D, surface_body, "GLSurface%s"%surface, not GLDebug.debugging_internal() )
 		surface_collider.shape = arary_mesh.create_trimesh_shape()
 	
 	surface_body.process_mode = Node.PROCESS_MODE_ALWAYS

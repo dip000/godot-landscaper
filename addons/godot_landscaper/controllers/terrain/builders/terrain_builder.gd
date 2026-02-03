@@ -14,8 +14,8 @@ func build_from_processed() -> bool:
 ## if uvs_map is not provided, renormalizes them to scale with the bounds.
 ## fills 'lods' data if provided, otherwise left empty.
 static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D) -> bool:
-	var terrain_body:StaticBody3D = SceneManager.find_or_create_node( StaticBody3D, terrain, "TerrainBody" )
-	var terrain_collider:CollisionShape3D = SceneManager.find_or_create_node( CollisionShape3D, terrain_body, "TerrainCollider" )
+	var terrain_body:StaticBody3D = GLSceneManager.find_or_create_node( StaticBody3D, terrain, "TerrainBody" )
+	var terrain_collider:CollisionShape3D = GLSceneManager.find_or_create_node( CollisionShape3D, terrain_body, "TerrainCollider" )
 	
 	if build_data.vertices_map.is_empty():
 		terrain.mesh.clear_surfaces()

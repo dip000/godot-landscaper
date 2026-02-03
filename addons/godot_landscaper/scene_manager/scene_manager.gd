@@ -1,9 +1,9 @@
 @tool
 extends Node3D
-class_name SceneManager
+class_name GLSceneManager
 
-@onready var raycaster:SceneRaycaster = $Raycaster
-@onready var brush:SceneBrush = $Brush
+@onready var raycaster:GLSceneRaycaster = $Raycaster
+@onready var brush:GLSceneBrush = $Brush
 @onready var pools:Node = $Pools
 
 
@@ -31,7 +31,7 @@ func select_brush(brush_to_select:GLBrush):
 	brush.select_brush( brush_to_select )
 
 
-# ========= Called from main plugin Landscaper =========
+# ========= Called from main plugin GLandscaper =========
 func selected(controller:GLController):
 	# Set full cache_scan_all mode on select
 	raycaster.set_collision_mask( controller.scan_layer )

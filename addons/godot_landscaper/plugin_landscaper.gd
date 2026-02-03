@@ -1,9 +1,9 @@
 @tool
 extends EditorPlugin
-class_name Landscaper
+class_name GLandscaper
 
-static var scene:SceneManager
-static var assets:AssetsManager
+static var scene:GLSceneManager
+static var assets:GLAssetsManager
 static var inspector:GLInspectorManager
 static var undo_redo:GLUndoRedo
 static var is_enabled:bool
@@ -17,8 +17,8 @@ static func running() -> bool:
 
 func _enter_tree():
 	GLDebug.state("Starting GodotLandscaper..")
-	assets = AssetsManager.ASSETS_MANAGER.instantiate()
-	scene = AssetsManager.SCENE_MANAGER.instantiate()
+	assets = GLAssetsManager.ASSETS_MANAGER.instantiate()
+	scene = GLAssetsManager.SCENE_MANAGER.instantiate()
 	inspector = GLInspectorManager.new()
 	add_inspector_plugin( inspector )
 	undo_redo = GLUndoRedo.new( get_undo_redo() )

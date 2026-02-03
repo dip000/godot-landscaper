@@ -8,14 +8,14 @@ func pool_node(type, pool_size:int=20) -> Node:
 	var pool_name:String = type.get_clas()
 	var pool:Node = get_node_or_null( pool_name )
 	if not pool:
-		pool = SceneManager.create_node( type, self, pool_name )
+		pool = GLSceneManager.create_node( type, self, pool_name )
 	create_pool_deferred( type, pool, pool_size )
 	return pool
 
 
 func create_pool_deferred(type, pool:Node, pool_size:int):
 	for i in pool_size:
-		SceneManager.create_node( type, pool, "" )
+		GLSceneManager.create_node( type, pool, "" )
 		await Engine.get_main_loop().process_frame
 
 

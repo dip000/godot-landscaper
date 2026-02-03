@@ -50,7 +50,7 @@ class_name GLControllerTerrain
 func _setup_controller() -> void:
 	validator = GLValidatorTerrain.new( self )
 	builder = GLBuilderTerrain.new( self )
-	brushes = AssetsManager.load_controller_brushes( "terrain" )
+	brushes = GLAssetsManager.load_controller_brushes( "terrain" )
 	use_grid = true
 	
 	

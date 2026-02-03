@@ -53,7 +53,7 @@ static func validate_stroke_start(validator:GLValidator, scan_data:GLScanData) -
 	if not validate_base( validator ):
 		return false
 	if not scan_data:
-		GLDebug.error("Stroke start failed: scan_data is invalid. Check for SceneRaycaster errors")
+		GLDebug.error("Stroke start failed: scan_data is invalid. Check for GLSceneRaycaster errors")
 		return false
 	if not validator._controller.brushes:
 		GLDebug.error("Stroke start failed: There's no brushes in controller '%s'. Make sure to set at least one on _setup_controller() and restart this scene" %validator._controller.name)

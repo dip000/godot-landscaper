@@ -1,6 +1,6 @@
 @tool
 extends MarginContainer
-class_name InfoBox
+class_name GLInfoBox
 
 @onready var _panel_container = $PanelContainer
 

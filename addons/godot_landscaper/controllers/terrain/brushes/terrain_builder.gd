@@ -33,13 +33,13 @@ func start(scan_data:GLScanData, controller:GLController):
 
 func primary(scan_data:GLScanData, controller:GLController):
 	var source:GLBuildDataTerrain = controller.source
-	var brush_rect:Rect2 = Landscaper.scene.brush.get_rect()
+	var brush_rect:Rect2 = GLandscaper.scene.brush.get_rect()
 	headless_build( brush_rect, source.vertices_map, source.texture, controller.sew_seams_on_build )
 
 
 func secondary(scan_data:GLScanData, controller:GLController):
 	var source:GLBuildDataTerrain = controller.source
-	var brush_rect:Rect2 = Landscaper.scene.brush.get_rect()
+	var brush_rect:Rect2 = GLandscaper.scene.brush.get_rect()
 	headless_erase( brush_rect, source.vertices_map, source.texture )
 
 

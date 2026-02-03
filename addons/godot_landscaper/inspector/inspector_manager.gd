@@ -42,7 +42,7 @@ func _parse_property(controller:Object, type, name:String, hint_type, hint_strin
 	return false
 
 func _create_info_box(info:String):
-	var info_box:InfoBox = AssetsManager.INFO_BOX.instantiate()
+	var info_box:GLInfoBox = GLAssetsManager.INFO_BOX.instantiate()
 	info_box.set_info( info )
 	add_custom_control( info_box )
 
@@ -50,14 +50,14 @@ func _create_info_box(info:String):
 func _press_tab(controller:GLController, brush:GLBrush):
 	controller.select_brush( brush )
 	controller.notify_property_list_changed()
-	Landscaper.scene.select_brush( brush )
+	GLandscaper.scene.select_brush( brush )
 
 func _create_tabs(controller:GLController) -> Control:
 	var tabs := HBoxContainer.new()
 	tabs.set_anchors_preset( Control.PRESET_TOP_WIDE )
 	
 	for brush in controller.brushes:
-		var tab_ui:Button = AssetsManager.INSPECTOR_TAB.instantiate()
+		var tab_ui:Button = GLAssetsManager.INSPECTOR_TAB.instantiate()
 		tabs.add_child( tab_ui )
 		tab_ui.text = brush.title
 		tab_ui.icon = brush.icon

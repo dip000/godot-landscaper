@@ -15,7 +15,7 @@ var color_source:Variant:
 
 
 # hit_info as in PhysicsDirectSpaceState3D.intersect_ray(..)
-# Use with SceneRaycaster
+# Use with GLSceneRaycaster
 var body:CollisionObject3D
 var shape:int
 var face_index:int

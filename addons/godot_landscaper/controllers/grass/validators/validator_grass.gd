@@ -11,9 +11,9 @@ func _validate_initialization() -> bool:
 	if not source.mesh:
 		GLGrassTemplater.load_random_template( _controller )
 	if not source.shader:
-		source.shader = AssetsManager.load_controller_resource("grass", "shader.gdshader")
+		source.shader = GLAssetsManager.load_controller_resource("grass", "shader.gdshader")
 	if not source.material:
-		source.material = AssetsManager.load_controller_resource("grass", "material.tres")
+		source.material = GLAssetsManager.load_controller_resource("grass", "material.tres")
 	if not source.texture_array_layer:
 		source.texture_array_layer = GLTextureAtlasLayer.new()
 	return true
@@ -36,13 +36,13 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	if not source.mesh:
 		GLGrassTemplater.load_random_template( _controller )
 	if not _controller.multimesh_instance:
-		_controller.multimesh_instance = SceneManager.find_or_create_node(MultiMeshInstance3D, _controller, _controller.name)
+		_controller.multimesh_instance = GLSceneManager.find_or_create_node(MultiMeshInstance3D, _controller, _controller.name)
 		GLDebug.warning("Auto selected MultiMeshInstance '%s'. If this is not your intention please select the node manually" %_controller.multimesh_instance.name)
 	
 	if not source.shader:
-		source.shader = AssetsManager.load_controller_resource("grass", "shader.gdshader")
+		source.shader = GLAssetsManager.load_controller_resource("grass", "shader.gdshader")
 	if not source.material:
-		source.material = AssetsManager.load_controller_resource("grass", "material.tres")
+		source.material = GLAssetsManager.load_controller_resource("grass", "material.tres")
 	if not source.texture_array_layer:
 		source.texture_array_layer = GLTextureAtlasLayer.new()
 	if source.texture_array_layer.texture_array:
@@ -119,13 +119,13 @@ static func validate_texture_bake(validator:GLValidatorGrass) -> bool:
 		GLDebug.warning("A mesh was not selected so a template was loaded. To visualize it fully, please bake the layer texture by pressing the button under Inspector > Resources > Texture > Bake Texture Into Array")
 	
 	if not source.shader:
-		source.shader = AssetsManager.load_controller_resource("grass", "shader.gdshader")
+		source.shader = GLAssetsManager.load_controller_resource("grass", "shader.gdshader")
 	if not source.material:
-		source.material = AssetsManager.load_controller_resource("grass", "material.tres")
+		source.material = GLAssetsManager.load_controller_resource("grass", "material.tres")
 	if not source.texture_array_layer:
 		source.texture_array_layer = GLTextureAtlasLayer.new()
 	if not source.texture_array_layer.texture_array:
-		source.texture_array_layer.texture_array = AssetsManager.load_controller_resource("grass", "texture_atlas.res")
+		source.texture_array_layer.texture_array = GLAssetsManager.load_controller_resource("grass", "texture_atlas.res")
 	
 	# Force set values
 	_format_mmi( controller )

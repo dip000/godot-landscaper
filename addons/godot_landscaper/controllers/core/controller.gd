@@ -85,7 +85,7 @@ var is_ready:bool
 
 @export_category("Globals")
 ## Global class for dobugging.
-## The amount of messages printed from Godot Landscaper
+## The amount of messages printed from Godot GLandscaper
 @export var debug_level:GLDebug.Level=GLDebug.Level.STATES:
 	set(v): GLDebug.level = v
 	get: return GLDebug.level
@@ -95,11 +95,11 @@ var is_ready:bool
 @export_range(0.1, 20, 0.001, "or_greater") var brush_size:float = 2.0:
 	set(v):
 		brush_size = v
-		if Landscaper.running():
-			Landscaper.scene.brush.set_size(use_grid, v)
+		if GLandscaper.running():
+			GLandscaper.scene.brush.set_size(use_grid, v)
 	get:
-		if Landscaper.running():
-			return Landscaper.scene.brush.get_size()
+		if GLandscaper.running():
+			return GLandscaper.scene.brush.get_size()
 		return 2.0
 
 

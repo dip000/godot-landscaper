@@ -1,13 +1,13 @@
 ## Scene Raycaster.
 ##
 ## An instance of this node will always be running and can be accessed
-## with 'Landscaper.scene.raycaster'. Use this instance for raycasting
+## with 'GLandscaper.scene.raycaster'. Use this instance for raycasting
 ## over the terrain.
 ## For more complex scene scanning, use GLSurfaceScanner
 
 @tool
 extends Node3D
-class_name SceneRaycaster
+class_name GLSceneRaycaster
 
 var _ray_surfaces := PhysicsRayQueryParameters3D.new()
 var _ray_points := PhysicsRayQueryParameters3D.new()

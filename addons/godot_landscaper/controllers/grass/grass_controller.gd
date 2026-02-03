@@ -104,7 +104,7 @@ func texture_clear():
 func _setup_controller():
 	validator = GLValidatorGrass.new( self )
 	builder = GLBuilderGrass.new( self )
-	brushes = AssetsManager.load_controller_brushes( "grass" )
+	brushes = GLAssetsManager.load_controller_brushes( "grass" )
 	use_grid = false
 
 

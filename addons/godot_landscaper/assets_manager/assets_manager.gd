@@ -1,7 +1,7 @@
 ## Hosts static resources
 @tool
 extends Node
-class_name AssetsManager
+class_name GLAssetsManager
 
 # =========== GENERAL STATICS ===============================
 const CONTROLLER_ROOT:String = "res://addons/godot_landscaper/controllers/"

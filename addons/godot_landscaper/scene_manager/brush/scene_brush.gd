@@ -1,6 +1,6 @@
 @tool
 extends Node3D
-class_name SceneBrush
+class_name GLSceneBrush
 
 const SCALE_INCREASE:Vector3 = Vector3.ONE * 0.1
 const GRID_MARGIN:float = 5

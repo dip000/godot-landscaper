@@ -6,11 +6,11 @@ class_name GLValidatorTerrain
 func _validate_initialization() -> bool:
 	_controller = _controller as GLControllerTerrain
 	if not _controller.brush_shape:
-		_controller.brush_shape = AssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+		_controller.brush_shape = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
 	if not _controller.source:
 		_controller.source = GLBuildDataTerrain.new()
 	if not _controller.source.shader:
-		_controller.source.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
+		_controller.source.shader = GLAssetsManager.load_controller_resource("terrain", "shader.gdshader")
 	return true
 
 
@@ -25,7 +25,7 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 		_controller.terrain = null
 	
 	if not _controller.brush_shape:
-		_controller.brush_shape = AssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+		_controller.brush_shape = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
 	if not _controller.source:
 		_controller.source = GLBuildDataTerrain.new()
 	
@@ -36,7 +36,7 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	
 	# The only type capable of image processing is ImageTexture
 	if not source.shader:
-		source.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
+		source.shader = GLAssetsManager.load_controller_resource("terrain", "shader.gdshader")
 	if not source.texture:
 		source.texture = ImageTexture.new()
 	if not source.texture is ImageTexture:
@@ -50,12 +50,12 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	
 	# Create terrain
 	if not _controller.terrain:
-		_controller.terrain = SceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
+		_controller.terrain = GLSceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
 		GLDebug.warning("Auto selected MeshInstance3D '%s'. If this is not your intention please select the node manually" %_controller.name)
 	if not _controller.terrain.mesh:
 		_controller.terrain.mesh = ArrayMesh.new()
 	if not _controller.terrain.material_override:
-		_controller.terrain.material_override = AssetsManager.load_controller_resource("terrain", "material.tres").duplicate(true)
+		_controller.terrain.material_override = GLAssetsManager.load_controller_resource("terrain", "material.tres").duplicate(true)
 	
 	# Force set values
 	_controller.terrain.material_override.shader = source.shader
@@ -93,7 +93,7 @@ func _validate_rebuild_from_source() -> bool:
 	
 	# The only type capable of image processing is ImageTexture
 	if not source.shader:
-		source.shader = AssetsManager.load_controller_resource("terrain", "shader.gdshader")
+		source.shader = GLAssetsManager.load_controller_resource("terrain", "shader.gdshader")
 	if not source.texture:
 		source.texture = ImageTexture.new()
 	if not source.texture is ImageTexture:
@@ -108,11 +108,11 @@ func _validate_rebuild_from_source() -> bool:
 	
 	# Create terrain
 	if not _controller.terrain:
-		_controller.terrain = SceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
+		_controller.terrain = GLSceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
 	if not _controller.terrain.mesh:
 		_controller.terrain.mesh = ArrayMesh.new()
 	if not _controller.terrain.material_override:
-		_controller.terrain.material_override = AssetsManager.load_controller_resource("terrain", "material.tres").duplicate(true)
+		_controller.terrain.material_override = GLAssetsManager.load_controller_resource("terrain", "material.tres").duplicate(true)
 	
 	# Force set values
 	_controller.terrain.material_override.shader = source.shader

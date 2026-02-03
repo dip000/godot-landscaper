@@ -18,19 +18,19 @@ class_name GLBrush
 
 
 ## Called once per stroke; validate, start subrocesses, etc..
-## 'scan_data'    Result of physics collision, brought to you by the main Landscaper class
+## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class
 ## 'controller'  Scene node that host all references like GLSettings, GLSaveData, GLEffect, etc..
 @abstract
 func start(scan_data:GLScanData, controller:GLController) -> void
 
 ## Called every ui frame after start()
-## 'scan_data'    Result of physics collision, brought to you by the main Landscaper class
+## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class
 ## 'controller'  Scene node that host all references like GLSettings, GLSaveData, GLEffect, etc..
 @abstract
 func primary(scan_data:GLScanData, controller:GLController) -> void
 
 ## Called every ui frame after start()
-## 'scan_data'    Result of physics collision, brought to you by the main Landscaper class
+## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class
 ## 'controller'  Scene node that host all references like GLSettings, GLSaveData, GLEffect, etc..
 @abstract
 func secondary(scan_data:GLScanData, controller:GLController) -> void

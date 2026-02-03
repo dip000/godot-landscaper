@@ -21,7 +21,7 @@ func end(scan_data:GLScanData, controller:GLController):
 # Gets every MultiMesh transform except the ones inside the brush
 func _get_remove_radial(scan_data:GLScanData, controller:GLControllerGrass):
 	var mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var brush_radius_sqr:float = pow( Landscaper.scene.brush.get_radius(), 2)
+	var brush_radius_sqr:float = pow( GLandscaper.scene.brush.get_radius(), 2)
 	var mouse_world_pos:Vector3 = scan_data.position
 	var prev_data:GLBuildDataGrass = controller.source
 	var new_data:GLBuildDataGrass = GLBuildDataGrass.new()

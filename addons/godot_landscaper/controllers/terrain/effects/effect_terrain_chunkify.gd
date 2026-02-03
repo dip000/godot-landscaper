@@ -54,8 +54,8 @@ func _apply(controller:GLController) -> bool:
 	# Build terrain chunks
 	for chunk in chunks:
 		var chunk_data:GLBuildDataTerrain = chunks[chunk]
-		var chunk_folder:Node = SceneManager.find_or_create_node( Node, root_parent, _format_chunk(chunk) )
-		var chunk_terrain:MeshInstance3D = SceneManager.find_or_create_node( MeshInstance3D, chunk_folder, original_terrain.name )
+		var chunk_folder:Node = GLSceneManager.find_or_create_node( Node, root_parent, _format_chunk(chunk) )
+		var chunk_terrain:MeshInstance3D = GLSceneManager.find_or_create_node( MeshInstance3D, chunk_folder, original_terrain.name )
 		
 		# Move to its center, the builder makes sure it builds around its center
 		chunk_terrain.global_position = chunk_data.min + (chunk_data.max - chunk_data.min) / 2.0
