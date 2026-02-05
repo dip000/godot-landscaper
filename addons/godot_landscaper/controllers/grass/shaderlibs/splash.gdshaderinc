@@ -4,8 +4,6 @@ group_uniforms Splash;
 // This must be in gray scale. Usually a GradientTexture2D but can be anything you want, even empty for plain color
 uniform float splash_height:hint_range(-1.0, 1.0, 0.05) = 0.0;
 
-#include "common.gdshaderinc"
-
 
 vec3 _gamma_corrected(vec3 srgb) {
 	if(OUTPUT_IS_SRGB) return srgb; //Compatibility uses sRGB by default

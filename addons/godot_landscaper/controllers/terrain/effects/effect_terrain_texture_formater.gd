@@ -159,7 +159,7 @@ func _apply(controller:GLController) -> bool:
 	
 	# Reload resources
 	var texture:Texture = load( save_path )
-	controller.terrain.material_override.set_shader_parameter( "albedo_texture", texture )
+	controller.terrain.material_override.set_shader_parameter( "terrain_texture", texture )
 	GLDebug.state("Terrain Texture Formater Succesfull: Saved in: %s" %save_path)
 	return true
 	
@@ -171,7 +171,7 @@ func _clear(controller:GLController) -> bool:
 	
 	controller = controller as GLControllerTerrain
 	var source:GLBuildDataTerrain = controller.source
-	controller.terrain.material_override.set_shader_parameter( "albedo_texture", source.texture )
+	controller.terrain.material_override.set_shader_parameter( "terrain_texture", source.texture )
 	return true
 	
 	

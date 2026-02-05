@@ -3,8 +3,6 @@ uniform vec3 player_position;
 uniform float character_radius = 3.0;
 uniform sampler2D character_distance_falloff_curve : hint_default_black;
 
-#include "common.gdshaderinc"
-
 
 // Taken from @gdquest
 vec3 vertex_trampling(vec3 vertex, mat4 model_matrix, vec2 uv) {

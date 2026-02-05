@@ -13,8 +13,9 @@ uniform vec3 sway_frequency_animatable = vec3(0);
 uniform float sway_frequency_base:hint_range(0.0, 10.0, 0.1) = 2.0;
 
 
-#include "common.gdshaderinc"
-
+vec3 global_to_local(vec3 vector, mat4 model_matrix){
+	return (vec4(vector, 0.0) * model_matrix).xyz;
+}
 
 vec3 wind_vertex_animation(vec3 vertex, mat4 model_matrix, float time, vec3 node_pos_world){
 	// Avoids stretching
@@ -33,6 +34,6 @@ vec3 wind_vertex_animation(vec3 vertex, mat4 model_matrix, float time, vec3 node
 	vec3 sway = (wave + 1.0) * wind_direction * root;
 
 	// Converts to per-instance movement
-	vertex += common_global_to_local(sway, model_matrix);
+	vertex += global_to_local(sway, model_matrix);
 	return vertex;
 }

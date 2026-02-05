@@ -7,11 +7,6 @@ uniform vec4 detail_color[16]:source_color;
 instance uniform int texture_layer;
 
 
-int _get_bit(int mask, int layer){
-	return (mask & (1 << layer));
-}
-
-
 vec4 texture_fragment_color(vec3 albedo, vec2 uv) {
 	if(texture_layer < 0){
 		return vec4(albedo, 1.0);

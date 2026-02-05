@@ -23,11 +23,11 @@ class_name GLControllerGrass
 
 ## Grass color with left button mouse.
 ## Use transparency for smooth blending.
-@export var primary_color:Color = Color(Color.PALE_GOLDENROD, 0.5)
+@export var primary_color:Color = Color(GLandscaper.LEMON_CHIFFON, 0.5)
 
 ## Grass color with right button mouse
 ## Use transparency for smooth blending.
-@export var secondary_color:Color = Color(Color.PALE_VIOLET_RED, 0.5)
+@export var secondary_color:Color = Color(GLandscaper.DUSTY_ROSE, 0.5)
 
 ## The transition between the bottom terrain color and the top hand-painted color.
 @export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:

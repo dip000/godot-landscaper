@@ -30,11 +30,11 @@ class_name GLControllerTerrain
 
 ## Terrain color with left button mouse.
 ## Use transparency for smooth blending.
-@export var primary_color:Color = Color(Color.PALE_GOLDENROD, 0.5)
+@export var primary_color:Color = Color(GLandscaper.DEEP_OCEAN, 0.5)
 
 ## Terrain color with right button mouse
 ## Use transparency for smooth blending.
-@export var secondary_color:Color = Color(Color.PALE_VIOLET_RED, 0.5)
+@export var secondary_color:Color = Color(GLandscaper.VERDIGIRS, 0.5)
 
 
 ## The terrain target reference

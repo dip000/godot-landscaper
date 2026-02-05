@@ -24,6 +24,8 @@ func _apply(controller:GLController) -> bool:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
 		return false
 	
+	var vertex_colors_map:Dictionary[Vector2i, PackedColorArray] = processed.vertex_colors_map
+	var uses_vertex_colors:bool = not vertex_colors_map.is_empty()
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = processed.vertices_map
 	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_mesh( original_terrain )
 	
@@ -43,10 +45,14 @@ func _apply(controller:GLController) -> bool:
 		var chunk_data:GLBuildDataTerrain = chunks[chunk] if chunks.has( chunk ) else GLBuildDataTerrain.new()
 		
 		# UVs stay where they are, chunked mesh just renders its own part.
+		chunk_data.uvs_map[cell] = uvs
+		
+		chunk_data.vertices_map[cell] = vertices
 		chunk_data.min = chunk_data.min.min( vertices[0] )
 		chunk_data.max = chunk_data.max.max( vertices[vertices.size()-1] )
-		chunk_data.vertices_map[cell] = vertices
-		chunk_data.uvs_map[cell] = uvs
+		
+		if uses_vertex_colors:
+			chunk_data.vertex_colors_map[cell] = vertex_colors_map[cell]
 		chunks[chunk] = chunk_data
 	
 	await _frame()
@@ -60,7 +66,7 @@ func _apply(controller:GLController) -> bool:
 		# Move to its center, the builder makes sure it builds around its center
 		chunk_terrain.global_position = chunk_data.min + (chunk_data.max - chunk_data.min) / 2.0
 		
-		# Same material with the same texture (same draw call), and new mesh
+		# Same material with the same texture, and new mesh
 		chunk_terrain.material_override = original_terrain.material_override
 		chunk_terrain.visibility_range_end = original_terrain.visibility_range_end
 		chunk_terrain.visibility_range_end_margin = original_terrain.visibility_range_end_margin

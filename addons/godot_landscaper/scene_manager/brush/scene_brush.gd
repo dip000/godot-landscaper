@@ -2,7 +2,7 @@
 extends Node3D
 class_name GLSceneBrush
 
-const SCALE_INCREASE:Vector3 = Vector3.ONE * 0.1
+const SCALE_INCREASE:Vector3 = Vector3.ONE * 0.2
 const GRID_MARGIN:float = 5
 
 @onready var _icon:Sprite3D = %Icon

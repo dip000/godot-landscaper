@@ -2,6 +2,11 @@
 extends EditorPlugin
 class_name GLandscaper
 
+const DEEP_OCEAN:Color=Color("#067972")
+const VERDIGIRS:Color=Color("#0AA298")
+const DUSTY_ROSE:Color=Color("#CC8375")
+const LEMON_CHIFFON:Color=Color("#FEF6C9")
+
 static var scene:GLSceneManager
 static var assets:GLAssetsManager
 static var inspector:GLInspectorManager

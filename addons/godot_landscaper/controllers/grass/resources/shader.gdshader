@@ -1,8 +1,8 @@
 shader_type spatial;
 render_mode unshaded, shadows_disabled, cull_disabled, ambient_light_disabled, diffuse_toon, fog_disabled, specular_disabled, depth_prepass_alpha, blend_premul_alpha;
 
-#include "res://addons/godot_landscaper/controllers/grass/shaderlibs/wind.gdshaderinc"
-#include "res://addons/godot_landscaper/controllers/grass/shaderlibs/splash.gdshaderinc"
+#include "uid://c4bpmlymo3m6c" //wind
+#include "uid://cy31xxsscj8k8" //splash
 
 group_uniforms TextureVariants;
 uniform sampler2DArray texture_array;

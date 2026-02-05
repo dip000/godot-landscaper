@@ -26,21 +26,27 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	# Welds vertices by default (vertex indexing)
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = build_data.vertices_map
 	var uvs_map:Dictionary[Vector2i, PackedVector2Array] = build_data.uvs_map
+	var vertex_colors_map:Dictionary[Vector2i, PackedColorArray] = build_data.vertex_colors_map
+	var paint_vertices:bool = not vertex_colors_map.is_empty()
 	var renormalize_uvs:bool = uvs_map.is_empty()
 	var vertex_index:Dictionary[Vector3, int]
 	var indices:PackedInt32Array
 	var vertices:PackedVector3Array
+	var vertex_colors:PackedColorArray
 	var uvs:PackedVector2Array
-	
-	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_coordinates( vertices_map.keys() )
 	var terrain_offset:Vector3 = terrain.global_position
+	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_coordinates( vertices_map.keys() )
 	
 	for cell in vertices_map:
 		var cell_vertices:PackedVector3Array = vertices_map[cell]
 		var cell_uvs:PackedVector2Array
+		var cell_colors:PackedColorArray
 		
 		if not renormalize_uvs:
 			cell_uvs = uvs_map[cell]
+		
+		if paint_vertices:
+			cell_colors = vertex_colors_map[cell]
 		
 		for i in cell_vertices.size():
 			var index:int
@@ -48,10 +54,15 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 			
 			if vertex_index.has( vertex ):
 				index = vertex_index[vertex]
+			
 			else:
 				index = vertices.size()
 				vertex_index[vertex] = index
 				vertices.append( vertex-terrain_offset )
+				
+				if paint_vertices:
+					vertex_colors.append( cell_colors[i] )
+				
 				if renormalize_uvs:
 					var vertex_xz:Vector2 = Vector2( vertex.x, vertex.z )
 					uvs.append( (vertex_xz - bounds.position) / bounds.size )
@@ -66,6 +77,8 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	mesh_arrays[Mesh.ARRAY_VERTEX] = vertices
 	mesh_arrays[Mesh.ARRAY_TEX_UV] = uvs
 	mesh_arrays[Mesh.ARRAY_INDEX] = indices
+	if paint_vertices:
+		mesh_arrays[Mesh.ARRAY_COLOR] = vertex_colors
 	
 	var importer:ImporterMesh = ImporterMesh.new()
 	importer.add_surface(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays)
@@ -79,6 +92,6 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	terrain_body.process_mode = Node.PROCESS_MODE_INHERIT
 	
 	# Update texture
-	terrain.material_override.set_shader_parameter( "albedo_texture", build_data.texture )
+	terrain.material_override.set_shader_parameter( "terrain_texture", build_data.texture )
 	return true
 	

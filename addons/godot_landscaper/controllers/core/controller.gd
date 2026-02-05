@@ -58,7 +58,7 @@ class_name GLController
 
 ## Property path from the scanned material to the source of color, can be a texture, vec3, or a vec4.
 ## Prefix 'shader_parameter/' for shader materials
-@export var paths_in_material:Array[String] = ["albedo_texture", "albedo_color", "shader_parameter/albedo_texture", "shader_parameter/texture", "shader_parameter/color", "shader_parameter/albedo_color"]
+@export var paths_in_material:Array[String] = ["terrain_texture", "albedo_texture", "albedo_color", "shader_parameter/albedo_texture", "shader_parameter/texture", "shader_parameter/color", "shader_parameter/albedo_color"]
 
 ## Color if the scanner can't find any color source
 @export var fallback_color:Color = Color.MAGENTA
@@ -92,7 +92,7 @@ var is_ready:bool
 
 
 ## Diameter of the 3D brush sphere. Keybind is [Shift] + [MouseWheel]
-@export_range(0.1, 20, 0.001, "or_greater") var brush_size:float = 2.0:
+@export_range(0.1, 20, 0.001, "or_greater") var brush_size:float = 4.0:
 	set(v):
 		brush_size = v
 		if GLandscaper.running():
@@ -100,7 +100,7 @@ var is_ready:bool
 	get:
 		if GLandscaper.running():
 			return GLandscaper.scene.brush.get_size()
-		return 2.0
+		return 4.0
 
 
 func _enter_tree():
