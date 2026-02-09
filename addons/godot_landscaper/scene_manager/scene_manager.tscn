@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cgiqs3qbj0pfj" path="res://addons/godot_landscaper/scene_manager/scene_manager.gd" id="1_mmp5c"]
 [ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/raycaster/scene_raycaster.gd" id="2_spad5"]
 [ext_resource type="Script" uid="uid://htun6icbhcvw" path="res://addons/godot_landscaper/scene_manager/brush/scene_brush.gd" id="3_ak6rc"]
-[ext_resource type="Texture2D" uid="uid://c3pvk65o5eu8a" path="res://addons/godot_landscaper/controllers/grass/icons/tab_paint.svg" id="4_5rhw3"]
+[ext_resource type="Texture2D" uid="uid://1x50xrtyhnmr" path="res://addons/godot_landscaper/controllers/packed_scene/icons/packed_scene_icon.svg" id="4_5rhw3"]
 [ext_resource type="ArrayMesh" uid="uid://cpf2oidgp85b1" path="res://addons/godot_landscaper/scene_manager/brush/grid_select.res" id="6_5rhw3"]
 [ext_resource type="Material" uid="uid://drdkhreturdff" path="res://addons/godot_landscaper/scene_manager/brush/material.tres" id="6_kfnpr"]
 [ext_resource type="Script" uid="uid://shka8xmqs57h" path="res://addons/godot_landscaper/scene_manager/scene_pools.gd" id="7_5rhw3"]
@@ -58,7 +58,7 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
 
 [node name="Icon" type="Sprite3D" parent="Brush/Sphere" unique_id=992277869]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6825, 0)
+offset = Vector2(0, 76.23)
 pixel_size = 0.0015
 billboard = 1
 fixed_size = true

@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bv48muu3c1tif"
-path.s3tc="res://.godot/imported/terrain_icon.svg-e77ffbb89c56c3166d5386a271fb4c8c.s3tc.ctex"
-path.etc2="res://.godot/imported/terrain_icon.svg-e77ffbb89c56c3166d5386a271fb4c8c.etc2.ctex"
+uid="uid://1x50xrtyhnmr"
+path.s3tc="res://.godot/imported/packed_scene_icon.svg-dfdf485ec6b2c5debb6f0825857ca588.s3tc.ctex"
+path.etc2="res://.godot/imported/packed_scene_icon.svg-dfdf485ec6b2c5debb6f0825857ca588.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/godot_landscaper/controllers/terrain/icons/terrain_icon.svg"
-dest_files=["res://.godot/imported/terrain_icon.svg-e77ffbb89c56c3166d5386a271fb4c8c.s3tc.ctex", "res://.godot/imported/terrain_icon.svg-e77ffbb89c56c3166d5386a271fb4c8c.etc2.ctex"]
+source_file="res://addons/godot_landscaper/controllers/packed_scene/icons/packed_scene_icon.svg"
+dest_files=["res://.godot/imported/packed_scene_icon.svg-dfdf485ec6b2c5debb6f0825857ca588.s3tc.ctex", "res://.godot/imported/packed_scene_icon.svg-dfdf485ec6b2c5debb6f0825857ca588.etc2.ctex"]
 
 [params]
 

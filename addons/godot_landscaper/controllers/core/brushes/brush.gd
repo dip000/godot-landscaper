@@ -1,6 +1,6 @@
 ## BRUSH: Interface members for all brush types
 ##  * A brush is the data mutation behavior while stroking over the scene.
-##  * Every ElementController has at least one Brush. Example: GrassController > GrassPaintBrush, GrassSpawnBrush
+##  * Every GLController has at least one Brush. Example: GLControllerGrass > GLBrushGrassPaint, GLBrushGrassSpawn
 
 @tool
 @abstract
@@ -17,24 +17,30 @@ class_name GLBrush
 @export var hide_properties:PackedStringArray = []
 
 
-## Called once per stroke; validate, start subrocesses, etc..
-## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class
-## 'controller'  Scene node that host all references like GLSettings, GLSaveData, GLEffect, etc..
+## Called once per stroke; validate, start subrocesses, etc..[br]
+## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class[br]
+## 'controller'  Scene node that host all references like GLBuildData
 @abstract
 func start(scan_data:GLScanData, controller:GLController) -> void
 
-## Called every ui frame after start()
-## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class
-## 'controller'  Scene node that host all references like GLSettings, GLSaveData, GLEffect, etc..
+## Called every ui frame after start().[br]
+## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class.[br]
+## 'controller'  Scene node that host all references like GLBuildData
 @abstract
 func primary(scan_data:GLScanData, controller:GLController) -> void
 
-## Called every ui frame after start()
-## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class
-## 'controller'  Scene node that host all references like GLSettings, GLSaveData, GLEffect, etc..
+## Called every ui frame after start().[br]
+## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class.[br]
+## 'controller'  Scene node that host all references like GLBuildData
 @abstract
 func secondary(scan_data:GLScanData, controller:GLController) -> void
 
 ## Called once at the end of the stroke. End subprocesses, resets, etc..
 @abstract
 func end(scan_data:GLScanData, controller:GLController) -> void
+
+
+
+
+
+	

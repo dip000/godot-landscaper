@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="GLBrushSceneInstancer" format=3 uid="uid://dcvltfmn3loyc"]
+
+[ext_resource type="Texture2D" uid="uid://1x50xrtyhnmr" path="res://addons/godot_landscaper/controllers/packed_scene/icons/packed_scene_icon.svg" id="1_oxu7m"]
+[ext_resource type="Script" uid="uid://ptx755ibqhev" path="res://addons/godot_landscaper/controllers/packed_scene/brushes/scene_instancer.gd" id="1_v6esy"]
+
+[resource]
+script = ExtResource("1_v6esy")
+title = "Instancer"
+icon = ExtResource("1_oxu7m")
+info = "Left click to instance scenes over a surface, right click to erase"
+hide_properties = PackedStringArray()
+metadata/_custom_type_script = "uid://ptx755ibqhev"

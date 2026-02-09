@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GLBrushGrassSpawn" load_steps=3 format=3 uid="uid://bbilslko5cndt"]
+[gd_resource type="Resource" script_class="GLBrushGrassSpawn" format=3 uid="uid://bbilslko5cndt"]
 
 [ext_resource type="Texture2D" uid="uid://cowm82ay11g5l" path="res://addons/godot_landscaper/controllers/grass/icons/tab_spawn.svg" id="1_v43fs"]
 [ext_resource type="Script" uid="uid://b1xgefqgd5g55" path="res://addons/godot_landscaper/controllers/grass/brushes/brush_grass_spawn.gd" id="1_w4ehw"]

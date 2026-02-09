@@ -61,6 +61,7 @@ func _apply(controller:GLController) -> bool:
 	source.material.set_shader_parameter("vertex_paint", true)
 	source.material.set_shader_parameter("terrain_texture", null)
 	processed.vertex_colors_map = vertex_colors_map
+	processed.texture = null
 	GLDebug.state("Terrain Vertex Color Succesfull")
 	return true
 	

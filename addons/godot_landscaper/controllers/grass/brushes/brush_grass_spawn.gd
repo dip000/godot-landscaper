@@ -44,6 +44,7 @@ func _add_radial(scan_data:GLScanData, controller:GLControllerGrass):
 	var data:GLBuildDataGrass = controller.source
 	var brush_radius:float = controller.brush_size * 0.5
 	var mouse_world_pos:Vector3 = scan_data.position
+	var align_with_normal:float = controller.align_with_normal * 0.01
 	
 	for i in range(controller.spawn_ratio):
 		# Two random points over the brush sphere to make a ray
@@ -55,9 +56,12 @@ func _add_radial(scan_data:GLScanData, controller:GLControllerGrass):
 		if not scan_cache:
 			continue
 		
-		# Align Normals. Add a little offset so it doesn't throw errors on axis alignment
-		# This will actually make the grass "look" up at the sky instead of standing at 90°
-		var basis := Basis.looking_at( scan_cache.normal + Vector3.ONE*0.01 )
+		# How aligned to the UP vector
+		var normal:Vector3 = Vector3.UP.slerp( scan_cache.normal, align_with_normal )
+		
+		# Add a little offset so it doesn't throw errors on axis alignment
+		# This will actually make the grass "look" face up at the sky instead of standing at 90°
+		var basis := Basis.looking_at( normal + Vector3.ONE*0.01 )
 		
 		# Compose rotation using quaternion magic
 		basis *= Basis(

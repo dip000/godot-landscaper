@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GLBrushGrassPaint" load_steps=3 format=3 uid="uid://bglrlymlsi5r3"]
+[gd_resource type="Resource" script_class="GLBrushGrassPaint" format=3 uid="uid://bglrlymlsi5r3"]
 
 [ext_resource type="Script" uid="uid://dkryahmbvxyo2" path="res://addons/godot_landscaper/controllers/grass/brushes/brush_grass_paint.gd" id="1_7d1lp"]
 [ext_resource type="Texture2D" uid="uid://c3pvk65o5eu8a" path="res://addons/godot_landscaper/controllers/grass/icons/tab_paint.svg" id="1_bpqt4"]
@@ -8,5 +8,5 @@ script = ExtResource("1_7d1lp")
 title = "Paint"
 icon = ExtResource("1_bpqt4")
 info = "left cick to paint with primary color, right click for secondary"
-hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "multimesh_instance")
+hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "multimesh_instance", "align_with_normal")
 metadata/_custom_type_script = "uid://dkryahmbvxyo2"

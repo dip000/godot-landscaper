@@ -16,14 +16,14 @@ extends Node
 class_name GLController
 
 
-## Raw MultiMesh data from brushing over surfaces.
-## Press "Clear All Effects" or "Apply All Effects" to rebuild.
+## Raw MultiMesh data from brushing over surfaces.[br]
+## Press "Clear All Effects" or "Apply All Effects" to rebuild.[br]
 ## You can store this data in the filesystem for safekeeping backups or versions,
 @export var source:GLBuildData
 ## The result of processing the MultiMesh source data after applying all effects.
 @export var processed:GLBuildData
 
-## Mutates the source data in stack order.
+## Mutates the source data in stack order.[br]
 ## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 @export var effects:Array[GLEffect]
 
@@ -40,7 +40,7 @@ class_name GLController
 @export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF
 
 @export_group("Meshes")
-## Attempts to find the mesh of the scanned PhysicsBody3D in its parent.
+## Attempts to find the mesh of the scanned PhysicsBody3D in its parent.[br]
 ## Last layer is kept disabled by default to avoid internal layers.
 @export var parent_of_physics_body:bool = true
 
@@ -52,13 +52,13 @@ class_name GLController
 
 
 @export_group("Color Sources")
-## Attempts to find the material of the scanned MeshInstance3D, in priority order,
+## Attempts to find the material of the scanned MeshInstance3D, in priority order,[br]
 ## under any of the selected active surfaces (zero includes override and overlay)
 @export var active_materials:Array[int] = [0, 1, 2, 3, 4, 5]
 
-## Property path from the scanned material to the source of color, can be a texture, vec3, or a vec4.
+## Property path from the scanned material to the source of color, can be a texture, vec3, or a vec4.[br]
 ## Prefix 'shader_parameter/' for shader materials
-@export var paths_in_material:Array[String] = ["terrain_texture", "albedo_texture", "albedo_color", "shader_parameter/albedo_texture", "shader_parameter/texture", "shader_parameter/color", "shader_parameter/albedo_color"]
+@export var paths_in_material:Array[String] = ["albedo_texture", "albedo_color", "shader_parameter/terrain_texture", "shader_parameter/albedo_texture", "shader_parameter/texture", "shader_parameter/color", "shader_parameter/albedo_color"]
 
 ## Color if the scanner can't find any color source
 @export var fallback_color:Color = Color.MAGENTA
@@ -71,7 +71,7 @@ var builder:GLBuilder
 ## Helper for validating stuff. Set in _setup_controller()
 var validator:GLValidator
 
-## Tab configs with UI info. Set in _setup_controller()
+## Tab configs with UI info. Set in _setup_controller()[br]
 ## GLInspectorManager listens for the brushes[clicked_tab]
 var brushes:Array[GLBrush]
 ## The current active brush from brushes
@@ -84,7 +84,7 @@ var is_ready:bool
 
 
 @export_category("Globals")
-## Global class for dobugging.
+## Global class for dobugging.[br]
 ## The amount of messages printed from Godot GLandscaper
 @export var debug_level:GLDebug.Level=GLDebug.Level.STATES:
 	set(v): GLDebug.level = v
@@ -110,10 +110,8 @@ func _enter_tree():
 		await Engine.get_main_loop().process_frame
 		_setup_controller()
 		if GLValidator.validate_initialization( validator ):
-			process_mode = Node.PROCESS_MODE_INHERIT
 			is_ready = true
 			return
-	process_mode = Node.PROCESS_MODE_DISABLED
 
 
 ## Connect external resources like validators, builders, tabs, etc..
@@ -128,7 +126,8 @@ func select_brush(brush:GLBrush):
 		GLDebug.internal("Selected: %s/%s" %[name, brush.title])
 
 
-## Start landscaping according to the current brush
+## Start landscaping according to the current brush.
+## TODO: Make a dirty map, call current_brush.build_from_dirty()
 func stroke_start(scan_data:GLScanData):
 	if GLValidator.validate_stroke_start( validator, scan_data ):
 		current_brush.start( scan_data, self )
@@ -160,7 +159,7 @@ func clear_effects():
 
 func apply_effects():
 	if GLValidator.validate_apply_effects( validator ):
-		processed = source.duplicate_deep( Resource.DEEP_DUPLICATE_ALL )
-		await GLEffect.apply_all( effects, self )
-		builder.build_from_processed()
+		processed = source.duplicate( true )
+		if await GLEffect.apply_all( effects, self ):
+			builder.build_from_processed()
 	

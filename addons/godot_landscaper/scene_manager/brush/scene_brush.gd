@@ -41,7 +41,6 @@ func deselected(controller:GLController):
 func over_surface(controller:GLController, scan_data:GLScanData):
 	var pos:Vector3 = scan_data.position
 	_sphere.global_position = pos
-	_icon.global_position.y = pos.y + _sphere.scale.y*0.5
 	
 	if controller.use_grid:
 		_set_shader( "mask_center", pos )

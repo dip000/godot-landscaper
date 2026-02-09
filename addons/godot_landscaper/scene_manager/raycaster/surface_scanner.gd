@@ -21,7 +21,7 @@ func _init(controller:GLController):
 
 
 ## Raycasts from one world point to another and returns a GLScanData with scanning capabilities
-func scan_point_to_point(from:Vector3, to:Vector3) -> GLScanData:
+func scan_point_to_point(from:Vector3, to:Vector3, include_colors:bool=true) -> GLScanData:
 	var hit_info:Dictionary = _raycaster.point_to_point( from, to )
 	if not hit_info:
 		return null
@@ -39,7 +39,9 @@ func scan_point_to_point(from:Vector3, to:Vector3) -> GLScanData:
 	if not scan_mesh_instance( cache ): #sets mesh_instance from hit_info.collider
 		GLDebug.error("Scanner coudn't scan the mesh from body '%s'. Check your controller scan configs" %hit_info.collider.name)
 		return null
-	scan_color_source( cache ) #fills color_sources[hit_info.shape]
+	
+	if include_colors:
+		scan_color_source( cache ) #fills color_sources[hit_info.shape]
 	create_surfaces( cache ) #fills mdts[hit_info.shape]
 	
 	await Engine.get_main_loop().process_frame

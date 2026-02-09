@@ -1,12 +1,12 @@
 ## Grass Controller. Based on MultiMeshInstance3D
 ##
-## Select "Spawn" tab to create grass instances over a surface.
-## Select "Paint" tab to paint grass instances.
+## Select "Spawn" tab to create grass instances over a surface.[br]
+## Select "Paint" tab to paint grass instances.[br]
 ##
-## Set your custom mesh under Resources > Shape,
-## and optionally, your custom grass texture under Resources > Texture.
+## Set your custom mesh under Resources > Shape,[br]
+## and optionally, your custom grass texture under Resources > Texture.[br]
 ##
-## You can configure the color scanning capabilities and spawn randomness.
+## You can configure the color scanning capabilities and spawn randomness.[br]
 ## Try the various effects like recolorings or the chunkifier and press "Apply All Effects".
 
 @tool
@@ -17,35 +17,39 @@ class_name GLControllerGrass
 ## How many grass instances coincides to hit over the surface per editor frame
 @export_range(1.0, 10.0, 1.0, "or_greater", "suffix:instances/frame") var spawn_ratio:float = 1.0
 
-## Smooths the erasing.
+## Smooths the erasing.[br]
 ## For decreasing the density withouth hard-cutting everything
 @export_range(0.1, 1.0, 0.1, "suffix:%/frame") var erase_ratio:float = 1.0
 
-## Grass color with left button mouse.
+## Controls how strongly instances rotate to match the surface they are placed on.[br]
+@export_range(0, 100, 1.0, "suffix:%") var align_with_normal:float = 90
+
+
+## Grass color with left button mouse.[br]
 ## Use transparency for smooth blending.
 @export var primary_color:Color = Color(GLandscaper.LEMON_CHIFFON, 0.5)
 
-## Grass color with right button mouse
+## Grass color with right button mouse.[br]
 ## Use transparency for smooth blending.
-@export var secondary_color:Color = Color(GLandscaper.DUSTY_ROSE, 0.5)
+@export var secondary_color:Color = Color(GLandscaper.VERDIGIRS, 0.5)
 
 ## The transition between the bottom terrain color and the top hand-painted color.
 @export_range(-1.0, 1.0, 0.01) var splash_height:float = 0.0:
 	get: return _get_shader("splash_height", 0.0)
 	set(v): _set_shader("splash_height", v)
 
-## Uses the secondary color to manually paint the bottom of the grass instead of the top.
+## Uses the secondary color to manually paint the bottom of the grass instead of the top.[br]
 ## Note that the scanning mechanics will auto detect the bottom colors.
 @export var paint_bottom_with_sencondary_color:bool = false
 
-## The source MultiMeshInstance3D tied to this controller.
+## The source MultiMeshInstance3D tied to this controller.[br]
 ## It will be auto-generated and placed under the brusshing surface if not provided.
 @export var multimesh_instance:MultiMeshInstance3D
 
 
 @export_group("Texture Layers", "texture_")
-## Used for having multiple texture configurations with the same material.
-## For performance, one single Texture2DArray will be made for all layers of the same material.
+## Used for having multiple texture configurations with the same material.[br]
+## For performance, one single Texture2DArray will be made for all layers of the same material.[br]
 ## Avoid leaving empty layer gaps.
 @export var texture_layer:int = -1
 
@@ -53,14 +57,15 @@ class_name GLControllerGrass
 @export var texture_size_array:Vector2i = Vector2i(255, 255):
 	set(v): texture_size_array = v.max(Vector2i.ONE)
 
-## You can add and fine-tuned cheap details with a grayscaled grass texture (instead of purely white), like contours or veins.
-## The grayscale will be mix-recolored to this color.
+## You can add and fine-tuned cheap details with a grayscaled grass texture (instead of purely white), like contours or veins.[br]
+## The grayscale will be mix-recolored to this color.[br]
 ## Leave transparent for disabling it (more performant).
 @export var texture_detail_color:Color = Color.TRANSPARENT:
 	get: return _get_shader_index("detail_color", Color.TRANSPARENT)
 	set(v): _set_shader_index( "detail_color", v )
 
-## Select a texture_layer, a texture_texture and press "Bake Instance Into Array" to apply textures. It will be formated to fit inside a Texture2DArray
+## Select a texture_layer, a texture_texture and press "Bake Instance Into Array" to apply textures. [br]
+## It will be formated to fit inside a Texture2DArray
 @export var texture_texture:Texture2D
 
 
@@ -82,7 +87,8 @@ class_name GLControllerGrass
 @export var rotation_randomize:Vector3 = Vector3(0, TAU, 0)
 
 @export_subgroup("Position offset", "offset_")
-## [NOT-IMPLEMENTED] Original position offset of the instance to spawn.
+## [NOT-IMPLEMENTED][br]
+## Original position offset of the instance to spawn.[br]
 ## Usefull for aligning the grass origin with the ground 
 @export var offset_base:Vector3 = Vector3.ZERO
 

@@ -3,23 +3,22 @@ class_name GLBitMask
 
 var mask:int
 var total:int
-var _bit_index:int
 
 
 func _init(mask:int, total_layers:int=32):
 	self.mask = mask
 	self.total = total_layers
 
-func _iter_init(_arg) -> bool:
-	_bit_index = 0
-	return _bit_index < total
+func _iter_init(iter) -> bool:
+	iter[0] = 0
+	return iter[0] < total
 
-func _iter_next(_arg) -> bool:
-	_bit_index += 1
-	return _bit_index < total
+func _iter_next(iter) -> bool:
+	iter[0] += 1
+	return iter[0] < total
 
-func _iter_get(_arg) -> int:
-	return _bit_index
+func _iter_get(iter) -> int:
+	return iter[0]
 
 
 func is_set(index) -> int:

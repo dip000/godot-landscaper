@@ -9,7 +9,7 @@ extends Resource
 class_name GLEffect
 
 
-## Helps remembering to unapply side-effects. Tough clearing it must be run manually for responsivenes sakee
+## Helps remembering to unapply side-effects. Though clearing it must be run manually for responsivenes sake
 @export_storage var is_applied:bool = false
 
 ## Keeps the effect inside the controller but does not apply it.
