@@ -12,6 +12,10 @@ var _controller:GLController
 func _init(controller:GLController):
 	_controller = controller
 
+
+@abstract
+func build_from_dirty() -> bool
+
 @abstract
 func build_from_source() -> bool
 

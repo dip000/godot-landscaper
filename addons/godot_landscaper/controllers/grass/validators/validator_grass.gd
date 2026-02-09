@@ -8,8 +8,6 @@ func _validate_initialization() -> bool:
 	if not _controller.source:
 		_controller.source = GLBuildDataGrass.new()
 	var source:GLBuildDataGrass = _controller.source
-	if not source.mesh:
-		GLGrassTemplater.load_random_template( _controller )
 	if not source.shader:
 		source.shader = GLAssetsManager.load_controller_resource("grass", "shader.gdshader")
 	if not source.material:
@@ -34,7 +32,7 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	var source:GLBuildDataGrass = _controller.source
 	
 	if not source.mesh:
-		GLGrassTemplater.load_random_template( _controller )
+		GLTemplaterGrass.load_random_template( _controller )
 	if not _controller.multimesh_instance:
 		_controller.multimesh_instance = GLSceneManager.find_or_create_node(MultiMeshInstance3D, _controller, _controller.name)
 		GLDebug.warning("Auto selected MultiMeshInstance '%s'. If this is not your intention please select the node manually" %_controller.multimesh_instance.name)
@@ -115,8 +113,7 @@ static func validate_texture_bake(validator:GLValidatorGrass) -> bool:
 	var source:GLBuildDataGrass = controller.source
 	
 	if not source.mesh:
-		GLGrassTemplater.load_random_template( controller )
-		GLDebug.warning("A mesh was not selected so a template was loaded. To visualize it fully, please bake the layer texture by pressing the button under Inspector > Resources > Texture > Bake Texture Into Array")
+		GLTemplaterGrass.load_random_template( controller )
 	
 	if not source.shader:
 		source.shader = GLAssetsManager.load_controller_resource("grass", "shader.gdshader")

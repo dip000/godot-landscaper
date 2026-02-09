@@ -3,6 +3,9 @@ extends GLBuilder
 class_name GLBuilderTerrain
 
 
+func build_from_dirty() -> bool:
+	return build_headless( _controller.source, _controller.terrain )
+
 func build_from_source() -> bool:
 	return build_headless( _controller.source, _controller.terrain )
 

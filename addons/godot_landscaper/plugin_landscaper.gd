@@ -106,6 +106,9 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 
 
 func _edit(controller:Object):
+	if controller == _active_controller:
+		return
+	
 	if controller:
 		if not controller.is_ready:
 			await Engine.get_main_loop().process_frame

@@ -127,7 +127,6 @@ func select_brush(brush:GLBrush):
 
 
 ## Start landscaping according to the current brush.
-## TODO: Make a dirty map, call current_brush.build_from_dirty()
 func stroke_start(scan_data:GLScanData):
 	if GLValidator.validate_stroke_start( validator, scan_data ):
 		current_brush.start( scan_data, self )
@@ -135,16 +134,17 @@ func stroke_start(scan_data:GLScanData):
 func stroke_primary(scan_data:GLScanData):
 	if GLValidator.validate_stroke_primary( validator, scan_data ):
 		current_brush.primary( scan_data, self )
-		builder.build_from_source()
+		builder.build_from_dirty()
 
 func stroke_secondary(scan_data:GLScanData):
 	if GLValidator.validate_stroke_secondary( validator, scan_data ):
 		current_brush.secondary( scan_data, self )
-		builder.build_from_source()
+		builder.build_from_dirty()
 
 func stroke_end(scan_data:GLScanData):
 	if GLValidator.validate_stroke_end( validator ):
 		current_brush.end( scan_data, self )
+		#builder.build_from_source()
 
 
 func rebuild_from_source():

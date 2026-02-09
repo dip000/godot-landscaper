@@ -22,7 +22,7 @@ class_name GLControllerGrass
 @export_range(0.1, 1.0, 0.1, "suffix:%/frame") var erase_ratio:float = 1.0
 
 ## Controls how strongly instances rotate to match the surface they are placed on.[br]
-@export_range(0, 100, 1.0, "suffix:%") var align_with_normal:float = 90
+@export_range(0, 100, 1.0, "suffix:%") var align_with_normal:float = 100
 
 
 ## Grass color with left button mouse.[br]

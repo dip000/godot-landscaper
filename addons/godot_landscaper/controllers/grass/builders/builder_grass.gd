@@ -7,6 +7,10 @@ extends GLBuilder
 class_name GLBuilderGrass
 
 
+func build_from_dirty() -> bool:
+	return _build( _controller.source, _controller.multimesh_instance.multimesh )
+
+
 func build_from_source() -> bool:
 	return _build( _controller.source, _controller.multimesh_instance.multimesh )
 

@@ -10,8 +10,9 @@ class_name GLBuildDataPackedScene
 @export var transforms:Array[Transform3D]
 
 # For runtime building
-var dirty_instances:PackedInt32Array
-var dirty_erases:PackedInt32Array
+# Sometimes bugs if it's not stored..
+@export_storage var dirty_instances:PackedInt32Array
+@export_storage var dirty_erases:PackedInt32Array
 
 
 

@@ -8,8 +8,8 @@ class_name GLControllerPackedScene
 @export_range(1.0, 10.0, 1.0, "or_greater", "suffix:instances/frame") var spawn_ratio:float = 1.0
 
 ## Controls how strongly instances rotate to match the surface they are placed on.[br]
-## - 0% for standing up as the scene defaults, for "stable" scenes like houses.[br]
-## - 100% for fully aligned, for small props like stones
+## - 0% for standing up as the scene defaults. For "stable" scenes like houses.[br]
+## - 100% for fully aligned. For small props like stones
 @export_range(0, 100, 1.0, "suffix:%") var align_with_normal:float = 50
 
 ## Node to place the instances under

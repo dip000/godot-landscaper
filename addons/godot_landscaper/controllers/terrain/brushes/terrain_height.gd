@@ -32,14 +32,22 @@ func _height(full_strength:float, ease:float, level:bool, center:Vector3, radius
 	if brush_area.size.is_zero_approx():
 		return
 	
-	var min_height:float = INF
-	var max_height:float = -INF
+	var min_height:float
+	var max_height:float
 	if level:
+		min_height = INF
+		max_height = - INF
 		for cell in Rect2iter.new( brush_area ):
 			var vertices:PackedVector3Array = vertices_map.get(cell, [])
 			for vertex in vertices:
 				min_height = min(vertex.y, min_height)
 				max_height = max(vertex.y, max_height)
+	
+		if not is_finite(min_height):
+			min_height = 0
+		
+		if not is_finite(max_height):
+			min_height = 0
 	
 	brush_area.size += Vector2.ONE
 	for cell in Rect2iter.new( brush_area ):
