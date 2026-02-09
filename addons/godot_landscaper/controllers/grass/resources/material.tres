@@ -9,6 +9,6 @@ shader = ExtResource("1_lims2")
 shader_parameter/wind_direction = Vector3(0.1, 0.1, 0.1)
 shader_parameter/sway_frequency_animatable = Vector3(0, 0, 0)
 shader_parameter/sway_frequency_base = 2.0
-shader_parameter/splash_height = 0.0
+shader_parameter/splash_height = -0.5800000000000001
 shader_parameter/texture_array = ExtResource("2_1g6lf")
 shader_parameter/detail_color = PackedColorArray(1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
