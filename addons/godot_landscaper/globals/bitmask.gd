@@ -18,13 +18,13 @@ func _iter_next(iter) -> bool:
 	return iter[0] < total
 
 func _iter_get(iter) -> int:
-	return iter[0]
+	return iter
 
 
-func is_set(index) -> int:
+func is_set(index) -> bool:
 	return get_bit(index) == 1
 
-func is_clear(index:int) -> int:
+func is_clear(index:int) -> bool:
 	return get_bit(index) == 0
 
 func get_bit(index:int) -> int:
@@ -32,11 +32,17 @@ func get_bit(index:int) -> int:
 
 func set_bit(index:int):
 	if index >= 0:
-		mask |= (1 << index)
+		set_mask( 1 << index )
 
 func clear_bit(index:int):
 	if index >= 0:
-		mask &= ~(1 << index)
+		clear_mask( 1 << index )
+
+func set_mask(mask:int):
+	mask |= mask
+
+func clear_mask(mask:int):
+	mask &= ~mask
 
 
 static func set_bit_mask(mask:int, index:int) -> int:

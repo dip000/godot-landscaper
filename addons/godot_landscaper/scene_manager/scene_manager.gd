@@ -9,8 +9,7 @@ class_name GLSceneManager
 
 static func find_or_create_node(type, parent:Node, child_name:String, ghost:bool=false) -> Node:
 	if parent.has_node( child_name ):
-		var node:Node = parent.get_node( child_name )
-		return node
+		return parent.get_node( child_name )
 	return create_node( type, parent, child_name, ghost )
 
 

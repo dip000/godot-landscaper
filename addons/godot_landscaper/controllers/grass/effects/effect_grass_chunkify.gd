@@ -1,6 +1,3 @@
-## EFFECT GRASS: Interface members for all effect classes
-##
-
 ## MultiMeshInstance3D Chunkifyier
 ##
 ## The chunks are split in absolute world coordinates, including negatives
@@ -34,6 +31,9 @@ func _apply(controller:GLController) -> bool:
 	if not root_parent:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
 		return false
+	
+	var original_mm:MultiMesh = original_mmi.multimesh
+	var original_ratio:float = float(original_mm.visible_instance_count) / original_mm.instance_count
 	
 	var aabb:AABB = original_mmi.get_aabb()
 	var size:Vector3 = aabb.size
@@ -85,12 +85,21 @@ func _apply(controller:GLController) -> bool:
 		
 		for col_index in chunk_rows.size():
 			var chunk:GLBuildDataGrass = chunk_rows[col_index]
+			if chunk.size() <= 0:
+				continue
 			
 			# Return to global; (possible) negative chunks
 			var global_chunk:Vector2i = Vector2i( row_index, col_index ) + lower_chunk
 			
 			# Place instance inside a chunk folder
-			var parent:Node = GLSceneManager.find_or_create_node( Node, root_parent, _format_chunk(global_chunk) )
+			var chunk_name:String = _format_chunk( global_chunk )
+			var parent:Node
+			if root_parent.has_node( chunk_name ):
+				parent = root_parent.get_node( chunk_name )
+			else:
+				parent = GLSceneManager.create_node( Node3D, root_parent, chunk_name )
+				var position:Vector2i = global_chunk * chunk_size - Vector2i(chunk_size*0.5, chunk_size*0.5)
+				parent.global_position = Vector3( position.x, 0, position.y )
 			
 			# Place individual multimeshes in their global center position
 			# Find center of the individual chunk instances (not to confuse with center of chunk)
@@ -101,9 +110,20 @@ func _apply(controller:GLController) -> bool:
 			instance_mmi.global_position = local_center
 			
 			# Setup MultiMesh
-			_fill_mmi( instance_mmi, original_mmi )
-			var instance_mm:MultiMesh = instance_mmi.multimesh
+			var instance_mm:MultiMesh = MultiMesh.new()
+			instance_mm.transform_format = MultiMesh.TRANSFORM_3D
+			instance_mm.mesh = processed.mesh
+			instance_mm.use_custom_data = true
+			instance_mm.use_colors = true
 			instance_mm.instance_count = chunk.size()
+			if original_mm.visible_instance_count >= 0:
+				instance_mm.visible_instance_count = instance_mm.instance_count * original_ratio
+			
+			instance_mmi.multimesh = instance_mm
+			instance_mmi["instance_shader_parameters/texture_layer"] = original_mmi["instance_shader_parameters/texture_layer"]
+			instance_mmi.visibility_range_end = instance_mmi.visibility_range_end
+			instance_mmi.visibility_range_end_margin = original_mmi.visibility_range_end_margin
+	
 			GLDebug.spam("Chunk[%s, %s] -> min=%s, max=%s, count=%s" %[row_index, col_index, local_min, local_max, instance_mm.instance_count])
 			
 			# Move the instance data from the original_mmi to the chunked instance_mmi
@@ -123,21 +143,11 @@ func _apply(controller:GLController) -> bool:
 				await _100_index( instance_index )
 	
 	original_mmi.hide()
+	processed.clear()
 	GLDebug.state("Chunkified. Total chunks = %s, Total grass instances = %s" %[total_chunks, processed.size()])
 	return true
 
 
-func _fill_mmi(new_mmi:MultiMeshInstance3D, original_mmi:MultiMeshInstance3D):
-	new_mmi["instance_shader_parameters/texture_layer"] = original_mmi["instance_shader_parameters/texture_layer"]
-	new_mmi.visibility_range_end = original_mmi.visibility_range_end
-	new_mmi.visibility_range_end_margin = original_mmi.visibility_range_end_margin
-	new_mmi.multimesh = MultiMesh.new()
-	new_mmi.multimesh.visible_instance_count = original_mmi.multimesh.visible_instance_count
-	new_mmi.multimesh.transform_format = MultiMesh.TRANSFORM_3D
-	new_mmi.multimesh.mesh = original_mmi.multimesh.mesh
-	new_mmi.multimesh.use_custom_data = true
-	new_mmi.multimesh.use_colors = true
-	
 
 func _clear(controller:GLController) -> bool:
 	if not controller is GLControllerGrass:

@@ -9,10 +9,18 @@ class_name GLSceneChunkify
 ## The chunks holder.
 @export var root_parent_path:NodePath = "."
 
+@export_group("Visibility Range LoD")
+@export_custom(PROPERTY_HINT_GROUP_ENABLE, "Visibility Range LoD", PROPERTY_USAGE_EDITOR) var enable_lod:bool = false
+@export var end_margin:float = 2.0
+@export_range(0.0, 100.0, 0.1, "or_greater") var custom_lod_meters:float = 32
+
 
 func _apply(controller:GLController) -> bool:
 	if not controller is GLControllerPackedScene:
 		GLDebug.error("Scene Chunkify Failed: This effect is only valid for GLControllerPackedScene controller types")
+		return false
+	
+	if not _clear( controller ):
 		return false
 	
 	controller = controller as GLControllerPackedScene
@@ -42,6 +50,16 @@ func _apply(controller:GLController) -> bool:
 		instance.global_transform = transform
 		instance.owner = root
 		instance.set_meta( GLBuilderPackedScene.META_CONTROLLER, controller.name )
+		
+		if enable_lod:
+			var lod_ables:Array[Node] = instance.find_children( "*", "GeometryInstance3D", true, true )
+			type_holder.set_editable_instance( instance, true )
+			instance.set_display_folded( true )
+			for lod_able in lod_ables:
+				lod_able = lod_able as GeometryInstance3D
+				lod_able.visibility_range_end = custom_lod_meters
+				lod_able.visibility_range_end_margin = end_margin
+		
 		type_holder.set_display_folded( true )
 		await _100_index(i)
 	

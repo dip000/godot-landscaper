@@ -32,7 +32,7 @@ func _apply(controller:GLController) -> bool:
 		var scan_upper:Vector3 = global_position + Vector3.UP*scan_max_height
 		var scan_lower:Vector3 = global_position + Vector3.UP*scan_min_height
 		
-		var cache:GLScanData = await scanner.scan_point_to_point( scan_upper, scan_lower )
+		var cache:GLScanData = await scanner.scan_point_to_point( scan_upper, scan_lower, false )
 		if cache:
 			instance.global_position = cache.position
 			transforms[i].origin = cache.position

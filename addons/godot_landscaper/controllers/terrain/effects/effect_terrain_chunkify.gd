@@ -70,6 +70,7 @@ func _apply(controller:GLController) -> bool:
 		chunk_terrain.material_override = original_terrain.material_override
 		chunk_terrain.visibility_range_end = original_terrain.visibility_range_end
 		chunk_terrain.visibility_range_end_margin = original_terrain.visibility_range_end_margin
+		chunk_terrain.lod_bias = original_terrain.lod_bias
 		chunk_terrain.mesh = ArrayMesh.new()
 		
 		# Fill with the source texture since it is the same UV mapping
@@ -78,7 +79,8 @@ func _apply(controller:GLController) -> bool:
 		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain )
 		chunk_terrain.set_display_folded( true )
 		await _frame()
-		
+	
+	processed.vertices_map.clear()
 	original_terrain.hide()
 	GLDebug.state("Chunkified Terrain %s: Total Chunks: %s, Total Cells: %s" %[original_terrain.name, chunks.size(), vertices_map.size()])
 	return true
