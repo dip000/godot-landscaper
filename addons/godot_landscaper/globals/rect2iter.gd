@@ -1,24 +1,30 @@
 extends RefCounted
-class_name Rect2iter
+class_name GLRect2iter
 
-var _rect: Rect2i
-var _x: int
-var _y: int
+var _position:Vector2i
+var _size:Vector2i
+var _x:int
+var _y:int
 
-func _init(rect: Rect2i):
-	_rect = rect
+
+func _init(position:Vector2i, size:Vector2i):
+	_position = position
+	_size = size
+
+static func from(rect:Rect2i) -> GLRect2iter:
+	return GLRect2iter.new( rect.position, rect.size )
 
 func _iter_init(_iter):
-	_x = _rect.position.x
-	_y = _rect.position.y
-	return _rect.size.x > 0 and _rect.size.y > 0
+	_x = _position.x
+	_y = _position.y
+	return _size.x > 0 and _size.y > 0
 
 func _iter_next(_iter):
 	_x += 1
-	if _x >= _rect.position.x + _rect.size.x:
-		_x = _rect.position.x
+	if _x >= _position.x + _size.x:
+		_x = _position.x
 		_y += 1
-	return _y < _rect.position.y + _rect.size.y
+	return _y < _position.y + _size.y
 
 func _iter_get(_iter) -> Vector2i:
 	return Vector2i(_x, _y)

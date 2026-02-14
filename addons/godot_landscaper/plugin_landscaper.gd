@@ -2,6 +2,8 @@
 extends EditorPlugin
 class_name GLandscaper
 
+enum Action {PRIMARY, SECONDARY}
+
 const DEEP_OCEAN:Color=Color("#067972")
 const VERDIGIRS:Color=Color("#0AA298")
 const DUSTY_ROSE:Color=Color("#CC8375")
@@ -74,21 +76,21 @@ func _forward_3d_gui_input(cam:Camera3D, event:InputEvent):
 	
 	if Input.is_mouse_button_pressed( MOUSE_BUTTON_LEFT ):
 		if pressed:
-			_active_controller.stroke_start( scan_data )
-			scene.stroke_start( _active_controller, scan_data )
-		_active_controller.stroke_primary( scan_data )
+			_active_controller.stroke_start( Action.PRIMARY, scan_data )
+			scene.stroke_start( Action.PRIMARY, _active_controller, scan_data )
+		_active_controller.stroking( Action.PRIMARY, scan_data )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif Input.is_mouse_button_pressed( MOUSE_BUTTON_RIGHT ):
 		if pressed:
-			_active_controller.stroke_start( scan_data )
-			scene.stroke_start( _active_controller, scan_data )
-		_active_controller.stroke_secondary( scan_data )
+			_active_controller.stroke_start( Action.SECONDARY, scan_data )
+			scene.stroke_start( Action.SECONDARY, _active_controller, scan_data )
+		_active_controller.stroking( Action.SECONDARY, scan_data )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	elif (mbl or mbr) and not pressed:
-		_active_controller.stroke_end( scan_data )
-		scene.stroke_end( _active_controller )
+		_active_controller.stroke_end( Action.SECONDARY, scan_data )
+		scene.stroke_end( Action.SECONDARY, _active_controller )
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	
 	# Scale with any special key + Mouse Wheel

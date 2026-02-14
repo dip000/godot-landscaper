@@ -88,6 +88,20 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	importer.generate_lods(60, 0, [])
 	terrain.mesh = importer.get_mesh()
 	
+	#var lods:Dictionary[float, PackedInt32Array]
+	#for lod_index in importer.get_surface_lod_count(0):
+		#var size:float = importer.get_surface_lod_size(0, lod_index)
+		#lods[size] = importer.get_surface_lod_indices(0, lod_index)
+	#
+	 #Shadow mesh
+	#var shadow_mesh:ArrayMesh = ArrayMesh.new()
+	#var shadow_arrays:Array
+	#shadow_arrays.resize( Mesh.ARRAY_MAX )
+	#shadow_arrays[Mesh.ARRAY_VERTEX] = vertices
+	#shadow_arrays[Mesh.ARRAY_INDEX] = indices
+	#shadow_mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, shadow_arrays, [], lods )
+	#terrain.mesh.shadow_mesh = shadow_mesh
+	
 	 #Update collider
 	terrain_collider.debug_color = Color( Color.PALE_VIOLET_RED, 0.5 )
 	terrain_body.process_mode = Node.PROCESS_MODE_DISABLED

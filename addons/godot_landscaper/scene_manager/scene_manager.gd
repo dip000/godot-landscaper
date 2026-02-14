@@ -44,10 +44,10 @@ func over_surface(controller:GLController, scan_data:GLScanData):
 	brush.over_surface( controller, scan_data )
 
 
-func stroke_start(controller:GLController, scan_data:GLScanData):
+func stroke_start(action:GLandscaper.Action, controller:GLController, scan_data:GLScanData):
 	raycaster.set_collision_mask( controller.scan_layer )
 
-func stroke_end(controller:GLController):
+func stroke_end(action:GLandscaper.Action, controller:GLController):
 	raycaster.set_collision_mask( controller.scan_layer )
 
 

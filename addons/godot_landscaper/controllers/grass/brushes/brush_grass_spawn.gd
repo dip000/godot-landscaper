@@ -5,16 +5,19 @@ class_name GLBrushGrassSpawn
 var scanner:GLSurfaceScanner
 
 
-func start(scan_data:GLScanData, controller:GLController) -> void:
+func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
 	scanner = GLSurfaceScanner.new( controller )
 
-func primary(scan_data:GLScanData, controller:GLController):
-	_add_radial( scan_data, controller )
 
-func secondary(scan_data:GLScanData, controller:GLController):
-	_get_remove_radial( scan_data, controller )
+func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
+	match action:
+		GLandscaper.Action.PRIMARY:
+			_add_radial( scan_data, controller )
+		GLandscaper.Action.SECONDARY:
+			_get_remove_radial( scan_data, controller )
 
-func end(scan_data:GLScanData, controller:GLController):
+
+func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 

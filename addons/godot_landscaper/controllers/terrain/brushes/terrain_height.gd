@@ -3,22 +3,20 @@ extends GLBrush
 class_name GLBrushTerrainHeight
 
 
-func start(scan_data:GLScanData, controller:GLController):
+func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 
-## Heighten terrain level
-func primary(scan_data:GLScanData, controller:GLController):
-	_height( controller.strenght, controller.ease_curve, controller.level, scan_data.position, controller.brush_size, controller.source.vertices_map )
+## Heighten/Lower terrain level
+func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
+	match action:
+		GLandscaper.Action.PRIMARY:
+			_height( controller.strenght, controller.ease_curve, controller.level, scan_data.position, controller.brush_size, controller.source.vertices_map )
+		GLandscaper.Action.SECONDARY:
+			_height( -controller.strenght, controller.ease_curve, controller.level, scan_data.position, controller.brush_size, controller.source.vertices_map )
 
 
-## Lower terrain level
-func secondary(scan_data:GLScanData, controller:GLController):
-	_height( -controller.strenght, controller.ease_curve, controller.level, scan_data.position, controller.brush_size, controller.source.vertices_map )
-
-
-
-func end(scan_data:GLScanData, controller:GLController):
+func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 
@@ -37,7 +35,7 @@ func _height(full_strength:float, ease:float, level:bool, center:Vector3, radius
 	if level:
 		min_height = INF
 		max_height = - INF
-		for cell in Rect2iter.new( brush_area ):
+		for cell in GLRect2iter.from( brush_area ):
 			var vertices:PackedVector3Array = vertices_map.get(cell, [])
 			for vertex in vertices:
 				min_height = min(vertex.y, min_height)
@@ -50,7 +48,7 @@ func _height(full_strength:float, ease:float, level:bool, center:Vector3, radius
 			min_height = 0
 	
 	brush_area.size += Vector2.ONE
-	for cell in Rect2iter.new( brush_area ):
+	for cell in GLRect2iter.from( brush_area ):
 		var distance:float = center_xz.distance_to(cell)
 		var distance_norm:float = 1.0 - distance / radius
 		var falloff:float = ease(distance_norm, ease)

@@ -127,35 +127,33 @@ func select_brush(brush:GLBrush):
 
 
 ## Start landscaping according to the current brush.
-func stroke_start(scan_data:GLScanData):
-	if GLValidator.validate_stroke_start( validator, scan_data ):
-		current_brush.start( scan_data, self )
+func stroke_start(action:GLandscaper.Action, scan_data:GLScanData):
+	if GLValidator.validate_stroke_start( validator, action, scan_data ):
+		current_brush.start( action, scan_data, self )
 
-func stroke_primary(scan_data:GLScanData):
-	if GLValidator.validate_stroke_primary( validator, scan_data ):
-		current_brush.primary( scan_data, self )
+
+func stroking(action:GLandscaper.Action, scan_data:GLScanData):
+	if GLValidator.validate_stroking( validator, action, scan_data ):
+		current_brush.action( action, scan_data, self )
 		builder.build_from_dirty()
 
-func stroke_secondary(scan_data:GLScanData):
-	if GLValidator.validate_stroke_secondary( validator, scan_data ):
-		current_brush.secondary( scan_data, self )
-		builder.build_from_dirty()
 
-func stroke_end(scan_data:GLScanData):
-	if GLValidator.validate_stroke_end( validator ):
-		current_brush.end( scan_data, self )
-		#builder.build_from_source()
+func stroke_end(action:GLandscaper.Action, scan_data:GLScanData):
+	if GLValidator.validate_stroke_end( validator, action ):
+		current_brush.end( action, scan_data, self )
 
 
 func rebuild_from_source():
 	if GLValidator.validate_rebuild_from_source( validator ):
 		builder.build_from_source()
 
+
 func clear_effects():
 	if GLValidator.validate_clear_effects( validator ):
 		if await GLEffect.clear_all( effects, self ):
 			builder.build_from_source()
 			processed = null
+
 
 func apply_effects():
 	if GLValidator.validate_apply_effects( validator ):

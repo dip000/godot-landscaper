@@ -27,30 +27,27 @@ const SQUARE_SHAPE:Array[Vector2i] = [
 ]
 
 
-func start(scan_data:GLScanData, controller:GLController):
+func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 
-func primary(scan_data:GLScanData, controller:GLController):
+func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	var source:GLBuildDataTerrain = controller.source
 	var brush_rect:Rect2 = GLandscaper.scene.brush.get_rect()
-	headless_build( brush_rect, source.vertices_map, source.texture, controller.sew_seams_on_build )
+	if action == GLandscaper.Action.PRIMARY:
+		headless_build( brush_rect, source.vertices_map, source.texture, controller.sew_seams_on_build )
+	else:
+		headless_erase( brush_rect, source.vertices_map, source.texture )
 
 
-func secondary(scan_data:GLScanData, controller:GLController):
-	var source:GLBuildDataTerrain = controller.source
-	var brush_rect:Rect2 = GLandscaper.scene.brush.get_rect()
-	headless_erase( brush_rect, source.vertices_map, source.texture )
-
-
-func end(scan_data:GLScanData, controller:GLController):
+func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 
 static func headless_erase(erase_rect:Rect2i, vertices_map:Dictionary[Vector2i, PackedVector3Array], texture:ImageTexture):
 	var prev_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
 	
-	for cell in Rect2iter.new(erase_rect):
+	for cell in GLRect2iter.from( erase_rect ):
 		if vertices_map.has( cell ):
 			GLDebug.spam("Erasd Cell: %s" %cell)
 			vertices_map.erase( cell )
@@ -64,12 +61,12 @@ static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, 
 	var prev_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
 	var new_bounds:Rect2 = prev_bounds.merge( build_rect )
 	
-	for cell in Rect2iter.new(build_rect):
+	for cell in GLRect2iter.from( build_rect ):
 		if vertices_map.has( cell ):
 			continue
 		
 		var vertices:PackedVector3Array
-		GLDebug.spam("Added Cell: %s" %[cell])
+		#GLDebug.spam("Added Cell: %s" %[cell])
 		
 		for corner_index in SQUARE_SHAPE.size():
 			var offset:Vector2i = SQUARE_SHAPE[corner_index]
@@ -117,3 +114,16 @@ static func get_bounding_box_from_coordinates(map:Array[Vector2i]) -> Rect2i:
 		max = max.max( cell )
 		min = min.min( cell )
 	return Rect2i(min, max - min + Vector2i.ONE)
+	
+
+
+
+
+
+
+
+
+
+
+
+	

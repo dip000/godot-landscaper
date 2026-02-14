@@ -31,7 +31,7 @@ func _apply(controller:GLController) -> bool:
 	
 	var map_data:PackedFloat32Array
 	map_data.resize( heightmap.map_width * heightmap.map_depth )
-	for global in Rect2iter.new(bounds):
+	for global in GLRect2iter.from( bounds ):
 		var height:float = GLBrushTerrainBuider.get_corner_height( GLBrushTerrainBuider.TOP_LEFT_MAP, vertices_map, global )
 		var local:Vector2i = global - bounds.position
 		var index:int = local.x + local.y * heightmap.map_width

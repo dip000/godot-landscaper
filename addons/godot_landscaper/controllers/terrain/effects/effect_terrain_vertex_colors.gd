@@ -46,7 +46,7 @@ func _apply(controller:GLController) -> bool:
 			# Window sampling
 			var accumulated:Color = Color(0, 0, 0, 0)
 			var count:int = 0
-			for cell_sample in Rect2iter.new( sampling_window ):
+			for cell_sample in GLRect2iter.from( sampling_window ):
 				var target_pixel:Vector2i = (cell_sample + corner_pixel).clamp( Vector2i.ZERO, img_max_index )
 				accumulated += image.get_pixelv( target_pixel )
 				count += 1

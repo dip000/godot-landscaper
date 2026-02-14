@@ -6,19 +6,19 @@ extends GLBrush
 class_name GLBrushGrassPaint
 
 
-func start(scan_data:GLScanData, controller:GLController):
+func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 
-func primary(scan_data:GLScanData, controller:GLController):
-	_paint( scan_data, controller, false )
+func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
+	match action:
+		GLandscaper.Action.PRIMARY:
+			_paint( scan_data, controller, false )
+		GLandscaper.Action.SECONDARY:
+			_paint( scan_data, controller, true )
 
 
-func secondary(scan_data:GLScanData, controller:GLController):
-	_paint( scan_data, controller, true )
-
-
-func end(scan_data:GLScanData, controller:GLController):
+func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	pass
 
 

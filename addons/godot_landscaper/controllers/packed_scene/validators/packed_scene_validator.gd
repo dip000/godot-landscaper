@@ -17,7 +17,7 @@ func _validate_select_brush(brush:GLBrush) -> bool:
 	return true
 
 
-func _validate_stroke_start(scan_data:GLScanData) -> bool:
+func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	_controller = _controller as GLControllerPackedScene
 	if not _controller.holder:
 		_controller.holder = _controller
@@ -28,16 +28,11 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	return true
 
 
-
-func _validate_stroke_primary(scan_data:GLScanData) -> bool:
+func _validate_stroking(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	return true
 
 
-func _validate_stroke_secondary(scan_data:GLScanData) -> bool:
-	return true
-
-
-func _validate_stroke_end() -> bool:
+func _validate_stroke_end(action:GLandscaper.Action) -> bool:
 	return true
 
 

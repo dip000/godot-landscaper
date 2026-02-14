@@ -21,7 +21,7 @@ func _validate_select_brush(brush:GLBrush) -> bool:
 	return true
 
 
-func _validate_stroke_start(scan_data:GLScanData) -> bool:
+func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	_controller = _controller as GLControllerGrass
 	if _controller.multimesh_instance and (not is_instance_valid(_controller.multimesh_instance) or not _controller.multimesh_instance.is_inside_tree()):
 		GLDebug.warning("multimesh_instance='%s' is set but its invalid. It was cleaned up" %_controller.multimesh_instance.name)
@@ -53,15 +53,11 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 	return true
 
 
-func _validate_stroke_primary(scan_data:GLScanData) -> bool:
+func _validate_stroking(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	return true
 
 
-func _validate_stroke_secondary(scan_data:GLScanData) -> bool:
-	return true
-
-
-func _validate_stroke_end() -> bool:
+func _validate_stroke_end(action:GLandscaper.Action) -> bool:
 	return true
 
 

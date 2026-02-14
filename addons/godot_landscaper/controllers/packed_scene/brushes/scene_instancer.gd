@@ -5,11 +5,35 @@ class_name GLBrushSceneInstancer
 var scanner:GLSurfaceScanner
 
 
-func start(scan_data:GLScanData, controller:GLController) -> void:
+func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
 	scanner = GLSurfaceScanner.new( controller )
 
 
-func primary(scan_data:GLScanData, controller:GLController) -> void:
+func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
+	match action:
+		GLandscaper.Action.PRIMARY:
+			_instance( scan_data, controller )
+		GLandscaper.Action.SECONDARY:
+			_erase( scan_data, controller )
+
+
+func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
+	pass
+
+
+func _erase(scan_data:GLScanData, controller:GLController) -> void:
+	controller = controller as GLControllerPackedScene
+	var source:GLBuildDataPackedScene = controller.source
+	var transforms:Array[Transform3D] = source.transforms
+	var radius_sqr:float = pow( controller.brush_size * 0.5, 2 )
+	
+	for i in transforms.size():
+		var position:Vector3 = transforms[i].origin
+		if position.distance_squared_to( scan_data.position ) < radius_sqr:
+			source.dirty_erases.append( i )
+
+
+func _instance(scan_data:GLScanData, controller:GLController) -> void:
 	controller = controller as GLControllerPackedScene
 	var source:GLBuildDataPackedScene = controller.source
 	var transforms:Array[Transform3D] = source.transforms
@@ -53,23 +77,6 @@ func primary(scan_data:GLScanData, controller:GLController) -> void:
 		dirty_instances.append( transforms.size() )
 		transforms.append( transform.scaled_local(size_offset) )
 	
-
-
-func secondary(scan_data:GLScanData, controller:GLController) -> void:
-	controller = controller as GLControllerPackedScene
-	var source:GLBuildDataPackedScene = controller.source
-	var transforms:Array[Transform3D] = source.transforms
-	var radius_sqr:float = pow( controller.brush_size * 0.5, 2 )
-	
-	for i in transforms.size():
-		var position:Vector3 = transforms[i].origin
-		if position.distance_squared_to( scan_data.position ) < radius_sqr:
-			source.dirty_erases.append( i )
-
-
-func end(scan_data:GLScanData, controller:GLController) -> void:
-	pass
-
 
 # Finds a random point in an imaginary sphere from its center.
 # Not perfectly normalized since it comes from a square but meh

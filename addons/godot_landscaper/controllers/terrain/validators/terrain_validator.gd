@@ -5,8 +5,10 @@ class_name GLValidatorTerrain
 
 func _validate_initialization() -> bool:
 	_controller = _controller as GLControllerTerrain
-	if not _controller.brush_shape:
-		_controller.brush_shape = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+	if not _controller.primary_paint_stencil:
+		_controller.primary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+	if not _controller.secondary_paint_stencil:
+		_controller.secondary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
 	if not _controller.source:
 		_controller.source = GLBuildDataTerrain.new()
 	if not _controller.source.material:
@@ -20,14 +22,16 @@ func _validate_select_brush(brush:GLBrush) -> bool:
 	return true
 
 
-func _validate_stroke_start(scan_data:GLScanData) -> bool:
+func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	_controller = _controller as GLControllerTerrain
 	if _controller.terrain and (not is_instance_valid(_controller.terrain) or not _controller.terrain.is_inside_tree()):
 		GLDebug.warning("terrain='%s' is set but its invalid. It was cleaned up" %_controller.terrain)
 		_controller.terrain = null
 	
-	if not _controller.brush_shape:
-		_controller.brush_shape = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+	if not _controller.primary_paint_stencil:
+		_controller.primary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+	if not _controller.secondary_paint_stencil:
+		_controller.secondary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
 	if not _controller.source:
 		_controller.source = GLBuildDataTerrain.new()
 	
@@ -68,15 +72,11 @@ func _validate_stroke_start(scan_data:GLScanData) -> bool:
 
 
 
-func _validate_stroke_primary(scan_data:GLScanData) -> bool:
+func _validate_stroking(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	return true
 
 
-func _validate_stroke_secondary(scan_data:GLScanData) -> bool:
-	return true
-
-
-func _validate_stroke_end() -> bool:
+func _validate_stroke_end(action:GLandscaper.Action) -> bool:
 	return true
 
 

@@ -48,8 +48,8 @@ static func validate_select_brush(validator:GLValidator, brush:GLBrush) -> bool:
 
 
 @abstract
-func _validate_stroke_start(scan_data:GLScanData) -> bool
-static func validate_stroke_start(validator:GLValidator, scan_data:GLScanData) -> bool:
+func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> bool
+static func validate_stroke_start(validator:GLValidator, action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	if not validate_base( validator ):
 		return false
 	if not scan_data:
@@ -63,42 +63,31 @@ static func validate_stroke_start(validator:GLValidator, scan_data:GLScanData) -
 		return false
 	if validator._controller.effects.any(func(e:GLEffect): return e.is_applied):
 		GLDebug.warning("An effect is marked as applied. Results might not be as expected; clear effects before stroking then apply effects at the end manually")
-	validator.validated_start = validator._validate_stroke_start( scan_data )
+	validator.validated_start = validator._validate_stroke_start( action, scan_data )
 	return validator.validated_start
 
 
 @abstract
-func _validate_stroke_primary(scan_data:GLScanData) -> bool
-static func validate_stroke_primary(validator:GLValidator, scan_data:GLScanData) -> bool:
-	if not validate_base( validator ):
-		return false
-	if not validator.validated_start:
-		GLDebug.error("Stroke primary failed: Stroke Start was not validated. Check for Stroke Start errors")
-		return false
-	return validator._validate_stroke_primary( scan_data )
-
-
-@abstract
-func _validate_stroke_secondary(scan_data:GLScanData) -> bool
-static func validate_stroke_secondary(validator:GLValidator, scan_data:GLScanData) -> bool:
+func _validate_stroking(action:GLandscaper.Action, scan_data:GLScanData) -> bool
+static func validate_stroking(validator:GLValidator, action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	if not validate_base( validator ):
 		return false
 	if not validator.validated_start:
 		GLDebug.error("Stroke secondary failed: Stroke Start was not validated. Check for Stroke Start errors")
 		return false
-	return validator._validate_stroke_secondary( scan_data )
+	return validator._validate_stroking( action, scan_data )
 
 
 @abstract
-func _validate_stroke_end() -> bool
-static func validate_stroke_end(validator:GLValidator) -> bool:
+func _validate_stroke_end(action:GLandscaper.Action) -> bool
+static func validate_stroke_end(validator:GLValidator, action:GLandscaper.Action) -> bool:
 	if not validate_base( validator ):
 		return false
 	if not validator.validated_start:
 		GLDebug.error("Stroke end failed: Stroke Start was not validated. Check for Stroke Start errors")
 		return false
 	validator.validated_start = false
-	return validator._validate_stroke_end()
+	return validator._validate_stroke_end( action )
 
 
 @abstract

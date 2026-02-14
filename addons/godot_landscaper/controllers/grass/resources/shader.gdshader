@@ -8,7 +8,7 @@ group_uniforms TextureVariants;
 uniform sampler2DArray texture_array;
 uniform vec4 detail_color[16]:source_color;
 
-// Selector of textures
+// Selector of texture_array textures
 // Set from instance_shader_parameters/texture_layer
 instance uniform int texture_layer;
 
@@ -47,7 +47,7 @@ void fragment() {
 	}
 	
 	else{
-		// Apply raw vertex color
+		// Apply raw vertex color.
 		ALBEDO = COLOR.rgb;
 	}
 }

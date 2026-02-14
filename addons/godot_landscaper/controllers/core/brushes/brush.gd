@@ -21,23 +21,19 @@ class_name GLBrush
 ## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class[br]
 ## 'controller'  Scene node that host all references like GLBuildData
 @abstract
-func start(scan_data:GLScanData, controller:GLController) -> void
+func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void
+
 
 ## Called every ui frame after start().[br]
 ## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class.[br]
 ## 'controller'  Scene node that host all references like GLBuildData
 @abstract
-func primary(scan_data:GLScanData, controller:GLController) -> void
+func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void
 
-## Called every ui frame after start().[br]
-## 'scan_data'    Result of physics collision, brought to you by the main GLandscaper class.[br]
-## 'controller'  Scene node that host all references like GLBuildData
-@abstract
-func secondary(scan_data:GLScanData, controller:GLController) -> void
 
 ## Called once at the end of the stroke. End subprocesses, resets, etc..
 @abstract
-func end(scan_data:GLScanData, controller:GLController) -> void
+func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void
 
 
 
