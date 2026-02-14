@@ -2,6 +2,11 @@
 extends GLBrush
 class_name GLBrushTerrainBuider
 
+enum Behavior {
+	BUILD, ## Creates squares of mesh.
+	ERASE, ## Erases squares of mesh.
+}
+
 # Each corner of a square has a list of 3 closest neighbors that share the same vertex
 # These const define their mapping of {relative_index_in_square_shape: neighbor_corner_offset}
 # For example. Looking from the TOP_LEFT_MAP corner:
@@ -32,12 +37,24 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
+	controller = controller as GLControllerTerrain
 	var source:GLBuildDataTerrain = controller.source
 	var brush_rect:Rect2 = GLandscaper.scene.brush.get_rect()
-	if action == GLandscaper.Action.PRIMARY:
-		headless_build( brush_rect, source.vertices_map, source.texture, controller.sew_seams_on_build )
-	else:
-		headless_erase( brush_rect, source.vertices_map, source.texture )
+	var behavior:Behavior
+	
+	# Resolve
+	match action:
+		GLandscaper.Action.PRIMARY:
+			behavior = controller.primary_build_behavior
+		GLandscaper.Action.SECONDARY:
+			behavior = controller.secondary_build_behavior
+	
+	# Execute
+	match behavior:
+		Behavior.BUILD:
+			headless_build( brush_rect, source.vertices_map, source.texture, controller.sew_seams_on_build )
+		Behavior.ERASE:
+			headless_erase( brush_rect, source.vertices_map, source.texture )
 
 
 func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):

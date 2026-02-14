@@ -8,5 +8,5 @@ script = ExtResource("2_vlo2c")
 title = "Paint"
 icon = ExtResource("1_47n8j")
 info = "Paints as splat color or texture tiling"
-hide_properties = PackedStringArray("sew_seams_on_build", "cell_size", "strenght", "ease_curve", "level", "texture_resolution", "secondary_build_behavior", "primary_build_behavior")
+hide_properties = PackedStringArray("sew_seams_on_build", "cell_size", "strenght", "ease_curve", "level", "texture_resolution", "secondary_build_behavior", "primary_build_behavior", "secondary_height_behavior", "primary_height_behavior")
 metadata/_custom_type_script = "uid://t22pds07a38c"

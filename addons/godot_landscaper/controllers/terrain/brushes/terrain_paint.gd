@@ -2,6 +2,11 @@
 extends GLBrush
 class_name GLBrushTerrainPaint
 
+enum Behavior {
+	SPLAT_PAINTING, ## For smudges or simple fill coloring. The brush size changes the brush texture painted.
+	TEXTURE_TILING, ## For continuous rocks or grass textures. The brush size always stays the same.
+}
+
 const PIXELS_PER_SQUARED_METER:Vector2 = Vector2(10,10)
 
 var paint_stencil:Image
@@ -26,16 +31,25 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	controller = controller as GLControllerTerrain
+	var behavior:Behavior
 	var world_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
 	var world_brush_rect:Rect2 = Rect2( scan_data.position.x, scan_data.position.z, 0, 0 )
 	world_brush_rect = world_brush_rect.grow( controller.brush_size*0.5 )
-	
+
+	# Resolve
 	match action:
 		GLandscaper.Action.PRIMARY:
-			stroke_paint( controller.primary_color, controller.source.texture, world_brush_rect, world_rect )
+			behavior = controller.primary_paint_behavior
 		GLandscaper.Action.SECONDARY:
+			behavior = controller.secondary_paint_behavior
+	
+	# Execute
+	match behavior:
+		Behavior.SPLAT_PAINTING:
+			stroke_paint( controller.primary_color, controller.source.texture, world_brush_rect, world_rect )
+		Behavior.TEXTURE_TILING:
 			stroke_paint( controller.secondary_color, controller.source.texture, world_brush_rect, world_rect )
-
+	
 
 func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	paint_stencil = null

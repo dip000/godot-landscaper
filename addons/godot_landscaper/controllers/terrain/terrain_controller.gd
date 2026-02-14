@@ -3,24 +3,27 @@
 extends GLController
 class_name GLControllerTerrain
 
+## How many cells to build per meter squared.
+@export_range(0.1, 10.0, 0.01, "suffix:cells/meter") var cell_size:float = 1
 
-## How many cells to build per meter squared.[br]
-## You can always optimize by applying effects at the end.
-@export_range(1.0, 10.0, 0.01, "or_greater", "or_less", "suffix:cells/meter") var cell_size:float = 1
+## How many pixels to have per meter squared.
+@export_range(1.0, 100.0, 0.01, "suffix:pixels/meter") var texture_resolution:float = 10
 
-## Joins hard-edges with the closest cells
+## Merges overhang edges with the closest cells.
+## Disable if you want overhangs.
 @export var sew_seams_on_build:bool = true
 
 
- ## Controls how much the terrain is raised or lowered per stroke.
+ ## Controls how much the terrain is raised or lowered per stroke.[br]
  ## Higher values produce steeper hills and deeper depressions.[br]
  ## Lower values allow for subtle shaping and fine adjustments.
 @export_range(0.001, 1.0, 0.001, "or_greater", "exp") var strenght:float = 0.05
 
 ## Controls how the brush strength fades from the center toward the edges.[br]
-## Lower values create a softer, wider influence.[br]
-## Higher values concentrate the effect near the center for sharper shapes.
-@export_range(-0.1, 3.0, 0.01, "or_greater", "or_less") var ease_curve:float = 0.5
+## - Lower values create a softer, wider influence.[br]
+## - Higher values concentrate the effect near the center for sharper shapes.[br]
+## Refer to [url=https://raw.githubusercontent.com/godotengine/godot-docs/master/img/ease_cheatsheet.png] ease_cheatsheet [/url]
+@export_range(-5.0, +5.0, 0.01, "or_greater", "or_less") var ease_curve:float = -2.0
 
 
 ## Flattens the affected terrain towards the minimum height if using the primary key.[br]
@@ -34,17 +37,52 @@ class_name GLControllerTerrain
 
 ## Terrain color with right button mouse.[br]
 ## Use transparency for smooth blending.
-@export var secondary_color:Color = Color(GLandscaper.VERDIGIRS, 0.5)
+@export var secondary_color:Color = GLandscaper.VERDIGIRS
+
+## Isolated texture layers,. Usefull for working on different parts without interfering with each other.[br]
+## All layers are baked into a single texture in [member GLBuildDataTerrain.texture]
+@export var layers:Array[GLPaintLayer]
 
 
 ## The terrain target reference
 @export var terrain:MeshInstance3D
 
 
-@export_group("Other")
-## The splat texture to brush with.[br]
-## Use alpha gradients for a smooth falloff
-@export var brush_shape:Texture2D
+@export_group("Primary Action", "primary_")
+## Building behavior for the builder brush primary action
+@export var primary_build_behavior:GLBrushTerrainBuider.Behavior = GLBrushTerrainBuider.Behavior.BUILD
+
+## Height behavior for the height brush primary action
+@export var primary_height_behavior:GLBrushTerrainHeight.Behavior = GLBrushTerrainHeight.Behavior.RAISE
+
+## The texturing behavior of the [member primary_paint_stencil]
+@export var primary_paint_behavior:GLBrushTerrainPaint.Behavior = GLBrushTerrainPaint.Behavior.TEXTURE_TILING
+
+## The splat texture to brush with. Use alpha gradients for a smooth falloff.[br]
+## Create a custom stencil with [member primary_paint_mixer]
+@export var primary_paint_stencil:Texture2D
+
+## A convenient tool to make your own [member primary_paint_stencil] stencils
+@export var primary_paint_mixer:GLStencilMixer = GLStencilMixer.new()
+
+
+@export_group("Secondary Action", "secondary_")
+## Building behavior for the builder brush secondary action
+@export var secondary_build_behavior:GLBrushTerrainBuider.Behavior = GLBrushTerrainBuider.Behavior.ERASE
+
+## Height behavior for the height brush secondary action
+@export var secondary_height_behavior:GLBrushTerrainHeight.Behavior = GLBrushTerrainHeight.Behavior.LOWER
+
+## The texturing behavior of the [member secondary_paint_stencil]
+@export var secondary_paint_behavior:GLBrushTerrainPaint.Behavior = GLBrushTerrainPaint.Behavior.SPLAT_PAINTING
+
+## The splat texture to brush with. Use alpha gradients for a smooth falloff.[br]
+## Create a custom stencil with [member secondary_paint_mixer]
+@export var secondary_paint_stencil:Texture2D
+
+## A convenient tool to make your own [member secondary_paint_stencil] stencils
+@export var secondary_paint_mixer:GLStencilMixer
+
 
 
 func _setup_controller() -> void:
