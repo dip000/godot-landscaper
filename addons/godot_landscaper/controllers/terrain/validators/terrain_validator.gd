@@ -24,6 +24,10 @@ func _validate_select_brush(brush:GLBrush) -> bool:
 
 func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> bool:
 	_controller = _controller as GLControllerTerrain
+	if not _controller.layers.any(func(layer:GLPaintLayer): return layer.active):
+		GLDebug.error("Stroke Start Failed: No layer is active. Make sure at least there's one layer enabled to paint.")
+		return false
+	
 	if _controller.terrain and (not is_instance_valid(_controller.terrain) or not _controller.terrain.is_inside_tree()):
 		GLDebug.warning("terrain='%s' is set but its invalid. It was cleaned up" %_controller.terrain)
 		_controller.terrain = null
@@ -39,7 +43,6 @@ func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> 
 	if not source.uvs_map.is_empty() and source.uvs_map.size() != source.vertices_map.size():
 		GLDebug.error("Stroke Start Failed: Vertex maps size '%s' do not match UVs map size '%s'. Fix UVs map or clear it to regenerate it" %[source.vertices_map.size(), source.uvs_map.size()])
 		return false
-	
 	if not source.shader:
 		source.shader = GLAssetsManager.load_controller_resource("terrain", "shader.gdshader")
 	if not source.material:

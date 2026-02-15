@@ -73,7 +73,6 @@ static func validate_stroking(validator:GLValidator, action:GLandscaper.Action, 
 	if not validate_base( validator ):
 		return false
 	if not validator.validated_start:
-		GLDebug.error("Stroke secondary failed: Stroke Start was not validated. Check for Stroke Start errors")
 		return false
 	return validator._validate_stroking( action, scan_data )
 
