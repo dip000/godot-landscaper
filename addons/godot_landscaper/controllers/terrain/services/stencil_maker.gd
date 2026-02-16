@@ -1,6 +1,6 @@
 @tool
 extends Resource
-class_name GLStencilMixer
+class_name GLStencilMaker
 
 const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 
@@ -16,9 +16,11 @@ const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 @export_tool_button("                Mix                ", "Blend") var blend_btn:Callable = _blend
 
 @export_group("Settings")
-@export_range(0.0, 1.0, 0.01) var alpha_threshold:float = 0.5
-@export_range(0.1, 10.0, 0.01, "or_less", "or_greater", "exp") var stencil_scale:float = 1.0
-
+@export_range(0.0, 100.0, 1.0, "or_less", "or_greater") var distortion:float = 0.0
+@export_range(0.0, 1.0, 0.01) var min_threshold:float = 0.4
+@export_range(0.0, 1.0, 0.01) var max_threshold:float = 0.6
+@export_range(0.1, 10.0, 0.01, "or_less", "or_greater", "exp") var stencil_scale:float = 0.5
+@export var stencil_offset:Vector2i = Vector2i.ZERO
 
 func _blend():
 	if not input_mask or not input_stencil:
@@ -38,13 +40,14 @@ func _blend():
 	var mask_rect:Rect2i = Rect2i(Vector2i.ZERO, size_mask)
 	var stencil_rect:Rect2i = Rect2i(Vector2i.ZERO, size_stencil)
 	var effect_rect:Rect2i = mask_rect.intersection( stencil_rect )
-	
+	var noise:FastNoiseLite = FastNoiseLite.new()
+
 	for paint_position in GLRect2iter.from( mask_rect ):
-		var shape:Color = img_mask.get_pixelv( paint_position )
-		if is_zero_approx( shape.a ):
+		var mask:Color = img_mask.get_pixelv( paint_position )
+		if is_zero_approx( mask.a ):
 			continue
 		
-		var centered_and_scaled:Vector2 = paint_position - half_size_mask
+		var centered_and_scaled:Vector2 = paint_position - half_size_mask + stencil_offset
 		centered_and_scaled /= stencil_scale
 		centered_and_scaled += half_size_stencil
 		
@@ -53,11 +56,18 @@ func _blend():
 		or centered_and_scaled.y >= size_stencil.y:
 			continue
 		
+		if distortion > 0:
+			centered_and_scaled.x += noise.get_noise_2dv( paint_position ) * distortion
+			centered_and_scaled.y += noise.get_noise_2dv( (paint_position + Vector2i(1000,1000)) ) * distortion
+			centered_and_scaled = centered_and_scaled.clamp( Vector2i.ZERO, size_stencil - Vector2i.ONE )
+		
 		var stencil_color:Color = img_stencil.get_pixelv( centered_and_scaled )
 		var mask_result:Color = Color.TRANSPARENT
-		if stencil_color.get_luminance() > alpha_threshold:
-			mask_result.a = shape.a
-		img_mask.set_pixelv( paint_position, mask_result )
+		var lum:float = stencil_color.get_luminance()
+		var threshold:float = smoothstep( min_threshold, max_threshold, lum )
+		var result:Color = Color.WHITE
+		result.a = clamp(mask.a * threshold, 0.0, 1.0)
+		img_mask.set_pixelv( paint_position, result )
 	
 	if output:
 		output.set_image( img_mask )

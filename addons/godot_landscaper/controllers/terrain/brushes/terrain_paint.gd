@@ -8,13 +8,13 @@ enum Behavior {
 }
 
 const PIXELS_PER_SQUARED_METER:Vector2 = Vector2(10,10)
+const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 
 var paint_stencil:Image
-var layer_image:Image
-var preview_image:Image
+var target_image:Image
+var target_layer:GLPaintLayer
 
-var layer:GLPaintLayer
-var behavior:Behavior
+var behavior:Behavior = -1
 var color:Color
 
 
@@ -37,11 +37,8 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 	var source:GLBuildDataTerrain = controller.source
 	var texture_brush_size:Vector2i = meters_to_pixels( Vector2.ONE * controller.brush_size )
 	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
-	
-	var size:Vector2i = source.texture.get_size()
-	preview_image = GLPaintLayer.merge_layers( controller.layers, size )
-	layer = GLPaintLayer.get_active( controller.layers )
-	layer_image = layer.get_image( size )
+	target_layer = GLPaintLayer.get_active( controller.layers )
+	target_image = target_layer.get_image()
 
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
@@ -53,30 +50,24 @@ func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLContro
 	# Execute
 	match behavior:
 		Behavior.SPLAT_PAINTING:
-			stroke_paint( color, controller.source.texture, world_brush_rect, world_rect )
-		Behavior.TEXTURE_TILING:
-			stroke_paint( color, controller.source.texture, world_brush_rect, world_rect )
+			stroke_paint( color, controller.paint_strenght*0.01, world_brush_rect, world_rect )
+		Behavior.TEXTURE_TILING: #NOT-IMPLEMENTED
+			stroke_paint( color, controller.paint_strenght*0.01, world_brush_rect, world_rect )
 	
 
 func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
-	controller = controller as GLControllerTerrain
-	var source:GLBuildDataTerrain = controller.source
-	var source_texture:ImageTexture = source.texture
-	var result:Image = GLPaintLayer.merge_layers( controller.layers, source_texture.get_size() )
-	
-	layer.update_image( layer_image )
-	source_texture.update( result )
 	paint_stencil = null
-	layer_image = null
-	preview_image = null
+	target_image = null
+	target_layer = null
+	behavior = -1
 
 
 ## First call from start(), then you can call this function repeatedly with minimum cost.
 ## 'world_brush_rect' and 'world_rect' should be in world space
-func stroke_paint(paint_color:Color, target_texture:ImageTexture, world_brush_rect:Rect2, world_rect:Rect2):
+func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect2, world_rect:Rect2):
 	var texture_rect:Rect2i = Rect2i(
 		Vector2i.ZERO,
-		preview_image.get_size()
+		target_image.get_size()
 	)
 	var texture_brush_rect:Rect2i = Rect2i(
 		meters_to_pixels(world_brush_rect.position - world_rect.position),
@@ -89,27 +80,18 @@ func stroke_paint(paint_color:Color, target_texture:ImageTexture, world_brush_re
 	# - Terrain no longer needs alpha, like Image.blend_rect_mask(..) does
 	for paint_position in GLRect2iter.from( paint_rect ):
 		var shape:Color = paint_stencil.get_pixelv( paint_position - texture_brush_rect.position )
-		var alpha:float = shape.a * paint_color.a
+		var blend_factor:float = shape.a * paint_strenght
+		shape.a = 1.0
 		
-		if alpha <= 0.0:
-			continue
-			
-		var shape_color:Color = paint_color * shape
-		
-		var layer_color:Color = layer_image.get_pixelv( paint_position )
-		if layer_color == GLPaintLayer.DEFAULT_COLOR:
-			layer_image.set_pixelv( paint_position, shape_color )
-		else:
-			var layer_blend:Color = alpha * shape_color + (1 - alpha) * layer_color
-			layer_image.set_pixelv( paint_position, layer_blend )
+		#if blend_factor <= 0.0:
+			#continue
 		
 		# paint_rect makes sure pixels are always inside the texture scope
-		var target_color:Color = preview_image.get_pixelv( paint_position )
-		var alpha_blend:Color = alpha * shape_color + (1 - alpha) * target_color
-		shape_color.a = 1.0
-		preview_image.set_pixelv( paint_position, alpha_blend )
-		
-	target_texture.update( preview_image )
+		var shape_color:Color = paint_color * shape
+		var target_color:Color = target_image.get_pixelv( paint_position )
+		var blend_result:Color = blend_factor * shape_color + (1 - blend_factor) * target_color
+		target_image.set_pixelv( paint_position, blend_result )
+	target_layer.update_image( target_image )
 
 
 static func meters_to_pixels(squared_meters:Vector2) -> Vector2:
@@ -123,7 +105,7 @@ static func pixels_to_meters(pixels:Vector2) -> Vector2:
 static func create_image(size:Vector2i, color:Color) -> Image:
 	if size <= Vector2i.ZERO:
 		size = Vector2i.ONE
-	var img:Image = Image.create( size.x, size.y, false, Image.FORMAT_RGBA8 )
+	var img:Image = Image.create( size.x, size.y, false, DEFAULT_FORMAT )
 	img.fill( color )
 	return img
 

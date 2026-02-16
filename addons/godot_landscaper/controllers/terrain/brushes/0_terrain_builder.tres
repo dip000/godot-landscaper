@@ -8,5 +8,5 @@ script = ExtResource("1_haua6")
 title = "Build"
 icon = ExtResource("1_b0ipx")
 info = "Builds or erases terrain mesh"
-hide_properties = PackedStringArray("strenght", "primary_color", "secondary_color", "ease_curve", "level", "layers", "secondary_paint_behavior", "primary_paint_behavior", "primary_paint_stencil", "primary_paint_mixer", "secondary_paint_stencil", "secondary_paint_mixer", "primary_height_behavior", "secondary_height_behavior")
+hide_properties = PackedStringArray("strenght", "primary_color", "secondary_color", "ease_curve", "level", "layers", "secondary_paint_behavior", "primary_paint_behavior", "primary_paint_stencil", "secondary_paint_stencil", "primary_height_behavior", "secondary_height_behavior", "paint_strenght")
 metadata/_custom_type_script = "uid://byui0q6lutlyl"

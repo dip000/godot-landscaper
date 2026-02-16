@@ -7,7 +7,7 @@ static var _shuffler:GLDeckShuffle
 
 static func load_random_template(controller:GLController):
 	if not _shuffler:
-		_shuffler = GLDeckShuffle.new( [0, 1, 2, 3] )
+		_shuffler = GLDeckShuffle.new( 0, 1, 2, 3 )
 	var random_index:int = _shuffler.next()
 	load_template( controller, random_index )
 

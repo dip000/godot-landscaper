@@ -30,22 +30,25 @@ class_name GLControllerTerrain
 ## Flattens to the max height if using secondary.
 @export var level:bool = false
 
+## The terrain target reference
+@export var terrain:MeshInstance3D
 
-## Terrain color with left button mouse.[br]
-## Use transparency for smooth blending.
-@export var primary_color:Color = Color(GLandscaper.DEEP_OCEAN, 0.5)
 
-## Terrain color with right button mouse.[br]
-## Use transparency for smooth blending.
-@export var secondary_color:Color = GLandscaper.VERDIGIRS
+## Terrain color with left button mouse.
+## Use transparency to reveal the bottom layers.
+@export var primary_color:Color = GLandscaper.LEMON_CHIFFON
+
+## Terrain color with right button mouse.
+## Use transparency to reveal the bottom layers.
+@export var secondary_color:Color = GLandscaper.DEEP_OCEAN
+
+## Paint blend value.
+## Does not affect the color's alpha result.
+@export_range(0, 100, 1, "suffix:%") var paint_strenght:float = 100
 
 ## Isolated texture layers,. Usefull for working on different parts without interfering with each other.[br]
 ## All layers are baked into a single texture in [member GLBuildDataTerrain.texture]
 @export var layers:Array[GLPaintLayer]
-
-
-## The terrain target reference
-@export var terrain:MeshInstance3D
 
 
 @export_group("Primary Action", "primary_")
@@ -62,9 +65,6 @@ class_name GLControllerTerrain
 ## Create a custom stencil with [member primary_paint_mixer]
 @export var primary_paint_stencil:Texture2D
 
-## A convenient tool to make your own [member primary_paint_stencil] stencils
-@export var primary_paint_mixer:GLStencilMixer = GLStencilMixer.new()
-
 
 @export_group("Secondary Action", "secondary_")
 ## Building behavior for the builder brush secondary action
@@ -80,8 +80,15 @@ class_name GLControllerTerrain
 ## Create a custom stencil with [member secondary_paint_mixer]
 @export var secondary_paint_stencil:Texture2D
 
-## A convenient tool to make your own [member secondary_paint_stencil] stencils
-@export var secondary_paint_mixer:GLStencilMixer
+
+@export_group("Tools")
+## A convenient tool to make your own stencils.[br]
+## Tip: Link the output with [member primary_paint_stencil] or [member secondary_paint_stencil]
+## so you can edit the stencil live.
+@export var stencil_maker:GLStencilMaker = GLStencilMaker.new()
+
+## A conveinent tool to merge your texture layers??
+#@export var texture_merger:Variant
 
 
 

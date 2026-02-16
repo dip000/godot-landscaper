@@ -107,7 +107,7 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	terrain_collider.shape = terrain.mesh.create_trimesh_shape()
 	terrain_body.process_mode = Node.PROCESS_MODE_INHERIT
 	
-	# Update texture
-	terrain.material_override.set_shader_parameter( "terrain_texture", build_data.texture )
+	# Update textures
+	for layer in build_data.layers:
+		terrain.material_override.set_shader_parameter( layer.shader_parameter, layer.texture )
 	return true
-	

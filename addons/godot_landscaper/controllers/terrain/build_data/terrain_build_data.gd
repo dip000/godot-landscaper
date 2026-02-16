@@ -8,10 +8,9 @@ class_name GLBuildDataTerrain
 ## Shader material to use
 @export var material:ShaderMaterial
 
-## It will be converted to ImageTexture while in use.[br]
-## - Use the Terrain Formater effect for better format alternatives.[br]
-## - Use vertex_color_map for painting vertices instead of pixels.
-@export var texture:Texture2D
+## Layer data.
+## It will be converted to ImageTexture while in use.
+@export var layers:Array[GLPaintLayer]
 
 
 @export_group("Raw Data")

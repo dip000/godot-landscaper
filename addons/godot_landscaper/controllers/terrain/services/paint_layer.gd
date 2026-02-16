@@ -12,6 +12,9 @@ const DEFAULT_COLOR:Color = Color(0, 0, 0, 0)
 ## All texture layers will be blended into a single output texture in [member GLBuildDataTerrain.texture]
 @export var texture:ImageTexture
 
+## The shader's uniform sampler2D parameter name
+@export var shader_parameter:String = "terrain_texture"
+
 @export_tool_button("       Clear       ", "Clear") var clear_btn:Callable = clear
 
 
@@ -31,7 +34,7 @@ static func merge_layers(layers:Array[GLPaintLayer], size:Vector2i) -> Image:
 	for i in layers.size():
 		var layer:GLPaintLayer = layers[i]
 		if layer:
-			var image:Image = layer.get_image( size )
+			var image:Image = layer.get_image()
 			result.blend_rect( image, texture_rect, Vector2i.ZERO )
 			layers_affected += 1
 	
@@ -52,18 +55,8 @@ func update_image(image:Image):
 	texture.update( image )
 
 
-func get_image(size:Vector2i) -> Image:
-	var image:Image
-	if not texture:
-		image = new_image( DEFAULT_COLOR, size )
-		texture = ImageTexture.create_from_image( image )
-		return image
-	
-	image = texture.get_image()
-	if not image:
-		image = new_image( DEFAULT_COLOR, size )
-		texture = ImageTexture.create_from_image( image )
-		return image
+func get_image() -> Image:
+	var image:Image = texture.get_image()
 	
 	if image.has_mipmaps():
 		image.clear_mipmaps()
