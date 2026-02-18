@@ -10,16 +10,17 @@ enum Behavior {
 const PIXELS_PER_SQUARED_METER:Vector2 = Vector2(10,10)
 const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 
+# Caches
 var paint_stencil:Image
 var target_image:Image
 var target_layer:GLPaintLayer
+var composed_image:Image
+var composed_layer:GLPaintLayer
 
 var behavior:Behavior = -1
 var color:Color
 
 
-## Cache and pre-process images for performance.
-## Use with stroke_paint(..) and end()
 func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	controller = controller as GLControllerTerrain
 	
@@ -34,11 +35,19 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 			behavior = controller.secondary_paint_behavior
 			color = controller.secondary_color
 	
+	# Caches
 	var source:GLBuildDataTerrain = controller.source
 	var texture_brush_size:Vector2i = meters_to_pixels( Vector2.ONE * controller.brush_size )
 	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
+	
+	# input layers (separated)
 	target_layer = GLPaintLayer.get_active( controller.layers )
 	target_image = target_layer.get_image()
+	
+	# output layers (composed)
+	source.layers = GLPaintLayer.compose_sampler_outputs( controller.layers )
+	composed_layer = GLPaintLayer.get_active( source.layers )
+	composed_image = composed_layer.get_image()
 
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
@@ -56,9 +65,16 @@ func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLContro
 	
 
 func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
+	var source:GLBuildDataTerrain = controller.source
+	source.layers = GLPaintLayer.compose_sampler_outputs( controller.layers )
+	for layer in source.layers:
+		source.material.set_shader_parameter( layer.material_channel, layer.texture )
+	
 	paint_stencil = null
 	target_image = null
 	target_layer = null
+	composed_layer = null
+	composed_image = null
 	behavior = -1
 
 
@@ -83,15 +99,18 @@ func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect
 		var blend_factor:float = shape.a * paint_strenght
 		shape.a = 1.0
 		
-		#if blend_factor <= 0.0:
-			#continue
-		
 		# paint_rect makes sure pixels are always inside the texture scope
 		var shape_color:Color = paint_color * shape
 		var target_color:Color = target_image.get_pixelv( paint_position )
 		var blend_result:Color = blend_factor * shape_color + (1 - blend_factor) * target_color
 		target_image.set_pixelv( paint_position, blend_result )
+		
+		target_color = composed_image.get_pixelv( paint_position )
+		blend_result = blend_factor * shape_color + (1 - blend_factor) * target_color
+		composed_image.set_pixelv( paint_position, blend_result )
+	
 	target_layer.update_image( target_image )
+	composed_layer.update_image( composed_image )
 
 
 static func meters_to_pixels(squared_meters:Vector2) -> Vector2:

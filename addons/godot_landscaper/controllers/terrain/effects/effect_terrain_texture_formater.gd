@@ -13,7 +13,7 @@ enum CompressBy {
 }
 
 enum SaveAs {
-	JPG, PNG, WEBP, DDS, EXR
+	JPG, PNG, WEBP
 }
 
 enum ColorSpace {
@@ -30,7 +30,7 @@ enum AlphaOps {
 }
 
 
-@export_custom(PROPERTY_HINT_SAVE_FILE, "*.png,*.jpg,*.webp,*.dds,*.exr") var save_path:String = "res://terrain_texture.jpg"
+@export_dir() var save_directory:String = "res://"
 @export var save_as:SaveAs = SaveAs.JPG
 
 @export_group("Save Details")
@@ -74,18 +74,65 @@ func _apply(controller:GLController) -> bool:
 		GLDebug.error("Terrain Texture Formater Failed: This effect is only valid for GLControllerTerrain controller types")
 		return false
 	
-	var save_dir:String = save_path.get_base_dir()
-	if not FileAccess.file_exists( save_path ):
-		if not DirAccess.dir_exists_absolute( save_dir ):
-			GLDebug.error("Terrain Texture Formater Failed: Invalid 'save_path=%s'" %save_path)
-			return false
+	if not DirAccess.dir_exists_absolute( save_directory ):
+		GLDebug.error("Terrain Texture Formater Failed: Invalid 'save_directory=%s'" %save_directory)
+		return false
 	
 	controller = controller as GLControllerTerrain
 	
 	var processed:GLBuildDataTerrain = controller.processed
-	var image:Image = processed.texture.get_image()
-	var err:int = OK
+	var save_paths:Array[String]
 	
+	for layer in processed.layers:
+		var image:Image = _format_image( layer.get_image() )
+		var save_path:String = save_directory.path_join( layer.material_channel )
+		var err:int = OK
+		
+		match save_as:
+			SaveAs.PNG:
+				save_path += ".png"
+				err = image.save_png( save_path)
+			SaveAs.JPG:
+				save_path += ".jpg"
+				err = image.save_jpg( save_path , save_webp_jpg_quality )
+			SaveAs.WEBP:
+				save_path += ".webp"
+				err = image.save_webp( save_path, save_webp_lossy, save_webp_jpg_quality )
+		
+		save_paths.append( save_path )
+		if err != OK:
+			GLDebug.error("Terrain Texture Save Failed. Reason: %s" %error_string(err))
+			return false
+	
+	await _frame()
+	EditorInterface.get_resource_filesystem().scan_sources()
+	await _timeout( 0.5 )
+	
+	# Reload resources
+	for i in save_paths.size():
+		var save_path:String = save_paths[i]
+		var layer:GLPaintLayer = processed.layers[i]
+		var texture:Texture = load( save_path )
+		controller.terrain.material_override.set_shader_parameter( layer.material_channel, texture )
+	
+	GLDebug.state("Terrain Texture Formater Succesfull: Files=%s" %save_paths)
+	return true
+	
+
+func _clear(controller:GLController) -> bool:
+	if not controller is GLControllerTerrain:
+		GLDebug.error("Terrain Texture Formater Failed: This effect is only valid for GLControllerTerrain controller types")
+		return false
+	
+	controller = controller as GLControllerTerrain
+	var source:GLBuildDataTerrain = controller.source
+	
+	return true
+	
+
+
+func _format_image(image:Image) -> Image:
+	var err:int = OK
 	
 	if image.has_mipmaps():
 		image.clear_mipmaps()
@@ -107,7 +154,7 @@ func _apply(controller:GLController) -> bool:
 	
 		if err != OK:
 			GLDebug.error("Terrain Texture Compression Failed. Reason: %s" %error_string(err))
-			return false
+			return null
 	
 	if enable_convert:
 		image.convert( convert_format )
@@ -116,7 +163,7 @@ func _apply(controller:GLController) -> bool:
 		image.generate_mipmaps()
 		if err != OK:
 			GLDebug.error("Terrain Texture Mipmaps Failed. Reason: %s" %error_string(err))
-			return false
+			return null
 	
 	match alpha_operation:
 		AlphaOps.FIX_ALPHA_EDGES:
@@ -132,46 +179,15 @@ func _apply(controller:GLController) -> bool:
 		ColorSpace.LINEAR_TO_SRGB:
 			image.linear_to_srgb()
 	
-	match save_as:
-		SaveAs.PNG:
-			save_path = save_path.get_basename() + ".png"
-			err = image.save_png( save_path )
-		SaveAs.JPG:
-			save_path = save_path.get_basename() + ".jpg"
-			err = image.save_jpg( save_path, save_webp_jpg_quality )
-		SaveAs.WEBP:
-			save_path = save_path.get_basename() + ".webp"
-			err = image.save_webp( save_path, save_webp_lossy, save_webp_jpg_quality )
-		SaveAs.EXR:
-			save_path = save_path.get_basename() + ".exr"
-			err = image.save_exr( save_path, save_exr_grayscale )
-		SaveAs.DDS:
-			save_path = save_path.get_basename() + ".dds"
-			err = image.save_dds( save_path )
-	
-	if err != OK:
-		GLDebug.error("Terrain Texture Save Failed. Reason: %s" %error_string(err))
-		return false
-	
-	await _frame()
-	EditorInterface.get_resource_filesystem().scan_sources()
-	await _timeout(1)
-	
-	# Reload resources
-	var texture:Texture = load( save_path )
-	controller.terrain.material_override.set_shader_parameter( "terrain_texture", texture )
-	GLDebug.state("Terrain Texture Formater Succesfull: Saved in: %s" %save_path)
-	return true
-	
+	return image
 
-func _clear(controller:GLController) -> bool:
-	if not controller is GLControllerTerrain:
-		GLDebug.error("Terrain Texture Formater Failed: This effect is only valid for GLControllerTerrain controller types")
-		return false
-	
-	controller = controller as GLControllerTerrain
-	var source:GLBuildDataTerrain = controller.source
-	controller.terrain.material_override.set_shader_parameter( "terrain_texture", source.texture )
-	return true
-	
+
+
+
+
+
+
+
+
+
 	

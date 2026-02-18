@@ -61,6 +61,8 @@ func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLContro
 		_: return
 	
 	var new_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
+	for layer in controller.layers:
+		GLBrushTerrainPaint.resize_texture( layer.texture, prev_bounds, new_bounds )
 	for layer in source.layers:
 		GLBrushTerrainPaint.resize_texture( layer.texture, prev_bounds, new_bounds )
 
@@ -91,6 +93,7 @@ static func headless_build(build_rect:Rect2i, vertices_map:Dictionary[Vector2i, 
 			var offset:Vector2i = SQUARE_SHAPE[corner_index]
 			var corner_height:float = 0
 			
+			# TODO: Default to a near neighbor corner height instead of zero
 			if sew_seams_on_build:
 				match corner_index:
 					0: corner_height = get_corner_height(TOP_LEFT_MAP, vertices_map, cell)

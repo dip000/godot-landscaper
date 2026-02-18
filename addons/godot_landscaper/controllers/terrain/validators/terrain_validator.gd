@@ -74,6 +74,8 @@ func _validate_rebuild_from_source() -> bool:
 	
 	if not _force_set_values():
 		return false
+	
+	source.layers = GLPaintLayer.compose_sampler_outputs( _controller.layers )
 	return true
 
 
@@ -115,12 +117,17 @@ func _cleanup_layers() -> bool:
 	var any_active:bool = false
 	
 	for layer in layers:
+		if not layer:
+			continue
 		if layer.active:
 			any_active = true
 		if not layer.texture:
+			var color:Color = _controller.primary_color
+			if layers[0].texture: # transparent for the second and next layers
+				color.a = 0
 			var terrain_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( _controller.terrain )
 			var terrain_size_px:Vector2i = GLBrushTerrainPaint.meters_to_pixels( terrain_rect.size )
-			var image:Image = GLBrushTerrainPaint.create_image( terrain_size_px, _controller.primary_color )
+			var image:Image = GLBrushTerrainPaint.create_image( terrain_size_px, color )
 			layer.texture = ImageTexture.create_from_image( image )
 	
 	if not any_active:
@@ -128,7 +135,6 @@ func _cleanup_layers() -> bool:
 		return false
 		
 	_controller.layers = layers
-	_controller.source.layers = layers
 	return true
 	
 
@@ -143,10 +149,9 @@ func _create_template_terrain() -> bool:
 
 func _force_set_values() -> bool:
 	var source:GLBuildDataTerrain = _controller.source
+	var terrain:MeshInstance3D = _controller.terrain
 	source.material.shader = source.shader
-	_controller.terrain.material_override = source.material
-	for layer in source.layers:
-		source.material.set_shader_parameter( layer.shader_parameter, layer.texture )
+	terrain.material_override = source.material
 	return true
 
 

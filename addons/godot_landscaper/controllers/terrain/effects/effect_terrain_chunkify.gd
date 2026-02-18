@@ -73,14 +73,14 @@ func _apply(controller:GLController) -> bool:
 		chunk_terrain.lod_bias = original_terrain.lod_bias
 		chunk_terrain.mesh = ArrayMesh.new()
 		
-		# Fill with the source texture since it is the same UV mapping
-		chunk_data.texture = controller.source.texture
+		# Fill with the source layers since it is the same UV mapping
+		chunk_data.layers = controller.source.layers
 		
 		GLBuilderTerrain.build_headless( chunk_data, chunk_terrain )
 		chunk_terrain.set_display_folded( true )
 		await _frame()
 	
-	processed.vertices_map.clear()
+	#processed.vertices_map.clear()
 	original_terrain.hide()
 	GLDebug.state("Chunkified Terrain %s: Total Chunks: %s, Total Cells: %s" %[original_terrain.name, chunks.size(), vertices_map.size()])
 	return true

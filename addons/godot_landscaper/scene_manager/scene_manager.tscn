@@ -3,22 +3,37 @@
 [ext_resource type="Script" uid="uid://cgiqs3qbj0pfj" path="res://addons/godot_landscaper/scene_manager/scene_manager.gd" id="1_mmp5c"]
 [ext_resource type="Script" uid="uid://kcgc2xbuxlig" path="res://addons/godot_landscaper/scene_manager/raycaster/scene_raycaster.gd" id="2_spad5"]
 [ext_resource type="Script" uid="uid://htun6icbhcvw" path="res://addons/godot_landscaper/scene_manager/brush/scene_brush.gd" id="3_ak6rc"]
-[ext_resource type="Texture2D" uid="uid://1x50xrtyhnmr" path="res://addons/godot_landscaper/controllers/packed_scene/icons/packed_scene_icon.svg" id="4_5rhw3"]
 [ext_resource type="ArrayMesh" uid="uid://cpf2oidgp85b1" path="res://addons/godot_landscaper/scene_manager/brush/grid_select.res" id="6_5rhw3"]
 [ext_resource type="Material" uid="uid://drdkhreturdff" path="res://addons/godot_landscaper/scene_manager/brush/material.tres" id="6_kfnpr"]
 [ext_resource type="Script" uid="uid://shka8xmqs57h" path="res://addons/godot_landscaper/scene_manager/scene_pools.gd" id="7_5rhw3"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ak6rc"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5rhw3"]
+render_priority = 1
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.85882354, 0.4392157, 0.5764706, 1)
+grow = true
+grow_amount = 0.02
+stencil_mode = 3
+stencil_flags = 1
+stencil_compare = 5
+metadata/_stencil_owned = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kyn51"]
+next_pass = SubResource("StandardMaterial3D_5rhw3")
 transparency = 1
 shading_mode = 0
 diffuse_mode = 3
 specular_mode = 1
 disable_ambient_light = true
-albedo_color = Color(0.859, 0.439, 0.576, 0.5)
+albedo_color = Color(0.85882354, 0.4392157, 0.5764706, 0.19607843)
 grow_amount = 0.674
+stencil_mode = 1
+stencil_flags = 2
+stencil_color = Color(0.85882354, 0.4392157, 0.5764706, 1)
+stencil_outline_thickness = 0.02
 
 [sub_resource type="SphereMesh" id="SphereMesh_2sa2k"]
-material = SubResource("StandardMaterial3D_ak6rc")
 radial_segments = 24
 rings = 12
 
@@ -33,6 +48,8 @@ disable_fog = true
 disable_specular_occlusion = true
 albedo_color = Color(0.85882354, 0.4392157, 0.5764706, 0.5019608)
 grow_amount = 0.674
+stencil_flags = 2
+stencil_outline_thickness = 0.173
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_teeap"]
 size = Vector2(500, 500)
@@ -49,7 +66,6 @@ script = ExtResource("2_spad5")
 
 [node name="Brush" type="Node3D" parent="." unique_id=329908857]
 unique_name_in_owner = true
-visible = false
 script = ExtResource("3_ak6rc")
 
 [node name="Sphere" type="Node3D" parent="Brush" unique_id=380668303]
@@ -59,23 +75,20 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
 [node name="Icon" type="Sprite3D" parent="Brush/Sphere" unique_id=992277869]
 unique_name_in_owner = true
 offset = Vector2(0, 76.23)
-pixel_size = 0.0015
+pixel_size = 0.0013
 billboard = 1
 fixed_size = true
 render_priority = 1
-texture = ExtResource("4_5rhw3")
 
 [node name="Outer" type="MeshInstance3D" parent="Brush/Sphere" unique_id=1525925047]
+material_override = SubResource("StandardMaterial3D_kyn51")
 mesh = SubResource("SphereMesh_2sa2k")
-skeleton = NodePath("../..")
-
-[node name="Inner" type="MeshInstance3D" parent="Brush/Sphere" unique_id=833939316]
-transform = Transform3D(0.9, -5.60825e-07, 3.9014e-07, 5.60826e-07, 0.9, -8.53431e-07, -3.9014e-07, 8.53432e-07, 0.9, 2.38419e-07, -5.66244e-07, 2.98023e-07)
-mesh = SubResource("SphereMesh_2sa2k")
-skeleton = NodePath("")
 
 [node name="GridSelect" type="MeshInstance3D" parent="Brush" unique_id=4315975]
 unique_name_in_owner = true
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0)
+visible = false
+sorting_offset = 100.0
 material_override = SubResource("StandardMaterial3D_kfnpr")
 cast_shadow = 0
 mesh = ExtResource("6_5rhw3")
@@ -84,12 +97,15 @@ mesh = ExtResource("6_5rhw3")
 unique_name_in_owner = true
 process_mode = 4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+visible = false
 material_override = ExtResource("6_kfnpr")
 mesh = SubResource("PlaneMesh_teeap")
 
 [node name="GridBody" type="StaticBody3D" parent="Brush/StaticGrid" unique_id=1621517590]
+unique_name_in_owner = true
 collision_layer = 2147483648
-collision_mask = 0
+collision_mask = 2147483648
+collision_priority = 0.01
 
 [node name="GridCollider" type="CollisionShape3D" parent="Brush/StaticGrid/GridBody" unique_id=1956008336]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)

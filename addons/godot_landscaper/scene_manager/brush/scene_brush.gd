@@ -21,14 +21,10 @@ func selected(controller:GLController):
 		_static_grid.process_mode = Node.PROCESS_MODE_INHERIT
 		_static_grid.show()
 		_grid_select.show()
-		_sphere.scale.y = 1
-		_grid_select.scale.y = 1
 	else:
 		_static_grid.process_mode = Node.PROCESS_MODE_DISABLED
 		_static_grid.hide()
 		_grid_select.hide()
-		_sphere.scale.y = _sphere.scale.x
-		_grid_select.scale.y = _grid_select.scale.x
 	
 	set_size.call_deferred(controller.use_grid, controller.brush_size)
 
@@ -61,10 +57,9 @@ func scale_down(controller:GLController):
 	_sphere.scale -= SCALE_INCREASE
 	_sphere.scale = _sphere.scale.clampf( 0.1, 100 )
 	if controller.use_grid:
-		_sphere.scale.y = 1
-		_grid_select.scale.y = 1
 		_grid_select.scale = _sphere.scale.clampf( 1, 100 )
 		_grid_select.scale = _sphere.scale.round()
+		_grid_select.scale.y = 1
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 
@@ -72,10 +67,9 @@ func scale_up(controller:GLController):
 	_sphere.scale += SCALE_INCREASE
 	_sphere.scale = _sphere.scale.clampf( 0.1, 100 )
 	if controller.use_grid:
-		_sphere.scale.y = 1
-		_grid_select.scale.y = 1
 		_grid_select.scale = _sphere.scale.clampf( 1, 100 )
 		_grid_select.scale = _sphere.scale.round()
+		_grid_select.scale.y = 1
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 
@@ -83,10 +77,9 @@ func set_size(use_grid:bool, value:float):
 	_sphere.scale = Vector3.ONE * value
 	_sphere.scale = _sphere.scale.clampf( 0.1 , 100 )
 	if use_grid:
-		_sphere.scale.y = 1
-		_grid_select.scale.y = 1
 		_grid_select.scale = _sphere.scale.clampf( 1, 100 )
 		_grid_select.scale = _sphere.scale.round()
+		_grid_select.scale.y = 1
 		_set_shader( "mask_radius", get_radius() + GRID_MARGIN )
 
 

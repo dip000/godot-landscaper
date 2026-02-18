@@ -10,6 +10,14 @@ const DEFAULT_WINDOW:Rect2i = Rect2i( -GLBrushTerrainPaint.PIXELS_PER_SQUARED_ME
 ## Biger window means a more precise, expensive and disperse color.[br]
 @export var sampling_window:Rect2i = Rect2i(-1, -1, 1, 1)
 
+## Optionally, a shader replacement with vertex color enabled.
+## Leave empty for using the same shader as the original.
+@export var replace_with_shader:Shader = GLAssetsManager.load_controller_resource( "terrain", "terrain_vertex_color_shader.gdshader" )
+
+## Target channel to paint the vertex with
+@export var target_channel:String = "terrain_texture"
+
+
 
 func _apply(controller:GLController) -> bool:
 	if not controller is GLControllerTerrain:
@@ -19,21 +27,28 @@ func _apply(controller:GLController) -> bool:
 	controller = controller as GLControllerTerrain
 	var processed:GLBuildDataTerrain = controller.processed
 	var source:GLBuildDataTerrain = controller.source
-	var texture:Texture2D = processed.texture
+	var terget_layer:GLPaintLayer = GLPaintLayer.get_channel( target_channel, processed.layers )
+	
+	if not terget_layer or not terget_layer.texture:
+		GLDebug.error("Terrain Texture Formater Failed: Channel '%s' does not exist in any terrain layer. Make a layer named as such" %target_channel)
+		return false
+	
+	var texture:Texture2D = terget_layer.texture
 	var image:Image = texture.get_image()
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = processed.vertices_map
 	var vertex_colors_map:Dictionary[Vector2i, PackedColorArray]
 	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_coordinates( vertices_map.keys() )
 	var square_shape:Array[Vector2i] = GLBrushTerrainBuider.SQUARE_SHAPE
+	var square_size:int = square_shape.size()
 	var img_max_index:Vector2i = image.get_size() - Vector2i.ONE
 	var sampled_windows:Dictionary[Vector2i, Color]
 	
 	for cell in vertices_map:
 		var world_position:Vector2 = Vector2(cell) - bounds.position
 		var cell_vertex_colors:PackedColorArray
-		cell_vertex_colors.resize( 6 )
+		cell_vertex_colors.resize( square_size )
 		
-		for i in 6:
+		for i in square_size:
 			var corner_offset:Vector2 = square_shape[i]
 			var corner_pixel:Vector2i = GLBrushTerrainPaint.meters_to_pixels( world_position + corner_offset )
 			
@@ -58,10 +73,11 @@ func _apply(controller:GLController) -> bool:
 		vertex_colors_map[cell] = cell_vertex_colors
 		await  _10_index( cell.x )
 	
-	source.material.set_shader_parameter("vertex_paint", true)
-	source.material.set_shader_parameter("terrain_texture", null)
 	processed.vertex_colors_map = vertex_colors_map
-	processed.texture = null
+	if replace_with_shader:
+		processed.shader = replace_with_shader
+		processed.material.shader = replace_with_shader
+		controller.terrain.material_override = processed.material
 	GLDebug.state("Terrain Vertex Color Succesfull")
 	return true
 	
@@ -73,8 +89,8 @@ func _clear(controller:GLController) -> bool:
 	
 	controller = controller as GLControllerTerrain
 	var source:GLBuildDataTerrain = controller.source
-	source.material.set_shader_parameter("vertex_paint", false)
-	source.material.set_shader_parameter("terrain_texture", source.texture)
+	source.material.shader = source.shader
+	controller.terrain.material_override = source.material
 	return true
 	
 

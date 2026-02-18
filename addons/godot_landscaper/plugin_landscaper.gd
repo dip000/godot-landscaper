@@ -122,7 +122,7 @@ func _edit(controller:Object):
 		else:
 			GLDebug.error("Can't select a controller: The controller timed out. Try re-selecting it from the scene tree, or restarting the editor")
 	else:
-		scene.deselected( controller )
+		scene.deselected( _active_controller )
 	_active_controller = controller
 
 

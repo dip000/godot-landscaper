@@ -1,3 +1,7 @@
+## Builder For Terrain Controllers
+##
+## A bit of a jaggernaut builder, it seems
+
 @tool
 extends GLBuilder
 class_name GLBuilderTerrain
@@ -92,7 +96,7 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 		#var size:float = importer.get_surface_lod_size(0, lod_index)
 		#lods[size] = importer.get_surface_lod_indices(0, lod_index)
 	#
-	 #Shadow mesh
+	## Shadow mesh
 	#var shadow_mesh:ArrayMesh = ArrayMesh.new()
 	#var shadow_arrays:Array
 	#shadow_arrays.resize( Mesh.ARRAY_MAX )
@@ -109,5 +113,13 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	
 	# Update textures
 	for layer in build_data.layers:
-		terrain.material_override.set_shader_parameter( layer.shader_parameter, layer.texture )
+		terrain.material_override.set_shader_parameter( layer.material_channel, layer.texture )
 	return true
+
+
+
+
+
+
+
+	

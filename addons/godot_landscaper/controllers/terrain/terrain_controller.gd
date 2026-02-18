@@ -36,20 +36,20 @@ class_name GLControllerTerrain
 
 ## Terrain color with left button mouse.
 ## Use transparency to reveal the bottom layers.
-@export var primary_color:Color = GLandscaper.LEMON_CHIFFON
+@export var primary_color:Color = GLandscaper.DEEP_OCEAN
 
 ## Terrain color with right button mouse.
 ## Use transparency to reveal the bottom layers.
-@export var secondary_color:Color = GLandscaper.DEEP_OCEAN
+@export var secondary_color:Color = Color(GLandscaper.VERDIGIRS, 0)
 
 ## Paint blend value.
 ## Does not affect the color's alpha result.
-@export_range(0, 100, 1, "suffix:%") var paint_strenght:float = 100
+@export_range(0, 100, 1, "suffix:%") var paint_strenght:float = 50
 
-## Isolated texture layers,. Usefull for working on different parts without interfering with each other.[br]
-## All layers are baked into a single texture in [member GLBuildDataTerrain.texture]
+## Individual texture paint layers. Can be used as:[br][br]
+## [b]Sampler targets[/b]. For feeding your own maps like roughness, details, ao, etc..[br][br]
+## [b]Conventional color layers[/b]. All layers with the same channel are composed into a single texture like base, sea floor, grass, etc..
 @export var layers:Array[GLPaintLayer]
-
 
 @export_group("Primary Action", "primary_")
 ## Building behavior for the builder brush primary action
@@ -62,7 +62,7 @@ class_name GLControllerTerrain
 @export var primary_paint_behavior:GLBrushTerrainPaint.Behavior = GLBrushTerrainPaint.Behavior.TEXTURE_TILING
 
 ## The splat texture to brush with. Use alpha gradients for a smooth falloff.[br]
-## Create a custom stencil with [member primary_paint_mixer]
+## Create a custom stencil with [member stencil_maker]
 @export var primary_paint_stencil:Texture2D
 
 
@@ -77,7 +77,7 @@ class_name GLControllerTerrain
 @export var secondary_paint_behavior:GLBrushTerrainPaint.Behavior = GLBrushTerrainPaint.Behavior.SPLAT_PAINTING
 
 ## The splat texture to brush with. Use alpha gradients for a smooth falloff.[br]
-## Create a custom stencil with [member secondary_paint_mixer]
+## Create a custom stencil with [member stencil_maker]
 @export var secondary_paint_stencil:Texture2D
 
 
@@ -87,8 +87,8 @@ class_name GLControllerTerrain
 ## so you can edit the stencil live.
 @export var stencil_maker:GLStencilMaker = GLStencilMaker.new()
 
-## A conveinent tool to merge your texture layers??
-#@export var texture_merger:Variant
+## A conveinent tool to manually compose your texture layers.
+#@export var texture_compositor:GLTextureCompositor
 
 
 

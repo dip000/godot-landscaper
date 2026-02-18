@@ -32,11 +32,11 @@ func select_brush(brush_to_select:GLBrush):
 
 # ========= Called from main plugin GLandscaper =========
 func selected(controller:GLController):
-	# Set full cache_scan_all mode on select
-	raycaster.set_collision_mask( controller.scan_layer )
+	raycaster.update_collision_mask( controller.scan_layer )
 	brush.selected( controller )
 
 func deselected(controller:GLController):
+	raycaster.update_collision_mask( controller.scan_layer )
 	brush.deselected( controller )
 	GLSurfaceScanner.clear_all_surfaces()
 
@@ -45,11 +45,10 @@ func over_surface(controller:GLController, scan_data:GLScanData):
 
 
 func stroke_start(action:GLandscaper.Action, controller:GLController, scan_data:GLScanData):
-	raycaster.set_collision_mask( controller.scan_layer )
+	raycaster.update_collision_mask( controller.scan_layer )
 
 func stroke_end(action:GLandscaper.Action, controller:GLController):
-	raycaster.set_collision_mask( controller.scan_layer )
-
+	raycaster.update_collision_mask( controller.scan_layer )
 
 func scale_down(controller:GLController):
 	brush.scale_down( controller )

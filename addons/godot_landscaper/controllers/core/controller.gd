@@ -37,7 +37,7 @@ class_name GLController
 
 @export_group("Layers")
 ## Layers to detect your surfaces
-@export_flags_3d_physics var scan_layer:int = 0xFFFF_FFFF
+@export_flags_3d_physics var scan_layer:int = GLSceneRaycaster.LAYER_ALL_NOT_INTERNAL
 
 @export_group("Meshes")
 ## Attempts to find the mesh of the scanned PhysicsBody3D in its parent.[br]
@@ -145,7 +145,8 @@ func stroke_end(action:GLandscaper.Action, scan_data:GLScanData):
 
 func rebuild_from_source():
 	if GLValidator.validate_rebuild_from_source( validator ):
-		builder.build_from_source()
+		if not builder.build_from_source():
+			GLDebug.error("Unexpected Rebuild From Source Error")
 
 
 func clear_effects():
