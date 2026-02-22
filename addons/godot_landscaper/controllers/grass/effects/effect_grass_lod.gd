@@ -27,18 +27,22 @@ func _apply(controller:GLController) -> bool:
 	## - After randomizing: Will always hide/show them as density-based
 	var source:GLBuildDataGrass = controller.source
 	var processed:GLBuildDataGrass = controller.processed
-	var deck_transforms:Array[Transform3D] = processed.transforms.duplicate()
-	var hand_transforms:Array[Transform3D]
+	var new_transforms:Array[Transform3D]
+	var new_top_colors:PackedColorArray
+	var new_bottom_colors:PackedColorArray
+	var rand_indices:Array = range(0, processed.size())
+	rand_indices.shuffle()
 	
-	for i in processed.size():
-		var random_transform:int = randi_range( 0, deck_transforms.size()-1 )
-		var transform:Transform3D = deck_transforms.pop_at( random_transform )
-		hand_transforms.append( transform )
+	for i in rand_indices:
+		new_transforms.append( processed.transforms[i] )
+		new_top_colors.append( processed.top_colors[i] )
+		new_bottom_colors.append( processed.bottom_colors[i] )
 		await _100_index( i )
 	
-	processed.transforms = hand_transforms
+	processed.transforms = new_transforms
+	processed.top_colors = new_top_colors
+	processed.bottom_colors = new_bottom_colors
 	original_mm.visible_instance_count = original_mm.instance_count * visible_instances * 0.01
-	
 	GLDebug.state("Effect LoD Applied to MultiMesh '%s' with visible_instance_count=%s" %[original_mmi.name, original_mm.visible_instance_count])
 	return true
 

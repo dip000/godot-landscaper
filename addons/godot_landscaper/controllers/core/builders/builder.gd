@@ -15,14 +15,23 @@ func _init(controller:GLController):
 	_controller = controller
 
 
-## Builds from deltas, maps or flags so the build is cheaper
-@abstract func build_from_dirty() -> bool
+## Builds completely from given build_data
+@abstract func build(from_data:GLBuildData) -> bool
 
-## Builds completely from GLController.source
-@abstract func build_from_source() -> bool
 
-## Builds completely from GLController.processed
-@abstract func build_from_processed() -> bool
+## Optional first step for delta_build.
+@abstract func quick_start(from_data:GLBuildData) -> bool
+
+
+## Builds from a temporal delta object so the build is faster.
+@abstract func quick_build(from_data:GLBuildData) -> bool
+
+
+## Optional last step for delta_build.
+@abstract func quick_end(from_data:GLBuildData) -> bool
+
+
+
 
 
 

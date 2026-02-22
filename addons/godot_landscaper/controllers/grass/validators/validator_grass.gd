@@ -62,13 +62,21 @@ func _validate_stroke_end(action:GLandscaper.Action) -> bool:
 
 
 func _validate_rebuild_from_source() -> bool:
+	_controller = _controller as GLControllerGrass
+	if _controller.multimesh_instance and (not is_instance_valid(_controller.multimesh_instance) or not _controller.multimesh_instance.is_inside_tree()):
+		GLDebug.warning("multimesh_instance='%s' is set but its invalid. It was cleaned up" %_controller.multimesh_instance.name)
+		_controller.multimesh_instance = null
+	if not _controller.multimesh_instance:
+		GLDebug.error("Rebuild From Source Failed: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
+		return false
+	_format_mmi( _controller )
 	return true
 
 
 func _validate_clear_effects() -> bool:
 	_controller = _controller as GLControllerGrass
 	if not _controller.multimesh_instance:
-		GLDebug.error("Clearing effects failed: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
+		GLDebug.error("Clear Effects Failed: multimesh_instance is null. Assign a multimesh_instance under Inspector > Brushes > Multimesh Instance")
 		return false
 	_format_mmi( _controller )
 	return true

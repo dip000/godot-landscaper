@@ -130,29 +130,31 @@ func select_brush(brush:GLBrush):
 func stroke_start(action:GLandscaper.Action, scan_data:GLScanData):
 	if GLValidator.validate_stroke_start( validator, action, scan_data ):
 		current_brush.start( action, scan_data, self )
+		builder.quick_start( source )
 
 
 func stroking(action:GLandscaper.Action, scan_data:GLScanData):
 	if GLValidator.validate_stroking( validator, action, scan_data ):
 		current_brush.action( action, scan_data, self )
-		builder.build_from_dirty()
+		builder.quick_build( source )
 
 
 func stroke_end(action:GLandscaper.Action, scan_data:GLScanData):
 	if GLValidator.validate_stroke_end( validator, action ):
 		current_brush.end( action, scan_data, self )
+		builder.quick_end( source )
 
 
 func rebuild_from_source():
 	if GLValidator.validate_rebuild_from_source( validator ):
-		if not builder.build_from_source():
+		if not builder.build( source ):
 			GLDebug.error("Unexpected Rebuild From Source Error")
 
 
 func clear_effects():
 	if GLValidator.validate_clear_effects( validator ):
 		if await GLEffect.clear_all( effects, self ):
-			builder.build_from_source()
+			builder.build( source )
 			processed = null
 
 
@@ -160,5 +162,5 @@ func apply_effects():
 	if GLValidator.validate_apply_effects( validator ):
 		processed = source.duplicate( true )
 		if await GLEffect.apply_all( effects, self ):
-			builder.build_from_processed()
+			builder.build( processed )
 	

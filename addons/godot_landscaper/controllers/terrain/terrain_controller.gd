@@ -87,16 +87,14 @@ class_name GLControllerTerrain
 ## so you can edit the stencil live.
 @export var stencil_maker:GLStencilMaker = GLStencilMaker.new()
 
-## A conveinent tool to manually compose your texture layers.
-#@export var texture_compositor:GLTextureCompositor
-
-
 
 func _setup_controller() -> void:
 	validator = GLValidatorTerrain.new( self )
 	builder = GLBuilderTerrain.new( self )
 	brushes = GLAssetsManager.load_controller_brushes( "terrain" )
 	use_grid = true
-	
-	
+
+
+
+
 	

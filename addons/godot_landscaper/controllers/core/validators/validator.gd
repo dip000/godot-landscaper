@@ -94,6 +94,9 @@ func _validate_rebuild_from_source() -> bool
 static func validate_rebuild_from_source(validator:GLValidator) -> bool:
 	if not validate_base( validator ):
 		return false
+	if not validator._controller.source:
+		GLDebug.error("Rebuild From Source: 'source' data is null. Create one or load a project")
+		return false
 	return validator._validate_rebuild_from_source()
 	
 	

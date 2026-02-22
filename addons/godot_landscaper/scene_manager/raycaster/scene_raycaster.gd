@@ -31,6 +31,15 @@ func cam_to_surface(cam:Camera3D, mouse_pos:Vector2) -> Dictionary:
 	if _direct_space_state:
 		_ray_surfaces.from = cam.project_ray_origin( mouse_pos )
 		_ray_surfaces.to = _ray_surfaces.from + (cam.project_ray_normal( mouse_pos ) * cam.far)
+		result = _direct_space_state.intersect_ray( _ray_surfaces )
+		if not result:
+			## The grid must be the lowest hit priority.
+			## CollisionObject3D.collision_priority doesn't seem to work in this case
+			## Next best thing is set-retry-reset dynamically
+			_ray_surfaces.collision_mask |= LAYER_INTERNAL
+			result = _direct_space_state.intersect_ray( _ray_surfaces )
+			_ray_surfaces.collision_mask &= ~LAYER_INTERNAL
+	return result
 
 
 func point_to_point(from:Vector3, to:Vector3) -> Dictionary:

@@ -1,4 +1,4 @@
-[gd_resource type="QuadMesh" load_steps=2 format=3 uid="uid://dyw8yl1sh0ddw"]
+[gd_resource type="QuadMesh" format=3 uid="uid://dyw8yl1sh0ddw"]
 
 [ext_resource type="Material" uid="uid://b1obt5uj8bhxk" path="res://addons/godot_landscaper/controllers/grass/resources/material.tres" id="1_cn6l5"]
 

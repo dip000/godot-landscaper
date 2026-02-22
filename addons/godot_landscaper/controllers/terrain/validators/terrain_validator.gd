@@ -30,12 +30,6 @@ func _validate_stroke_start(action:GLandscaper.Action, scan_data:GLScanData) -> 
 	
 	if not _cleanup_layers():
 		return false
-	
-	if not _create_template_terrain():
-		return false
-	
-	if not _force_set_values():
-		return false
 	return true
 
 
@@ -67,12 +61,6 @@ func _validate_rebuild_from_source() -> bool:
 		return false
 	
 	if not _cleanup_layers():
-		return false
-	
-	if not _create_template_terrain():
-		return false
-	
-	if not _force_set_values():
 		return false
 	
 	source.layers = GLPaintLayer.compose_sampler_outputs( _controller.layers )
@@ -138,21 +126,6 @@ func _cleanup_layers() -> bool:
 	return true
 	
 
-func _create_template_terrain() -> bool:
-	if not _controller.terrain:
-		_controller.terrain = GLSceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
-		GLDebug.warning("Auto selected MeshInstance3D '%s'. If this is not your intention please select the node manually" %_controller.name)
-	if not _controller.terrain.mesh:
-		_controller.terrain.mesh = ArrayMesh.new()
-	return true
-
-
-func _force_set_values() -> bool:
-	var source:GLBuildDataTerrain = _controller.source
-	var terrain:MeshInstance3D = _controller.terrain
-	source.material.shader = source.shader
-	terrain.material_override = source.material
-	return true
 
 
 

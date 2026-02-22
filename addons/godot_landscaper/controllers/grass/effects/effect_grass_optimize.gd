@@ -20,24 +20,36 @@ func _apply(controller:GLController) -> bool:
 	
 	var processed:GLBuildDataGrass = controller.processed
 	var mesh:Mesh = processed.mesh
+	var enable_mask:GLBitMask = GLBitMask.new( enable_data, Mesh.ARRAY_MAX )
 	var arrays:Array = mesh.surface_get_arrays( 0 )
-	var lods:int = 0
-	var new_arrays:Array
+	var new_arrays:Array = arrays.duplicate( true )
 	new_arrays.resize( Mesh.ARRAY_MAX )
 	
-	# Cleanup arrays. Vertices are a must
-	var enable_mask:GLBitMask = GLBitMask.new( enable_data, Mesh.ARRAY_MAX )
+	# Cleanup arrays
 	enable_mask.set_bit( Mesh.ARRAY_VERTEX )
-	
 	for bit in enable_mask:
-		if enable_mask.is_set( bit ):
-			new_arrays[bit] = arrays[bit]
+		if enable_mask.is_clear( bit ):
+			new_arrays[bit] = null
+	 
+	var st:SurfaceTool = SurfaceTool.new()
+	st.create_from_arrays( new_arrays, Mesh.PRIMITIVE_TRIANGLES )
 	
-	# Apply vertex welding if requested and not already indexed
-	if enable_mask.is_set(Mesh.ARRAY_INDEX) and arrays[Mesh.ARRAY_INDEX].is_empty():
-		_weld_vertex( new_arrays )
+	# Regenerate Normals
+	if enable_mask.is_set( Mesh.ARRAY_NORMAL ):
+		st.generate_normals()
 	
-	# Apply LoD
+	# Regenerate Tangents
+	if enable_mask.is_set( Mesh.ARRAY_TANGENT ):
+		st.generate_tangents()
+	
+	# Regenerate Indices
+	if enable_mask.is_set( Mesh.ARRAY_INDEX ):
+		st.index()
+		st.optimize_indices_for_cache()
+	
+	# Mesh Level Of Detail
+	var lods:int = 0
+	new_arrays = st.commit_to_arrays()
 	if mesh_lods:
 		var importer:ImporterMesh = ImporterMesh.new()
 		importer.add_surface( Mesh.PRIMITIVE_TRIANGLES, new_arrays )
@@ -45,9 +57,7 @@ func _apply(controller:GLController) -> bool:
 		lods = importer.get_surface_lod_count( 0 )
 		mesh = importer.get_mesh()
 	else:
-		mesh = ArrayMesh.new()
-		mesh.clear_surfaces()
-		mesh.add_surface_from_arrays( Mesh.PRIMITIVE_TRIANGLES, new_arrays )
+		mesh = st.commit()
 	
 	# Save mesh
 	var err:int = ResourceSaver.save( mesh, output_mesh_file_path )
@@ -62,9 +72,9 @@ func _apply(controller:GLController) -> bool:
 	var prev_total_vertices:int = arrays[Mesh.ARRAY_VERTEX].size()
 	var new_total_vertices:int = new_arrays[Mesh.ARRAY_VERTEX].size()
 	var prev_mesh_size:int = _array_bytes( arrays )
-	var new_mesh_size:int = _array_bytes( mesh.surface_get_arrays(0) )
+	var new_mesh_size:int = _array_bytes( new_arrays )
 	GLDebug.state(
-		"Grass Mesh Optimized Success. Total Vertices: %s -> %s, Data Bytes: %s -> %s, Mesh LoDs Created: %s"
+		"Grass Mesh Optimize Success. Total Vertices: %s -> %s, Data Bytes: %s -> %s, Mesh LoDs Created: %s"
 		%[prev_total_vertices, new_total_vertices, prev_mesh_size, new_mesh_size, lods]
 	)
 	return true
@@ -86,32 +96,6 @@ func _array_bytes(arrays:Array) -> int:
 			TYPE_PACKED_COLOR_ARRAY: type_size = 32 * 4
 		bits += array.size() * type_size
 	return bits / 8.0
-
-
-func _weld_vertex(arrays:Array) -> Array:
-	var vertices:PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-	var new_indices:PackedInt32Array
-	var vertex_index:Dictionary[Vector3, int]
-	var indexed_arrays:Array
-	
-	for i in vertices.size():
-		var index:int
-		var vertex:Vector3 = vertices[i]
-		
-		if vertex_index.has( vertex ):
-			index = vertex_index[vertex]
-		
-		else:
-			index = arrays[Mesh.ARRAY_VERTEX].size()
-			vertex_index[vertex] = index
-			
-			for array_type in arrays.size():
-				if arrays[array_type]:
-					indexed_arrays.append( arrays[array_type][i] )
-		
-		new_indices.append( index )
-	indexed_arrays[Mesh.ARRAY_INDEX] = new_indices
-	return indexed_arrays
 
 
 func _clear(controller:GLController) -> bool:

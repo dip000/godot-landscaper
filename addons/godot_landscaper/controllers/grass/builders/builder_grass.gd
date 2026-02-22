@@ -7,21 +7,26 @@ extends GLBuilder
 class_name GLBuilderGrass
 
 
-func build_from_dirty() -> bool:
-	return _build( _controller.source, _controller.multimesh_instance )
+func quick_start(from_data:GLBuildData) -> bool:
+	return true
 
 
-func build_from_source() -> bool:
-	return _build( _controller.source, _controller.multimesh_instance )
+func quick_build(from_data:GLBuildData) -> bool:
+	return _build( from_data, _controller.multimesh_instance )
 
 
-func build_from_processed() -> bool:
-	return _build( _controller.processed, _controller.multimesh_instance )
+func quick_end(from_data:GLBuildData) -> bool:
+	return true
+
+
+func build(from_data:GLBuildData) -> bool:
+	return _build( from_data, _controller.multimesh_instance )
 
 
 func _build(build_data:GLBuildDataGrass, multimesh_instance:MultiMeshInstance3D) -> bool:
 	var mm:MultiMesh = multimesh_instance.multimesh
 	mm.instance_count = build_data.size()
+	
 	for i in range(mm.instance_count):
 		mm.set_instance_transform( i, build_data.transforms[i] )
 		mm.set_instance_color( i, build_data.top_colors[i] )

@@ -6,7 +6,10 @@ const META_CONTROLLER:String = "gl_controller_name"
 const META_INDEX:String = "gl_index"
 
 
-func build_from_dirty() -> bool:
+func quick_start(from_data:GLBuildData) -> bool:
+	return false
+
+func quick_build(from_data:GLBuildData) -> bool:
 	_controller = _controller as GLControllerPackedScene
 	var source:GLBuildDataPackedScene = _controller.source
 	_dirty_instance( source, _controller.holder )
@@ -14,11 +17,12 @@ func build_from_dirty() -> bool:
 	_update_data_from_scene( source, _controller.holder )
 	return true
 
+func quick_end(from_data:GLBuildData) -> bool:
+	return false
 
-func build_from_source() -> bool:
-	_controller = _controller as GLControllerPackedScene
-	var source:GLBuildDataPackedScene = _controller.source
-	_rebuild( source, _controller.holder )
+
+func build(from_data:GLBuildData) -> bool:
+	_rebuild( from_data, _controller.holder )
 	return true
 
 
