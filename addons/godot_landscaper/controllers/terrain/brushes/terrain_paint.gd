@@ -3,8 +3,8 @@ extends GLBrush
 class_name GLBrushTerrainPaint
 
 enum Behavior {
-	SPLAT_PAINTING, ## For smudges or simple fill coloring. The brush size changes the brush texture painted.
-	TEXTURE_TILING, ## For continuous rocks or grass textures. The brush size always stays the same.
+	SPLAT_PAINTING, ## For smudges or simple fill coloring. The brush size resizes the brush texture.
+	TEXTURE_TILING, ## For continuous rocks or grass textures. The brush size resizes the brush texture.
 }
 
 const PIXELS_PER_SQUARED_METER:Vector2 = Vector2(10,10)
@@ -38,6 +38,7 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 	# Caches
 	var source:GLBuildDataTerrain = controller.source
 	var texture_brush_size:Vector2i = meters_to_pixels( Vector2.ONE * controller.brush_size )
+	paint_stencil = GLImageFormater.hard_clean_image( paint_stencil, DEFAULT_FORMAT, paint_stencil.get_size() )
 	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
 	
 	# input layers (separated)
@@ -95,16 +96,24 @@ func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect
 	# - Full control, no workarounds
 	# - Terrain no longer needs alpha, like Image.blend_rect_mask(..) does
 	for paint_position in GLRect2iter.from( paint_rect ):
-		var shape:Color = paint_stencil.get_pixelv( paint_position - texture_brush_rect.position )
+		var pixel:Vector2i = paint_position
+		if behavior == Behavior.TEXTURE_TILING:
+			pixel.x = wrapi( pixel.x, 0, texture_brush_rect.size.x )
+			pixel.y = wrapi( pixel.y, 0, texture_brush_rect.size.y )
+		else:
+			pixel -= texture_brush_rect.position
+		
+		var shape:Color = paint_stencil.get_pixelv( pixel )
 		var blend_factor:float = shape.a * paint_strenght
 		shape.a = 1.0
 		
-		# paint_rect makes sure pixels are always inside the texture scope
+		# Current layer image that actually get saved
 		var shape_color:Color = paint_color * shape
 		var target_color:Color = target_image.get_pixelv( paint_position )
 		var blend_result:Color = blend_factor * shape_color + (1 - blend_factor) * target_color
 		target_image.set_pixelv( paint_position, blend_result )
 		
+		# Preview composed image to show while painting
 		target_color = composed_image.get_pixelv( paint_position )
 		blend_result = blend_factor * shape_color + (1 - blend_factor) * target_color
 		composed_image.set_pixelv( paint_position, blend_result )

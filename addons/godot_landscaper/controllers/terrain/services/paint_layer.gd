@@ -60,14 +60,11 @@ static func compose_sampler_outputs(layers:Array[GLPaintLayer]) -> Array[GLPaint
 
 func clear():
 	if texture:
-		var size:Vector2i = texture.get_size()
-		var image:Image = Image.create_empty( size.x, size.y, false, DEFAULT_FORMAT )
-		image.fill( DEFAULT_COLOR )
-		texture = ImageTexture.create_from_image( image )
+		texture = GLImageFormater.hard_clean_texture( texture, DEFAULT_FORMAT, texture.get_size(), DEFAULT_COLOR )
 
 
 func overlay_with(other_layer:GLPaintLayer):
-	var image:Image = get_image()
+	var image:Image = GLImageFormater.hard_clean_image( texture.get_image(), DEFAULT_FORMAT, texture.get_size(), DEFAULT_COLOR )
 	var other_image:Image = other_layer.get_image()
 	var rect:Rect2i = Rect2i(Vector2i.ZERO, image.get_size())
 	image.blend_rect( other_image, rect, Vector2i.ZERO )
@@ -75,30 +72,13 @@ func overlay_with(other_layer:GLPaintLayer):
 
 
 func update_image(image:Image):
-	#TODO: Check for new size
 	texture.update( image )
 
 
 func get_image() -> Image:
 	var image:Image = texture.get_image()
-	
-	if image.has_mipmaps():
-		image.clear_mipmaps()
-	
-	if image.is_compressed():
-		image.decompress()
-	
-	if image.get_format() != DEFAULT_FORMAT:
-		image.convert( DEFAULT_FORMAT )
-	
+	GLImageFormater.soft_clean_image( image, DEFAULT_FORMAT, texture.get_size() )
 	return image
-	
-
-func new_image(color:Color, size:Vector2i) -> Image:
-	var image:Image = Image.create_empty( size.x, size.y, false, DEFAULT_FORMAT )
-	image.fill( color )
-	return image
-
 
 
 

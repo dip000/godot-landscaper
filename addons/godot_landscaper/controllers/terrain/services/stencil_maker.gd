@@ -4,88 +4,133 @@ class_name GLStencilMaker
 
 const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 
-## The base shape of the stencil. Try using a radial [GradientTexture2D]
-@export var input_mask:Texture2D = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate()
-
 ## An image to make your own stencil shape. Try using a tileable texture
-@export var input_stencil:Texture2D = GLAssetsManager.load_controller_resource("terrain", "paving_stones.png")
+@export var input_reference:Texture2D = GLAssetsManager.load_controller_resource("terrain", "paving_stones.png")
 
 ## Result after pressing "Mix". You can link the result with the [member GLControllerTerrain.brush_shape]
 @export var output:ImageTexture
 
+@export var timeout_sec:float = 5
+
 @export_tool_button("                Mix                ", "Blend") var blend_btn:Callable = _blend
 
-@export_group("Settings")
-@export_range(0.0, 100.0, 1.0, "or_less", "or_greater") var distortion:float = 0.0
-@export_range(0.0, 1.0, 0.01) var min_threshold:float = 0.4
-@export_range(0.0, 1.0, 0.01) var max_threshold:float = 0.6
-@export_range(0.1, 10.0, 0.01, "or_less", "or_greater", "exp") var stencil_scale:float = 0.5
-@export var stencil_offset:Vector2i = Vector2i.ZERO
+@export_group("Transform")
+@export_custom(PROPERTY_HINT_GROUP_ENABLE, "Transform", PROPERTY_USAGE_EDITOR) var enable_transforms:bool = true
+@export_range(0.1, 10.0, 0.01, "or_greater", "exp") var scale:float = 1.0
+@export var slide:Vector2i = Vector2i.ZERO
+
+
+@export_group("Luminance-Based Threshold")
+@export_custom(PROPERTY_HINT_GROUP_ENABLE, "Alpha Threshold", PROPERTY_USAGE_EDITOR) var enable_threshold:bool = true
+## Transparents any pixel with luminance lesser that this value.
+## Min and Max can be inverted
+@export_range(0.0, 1.0, 0.01) var min_threshold:float = 0.3
+
+## Transparents any pixel with luminance greater that this value
+## Min and Max can be inverted
+@export_range(0.0, 1.0, 0.01) var max_threshold:float = 0.7
+
+
+@export_group("Whitening")
+@export_custom(PROPERTY_HINT_GROUP_ENABLE, "Whitening", PROPERTY_USAGE_EDITOR) var enable_whitening:bool = true
+## How white you want the output.[br]
+## - 0% Keeps the same colors.[br]
+## - 100% Only color white and transparency. For modulable stencils
+@export_range(0.0, 100.0, 1.0, "suffix:%") var whitening:float = 50
+
+
+@export_group("Distortion")
+@export_custom(PROPERTY_HINT_GROUP_ENABLE, "Effects", PROPERTY_USAGE_EDITOR) var enable_distortion:bool = false
+## Shifts the pixels based on a noise generator
+@export var distortion_map:NoiseTexture2D = NoiseTexture2D.new()
+
+## How much to shift the result
+@export_range(0.0, 100, 1.0, "or_less", "or_greater", "suffix:%") var distortion_strenght:float = 10
+
+
+@export_group("Masking")
+@export_custom(PROPERTY_HINT_GROUP_ENABLE, "Masking", PROPERTY_USAGE_EDITOR) var enable_masking:bool = false
+## The input image pixels will be multiplied by this mask. Alpha 
+@export var mask:Texture2D = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
+
 
 func _blend():
-	if not input_mask or not input_stencil:
-		GLDebug.error("Stencil Mixer Failed: An input is invalid. Create or add an input")
+	if not input_reference:
+		GLDebug.error("Stencil Mixer Failed: 'input_stencil' is null. Set a reference image to make a stencil")
 		return
 	
-	var img_mask:Image = input_mask.get_image().duplicate()
-	var img_stencil:Image = input_stencil.get_image().duplicate()
-	var size_mask:Vector2i = img_mask.get_size()
-	var size_stencil:Vector2i = img_stencil.get_size()
-	var half_size_stencil:Vector2 = size_stencil * 0.5
-	var half_size_mask:Vector2i = size_mask * 0.5
+	var img_reference:Image = input_reference.get_image().duplicate()
+	var size_reference:Vector2i = img_reference.get_size()
+	var whitening_factor:float = whitening * 0.01
+	var start_msec:float = Time.get_ticks_msec()
+	var timeout:float = timeout_sec * 1000
 	
-	sanitize( img_mask, size_mask )
-	sanitize( img_stencil, size_stencil )
+	# Setup transforms
+	if enable_transforms:
+		size_reference *= scale
+		GLImageFormater.soft_clean_image( img_reference, DEFAULT_FORMAT, size_reference )
 	
-	var mask_rect:Rect2i = Rect2i(Vector2i.ZERO, size_mask)
-	var stencil_rect:Rect2i = Rect2i(Vector2i.ZERO, size_stencil)
-	var effect_rect:Rect2i = mask_rect.intersection( stencil_rect )
-	var noise:FastNoiseLite = FastNoiseLite.new()
-
-	for paint_position in GLRect2iter.from( mask_rect ):
-		var mask:Color = img_mask.get_pixelv( paint_position )
-		if is_zero_approx( mask.a ):
-			continue
+	# Setup distortion
+	if distortion_map.height != size_reference.y or distortion_map.width != size_reference.x:
+		distortion_map.height = size_reference.y
+		distortion_map.width = size_reference.x
+		await Engine.get_main_loop().create_timer(0.5).timeout
+	if not distortion_map.noise:
+		distortion_map.noise = FastNoiseLite.new()
+		await Engine.get_main_loop().create_timer(0.5).timeout
+	
+	var distortion:Image = distortion_map.get_image()
+	var distortion_factor:float = distortion_strenght * 0.01 * size_reference.x
+	
+	# Setup mask
+	var mask_image:Image
+	if enable_masking:
+		mask_image = GLImageFormater.hard_clean_image( mask.get_image(), DEFAULT_FORMAT, size_reference )
+	
+	for paint_position in GLRect2iter.new( Vector2i.ZERO, size_reference ):
+		# Transform (from center)
+		var uv:Vector2 = paint_position
+		if enable_transforms:
+			uv += Vector2(slide)
 		
-		var centered_and_scaled:Vector2 = paint_position - half_size_mask + stencil_offset
-		centered_and_scaled /= stencil_scale
-		centered_and_scaled += half_size_stencil
+		# Effects
+		if enable_distortion:
+			uv.x += distortion.get_pixelv( paint_position ).r * distortion_factor
+			uv.y += distortion.get_pixelv( paint_position ).r * distortion_factor
 		
-		if centered_and_scaled.x < 0 or centered_and_scaled.y < 0 \
-		or centered_and_scaled.x >= size_stencil.x \
-		or centered_and_scaled.y >= size_stencil.y:
-			continue
+		# Repeat by default
+		uv.x = wrapi( uv.x, 0, size_reference.x )
+		uv.y = wrapi( uv.y, 0, size_reference.y )
 		
-		if distortion > 0:
-			centered_and_scaled.x += noise.get_noise_2dv( paint_position ) * distortion
-			centered_and_scaled.y += noise.get_noise_2dv( (paint_position + Vector2i(1000,1000)) ) * distortion
-			centered_and_scaled = centered_and_scaled.clamp( Vector2i.ZERO, size_stencil - Vector2i.ONE )
+		var color:Color = img_reference.get_pixelv( uv )
 		
-		var stencil_color:Color = img_stencil.get_pixelv( centered_and_scaled )
-		var mask_result:Color = Color.TRANSPARENT
-		var lum:float = stencil_color.get_luminance()
-		var threshold:float = smoothstep( min_threshold, max_threshold, lum )
-		var result:Color = Color.WHITE
-		result.a = clamp(mask.a * threshold, 0.0, 1.0)
-		img_mask.set_pixelv( paint_position, result )
+		if enable_threshold:
+			var lum:float = color.get_luminance()
+			var threshold:float = smoothstep( min_threshold, max_threshold, lum )
+			color *= threshold
+		
+		if enable_masking:
+			var mask_color:Color = mask_image.get_pixelv( paint_position )
+			color *= mask_color
+		
+		if enable_whitening:
+			color.r = lerpf( color.r, 1.0, whitening_factor )
+			color.g = lerpf( color.g, 1.0, whitening_factor )
+			color.b = lerpf( color.b, 1.0, whitening_factor )
+		
+		img_reference.set_pixelv( paint_position, color )
+		
+		# Handle timeouts
+		var time:int = Time.get_ticks_msec() - start_msec
+		if time >= timeout:
+			GLDebug.error("Timed out!")
+			break
 	
 	if output:
-		output.set_image( img_mask )
+		output.set_image( img_reference )
 	else:
-		output = ImageTexture.create_from_image( img_mask )
+		output = ImageTexture.create_from_image( img_reference )
 	
-
-func sanitize(image:Image, size:Vector2i):
-	if image.has_mipmaps():
-		image.clear_mipmaps()
-	if image.is_compressed():
-		image.decompress()
-	if image.get_format() != DEFAULT_FORMAT:
-		image.convert( DEFAULT_FORMAT )
-	if image.get_size() != size:
-		image.resize( size.x, size.y )
-
-
 
 
 
