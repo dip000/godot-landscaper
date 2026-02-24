@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2pbpe8081enp"
-path="res://.godot/imported/paving_stones.png-c8886dcd42819728b406cf77e36851ee.ctex"
+uid="uid://crf6l2d5b341e"
+path="res://.godot/imported/paving_stones.svg-d68bd9f856efbab914d2431ad9a4a6bf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/godot_landscaper/controllers/terrain/resources/paving_stones.png"
-dest_files=["res://.godot/imported/paving_stones.png-c8886dcd42819728b406cf77e36851ee.ctex"]
+source_file="res://addons/godot_landscaper/controllers/terrain/resources/paving_stones.svg"
+dest_files=["res://.godot/imported/paving_stones.svg-d68bd9f856efbab914d2431ad9a4a6bf.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

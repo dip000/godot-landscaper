@@ -5,7 +5,7 @@ class_name GLStencilMaker
 const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 
 ## An image to make your own stencil shape. Try using a tileable texture
-@export var input_reference:Texture2D = GLAssetsManager.load_controller_resource("terrain", "paving_stones.png")
+@export var input_reference:Texture2D = GLAssetsManager.load_controller_resource("terrain", "paving_stones.svg")
 
 ## Result after pressing "Mix". You can link the result with the [member GLControllerTerrain.brush_shape]
 @export var output:ImageTexture
