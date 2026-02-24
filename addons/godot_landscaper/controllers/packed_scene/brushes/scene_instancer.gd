@@ -2,18 +2,31 @@
 extends GLBrush
 class_name GLBrushSceneInstancer
 
+enum Behavior {
+	INSTANTIATE, # Calls [method PackedScene.instantiate] on the [member GLBuildDataPackedScene.scene]
+	ERASE, # Erases [PackedScene] instances
+}
+
+var behavior:Behavior
 var scanner:GLSurfaceScanner
 
 
 func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
+	controller = controller as GLControllerPackedScene
 	scanner = GLSurfaceScanner.new( controller )
+	# Resolve
+	match action:
+		GLandscaper.Action.PRIMARY:
+			behavior = controller.primary_action
+		GLandscaper.Action.SECONDARY:
+			behavior = controller.secondary_action
 
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
-	match action:
-		GLandscaper.Action.PRIMARY:
+	match behavior:
+		Behavior.INSTANTIATE:
 			_instance( scan_data, controller )
-		GLandscaper.Action.SECONDARY:
+		Behavior.ERASE:
 			_erase( scan_data, controller )
 
 

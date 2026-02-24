@@ -2,18 +2,31 @@
 extends GLBrush
 class_name GLBrushGrassSpawn
 
+enum Behavior {
+	SPAWN, ## Creates grass instances.
+	ERASE, ## Erases grass instances.
+}
+
+var behavior:Behavior
 var scanner:GLSurfaceScanner
 
 
 func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController) -> void:
+	controller = controller as GLControllerGrass 
 	scanner = GLSurfaceScanner.new( controller )
+	# Resolve
+	match action:
+		GLandscaper.Action.PRIMARY:
+			behavior = controller.primary_spawn_behavior
+		GLandscaper.Action.SECONDARY:
+			behavior = controller.secondary_spawn_behavior
 
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
-	match action:
-		GLandscaper.Action.PRIMARY:
+	match behavior:
+		Behavior.SPAWN:
 			_add_radial( scan_data, controller )
-		GLandscaper.Action.SECONDARY:
+		Behavior.ERASE:
 			_get_remove_radial( scan_data, controller )
 
 

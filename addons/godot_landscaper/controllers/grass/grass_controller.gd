@@ -38,13 +38,18 @@ class_name GLControllerGrass
 	get: return _get_shader("splash_height", 0.0)
 	set(v): _set_shader("splash_height", v)
 
-## Uses the secondary color to manually paint the bottom of the grass instead of the top.[br]
-## Note that the scanning mechanics will auto detect the bottom colors.
-@export var paint_bottom_with_sencondary_color:bool = false
-
 ## The source MultiMeshInstance3D tied to this controller.[br]
 ## It will be auto-generated and placed under the brusshing surface if not provided.
 @export var multimesh_instance:MultiMeshInstance3D
+
+
+@export_group("Primary Action", "primary_")
+@export var primary_spawn_behavior:GLBrushGrassSpawn.Behavior = GLBrushGrassSpawn.Behavior.SPAWN
+@export var primary_paint_behavior:GLBrushGrassPaint.Behavior = GLBrushGrassPaint.Behavior.PAINT_TOP
+
+@export_group("Secondary Action", "secondary_")
+@export var secondary_spawn_behavior:GLBrushGrassSpawn.Behavior = GLBrushGrassSpawn.Behavior.ERASE
+@export var secondary_paint_behavior:GLBrushGrassPaint.Behavior = GLBrushGrassPaint.Behavior.PAINT_TOP
 
 
 @export_group("Texture Layers", "texture_")

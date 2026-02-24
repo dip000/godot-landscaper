@@ -7,6 +7,6 @@
 script = ExtResource("1_v6esy")
 title = "Instancer"
 icon = ExtResource("1_oxu7m")
-info = "Left click to instance scenes over a surface, right click to erase"
+info = "Instantiates or erases PackedScenes"
 hide_properties = PackedStringArray()
 metadata/_custom_type_script = "uid://ptx755ibqhev"

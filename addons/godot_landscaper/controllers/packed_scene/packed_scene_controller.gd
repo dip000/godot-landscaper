@@ -16,6 +16,13 @@ class_name GLControllerPackedScene
 @export var holder:Node
 
 
+@export_group("Primary Action", "primary_")
+@export var primary_action:GLBrushSceneInstancer.Behavior = GLBrushSceneInstancer.Behavior.INSTANTIATE
+
+@export_group("Secondary Action", "secondary_")
+@export var secondary_action:GLBrushSceneInstancer.Behavior = GLBrushSceneInstancer.Behavior.ERASE 
+
+
 @export_group("Randomizers")
 @export_subgroup("Size", "size_")
 ## Original size of the instance to spawn

@@ -7,6 +7,6 @@
 script = ExtResource("1_7d1lp")
 title = "Paint"
 icon = ExtResource("1_bpqt4")
-info = "left cick to paint with primary color, right click for secondary"
-hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "multimesh_instance", "align_with_normal")
+info = "Paints top or bottom colors of grass instances"
+hide_properties = PackedStringArray("spawn_ratio", "erase_ratio", "multimesh_instance", "align_with_normal", "primary_spawn_behavior", "secondary_spawn_behavior")
 metadata/_custom_type_script = "uid://dkryahmbvxyo2"

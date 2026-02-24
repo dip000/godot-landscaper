@@ -1,11 +1,11 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://b1obt5uj8bhxk"]
 
-[ext_resource type="Shader" uid="uid://dq64xuf2n7r4" path="res://addons/godot_landscaper/controllers/grass/resources/shader.gdshader" id="1_lims2"]
+[ext_resource type="Shader" uid="uid://dq64xuf2n7r4" path="res://addons/godot_landscaper/controllers/grass/resources/grass_shader.gdshader" id="1_1g6lf"]
 [ext_resource type="Texture2DArray" uid="uid://byyikgobyt7ke" path="res://addons/godot_landscaper/controllers/grass/resources/texture_atlas.res" id="2_1g6lf"]
 
 [resource]
 render_priority = 0
-shader = ExtResource("1_lims2")
+shader = ExtResource("1_1g6lf")
 shader_parameter/wind_direction = Vector3(0.1, 0.1, 0.1)
 shader_parameter/sway_frequency_animatable = Vector3(0, 0, 0)
 shader_parameter/sway_frequency_base = 2.0

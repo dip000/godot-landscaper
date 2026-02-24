@@ -2,8 +2,8 @@ shader_type spatial;
 
 render_mode
 cull_disabled, // For rendering all face sides. Remove for billboards
-unshaded, ambient_light_disabled, // Disables lighting. Disabling requires normals data to visualize shadows correctly
 shadows_disabled, // For disabling shadows received. To enable/disable shadows cast use GeometryInstance3D.cast_shadow
+unshaded, ambient_light_disabled, // Disables lighting. Enabling lighting requires normals data to visualize shadows correctly
 specular_occlusion_disabled, specular_disabled, // For shine effects. Remove if implementing sun glow
 depth_prepass_alpha, blend_premul_alpha; // For alpha fixes
 

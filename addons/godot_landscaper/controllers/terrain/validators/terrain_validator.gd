@@ -85,7 +85,7 @@ func _validate_apply_effects() -> bool:
 
 func _initialize_resources() -> bool:
 	if not _controller.primary_paint_stencil:
-		_controller.primary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "paving_stones.png").duplicate(true)
+		_controller.primary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "paving_stones.svg").duplicate(true)
 	if not _controller.secondary_paint_stencil:
 		_controller.secondary_paint_stencil = GLAssetsManager.load_controller_resource("terrain", "brush_shape.tres").duplicate(true)
 	if not _controller.source:

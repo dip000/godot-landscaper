@@ -53,16 +53,10 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	controller = controller as GLControllerTerrain
-	var world_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
 	var world_brush_rect:Rect2 = Rect2( scan_data.position.x, scan_data.position.z, 0, 0 )
 	world_brush_rect = world_brush_rect.grow( controller.brush_size*0.5 )
 
-	# Execute
-	match behavior:
-		Behavior.SPLAT_PAINTING:
-			stroke_paint( color, controller.paint_strenght*0.01, world_brush_rect, world_rect )
-		Behavior.TEXTURE_TILING: #NOT-IMPLEMENTED
-			stroke_paint( color, controller.paint_strenght*0.01, world_brush_rect, world_rect )
+	stroke_paint( color, controller.paint_strenght*0.01, world_brush_rect, controller.terrain )
 	
 
 func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
@@ -81,13 +75,12 @@ func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControlle
 
 ## First call from start(), then you can call this function repeatedly with minimum cost.
 ## 'world_brush_rect' and 'world_rect' should be in world space
-func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect2, world_rect:Rect2):
-	var texture_rect:Rect2i = Rect2i(
-		Vector2i.ZERO,
-		target_image.get_size()
-	)
+func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect2, terrain:MeshInstance3D):
+	var world_rect:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_mesh( terrain )
+	var world_node_reference:Vector2 = Vector2( terrain.global_position.x, terrain.global_position.z )
+	var texture_rect:Rect2i = Rect2i( Vector2i.ZERO, target_image.get_size() )
 	var texture_brush_rect:Rect2i = Rect2i(
-		meters_to_pixels(world_brush_rect.position - world_rect.position),
+		meters_to_pixels(world_brush_rect.position - world_rect.position - world_node_reference),
 		paint_stencil.get_size()
 	)
 	var paint_rect:Rect2i = texture_brush_rect.intersection( texture_rect )

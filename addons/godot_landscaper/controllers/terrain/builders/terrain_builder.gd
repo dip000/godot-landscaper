@@ -14,14 +14,14 @@ func quick_start(from_data:GLBuildData):
 	from_data = from_data as GLBuildDataTerrain
 	_controller = _controller as GLControllerTerrain
 	var terrain:MeshInstance3D = _controller.terrain
-	var terrain_offset:Vector3 = terrain.global_position
-
+	
 	# Build nodes
 	if not terrain:
 		terrain = GLSceneManager.find_or_create_node(MeshInstance3D, _controller, _controller.name)
 	if not terrain.mesh:
 		terrain.mesh = ArrayMesh.new()
 	
+	var terrain_offset:Vector3 = terrain.global_position
 	var terrain_body:StaticBody3D = GLSceneManager.find_or_create_node( StaticBody3D, terrain, "TerrainBody" )
 	var terrain_collider:CollisionShape3D = GLSceneManager.find_or_create_node( CollisionShape3D, terrain_body, "TerrainCollider" )
 	
@@ -38,7 +38,7 @@ func quick_start(from_data:GLBuildData):
 	_controller.terrain = terrain
 	from_data.material.shader = from_data.shader
 	terrain.material_override = from_data.material
-	
+
 
 func quick_build(from_data:GLBuildData) -> bool:
 	from_data = from_data as GLBuildDataTerrain
