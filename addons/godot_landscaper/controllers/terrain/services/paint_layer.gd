@@ -60,11 +60,11 @@ static func compose_sampler_outputs(layers:Array[GLPaintLayer]) -> Array[GLPaint
 
 func clear():
 	if texture:
-		texture = GLImageFormater.hard_clean_texture( texture, DEFAULT_FORMAT, texture.get_size(), DEFAULT_COLOR )
+		texture = GLImageCleaner.hard_clean_texture( texture, DEFAULT_FORMAT, texture.get_size(), DEFAULT_COLOR )
 
 
 func overlay_with(other_layer:GLPaintLayer):
-	var image:Image = GLImageFormater.hard_clean_image( texture.get_image(), DEFAULT_FORMAT, texture.get_size(), DEFAULT_COLOR )
+	var image:Image = GLImageCleaner.hard_clean_image( texture.get_image(), DEFAULT_FORMAT, texture.get_size(), DEFAULT_COLOR )
 	var other_image:Image = other_layer.get_image()
 	var rect:Rect2i = Rect2i(Vector2i.ZERO, image.get_size())
 	image.blend_rect( other_image, rect, Vector2i.ZERO )
@@ -77,7 +77,7 @@ func update_image(image:Image):
 
 func get_image() -> Image:
 	var image:Image = texture.get_image()
-	GLImageFormater.soft_clean_image( image, DEFAULT_FORMAT, texture.get_size() )
+	GLImageCleaner.soft_clean_image( image, DEFAULT_FORMAT, texture.get_size() )
 	return image
 
 

@@ -38,7 +38,8 @@ var prev_bounds:Rect2i
 
 func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
 	controller = controller as GLControllerTerrain
-	prev_bounds = get_bounding_box_from_mesh( controller.terrain )
+	var source:GLBuildDataTerrain = controller.source
+	prev_bounds = get_bounding_box_from_coordinates( source.vertices_map.keys() )
 	
 	# Resolve
 	match action:

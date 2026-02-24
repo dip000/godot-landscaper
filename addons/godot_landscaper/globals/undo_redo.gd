@@ -1,4 +1,4 @@
-## UNDO-REDO: Wrapper for EditorUndoRedoManager
+## Wrapper for EditorUndoRedoManager
 ##
 
 @tool

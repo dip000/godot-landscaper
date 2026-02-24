@@ -121,9 +121,13 @@ func _apply(controller:GLController) -> bool:
 			
 			instance_mmi.multimesh = instance_mm
 			instance_mmi["instance_shader_parameters/texture_layer"] = original_mmi["instance_shader_parameters/texture_layer"]
-			instance_mmi.visibility_range_end = instance_mmi.visibility_range_end
+			instance_mmi.visibility_range_end = original_mmi.visibility_range_end
 			instance_mmi.visibility_range_end_margin = original_mmi.visibility_range_end_margin
-	
+			instance_mmi.visibility_range_begin_margin = original_mmi.visibility_range_begin_margin
+			instance_mmi.visibility_range_begin_margin = original_mmi.visibility_range_begin_margin
+			instance_mmi.visibility_range_begin = original_mmi.visibility_range_begin
+			instance_mmi.visibility_range_fade_mode = original_mmi.visibility_range_fade_mode
+			
 			GLDebug.spam("Chunk[%s, %s] -> min=%s, max=%s, count=%s" %[row_index, col_index, local_min, local_max, instance_mm.instance_count])
 			
 			# Move the instance data from the original_mmi to the chunked instance_mmi
@@ -143,7 +147,7 @@ func _apply(controller:GLController) -> bool:
 				await _100_index( instance_index )
 	
 	original_mmi.hide()
-	processed.clear()
+	#processed.clear()
 	GLDebug.state("Chunkified. Total chunks = %s, Total grass instances = %s" %[total_chunks, processed.size()])
 	return true
 

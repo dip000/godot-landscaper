@@ -1,6 +1,7 @@
 ## Highly overengineered bit utilities.
 ##
 ## Has iterators, set, reset, static, stringify, shampoo, lubricant, signal, etc..
+@tool
 extends RefCounted
 class_name GLBitMask
 

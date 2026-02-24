@@ -38,7 +38,7 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 	# Caches
 	var source:GLBuildDataTerrain = controller.source
 	var texture_brush_size:Vector2i = meters_to_pixels( Vector2.ONE * controller.brush_size )
-	paint_stencil = GLImageFormater.hard_clean_image( paint_stencil, DEFAULT_FORMAT, paint_stencil.get_size() )
+	paint_stencil = GLImageCleaner.hard_clean_image( paint_stencil, DEFAULT_FORMAT, paint_stencil.get_size() )
 	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
 	
 	# input layers (separated)

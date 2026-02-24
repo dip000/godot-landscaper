@@ -7,7 +7,8 @@
 extends GLEffect
 class_name GLGrassTextureCompressor
 
-@export_custom(PROPERTY_HINT_SAVE_FILE, "*.png") var save_path:String = "res://grass_texture_atlas.png"
+#@export_custom(PROPERTY_HINT_SAVE_FILE, "*.png") var save_path:String = "res://grass_texture_atlas.png"
+@export var formater:GLImageFormater = GLImageFormater.from_save_path( "res://grass_texture_atlas.png" )
 
 
 func _apply(controller:GLController) -> bool:
@@ -15,13 +16,15 @@ func _apply(controller:GLController) -> bool:
 		GLDebug.error("Grass VRAM Compression Failed: This effect is only valid for GLControllerGrass controller types")
 		return false
 	
-	var save_dir:String = save_path.get_base_dir()
-	if not FileAccess.file_exists( save_path ):
-		if not DirAccess.dir_exists_absolute( save_dir ):
-			GLDebug.error("Grass VRAM Compression Failed: Invalid 'save_path=%s'" %save_path)
-			return false
-	
 	controller = controller as GLControllerGrass
+	
+	if not formater:
+		formater = GLImageFormater.from_save_path( "res://grass_texture_atlas.png" )
+	
+	var save_path:String = formater.save_file
+	if save_path.is_empty():
+		GLDebug.error("Grass VRAM Compression Failed: Invalid 'save_path=%s'" %save_path)
+		return false
 	
 	var processed:GLBuildDataGrass = controller.processed
 	var texture_array:Texture2DArray = processed.texture_array_layer.texture_array
@@ -30,8 +33,8 @@ func _apply(controller:GLController) -> bool:
 		GLDebug.error("Grass VRAM Compression Failed: There are no textures to compress")
 		return false
 	
+	# Create Atlas
 	var layers:int = texture_array.get_layers()
-	
 	var tile_w:int = texture_array.get_width()
 	var tile_h:int = texture_array.get_height()
 	
@@ -49,9 +52,14 @@ func _apply(controller:GLController) -> bool:
 			Vector2i(layer * tile_w, 0)
 		)
 	
-	var err:int = atlas.save_png( save_path )
-	if err != OK:
-		GLDebug.error("Grass VRAM Compression Failed. Reason: %s" %error_string(err))
+	# Save file with GLImageFormater class
+	atlas = formater.format( atlas )
+	if not atlas:
+		GLDebug.error("Grass VRAM Compression Failed: Formater format error")
+		return false
+	
+	if not formater.save( atlas ):
+		GLDebug.error("Grass VRAM Compression Failed: Formater save error")
 		return false
 	
 	await _frame()

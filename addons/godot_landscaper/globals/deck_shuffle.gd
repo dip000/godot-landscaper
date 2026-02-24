@@ -3,6 +3,7 @@
 ## The main characteristic of a "deck" or stack
 ## is that the "cards" or values never repeat until the deck is empty.
 
+@tool
 extends Resource
 class_name GLDeckShuffle
 
