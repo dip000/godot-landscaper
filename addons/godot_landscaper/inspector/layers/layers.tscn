@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://qn18mgxarljs"]
+
+[ext_resource type="Script" uid="uid://bwmvsr0ys05c7" path="res://addons/godot_landscaper/inspector/layers/layers.gd" id="1_6evjj"]
+[ext_resource type="PackedScene" uid="uid://cc22twy7o43pp" path="res://addons/godot_landscaper/inspector/info_box/inspector_info_box.tscn" id="2_6evjj"]
+[ext_resource type="Texture2D" uid="uid://b21ljjbjhk2x6" path="res://addons/godot_landscaper/icon_clean.svg" id="3_j0xjq"]
+
+[node name="Layers" type="MarginContainer" unique_id=544517744]
+custom_minimum_size = Vector2(210, 0)
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+script = ExtResource("1_6evjj")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=76556834]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="ScrollContainer" unique_id=2097455837]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="InfoBox" parent="ScrollContainer/Content" unique_id=1372408840 instance=ExtResource("2_6evjj")]
+layout_mode = 2
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="TitleContainer" parent="ScrollContainer/Content/InfoBox/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1372408840, 731297425) index="0" unique_id=77771344]
+visible = true
+
+[node name="TextureRect" parent="ScrollContainer/Content/InfoBox/PanelContainer/VBoxContainer/TitleContainer" index="0" unique_id=906954250]
+texture = ExtResource("3_j0xjq")
+
+[node name="Title" parent="ScrollContainer/Content/InfoBox/PanelContainer/VBoxContainer/TitleContainer" index="1" unique_id=722007924]
+text = "Paint Layers"
+
+[node name="Info" parent="ScrollContainer/Content/InfoBox/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1372408840, 731297425) index="1" unique_id=530112624]
+visible = false
+text = "A layer represents an [b]uniform sampler[/b], for example, an albedo or roughness_map.
+
+Layers with the same name will be [b]merged into one[/b]. Paint with alpha on the top layers to see the bottom layers."
+
+[node name="Holder" type="VBoxContainer" parent="ScrollContainer/Content" unique_id=1441934621]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AddLayer" type="Button" parent="ScrollContainer/Content" unique_id=919046809]
+unique_name_in_owner = true
+layout_mode = 2
+text = "    + Add Layer    "
+
+[node name="FloatingHolder" type="CanvasLayer" parent="ScrollContainer/Content" unique_id=1875122191]
+unique_name_in_owner = true
+
+[editable path="ScrollContainer/Content/InfoBox"]

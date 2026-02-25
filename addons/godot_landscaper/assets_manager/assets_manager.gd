@@ -8,6 +8,8 @@ const CONTROLLER_ROOT:String = "res://addons/godot_landscaper/controllers/"
 
 # Scenes
 const INFO_BOX:PackedScene = preload("uid://cc22twy7o43pp")
+const UI_LAYER:PackedScene = preload("uid://b00d8qhvcb6t1")
+const UI_LAYERS:PackedScene = preload("uid://qn18mgxarljs")
 const INSPECTOR_TAB:PackedScene = preload("uid://bjulr1lyuv2wc")
 const SCENE_MANAGER:PackedScene = preload("uid://dkv66uttcirw3")
 const ASSETS_MANAGER:PackedScene = preload("uid://cdpkwy3lagls0")

@@ -49,7 +49,8 @@ class_name GLControllerTerrain
 ## Individual texture paint layers. Can be used as:[br][br]
 ## [b]Sampler targets[/b]. For feeding your own maps like roughness, details, ao, etc..[br][br]
 ## [b]Conventional color layers[/b]. All layers with the same channel are composed into a single texture like base, sea floor, grass, etc..
-@export var layers:Array[GLPaintLayer]
+@export_storage var layers:Array[GLPaintLayer]
+
 
 @export_group("Primary Action", "primary_")
 ## Building behavior for the builder brush primary action

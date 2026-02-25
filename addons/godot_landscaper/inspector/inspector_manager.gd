@@ -1,6 +1,9 @@
 extends EditorInspectorPlugin
 class_name GLInspectorManager
 
+var landscaper:GLandscaper
+var _layers:GLUILayers
+
 
 func _can_handle(object:Object):
 	return object is GLController
@@ -15,13 +18,20 @@ func selected(controller:GLController):
 			_press_tab( controller, controller.brushes[0] )
 
 
+func deselected(controller:GLController):
+	if _layers:
+		landscaper.remove_control_from_container( EditorPlugin.CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT, _layers )
+		_layers.queue_free()
+		_layers = null
+
+
 # Creates and connects tabs according to 'GLController.brushes' settings
 func _parse_category(controller:Object, category:String):
 	if category == "Scan Configs":
-		_create_info_box( "Auto detect your own setups like mesh-over-body or body-over-mesh" )
+		_create_info_box( "Auto detection options for detecting your custom nodes and resources" )
 		return
 	elif category == "controller.gd":
-		_create_info_box( "Effects are non-destructive. To save effects permanently: Apply, copy 'processed' to 'source' and Clear." )
+		_create_info_box( "[b]Source[/b] is the raw save data, try saving backups. [b]Effects[/b] are non-destructive, chunkify at the end", "Build Data and Effects" )
 		return
 	if not category.ends_with("_controller.gd") or not controller is GLController or not controller.brushes or not controller.is_ready:
 		return
@@ -33,6 +43,13 @@ func _parse_category(controller:Object, category:String):
 	add_custom_control( tabs )
 	_create_info_box( controller.current_brush.info )
 	
+	if not _layers and controller is GLControllerTerrain and controller.current_brush is GLBrushTerrainPaint:
+		_layers = GLAssetsManager.UI_LAYERS.instantiate()
+		landscaper.add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT, _layers )
+		_layers.fill( controller.layers )
+	if not controller is GLControllerTerrain or not controller.current_brush is GLBrushTerrainPaint:
+		deselected( controller )
+	
 
  #Hides/Shows each property according to 'GLController.current_brush' settings
 func _parse_property(controller:Object, type, name:String, hint_type, hint_string:String, usage_flags:int, wide:bool):
@@ -41,16 +58,20 @@ func _parse_property(controller:Object, type, name:String, hint_type, hint_strin
 		return name in current_tab.hide_properties if current_tab else false
 	return false
 
-func _create_info_box(info:String):
+
+func _create_info_box(info:String, title:String=""):
 	var info_box:GLInfoBox = GLAssetsManager.INFO_BOX.instantiate()
 	info_box.set_info( info )
+	if title:
+		info_box.set_title( title )
 	add_custom_control( info_box )
 
 
 func _press_tab(controller:GLController, brush:GLBrush):
 	controller.select_brush( brush )
+	landscaper.scene.select_brush( brush )
 	controller.notify_property_list_changed()
-	GLandscaper.scene.select_brush( brush )
+
 
 func _create_tabs(controller:GLController) -> Control:
 	var tabs := HBoxContainer.new()
@@ -64,3 +85,8 @@ func _create_tabs(controller:GLController) -> Control:
 		tab_ui.button_pressed = (controller.current_brush == brush)
 		tab_ui.pressed.connect( _press_tab.bind(controller, brush) )
 	return tabs
+
+
+
+
+	

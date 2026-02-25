@@ -4,38 +4,74 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v70gc"]
 content_margin_left = 6.0
-content_margin_top = 6.0
+content_margin_top = 15.0
 content_margin_right = 6.0
-content_margin_bottom = 6.0
+content_margin_bottom = 15.0
 bg_color = Color(0.337, 0.62, 1, 0.1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[node name="InfoBox" type="MarginContainer" unique_id=1372408840]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kpycl"]
+content_margin_left = 4.0
+draw_center = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8y826"]
+content_margin_left = 28.0
+draw_center = false
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g06db"]
+
+[node name="InfoBox" type="MarginContainer" unique_id=1894846186]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 40.0
+offset_bottom = 53.0
 grow_horizontal = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 5
 script = ExtResource("1_hmcpr")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=183014551]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=314234995]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v70gc")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer" unique_id=1532758417]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=731297425]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 8
 
-[node name="Info" type="Label" parent="PanelContainer/HBoxContainer" unique_id=214150757]
+[node name="TitleContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=77771344]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(50, 0)
+visible = false
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/VBoxContainer/TitleContainer" unique_id=906954250]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+expand_mode = 4
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer/TitleContainer" unique_id=722007924]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-vertical_alignment = 1
-autowrap_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_kpycl")
+text = "Terrain Paint Layers"
+text_overrun_behavior = 5
+
+[node name="ExpandCollapse" type="Button" parent="PanelContainer/VBoxContainer/TitleContainer" unique_id=142290861]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+toggle_mode = true
+text = "⯇"
+flat = true
+
+[node name="Info" type="RichTextLabel" parent="PanelContainer/VBoxContainer" unique_id=530112624]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_8y826")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_g06db")
+bbcode_enabled = true
+fit_content = true
+scroll_active = false

@@ -27,6 +27,7 @@ func _enter_tree():
 	assets = GLAssetsManager.ASSETS_MANAGER.instantiate()
 	scene = GLAssetsManager.SCENE_MANAGER.instantiate()
 	inspector = GLInspectorManager.new()
+	inspector.landscaper = self
 	add_inspector_plugin( inspector )
 	undo_redo = GLUndoRedo.new( get_undo_redo() )
 	
@@ -41,6 +42,7 @@ func _enter_tree():
 func _exit_tree():
 	GLDebug.state("Closing GodotLandscaper..")
 	is_enabled = false
+	inspector.deselected( _active_controller )
 	remove_inspector_plugin( inspector )
 	assets.queue_free()
 	scene.queue_free()
@@ -123,11 +125,19 @@ func _edit(controller:Object):
 			GLDebug.error("Can't select a controller: The controller timed out. Try re-selecting it from the scene tree, or restarting the editor")
 	else:
 		scene.deselected( _active_controller )
+		scene.deselected( _active_controller )
+		inspector.deselected( _active_controller )
 	_active_controller = controller
-
 
 
 func _handles(object:Object):
 	return object is GLController
 	
+
+
+
+
+
+
+
 	

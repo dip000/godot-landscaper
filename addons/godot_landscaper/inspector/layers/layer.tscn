@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://b00d8qhvcb6t1"]
+
+[ext_resource type="Script" uid="uid://bh851cs56yh18" path="res://addons/godot_landscaper/inspector/layers/layer.gd" id="1_myn6m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fgmjg"]
+resource_local_to_scene = true
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.6766724, 0.5003973, 1, 0.2)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+corner_detail = 5
+
+[node name="Layer" type="PanelContainer" unique_id=776097443]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 39.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_fgmjg")
+script = ExtResource("1_myn6m")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1700544150]
+layout_mode = 2
+
+[node name="Drag" type="Button" parent="HBoxContainer" unique_id=1373328476]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "≡"
+flat = true
+
+[node name="Active" type="CheckBox" parent="HBoxContainer" unique_id=646291662]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Channel" type="LineEdit" parent="HBoxContainer" unique_id=2143033208]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Layer Name"
+clear_button_enabled = true
