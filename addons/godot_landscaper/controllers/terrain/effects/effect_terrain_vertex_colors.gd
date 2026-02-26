@@ -4,8 +4,6 @@
 extends GLEffect
 class_name GLTerrainVertexColor
 
-const DEFAULT_WINDOW:Rect2i = Rect2i( -GLBrushTerrainPaint.PIXELS_PER_SQUARED_METER*0.5, GLBrushTerrainPaint.PIXELS_PER_SQUARED_METER*0.5 )
-
 ## The pixels to average relative to the vertex.[br]
 ## Biger window means a more precise, expensive and disperse color.[br]
 @export var sampling_window:Rect2i = Rect2i(-1, -1, 1, 1)

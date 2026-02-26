@@ -7,7 +7,7 @@ enum Behavior {
 	TEXTURE_TILING, ## For continuous rocks or grass textures. The brush size resizes the brush texture.
 }
 
-const PIXELS_PER_SQUARED_METER:Vector2 = Vector2(10,10)
+const PIXELS_PER_SQUARED_METER:float = 64.0
 const DEFAULT_FORMAT:Image.Format = Image.FORMAT_RGBA8
 
 # Caches

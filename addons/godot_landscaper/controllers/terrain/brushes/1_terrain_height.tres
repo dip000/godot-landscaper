@@ -8,5 +8,5 @@ script = ExtResource("1_v7q6h")
 title = "Height"
 icon = ExtResource("1_b3bcb")
 info = "Heightens or lowers terrain mesh."
-hide_properties = PackedStringArray("sew_seams_on_build", "cell_size", "primary_color", "secondary_color", "layers", "texture_resolution", "primary_build_behavior", "primary_paint_behavior", "primary_paint_stencil", "secondary_build_behavior", "secondary_paint_behavior", "paint_strenght", "secondary_paint_stencil")
+hide_properties = PackedStringArray("sew_seams_on_build", "primary_color", "secondary_color", "layers", "primary_build_behavior", "primary_paint_behavior", "primary_paint_stencil", "secondary_build_behavior", "secondary_paint_behavior", "paint_strenght", "secondary_paint_stencil", "terrain")
 metadata/_custom_type_script = "uid://dxggt0kdy7bwq"

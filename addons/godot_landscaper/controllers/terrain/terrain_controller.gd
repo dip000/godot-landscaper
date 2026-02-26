@@ -3,12 +3,6 @@
 extends GLController
 class_name GLControllerTerrain
 
-## How many cells to build per meter squared.
-@export_range(0.1, 10.0, 0.01, "suffix:cells/meter") var cell_size:float = 1
-
-## How many pixels to have per meter squared.
-@export_range(1.0, 100.0, 0.01, "suffix:pixels/meter") var texture_resolution:float = 10
-
 ## Merges overhang edges with the closest cells.
 ## Disable if you want overhangs.
 @export var sew_seams_on_build:bool = true
