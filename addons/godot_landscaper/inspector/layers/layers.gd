@@ -6,10 +6,10 @@ class_name GLUILayers
 @onready var add_layer:Button = %AddLayer
 @onready var floating_holder:CanvasLayer = %FloatingHolder
 @onready var content:VBoxContainer = %Content
+@onready var preview:TextureRect = %Preview
 
 var _buttons:ButtonGroup = ButtonGroup.new()
 var _layers:Array[GLPaintLayer]
-var _selected_layer:GLUILayer
 
 
 func _ready() -> void:
@@ -50,11 +50,19 @@ func refill():
 		ui_layer.fill( layer )
 		ui_layer.active.button_group = _buttons
 		ui_layer.active.button_pressed = (i == current_index)
-		ui_layer.channel.text_changed.connect( on_text_changed.bind(i), CONNECT_ONE_SHOT )
+		ui_layer.active.toggled.connect( _on_active_toggled.bind(layer) )
+		ui_layer.channel.text_changed.connect( on_text_changed.bind(i) )
 		
 		var variation:float = variations.get( layer.material_channel, randf_range(-0.5, 0.5) )
 		ui_layer.set_color_variation( variation )
 		variations[layer.material_channel] = variation
+	
+	if current_index < _layers.size():
+		preview.texture = _layers[current_index].texture
+
+
+func _on_active_toggled(toggled_on:bool, layer:GLPaintLayer):
+	preview.texture = layer.texture
 
 
 func on_text_changed(new_text:String, index:int):
@@ -62,6 +70,9 @@ func on_text_changed(new_text:String, index:int):
 		_layers.remove_at( index )
 		clear()
 		refill()
+
+
+
 
 
 

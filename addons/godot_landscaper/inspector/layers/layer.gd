@@ -2,9 +2,10 @@
 extends PanelContainer
 class_name GLUILayer
 
-@onready var drag:Button = %Drag
 @onready var active:CheckBox = %Active
 @onready var channel:LineEdit = %Channel
+@onready var up:Button = %Up
+@onready var down:Button = %Down
 
 var _layer:GLPaintLayer
 
@@ -29,7 +30,6 @@ func fill(layer:GLPaintLayer):
 
 
 func set_color_variation(variation:float):
-	print(variation)
 	var settings:EditorSettings = EditorInterface.get_editor_settings()
 	var accent_color:Color = settings.get_setting("interface/theme/accent_color")
 	var style_box:StyleBoxFlat = get_theme_stylebox("panel")
