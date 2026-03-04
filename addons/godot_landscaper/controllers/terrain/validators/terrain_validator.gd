@@ -110,12 +110,9 @@ func _cleanup_layers() -> bool:
 		if layer.active:
 			any_active = true
 		if not layer.texture:
-			var color:Color = _controller.primary_color
-			if layers[0].texture: # transparent for the second and next layers
-				color.a = 0
 			var terrain_rect:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( _controller.terrain )
-			var terrain_size_px:Vector2i = GLBrushTerrainPaint.meters_to_pixels( terrain_rect.size )
-			var image:Image = GLBrushTerrainPaint.create_image( terrain_size_px, color )
+			var terrain_size_px:Vector2i = layer.meters_to_pixels( terrain_rect.size )
+			var image:Image = GLBrushTerrainPaint.create_image( terrain_size_px, Color.TRANSPARENT )
 			layer.texture = ImageTexture.create_from_image( image )
 	
 	if not any_active:

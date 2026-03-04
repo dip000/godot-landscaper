@@ -27,7 +27,7 @@ func quick_start(from_data:GLBuildData):
 	
 	# Update textures
 	for layer in from_data.layers:
-		terrain.material_override.set_shader_parameter( layer.material_channel, layer.texture )
+		terrain.material_override.set_shader_parameter( layer.sampler, layer.texture )
 	
 	# Update shape
 	if from_data.vertices_map.is_empty():
@@ -145,7 +145,7 @@ static func build_headless(build_data:GLBuildDataTerrain, terrain:MeshInstance3D
 	
 	# Update textures
 	for layer in build_data.layers:
-		terrain.material_override.set_shader_parameter( layer.material_channel, layer.texture )
+		terrain.material_override.set_shader_parameter( layer.sampler, layer.texture )
 	return true
 
 

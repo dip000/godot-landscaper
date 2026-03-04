@@ -30,7 +30,7 @@ func _apply(controller:GLController) -> bool:
 	var found_layers:Array[GLPaintLayer]
 	
 	for layer in processed.layers:
-		var channel:String = layer.material_channel
+		var channel:String = layer.sampler
 		var formater:GLImageFormater = channel_formaters.get( channel )
 		
 		if not formater:
@@ -60,10 +60,10 @@ func _apply(controller:GLController) -> bool:
 	var channels_saved:PackedStringArray
 	
 	for found_layer in found_layers:
-		var channel:String = found_layer.material_channel
+		var channel:String = found_layer.sampler
 		var formater:GLImageFormater = channel_formaters[channel]
 		var texture:Texture2D = load( formater.save_file )
-		material.set_shader_parameter( found_layer.material_channel, texture )
+		material.set_shader_parameter( found_layer.sampler, texture )
 		channels_saved.append( channel )
 	
 	GLDebug.state("Terrain Texture Formater Succesfull: Channels Saved %s" %channels_saved)

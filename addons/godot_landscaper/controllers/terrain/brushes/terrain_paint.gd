@@ -35,13 +35,8 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 			behavior = controller.secondary_paint_behavior
 			color = controller.secondary_color
 	
-	# Caches
-	var source:GLBuildDataTerrain = controller.source
-	var texture_brush_size:Vector2i = meters_to_pixels( Vector2.ONE * controller.brush_size )
-	paint_stencil = GLImageCleaner.hard_clean_image( paint_stencil, DEFAULT_FORMAT, paint_stencil.get_size() )
-	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
-	
 	# input layers (separated)
+	var source:GLBuildDataTerrain = controller.source
 	target_layer = GLPaintLayer.get_active( controller.layers )
 	target_image = target_layer.get_image()
 	
@@ -49,6 +44,11 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 	source.layers = GLPaintLayer.compose_sampler_outputs( controller.layers )
 	composed_layer = GLPaintLayer.get_active( source.layers )
 	composed_image = composed_layer.get_image()
+
+	# Brush
+	var texture_brush_size:Vector2i = target_layer.meters_to_pixels( Vector2.ONE * controller.brush_size )
+	paint_stencil = GLImageCleaner.hard_clean_image( paint_stencil, DEFAULT_FORMAT, paint_stencil.get_size() )
+	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
 
 
 func action(action:GLandscaper.Action, scan_data:GLScanData, controller:GLController):
@@ -63,7 +63,7 @@ func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControlle
 	var source:GLBuildDataTerrain = controller.source
 	source.layers = GLPaintLayer.compose_sampler_outputs( controller.layers )
 	for layer in source.layers:
-		source.material.set_shader_parameter( layer.material_channel, layer.texture )
+		source.material.set_shader_parameter( layer.sampler, layer.texture )
 	
 	paint_stencil = null
 	target_image = null
@@ -80,7 +80,7 @@ func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect
 	var world_node_reference:Vector2 = Vector2( terrain.global_position.x, terrain.global_position.z )
 	var texture_rect:Rect2i = Rect2i( Vector2i.ZERO, target_image.get_size() )
 	var texture_brush_rect:Rect2i = Rect2i(
-		meters_to_pixels(world_brush_rect.position - world_rect.position - world_node_reference),
+		target_layer.meters_to_pixels(world_brush_rect.position - world_rect.position - world_node_reference),
 		paint_stencil.get_size()
 	)
 	var paint_rect:Rect2i = texture_brush_rect.intersection( texture_rect )
@@ -115,14 +115,6 @@ func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect
 	composed_layer.update_image( composed_image )
 
 
-static func meters_to_pixels(squared_meters:Vector2) -> Vector2:
-	return (PIXELS_PER_SQUARED_METER * squared_meters).round()
-
-
-static func pixels_to_meters(pixels:Vector2) -> Vector2:
-	return pixels / PIXELS_PER_SQUARED_METER
-
-
 static func create_image(size:Vector2i, color:Color) -> Image:
 	if size <= Vector2i.ZERO:
 		size = Vector2i.ONE
@@ -130,29 +122,6 @@ static func create_image(size:Vector2i, color:Color) -> Image:
 	img.fill( color )
 	return img
 
-
-## Expands or shrinks the texture to fit the new_rect
-static func resize_texture(texture:ImageTexture, prev_rect:Rect2i, new_rect:Rect2i):
-	if prev_rect.size == new_rect.size or new_rect.size <= Vector2i.ZERO:
-		return
-	
-	# 1. Create base image
-	var new_size:Vector2i = meters_to_pixels( new_rect.size )
-	var new_img:Image = create_image( new_size, Color.WHITE )
-	
-	var image:Image = texture.get_image()
-	if not image:
-		texture.set_image( new_img )
-		return
-	
-	GLDebug.internal("Resizing texture %s -> %s" %[prev_rect.size, new_rect.size])
-	
-	# 2. Compute destination for old image
-	var texture_position:Vector2i = meters_to_pixels( prev_rect.position - new_rect.position )
-	
-	# 3. Paste old image
-	new_img.blit_rect( image, Rect2i(Vector2i.ZERO, image.get_size()), texture_position )
-	texture.set_image( new_img )
 
 
 

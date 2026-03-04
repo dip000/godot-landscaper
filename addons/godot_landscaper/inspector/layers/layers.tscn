@@ -20,9 +20,6 @@ theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 script = ExtResource("1_6evjj")
 
-[node name="FloatingHolder" type="CanvasLayer" parent="." unique_id=1875122191]
-unique_name_in_owner = true
-
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=409341001]
 layout_mode = 2
 
@@ -53,9 +50,9 @@ text = "Paint Layers"
 
 [node name="Info" parent="VBoxContainer/ScrollContainer/Content/InfoBox/PanelContainer/VBoxContainer" parent_id_path=PackedInt32Array(1372408840, 731297425) index="1" unique_id=530112624]
 visible = false
-text = "A layer represents an [b]uniform sampler[/b], for example, an albedo or roughness_map.
+text = "Layers with the same name will be [b]merged into one[/b]. Paint with alpha to reveal the bottom layers.
 
-Layers with the same name will be [b]merged into one[/b]. Paint with alpha on the top layers to see the bottom layers."
+Open the [b]Controller Layers[/b] for more configurations."
 
 [node name="Holder" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/Content" unique_id=1441934621]
 unique_name_in_owner = true

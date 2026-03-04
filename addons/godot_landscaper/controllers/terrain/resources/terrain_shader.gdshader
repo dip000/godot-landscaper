@@ -1,8 +1,8 @@
 // Basic Terrain Shader.
 // It is heavily encouraged to use the paint layer mechanics for customization:
-//   1. Add a paint layer: GLControllerTerrain > Paint > Layers
-//   2. Set 'Material Channel' to match your uniform sampler2D, like "roughness_texture"
-//   3. The Landscaper will update that uniform if the layer is active.
+//   1. Open the layers panel: GLControllerTerrain > Paint
+//   2. Press [+ Add Layer] and configure it as needed. Match the sampler name to the declare sampler in this shader.
+//   3. The Landscaper will update that sampler while the layer is active.
 
 shader_type spatial;
 render_mode
@@ -12,11 +12,17 @@ specular_occlusion_disabled, specular_disabled; // For shine effects. Remove if 
 
 #include "uid://b3gsadcnam4l0" //light
 
+uniform sampler2D base_tiles;
 uniform sampler2D terrain_texture;
 
 
 void fragment() {
-	ALBEDO = texture(terrain_texture, UV).rgb;
+	// Small, tiled high resolution texture
+	vec3 base = texture(base_tiles, UV*10.0).rgb;
+	
+	// Full size, lower resolution details over the tiles (alpha blend)
+	vec4 terrain = texture(terrain_texture, UV);
+	ALBEDO = mix(base, terrain.rgb, terrain.a);
 }
 
 

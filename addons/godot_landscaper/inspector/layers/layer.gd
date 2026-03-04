@@ -1,34 +1,40 @@
+## Handy UI Layer visualizer for [GLUILayers] pannel using [GLPaintLayer] resource.
+##
+## It only assigns [member GLPaintLayer.active] and [member GLPaintLayer.sampler].
+## For more operations use the raw data in [member GLControllerTerrain.layers]
+
 @tool
 extends PanelContainer
 class_name GLUILayer
 
+@onready var _sampler:LineEdit = %Channel
 @onready var active:CheckBox = %Active
-@onready var channel:LineEdit = %Channel
-@onready var up:Button = %Up
-@onready var down:Button = %Down
+@onready var delete: Button = %Delete
 
 var _layer:GLPaintLayer
 
 
 func _ready() -> void:
-	active.toggled.connect( on_active_toggled )
-	channel.text_changed.connect( on_channel_changed )
+	active.toggled.connect( _on_active_toggled )
+	_sampler.text_changed.connect( _on_sampler_changed )
 
 
-func on_active_toggled(toggled_on:bool):
+func _on_active_toggled(toggled_on:bool):
 	_layer.active = toggled_on
 
 
-func on_channel_changed(new_text:String):
-	_layer.material_channel = new_text
+func _on_sampler_changed(new_text:String):
+	_layer.sampler = new_text
 
 
+## Fills the UI elements with given [GLPaintLayer] resource
 func fill(layer:GLPaintLayer):
 	_layer = layer
+	_sampler.text = layer.sampler
 	active.button_pressed = layer.active
-	channel.text = layer.material_channel
 
 
+## Shifts the layer hue to a variation value in range of -1.0 to 1.0
 func set_color_variation(variation:float):
 	var settings:EditorSettings = EditorInterface.get_editor_settings()
 	var accent_color:Color = settings.get_setting("interface/theme/accent_color")

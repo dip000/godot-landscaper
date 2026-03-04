@@ -40,10 +40,8 @@ class_name GLControllerTerrain
 ## Does not affect the color's alpha result.
 @export_range(0, 100, 1, "suffix:%") var paint_strenght:float = 50
 
-## Individual texture paint layers. Can be used as:[br][br]
-## [b]Sampler targets[/b]. For feeding your own maps like roughness, details, ao, etc..[br][br]
-## [b]Conventional color layers[/b]. All layers with the same channel are composed into a single texture like base, sea floor, grass, etc..
-@export_storage var layers:Array[GLPaintLayer]
+## Individual texture paint layers. Use the Paint Layers [GLUILayers] panel for convenience.
+@export var layers:Array[GLPaintLayer]
 
 
 @export_group("Primary Action", "primary_")

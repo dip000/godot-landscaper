@@ -72,9 +72,9 @@ func end(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControlle
 	var new_bounds:Rect2i = get_bounding_box_from_coordinates( vertices_map.keys() )
 	
 	for layer in controller.layers:
-		GLBrushTerrainPaint.resize_texture( layer.texture, prev_bounds, new_bounds )
+		layer.crop_expand( prev_bounds, new_bounds )
 	for layer in source.layers:
-		GLBrushTerrainPaint.resize_texture( layer.texture, prev_bounds, new_bounds )
+		layer.crop_expand( prev_bounds, new_bounds )
 
 
 func _erase(erase_rect:Rect2i, vertices_map:Dictionary[Vector2i, PackedVector3Array]):

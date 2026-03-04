@@ -68,7 +68,6 @@ func _blend():
 	# Setup transforms
 	if enable_transforms:
 		size_reference *= scale
-		GLImageCleaner.soft_clean_image( img_reference, DEFAULT_FORMAT, size_reference )
 	
 	# Setup distortion
 	if distortion_map.height != size_reference.y or distortion_map.width != size_reference.x:
@@ -86,6 +85,8 @@ func _blend():
 	var mask_image:Image
 	if enable_masking:
 		mask_image = GLImageCleaner.hard_clean_image( mask.get_image(), DEFAULT_FORMAT, size_reference )
+	
+	GLImageCleaner.soft_clean_image( img_reference, DEFAULT_FORMAT, size_reference )
 	
 	for paint_position in GLRect2iter.new( Vector2i.ZERO, size_reference ):
 		# Transform (from center)

@@ -19,10 +19,27 @@ func selected(controller:GLController):
 
 
 func deselected(controller:GLController):
+	clear_layers_panel()
+
+
+func clear_layers_panel():
 	if _layers:
 		landscaper.remove_control_from_container( EditorPlugin.CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT, _layers )
+		_layers.clear()
 		_layers.queue_free()
 		_layers = null
+
+
+func load_layers_panel(layers:Array[GLPaintLayer]):
+	_layers = GLAssetsManager.UI_LAYERS.instantiate()
+	landscaper.add_control_to_container( EditorPlugin.CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT, _layers )
+	_layers.load_layers( layers )
+
+
+func reload_layers_panel(layers:Array[GLPaintLayer]):
+	_layers.clear()
+	if _layers:
+		_layers.load_layers( layers )
 
 
 # Creates and connects tabs according to 'GLController.brushes' settings
@@ -44,11 +61,9 @@ func _parse_category(controller:Object, category:String):
 	_create_info_box( controller.current_brush.info )
 	
 	if not _layers and controller is GLControllerTerrain and controller.current_brush is GLBrushTerrainPaint:
-		_layers = GLAssetsManager.UI_LAYERS.instantiate()
-		landscaper.add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT, _layers )
-		_layers.fill( controller.layers )
+		load_layers_panel( controller.layers )
 	if not controller is GLControllerTerrain or not controller.current_brush is GLBrushTerrainPaint:
-		deselected( controller )
+		clear_layers_panel()
 	
 
  #Hides/Shows each property according to 'GLController.current_brush' settings

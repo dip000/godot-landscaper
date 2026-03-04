@@ -25,14 +25,14 @@ func _apply(controller:GLController) -> bool:
 	controller = controller as GLControllerTerrain
 	var processed:GLBuildDataTerrain = controller.processed
 	var source:GLBuildDataTerrain = controller.source
-	var terget_layer:GLPaintLayer = GLPaintLayer.get_channel( target_channel, processed.layers )
+	var target_layer:GLPaintLayer = GLPaintLayer.get_channel( target_channel, processed.layers )
 	
-	if not terget_layer or not terget_layer.texture:
+	if not target_layer or not target_layer.texture:
 		GLDebug.error("Terrain Texture Formater Failed: Channel '%s' does not exist in any terrain layer. Make a layer named as such" %target_channel)
 		return false
 	
-	var texture:Texture2D = terget_layer.texture
-	var image:Image = texture.get_image()
+	#var texture:Texture2D = terget_layer.texture
+	var image:Image = target_layer.get_image()
 	var vertices_map:Dictionary[Vector2i, PackedVector3Array] = processed.vertices_map
 	var vertex_colors_map:Dictionary[Vector2i, PackedColorArray]
 	var bounds:Rect2 = GLBrushTerrainBuider.get_bounding_box_from_coordinates( vertices_map.keys() )
@@ -48,7 +48,7 @@ func _apply(controller:GLController) -> bool:
 		
 		for i in square_size:
 			var corner_offset:Vector2 = square_shape[i]
-			var corner_pixel:Vector2i = GLBrushTerrainPaint.meters_to_pixels( world_position + corner_offset )
+			var corner_pixel:Vector2i = target_layer.meters_to_pixels( world_position + corner_offset )
 			
 			# Avoid repeating expensive windows.
 			# Like the top-right corner of a square and the top-left of the next, it's the same corner 

@@ -66,7 +66,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_g8d0j")
 placeholder_text = "Layer Name"
-clear_button_enabled = true
 
 [node name="Reorder" type="VBoxContainer" parent="HBoxContainer" unique_id=1925545107]
 visible = false
@@ -131,3 +130,11 @@ theme_override_font_sizes/font_size = 12
 text = "⯆"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Delete" type="Button" parent="HBoxContainer" unique_id=1463703635]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_colors/font_color = Color(0.88, 0.88, 0.88, 0.5921569)
+text = "x"
+flat = true
