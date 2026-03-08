@@ -27,7 +27,7 @@ class_name GLController
 ## Note: Run the Chunkifier at the end so all of the previous effects are passed to the chunks
 @export var effects:Array[GLEffect]
 
-@export_tool_button("Rebuild From Source", "PlayScene") var _rebuild_from_source_btn:Callable = rebuild_from_source
+@export_tool_button(" Rebuild From Source", "PlayScene") var _rebuild_from_source_btn:Callable = rebuild_from_source
 @export_tool_button("     Apply All Effects     ", "BoneMapperHandleSelected") var _apply_effects_btn:Callable = apply_effects
 @export_tool_button("     Clear All Effects     ", "Clear") var _clear_effects_btn:Callable = clear_effects
 

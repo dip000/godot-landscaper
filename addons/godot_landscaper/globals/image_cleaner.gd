@@ -22,7 +22,7 @@ static func soft_clean_image(image:Image, format:Image.Format, size:Vector2i=Vec
 		image.convert( format )
 
 
-static func hard_clean_image(image:Image, format:Image.Format, size:Vector2i, color:Color=Color.TRANSPARENT, interpolation:Image.Interpolation=Image.INTERPOLATE_BILINEAR) -> Image:
+static func hard_clean_image(image:Image, format:Image.Format, size:Vector2i=Vector2i.ZERO, color:Color=Color.TRANSPARENT, interpolation:Image.Interpolation=Image.INTERPOLATE_BILINEAR) -> Image:
 	if not image:
 		return filled_image( size, format, color )
 	soft_clean_image( image, format, size )

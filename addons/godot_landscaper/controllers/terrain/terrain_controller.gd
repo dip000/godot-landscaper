@@ -27,15 +27,6 @@ class_name GLControllerTerrain
 ## The terrain target reference
 @export var terrain:MeshInstance3D
 
-
-## Terrain color with left button mouse.
-## Use transparency to reveal the bottom layers.
-@export var primary_color:Color = GLandscaper.DEEP_OCEAN
-
-## Terrain color with right button mouse.
-## Use transparency to reveal the bottom layers.
-@export var secondary_color:Color = Color(GLandscaper.VERDIGIRS, 0)
-
 ## Paint blend value.
 ## Does not affect the color's alpha result.
 @export_range(0, 100, 1, "suffix:%") var paint_strenght:float = 50
@@ -47,6 +38,10 @@ class_name GLControllerTerrain
 @export_group("Primary Action", "primary_")
 ## Building behavior for the builder brush primary action
 @export var primary_build_behavior:GLBrushTerrainBuider.Behavior = GLBrushTerrainBuider.Behavior.BUILD
+
+## Terrain color with left button mouse.
+## Use transparency to reveal the bottom layers.
+@export var primary_color:Color = GLandscaper.DEEP_OCEAN
 
 ## Height behavior for the height brush primary action
 @export var primary_height_behavior:GLBrushTerrainHeight.Behavior = GLBrushTerrainHeight.Behavior.RAISE
@@ -62,6 +57,10 @@ class_name GLControllerTerrain
 @export_group("Secondary Action", "secondary_")
 ## Building behavior for the builder brush secondary action
 @export var secondary_build_behavior:GLBrushTerrainBuider.Behavior = GLBrushTerrainBuider.Behavior.ERASE
+
+## Terrain color with right button mouse.
+## Use transparency to reveal the bottom layers.
+@export var secondary_color:Color = Color(GLandscaper.DEEP_OCEAN, 0)
 
 ## Height behavior for the height brush secondary action
 @export var secondary_height_behavior:GLBrushTerrainHeight.Behavior = GLBrushTerrainHeight.Behavior.LOWER

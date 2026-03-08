@@ -8,6 +8,7 @@ class_name GLUILayers
 @onready var _holder:VBoxContainer = %Holder
 @onready var _add_layer:Button = %AddLayer
 @onready var _preview:TextureRect = %Preview
+@onready var _size:Label = %Size
 
 var _buttons:ButtonGroup = ButtonGroup.new()
 var _layers:Array[GLPaintLayer]
@@ -61,7 +62,7 @@ func reload_layers():
 		ui_layer.fill( layer )
 		ui_layer.active.button_group = _buttons
 		ui_layer.active.button_pressed = (i == current_index)
-		ui_layer.active.pressed.connect( _on_active_pressed.bind(layer) )
+		ui_layer.active.pressed.connect( update_texture.bind(layer) )
 		ui_layer.delete.pressed.connect( _on_delete_pressed.bind(layer) )
 		
 		# Color samplers with the same name with the same color
@@ -70,11 +71,13 @@ func reload_layers():
 		variations[layer.sampler] = variation
 	
 	if _layers:
-		_preview.texture = _layers[current_index].texture
+		update_texture( _layers[current_index] )
 
 
-func _on_active_pressed(layer:GLPaintLayer):
+func update_texture(layer:GLPaintLayer):
 	_preview.texture = layer.texture
+	if layer.texture:
+		_size.text = "%s x %s px" %[_preview.texture.get_width(), _preview.texture.get_height()]
 
 
 func _on_delete_pressed(layer:GLPaintLayer):

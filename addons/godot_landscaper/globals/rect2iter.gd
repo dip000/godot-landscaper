@@ -35,6 +35,18 @@ static func from(rect:Rect2i) -> GLRect2iter:
 	return GLRect2iter.new( rect.position, rect.size )
 
 
+## Shorthand for [member range] with rects in one dimension.
+## This is more performant than using [member from] in larger loops
+static func range_y(rect:Rect2i) -> PackedInt32Array:
+	return range(rect.position.y, rect.end.y)
+
+
+## Shorthand for [member range] with rects in one dimension.
+## This is more performant than using [member from] in larger loops
+static func range_x(rect:Rect2i) -> PackedInt32Array:
+	return range(rect.position.x, rect.end.x)
+
+
 func _iter_init(_iter):
 	_x = _position.x
 	_y = _position.y

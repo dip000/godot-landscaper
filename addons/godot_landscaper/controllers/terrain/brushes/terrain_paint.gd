@@ -35,19 +35,20 @@ func start(action:GLandscaper.Action, scan_data:GLScanData, controller:GLControl
 			behavior = controller.secondary_paint_behavior
 			color = controller.secondary_color
 	
-	# input layers (separated)
+	# input layers (individual)
 	var source:GLBuildDataTerrain = controller.source
+	var bounds:Rect2i = GLBrushTerrainBuider.get_bounding_box_from_mesh( controller.terrain )
 	target_layer = GLPaintLayer.get_active( controller.layers )
-	target_image = target_layer.get_image()
+	target_image = target_layer.get_image_resize( bounds.size )
 	
 	# output layers (composed)
 	source.layers = GLPaintLayer.compose_sampler_outputs( controller.layers )
 	composed_layer = GLPaintLayer.get_active( source.layers )
-	composed_image = composed_layer.get_image()
+	composed_image = composed_layer.get_image_resize( bounds.size )
 
 	# Brush
 	var texture_brush_size:Vector2i = target_layer.meters_to_pixels( Vector2.ONE * controller.brush_size )
-	paint_stencil = GLImageCleaner.hard_clean_image( paint_stencil, DEFAULT_FORMAT, paint_stencil.get_size() )
+	GLImageCleaner.soft_clean_image( paint_stencil, DEFAULT_FORMAT )
 	paint_stencil.resize( texture_brush_size.x, texture_brush_size.y )
 
 
@@ -88,29 +89,37 @@ func stroke_paint(paint_color:Color, paint_strenght:float, world_brush_rect:Rect
 	# Hey, there are pros of manual loops for image processing:
 	# - Full control, no workarounds
 	# - Terrain no longer needs alpha, like Image.blend_rect_mask(..) does
-	for paint_position in GLRect2iter.from( paint_rect ):
-		var pixel:Vector2i = paint_position
-		if behavior == Behavior.TEXTURE_TILING:
-			pixel.x = wrapi( pixel.x, 0, texture_brush_rect.size.x )
-			pixel.y = wrapi( pixel.y, 0, texture_brush_rect.size.y )
-		else:
-			pixel -= texture_brush_rect.position
+	for y in GLRect2iter.range_y(paint_rect):
+		for x in GLRect2iter.range_x(paint_rect):
+			var paint_position:Vector2i = Vector2i(x,y)
+			var pixel:Vector2i = paint_position
+			
+			if behavior == Behavior.TEXTURE_TILING:
+				pixel.x = wrapi( pixel.x, 0, texture_brush_rect.size.x )
+				pixel.y = wrapi( pixel.y, 0, texture_brush_rect.size.y )
+			else:
+				pixel -= texture_brush_rect.position
+			
+			var shape:Color = paint_stencil.get_pixelv( pixel )
+			var blend_factor:float = shape.a * paint_strenght
+			shape.a = 1.0
+			
+			if blend_factor <= 0.0:
+				continue
+			
+			var inv_blend_factor:float = 1.0 - blend_factor
+			var blend_mult:Color = blend_factor * (paint_color * shape)
+			
+			# Current layer image that actually get saved
+			var target_color:Color = target_image.get_pixelv( paint_position )
+			var blend_result:Color = blend_mult + inv_blend_factor * target_color
+			target_image.set_pixelv( paint_position, blend_result )
+			
+			# Preview composed image to show while painting
+			target_color = composed_image.get_pixelv( paint_position )
+			blend_result = blend_mult + inv_blend_factor * target_color
+			composed_image.set_pixelv( paint_position, blend_result )
 		
-		var shape:Color = paint_stencil.get_pixelv( pixel )
-		var blend_factor:float = shape.a * paint_strenght
-		shape.a = 1.0
-		
-		# Current layer image that actually get saved
-		var shape_color:Color = paint_color * shape
-		var target_color:Color = target_image.get_pixelv( paint_position )
-		var blend_result:Color = blend_factor * shape_color + (1 - blend_factor) * target_color
-		target_image.set_pixelv( paint_position, blend_result )
-		
-		# Preview composed image to show while painting
-		target_color = composed_image.get_pixelv( paint_position )
-		blend_result = blend_factor * shape_color + (1 - blend_factor) * target_color
-		composed_image.set_pixelv( paint_position, blend_result )
-	
 	target_layer.update_image( target_image )
 	composed_layer.update_image( composed_image )
 

@@ -36,7 +36,7 @@ enum SizeMode {
 @export var size_mode:SizeMode = SizeMode.CROP_AND_EXPAND
 
 ## If [member size_mode] is [member SizeMode.CROP_AND_EXPAND]. The texture's pixel density in pixels per meter.
-@export_range(1.0, 1024, 1.0, "or_greater", "exp", "suffix:pixels/meter") var texel_size:float = 64
+@export_range(1.0, 1024, 1.0, "or_greater", "exp", "suffix:pixels/meter") var texel_size:float = 32
 
 ## If [member size_mode] is [member SizeMode.ABSOLUTE]. The absolute size of the texture
 @export var absolute_size:Vector2i = Vector2i(1024, 1024)
@@ -95,20 +95,28 @@ func overlay_with(other_layer:GLPaintLayer):
 
 
 func get_image() -> Image:
-	#var size:Vector2i = absolute_size if size_mode == SizeMode.ABSOLUTE else texture.get_size()
 	var image:Image = texture.get_image()
-	GLImageCleaner.soft_clean_image( image, DEFAULT_FORMAT, texture.get_size() )
+	GLImageCleaner.soft_clean_image( image, DEFAULT_FORMAT )
+	return image
+
+
+func get_image_resize(world_size:Vector2i) -> Image:
+	var image:Image = texture.get_image()
+	var relative_size:Vector2i = meters_to_pixels( world_size )
+	var current_size:Vector2i = image.get_size()
+	
+	if size_mode == SizeMode.ABSOLUTE and current_size != absolute_size:
+		image.resize( absolute_size.x, absolute_size.y )
+		texture.set_image( image )
+	elif size_mode == SizeMode.CROP_AND_EXPAND and current_size != relative_size:
+		image.resize( relative_size.x, relative_size.y )
+		texture.set_image( image )
+	
 	return image
 
 
 func update_image(image:Image):
 	texture.update( image )
-
-
-func resize(new_size:Vector2i):
-	var image:Image = texture.get_image()
-	image.resize( new_size.x, new_size.y )
-	texture.set_image( image )
 
 
 ## Crops or expands the texture to fit the new_rect.

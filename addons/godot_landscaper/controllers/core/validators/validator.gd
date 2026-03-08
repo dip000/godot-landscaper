@@ -24,7 +24,7 @@ static func validate_initialization(validator:GLValidator) -> bool:
 		GLDebug.error("Inizialization failed: Validator is null. Assign it correctly in _setup_controller() and restart this scene")
 		return false
 	if not validator._controller:
-		GLDebug.error("Inizialization failed: Controller '%s' is not a GLControllerTerrain instance. Assign it correctly in _setup_controller() and restart this scene" %validator._controller.name)
+		GLDebug.error("Inizialization failed: Controller is null. Assign it correctly in _setup_controller() and restart this scene")
 		return false
 	if not validator._controller.brushes:
 		GLDebug.error("Inizialization failed: There's no brushes in _controller '%s'. Make sure to set at least one on _setup_controller() and restart this scene" %validator._controller.name)

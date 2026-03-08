@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://qhm0s81idrol"
-path="res://.godot/imported/icon.png-106bbf126951c50394072e3bf84a181b.ctex"
+uid="uid://b3vegq2ghgns0"
+path="res://.godot/imported/icon_clean.png-91fa420a6f20ea0d5f09741a482dd060.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/godot_landscaper/icon.png"
-dest_files=["res://.godot/imported/icon.png-106bbf126951c50394072e3bf84a181b.ctex"]
+source_file="res://addons/godot_landscaper/icon_clean.png"
+dest_files=["res://.godot/imported/icon_clean.png-91fa420a6f20ea0d5f09741a482dd060.ctex"]
 
 [params]
 
