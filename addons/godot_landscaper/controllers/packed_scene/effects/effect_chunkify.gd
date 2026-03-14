@@ -7,7 +7,13 @@ class_name GLSceneChunkify
 	set(v): chunk_size = max(1, v)
 
 ## The chunks holder.
-@export var root_parent_path:NodePath = "."
+@export var root_node:NodePath = "."
+
+## Creates all [Node3D] in path if they don't exists.
+## This let's you organize the scene as you like.[br]
+## - [code]{x}[/code] Will be replaced for the X coordinate of the world chunk.[br]
+## - [code]{y}[/code] Will be replaced for the Y coordinate of the world chunk.
+@export var root_to_instance:String = "Chunk_{x}_{y}/Scenes"
 
 @export_group("Visibility Range LoD")
 @export_custom(PROPERTY_HINT_GROUP_ENABLE, "Visibility Range LoD", PROPERTY_USAGE_EDITOR) var enable_lod:bool = false
@@ -24,7 +30,7 @@ func _apply(controller:GLController) -> bool:
 		return false
 	
 	controller = controller as GLControllerPackedScene
-	var root_parent:Node = controller.get_node_or_null( root_parent_path )
+	var root_parent:Node = controller.get_node_or_null( root_node )
 	
 	if not root_parent:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
@@ -43,9 +49,13 @@ func _apply(controller:GLController) -> bool:
 		var h_pos:Vector2 = Vector2( transform.origin.x, transform.origin.z )
 		var chunk:Vector2i = ( h_pos/float(chunk_size) ).floor()
 		
-		var chunk_holder:Node = GLSceneManager.find_or_create_node( Node3D, root_parent, _format_chunk(chunk) )
-		var type_holder:Node = GLSceneManager.find_or_create_node( Node3D, chunk_holder, "Instances" )
-		type_holder.add_child( instance )
+		# Find or create all folder nodes. The MMI is not part of root_to_instance
+		var last_parent:Node = root_parent
+		var root_to_instance_formated:String = root_to_instance.format( {x=chunk.x, y=chunk.y} )
+		for node_name in root_to_instance_formated.split( "/" ):
+			last_parent = GLSceneManager.find_or_create_node( Node3D, last_parent, node_name )
+		
+		last_parent.add_child( instance )
 		instance.name = original_name
 		instance.global_transform = transform
 		instance.owner = root
@@ -53,14 +63,14 @@ func _apply(controller:GLController) -> bool:
 		
 		if enable_lod:
 			var lod_ables:Array[Node] = instance.find_children( "*", "GeometryInstance3D", true, true )
-			type_holder.set_editable_instance( instance, true )
+			last_parent.set_editable_instance( instance, true )
 			instance.set_display_folded( true )
 			for lod_able in lod_ables:
 				lod_able = lod_able as GeometryInstance3D
 				lod_able.visibility_range_end = custom_lod_meters
 				lod_able.visibility_range_end_margin = end_margin
 		
-		type_holder.set_display_folded( true )
+		last_parent.set_display_folded( true )
 		await _100_index(i)
 	
 	for instance in holder.get_children():
@@ -80,33 +90,25 @@ func _clear(controller:GLController) -> bool:
 		return false
 
 	controller = controller as GLControllerPackedScene
-	var root_parent:Node = controller.get_node_or_null( root_parent_path )
+	var root_parent:Node = controller.get_node_or_null( root_node )
 	
 	if not root_parent:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
 		return false
 	
-	for chunk in root_parent.get_children():
-		var type_holder:Node = chunk.get_node_or_null("Instances")
-		if not type_holder:
-			continue
-		
-		for instance in type_holder.get_children():
-			var meta_controller:String = instance.get_meta(GLBuilderPackedScene.META_CONTROLLER, "")
-			if meta_controller == controller.name:
-				instance.free()
-		
-		# Clean up empty Instances "folder" (all controllers store in the same folder)
-		if type_holder.get_child_count() <= 0:
-			type_holder.free()
-	
-	for node in root_parent.get_children():
-		var is_chunk_parent:bool = node.name.begins_with( "Chunk" )
-		var is_empty:bool = (node.get_child_count() <= 0)
-		if is_chunk_parent and is_empty:
-			node.queue_free()
-	
+	delete_children( root_parent, controller.holder )
 	return true
+
+
+func delete_children(parent:Node, source_holder:Node):
+	if parent == source_holder:
+		return
+	for node in parent.get_children():
+		if node.get_meta( GLBuilderPackedScene.META_CONTROLLER, "" ) == source_holder.name:
+			node.queue_free()
+		else:
+			delete_children( node, source_holder )
+
 
 
 

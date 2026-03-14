@@ -9,6 +9,12 @@ class_name GLTerrainChunkify
 ## The chunks holder.
 @export var root_parent_path:NodePath = "."
 
+## Creates all [Node3D] in path if they don't exists.
+## This let's you organize the scene as you like.[br]
+## - [code]{x}[/code] Will be replaced for the X coordinate of the world chunk.[br]
+## - [code]{y}[/code] Will be replaced for the Y coordinate of the world chunk.
+@export var root_to_instance:String = "Chunk_{x}_{y}/Terrains"
+
 
 func _apply(controller:GLController) -> bool:
 	if not controller is GLControllerTerrain:
@@ -22,6 +28,11 @@ func _apply(controller:GLController) -> bool:
 	
 	if not root_parent:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
+		return false
+		
+	root_to_instance = root_to_instance.simplify_path()
+	if not root_to_instance.contains("{x}") or not root_to_instance.contains("{y}"):
+		GLDebug.error("Chunkifying failed: root_to_instance does not contain '{x}' or '{y}'. Please add the placeholder text required")
 		return false
 	
 	var vertex_colors_map:Dictionary[Vector2i, PackedColorArray] = processed.vertex_colors_map
@@ -60,17 +71,21 @@ func _apply(controller:GLController) -> bool:
 	# Build terrain chunks
 	for chunk in chunks:
 		var chunk_data:GLBuildDataTerrain = chunks[chunk]
-		var chunk_folder:Node = GLSceneManager.find_or_create_node( Node, root_parent, _format_chunk(chunk) )
-		var chunk_terrain:MeshInstance3D = GLSceneManager.find_or_create_node( MeshInstance3D, chunk_folder, original_terrain.name )
+		
+		# Find or create all folder nodes. The terrain is not part of root_to_instance
+		var last_parent:Node = root_parent
+		var root_to_instance_formated:String = root_to_instance.format( {x=chunk.x, y=chunk.y} )
+		for node_name in root_to_instance_formated.split( "/" ):
+			last_parent = GLSceneManager.find_or_create_node( Node3D, last_parent, node_name )
+		
+		var chunk_terrain:MeshInstance3D = GLSceneManager.find_or_create_node( MeshInstance3D, last_parent, original_terrain.name )
+		
+		# Copy the same properties
+		for property in original_terrain.get_property_list():
+			chunk_terrain.set( property.name, original_terrain.get(property.name) )
 		
 		# Move to its center, the builder makes sure it builds around its center
 		chunk_terrain.global_position = chunk_data.min + (chunk_data.max - chunk_data.min) / 2.0
-		
-		# Same material with the same texture, and new mesh
-		chunk_terrain.material_override = original_terrain.material_override
-		chunk_terrain.visibility_range_end = original_terrain.visibility_range_end
-		chunk_terrain.visibility_range_end_margin = original_terrain.visibility_range_end_margin
-		chunk_terrain.lod_bias = original_terrain.lod_bias
 		chunk_terrain.mesh = ArrayMesh.new()
 		
 		# Fill with the source layers since it is the same UV mapping
@@ -101,18 +116,13 @@ func _clear(controller:GLController) -> bool:
 		return false
 	
 	original_terrain.show()
-	
-	# Delete MultiMeshInstance3D chunk by name if it's inside
-	for chunk in root_parent.get_children():
-		for node in chunk.get_children():
-			if node is MeshInstance3D and node.name == original_terrain.name:
-				node.free()
-	
-	# Clean up empty "folders"
-	for node in root_parent.get_children():
-		var is_chunk_parent:bool = node.name.begins_with( "Chunk" )
-		var is_empty:bool = (node.get_child_count() <= 0)
-		if is_chunk_parent and is_empty:
-			node.queue_free()
-	
+	delete_children( root_parent, original_terrain )
 	return true
+	
+
+func delete_children(parent:Node, original:MeshInstance3D):
+	for node in parent.get_children():
+		if node is MeshInstance3D and node.name == original.name and node != original:
+			node.queue_free()
+		else:
+			delete_children( node, original )

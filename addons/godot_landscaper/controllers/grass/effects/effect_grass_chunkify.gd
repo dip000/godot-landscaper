@@ -10,8 +10,14 @@ class_name GLGrassChunkify
 @export var chunk_size:int = 32:
 	set(v): chunk_size = max(1, v)
 
-## The chunks holder.
-@export var root_parent_path:NodePath = "."
+## The chunks holder root. Can be the scene root
+@export var root_node:NodePath = "."
+
+## Creates all [Node3D] in path if they don't exists.
+## This let's you organize the scene as you like.[br]
+## - [code]{x}[/code] Will be replaced for the X coordinate of the world chunk.[br]
+## - [code]{y}[/code] Will be replaced for the Y coordinate of the world chunk.
+@export var root_to_instance:String = "Chunk_{x}_{y}/Grass"
 
 
 func _apply(controller:GLController) -> bool:
@@ -22,11 +28,16 @@ func _apply(controller:GLController) -> bool:
 	if not _clear( controller ):
 		GLDebug.error("Chunkifying failed: Clearing chunks failed")
 		return false
-		
+	
+	root_to_instance = root_to_instance.simplify_path()
+	if not root_to_instance.contains("{x}") or not root_to_instance.contains("{y}"):
+		GLDebug.error("Chunkifying failed: root_to_instance does not contain '{x}' or '{y}'. Please add the placeholder text required")
+		return false
+	
 	controller = controller as GLControllerGrass
 	var processed:GLBuildDataGrass = controller.processed
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var root_parent:Node = controller.get_node_or_null( root_parent_path )
+	var root_parent:Node = controller.get_node_or_null( root_node )
 	
 	if not root_parent:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
@@ -91,23 +102,21 @@ func _apply(controller:GLController) -> bool:
 			# Return to global; (possible) negative chunks
 			var global_chunk:Vector2i = Vector2i( row_index, col_index ) + lower_chunk
 			
-			# Place instance inside a chunk folder
-			var chunk_name:String = _format_chunk( global_chunk )
-			var parent:Node
-			if root_parent.has_node( chunk_name ):
-				parent = root_parent.get_node( chunk_name )
-			else:
-				parent = GLSceneManager.create_node( Node3D, root_parent, chunk_name )
-				var position:Vector2i = global_chunk * chunk_size - Vector2i(chunk_size*0.5, chunk_size*0.5)
-				parent.global_position = Vector3( position.x, 0, position.y )
+			# Find or create all folder nodes. The MMI is not part of root_to_instance
+			var last_parent:Node = root_parent
+			var root_to_instance_formated:String = root_to_instance.format( {x=global_chunk.x, y=global_chunk.y} )
+			for node_name in root_to_instance_formated.split( "/" ):
+				last_parent = GLSceneManager.find_or_create_node( Node3D, last_parent, node_name )
 			
-			# Place individual multimeshes in their global center position
 			# Find center of the individual chunk instances (not to confuse with center of chunk)
 			var local_min:Vector3 = chunk.min
 			var local_max:Vector3 = chunk.max
 			var local_center:Vector3 = local_min + 0.5*(local_max - local_min)
-			var instance_mmi:MultiMeshInstance3D = GLSceneManager.find_or_create_node( MultiMeshInstance3D, parent, original_mmi.name )
-			instance_mmi.global_position = local_center
+			var instance_mmi:MultiMeshInstance3D = GLSceneManager.find_or_create_node( MultiMeshInstance3D, last_parent, original_mmi.name )
+			
+			# Copy the same properties
+			for property in original_mmi.get_property_list():
+				instance_mmi.set( property.name, original_mmi.get(property.name) )
 			
 			# Setup MultiMesh
 			var instance_mm:MultiMesh = MultiMesh.new()
@@ -119,15 +128,9 @@ func _apply(controller:GLController) -> bool:
 			if original_mm.visible_instance_count >= 0:
 				instance_mm.visible_instance_count = instance_mm.instance_count * original_ratio
 			
+			# Set unique properties
 			instance_mmi.multimesh = instance_mm
-			instance_mmi["instance_shader_parameters/texture_layer"] = original_mmi["instance_shader_parameters/texture_layer"]
-			instance_mmi.visibility_range_end = original_mmi.visibility_range_end
-			instance_mmi.visibility_range_end_margin = original_mmi.visibility_range_end_margin
-			instance_mmi.visibility_range_begin_margin = original_mmi.visibility_range_begin_margin
-			instance_mmi.visibility_range_begin_margin = original_mmi.visibility_range_begin_margin
-			instance_mmi.visibility_range_begin = original_mmi.visibility_range_begin
-			instance_mmi.visibility_range_fade_mode = original_mmi.visibility_range_fade_mode
-			
+			instance_mmi.global_position = local_center
 			GLDebug.spam("Chunk[%s, %s] -> min=%s, max=%s, count=%s" %[row_index, col_index, local_min, local_max, instance_mm.instance_count])
 			
 			# Move the instance data from the original_mmi to the chunked instance_mmi
@@ -160,26 +163,29 @@ func _clear(controller:GLController) -> bool:
 		
 	controller = controller as GLControllerGrass
 	var original_mmi:MultiMeshInstance3D = controller.multimesh_instance
-	var root_parent:Node = controller.get_node_or_null( root_parent_path )
+	var root_parent:Node = controller.get_node_or_null( root_node )
 	
 	if not root_parent:
 		GLDebug.error("Root parent path '%s' is invalid. Select a valid Node")
 		return false
 	
 	original_mmi.show()
-	
-	# Delete MultiMeshInstance3D chunk by name if it's inside
-	for chunk in root_parent.get_children():
-		for node in chunk.get_children():
-			if node is MultiMeshInstance3D and node.name == original_mmi.name:
-				node.free()
-	
-	# Clean up empty "folders"
-	for node in root_parent.get_children():
-		var is_chunk_parent:bool = node.name.begins_with( "Chunk" )
-		var is_empty:bool = (node.get_child_count() <= 0)
-		if is_chunk_parent and is_empty:
-			node.queue_free()
-	
+	delete_children( root_parent, original_mmi )
 	return true
+	
+
+func delete_children(parent:Node, original:Node):
+	for node in parent.get_children():
+		if node is MultiMeshInstance3D and node.name == original.name and not node == original:
+			node.queue_free()
+		else:
+			delete_children( node, original )
+
+
+
+
+
+
+
+
 	
