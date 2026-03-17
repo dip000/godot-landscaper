@@ -88,44 +88,49 @@ func _blend():
 	
 	GLImageCleaner.soft_clean_image( img_reference, DEFAULT_FORMAT, size_reference )
 	
-	for paint_position in GLRect2iter.new( Vector2i.ZERO, size_reference ):
-		# Transform (from center)
-		var uv:Vector2 = paint_position
-		if enable_transforms:
-			uv += Vector2(slide)
-		
-		# Effects
-		if enable_distortion:
-			uv.x += distortion.get_pixelv( paint_position ).r * distortion_factor
-			uv.y += distortion.get_pixelv( paint_position ).r * distortion_factor
-		
-		# Repeat by default
-		uv.x = wrapi( uv.x, 0, size_reference.x )
-		uv.y = wrapi( uv.y, 0, size_reference.y )
-		
-		var color:Color = img_reference.get_pixelv( uv )
-		
-		if enable_threshold:
-			var lum:float = color.get_luminance()
-			var threshold:float = smoothstep( min_threshold, max_threshold, lum )
-			color *= threshold
-		
-		if enable_masking:
-			var mask_color:Color = mask_image.get_pixelv( paint_position )
-			color *= mask_color
-		
-		if enable_whitening:
-			color.r = lerpf( color.r, 1.0, whitening_factor )
-			color.g = lerpf( color.g, 1.0, whitening_factor )
-			color.b = lerpf( color.b, 1.0, whitening_factor )
-		
-		img_reference.set_pixelv( paint_position, color )
-		
-		# Handle timeouts
-		var time:int = Time.get_ticks_msec() - start_msec
-		if time >= timeout:
-			GLDebug.error("Timed out!")
-			break
+	for x in size_reference.x:
+		for y in size_reference.y:
+			
+			# Input
+			var paint_position:Vector2i = Vector2i( x, y )
+			
+			# Transform
+			var uv:Vector2 = paint_position
+			if enable_transforms:
+				uv += Vector2(slide)
+			
+			# Distortion
+			if enable_distortion:
+				uv.x += distortion.get_pixelv( paint_position ).r * distortion_factor
+				uv.y += distortion.get_pixelv( paint_position ).r * distortion_factor
+			
+			# Repeat by default
+			uv.x = wrapi( uv.x, 0, size_reference.x )
+			uv.y = wrapi( uv.y, 0, size_reference.y )
+			
+			var color:Color = img_reference.get_pixelv( uv )
+			
+			if enable_threshold:
+				var lum:float = color.get_luminance()
+				var threshold:float = smoothstep( min_threshold, max_threshold, lum )
+				color *= threshold
+			
+			if enable_masking:
+				var mask_color:Color = mask_image.get_pixelv( paint_position )
+				color *= mask_color
+			
+			if enable_whitening:
+				color.r = lerpf( color.r, 1.0, whitening_factor )
+				color.g = lerpf( color.g, 1.0, whitening_factor )
+				color.b = lerpf( color.b, 1.0, whitening_factor )
+			
+			img_reference.set_pixelv( paint_position, color )
+			
+			# Handle timeouts
+			var time:int = Time.get_ticks_msec() - start_msec
+			if time >= timeout:
+				GLDebug.error("Stencil Mixer Failed: Timed out. Set 'timeout_sec' to a greater value")
+				break
 	
 	if output:
 		output.set_image( img_reference )

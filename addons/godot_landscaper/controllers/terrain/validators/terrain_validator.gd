@@ -91,7 +91,7 @@ func _initialize_resources() -> bool:
 	if not _controller.source:
 		_controller.source = GLBuildDataTerrain.new()
 	if not _controller.source.material:
-		_controller.source.material = ShaderMaterial.new()
+		_controller.source.material = GLAssetsManager.load_controller_resource("terrain", "material.tres").duplicate( true )
 	if not _controller.source.shader:
 		_controller.source.shader = GLAssetsManager.load_controller_resource("terrain", "terrain_shader.gdshader")
 	if not _controller.layers:

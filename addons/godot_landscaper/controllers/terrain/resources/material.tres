@@ -1,7 +1,9 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://dv0l7x5rgt4e8"]
 
 [ext_resource type="Shader" uid="uid://dblstk6bs53sr" path="res://addons/godot_landscaper/controllers/terrain/resources/terrain_shader.gdshader" id="1_vhmr3"]
+[ext_resource type="Texture2D" uid="uid://rwf7x0st0av6" path="res://addons/godot_landscaper/controllers/terrain/resources/grass.tres" id="2_knfsx"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_vhmr3")
+shader_parameter/base_tiles = ExtResource("2_knfsx")

@@ -13,12 +13,19 @@ specular_occlusion_disabled, specular_disabled; // For shine effects. Remove if 
 #include "uid://b3gsadcnam4l0" //light
 
 uniform sampler2D base_tiles;
-uniform sampler2D terrain_texture;
+uniform sampler2D terrain_texture:hint_default_transparent;
+
+varying vec2 world_position;
+
+
+void vertex(){
+	world_position = VERTEX.xz;
+}
 
 
 void fragment() {
-	// Small, tiled high resolution texture
-	vec3 base = texture(base_tiles, UV*10.0).rgb;
+	// Small, tiled, consistent, high resolution texture
+	vec3 base = texture(base_tiles, world_position * 0.2).rgb;
 	
 	// Full size, lower resolution details over the tiles (alpha blend)
 	vec4 terrain = texture(terrain_texture, UV);
